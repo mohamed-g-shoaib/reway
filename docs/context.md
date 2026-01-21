@@ -44,3 +44,6 @@ benefit: stable UI rendering across server/client and cleaner browser storage by
 
 feature number #15: Implement production-grade Supabase schema with RLS and automatic profile syncing
 benefit: secure multi-tenant architecture where user data is private by default at the database level, with automated profile creation and full TypeScript safety for all database operations
+
+feature number #16: Implement Metadata Scraper and Bookmark Creation Flow
+benefit: users can save any link instantly by pasting it into the Command Bar; titles, favicons, and metadata are automatically extracted on the server for a premium, effortless experience
