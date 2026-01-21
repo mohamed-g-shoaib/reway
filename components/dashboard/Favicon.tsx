@@ -39,7 +39,7 @@ export function Favicon({ url, domain, title, isEnriching }: FaviconProps) {
 
   return (
     <div
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all overflow-hidden ${
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-all overflow-hidden ${
         isEnriching
           ? "animate-pulse bg-muted/30 border-muted/50"
           : imageError

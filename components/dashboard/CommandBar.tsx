@@ -150,7 +150,7 @@ export function CommandBar({
     >
       <form
         onSubmit={handleSubmit}
-        className={`group flex items-center gap-3 rounded-2xl border bg-background px-4 py-3.5 transition-all duration-300 ${
+        className={`group flex items-center gap-3 rounded-2xl border bg-background px-4 py-2 transition-all duration-300 ${
           isFocused
             ? "border-primary/50 ring-8 ring-primary/5 shadow-2xl"
             : "border-border shadow-sm hover:border-border/80"
@@ -174,9 +174,9 @@ export function CommandBar({
                 variant="ghost"
                 size="icon"
                 onClick={handlePlusClick}
-                className="h-9 w-9 shrink-0 rounded-xl text-muted-foreground/40 transition-all hover:bg-muted hover:text-primary active:scale-90"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/40 transition-all hover:bg-muted hover:text-primary active:scale-90"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent className="rounded-lg font-medium">
@@ -186,7 +186,7 @@ export function CommandBar({
         </TooltipProvider>
 
         <Search
-          className={`h-5 w-5 shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/20"}`}
+          className={`h-4 w-4 shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/20"}`}
         />
 
         <input
@@ -195,7 +195,7 @@ export function CommandBar({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Insert a link, image, or just search..."
-          className="flex-1 bg-transparent text-lg font-medium outline-none placeholder:text-muted-foreground/30 selection:bg-primary/20 disabled:opacity-50"
+          className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/30 selection:bg-primary/20 disabled:opacity-50"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />

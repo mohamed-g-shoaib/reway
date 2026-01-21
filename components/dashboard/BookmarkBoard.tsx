@@ -111,7 +111,7 @@ export function BookmarkBoard({
   }
 
   return (
-    <div className="mt-8 w-full">
+    <div className="mt-4 w-full">
       <div className="flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
         <span>Title</span>
         <span>Created At</span>

@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ModeToggle } from "@/components/mode-toggle";
 import { signOut } from "@/app/dashboard/actions";
 import { SettingsDialog } from "./SettingsDialog";
 
@@ -36,7 +35,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
     .slice(0, 2);
 
   return (
-    <nav className="border-b bg-background/50 backdrop-blur-md sticky top-0 z-40">
+    <nav className="bg-background/50 backdrop-blur-md sticky top-0 z-40">
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
         <div className="flex items-center gap-2">
           {/* User Profile & Global Settings Dropdown */}
@@ -135,12 +134,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
           </DropdownMenu>
         </div>
 
-        <div className="flex items-center gap-3">
-          <ModeToggle />
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/30 text-[10px] font-bold tracking-widest text-muted-foreground/60 uppercase border border-border/5">
-            v1.0.0-beta
-          </div>
-        </div>
+        <div className="flex items-center gap-3"></div>
       </div>
     </nav>
   );

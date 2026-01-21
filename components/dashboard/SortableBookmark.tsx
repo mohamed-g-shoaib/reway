@@ -53,7 +53,7 @@ export function SortableBookmark({
       style={style}
       {...attributes}
       {...listeners}
-      className={`group relative flex items-center justify-between rounded-2xl px-4 py-4 transition-all duration-200 hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing ${
+      className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing ${
         isDragging
           ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
           : ""
@@ -73,7 +73,7 @@ export function SortableBookmark({
         {/* Text Content */}
         <div className="flex min-w-0 flex-col gap-0.5 w-fit">
           <span
-            className={`w-fit max-w-full truncate text-sm font-bold transition-all cursor-pointer md:text-base ${
+            className={`w-fit max-w-full truncate text-sm font-bold transition-all cursor-pointer ${
               bookmark.is_enriching
                 ? "text-muted-foreground/30 animate-pulse bg-muted/20 rounded-md px-2 -ml-2"
                 : "text-foreground group-hover:text-primary"

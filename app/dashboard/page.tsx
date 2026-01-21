@@ -22,7 +22,7 @@ export default async function DashboardPage() {
       <DashboardNav user={user} />
 
       {/* Main Content - Global width container */}
-      <main className="mx-auto w-full max-w-3xl px-4 py-8 md:py-16">
+      <main className="mx-auto w-full max-w-3xl px-4 py-4 md:py-8">
         <DashboardContent initialBookmarks={bookmarks} initialGroups={groups} />
       </main>
 
