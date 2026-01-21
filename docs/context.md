@@ -41,3 +41,6 @@ benefit: personalized experience with real Google avatars/names and a centralize
 
 feature number #14: Resolve DnD hydration errors and fix auth token Verifier conflicts
 benefit: stable UI rendering across server/client and cleaner browser storage by eliminating legacy Supabase verifier cookies
+
+feature number #15: Implement production-grade Supabase schema with RLS and automatic profile syncing
+benefit: secure multi-tenant architecture where user data is private by default at the database level, with automated profile creation and full TypeScript safety for all database operations
