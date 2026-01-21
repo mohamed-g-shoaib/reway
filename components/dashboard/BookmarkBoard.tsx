@@ -23,6 +23,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { Bookmark } from "@/types/dashboard";
 import { SortableBookmark } from "./SortableBookmark";
 import { createPortal } from "react-dom";
+import { Bookmark as BookmarkIcon } from "lucide-react";
 
 const MOCK_BOOKMARKS: Record<string, Bookmark[]> = {
   all: [
@@ -51,6 +52,14 @@ const MOCK_BOOKMARKS: Record<string, Bookmark[]> = {
       createdAt: "Jan 6",
       groupId: "all",
     },
+    {
+      id: "4",
+      title: "Zaid (@zaidmukaddam) on X",
+      domain: "x.com",
+      favicon: "https://www.google.com/s2/favicons?domain=x.com&sz=64",
+      createdAt: "Jan 6",
+      groupId: "all",
+    },
   ],
 };
 
@@ -61,7 +70,7 @@ export function BookmarkBoard() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // Prevent accidental drags
+        distance: 8, // Increased distance to distinguish between click and drag
       },
     }),
     useSensor(KeyboardSensor, {
@@ -70,6 +79,9 @@ export function BookmarkBoard() {
   );
 
   const currentBookmarks = data["all"];
+  const activeBookmark = activeId
+    ? currentBookmarks.find((b) => b.id === activeId)
+    : null;
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string);
@@ -95,7 +107,7 @@ export function BookmarkBoard() {
 
   return (
     <div className="mx-auto mt-8 w-full max-w-4xl px-4 md:px-0">
-      <div className="flex items-center justify-between border-b pb-4 text-[10px] font-bold tracking-widest text-muted-foreground/60 uppercase">
+      <div className="flex items-center justify-between px-4 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
         <span>Title</span>
         <span>Created At</span>
       </div>
@@ -111,14 +123,13 @@ export function BookmarkBoard() {
           items={currentBookmarks.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1">
             {currentBookmarks.map((bookmark) => (
               <SortableBookmark key={bookmark.id} bookmark={bookmark} />
             ))}
           </div>
         </SortableContext>
 
-        {/* Drag Overlay for that premium snappy look */}
         {typeof document !== "undefined" &&
           createPortal(
             <DragOverlay
@@ -132,15 +143,33 @@ export function BookmarkBoard() {
                 }),
               }}
             >
-              {activeId ? (
-                <div className="flex items-center justify-between border-b border-border/40 bg-background px-4 py-4 shadow-2xl rounded-xl ring-2 ring-primary/20 scale-[1.02]">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg border bg-background shadow-sm" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="truncate text-sm font-semibold">
-                        {currentBookmarks.find((b) => b.id === activeId)?.title}
+              {activeBookmark ? (
+                <div className="flex items-center justify-between rounded-xl bg-background/95 border border-primary/20 px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-md scale-[1.02] ring-1 ring-primary/5">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm">
+                      {activeBookmark.favicon ? (
+                        <img
+                          src={activeBookmark.favicon}
+                          alt=""
+                          className="h-6 w-6 rounded-sm object-contain"
+                        />
+                      ) : (
+                        <BookmarkIcon className="h-5 w-5 text-muted-foreground/60" />
+                      )}
+                    </div>
+                    <div className="flex min-w-0 flex-col gap-0.5">
+                      <span className="truncate text-sm font-bold text-foreground">
+                        {activeBookmark.title}
+                      </span>
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {activeBookmark.domain}
                       </span>
                     </div>
+                  </div>
+                  <div className="flex shrink-0 items-center pl-6">
+                    <span className="text-sm font-medium text-muted-foreground/50">
+                      {activeBookmark.createdAt}
+                    </span>
                   </div>
                 </div>
               ) : null}
