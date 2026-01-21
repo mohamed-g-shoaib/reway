@@ -1,4 +1,3 @@
-import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { getUser } from "./layout";
@@ -18,12 +17,13 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <DashboardNav user={user} />
-
-      {/* Main Content - Global width container */}
+      {/* Main Content - No longer has Nav here, it moved inside DashboardContent */}
       <main className="mx-auto w-full max-w-3xl px-4 py-4 md:py-8">
-        <DashboardContent initialBookmarks={bookmarks} initialGroups={groups} />
+        <DashboardContent
+          user={user}
+          initialBookmarks={bookmarks}
+          initialGroups={groups}
+        />
       </main>
 
       <MobileNav />
