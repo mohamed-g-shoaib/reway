@@ -2,7 +2,7 @@
 
 import { Add01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -10,7 +10,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { addBookmark, enrichBookmark } from "@/app/dashboard/actions"; // Added enrichBookmark
+import {
+  addBookmark,
+  enrichBookmark,
+  extractLinks,
+} from "@/app/dashboard/actions";
 import { BookmarkRow } from "@/lib/supabase/queries";
 
 interface CommandBarProps {
@@ -28,33 +32,8 @@ export function CommandBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Focus on Cmd+F or Ctrl+F
-      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
-        e.preventDefault();
-        inputRef.current?.focus();
-      }
-      // Blur on Escape
-      if (e.key === "Escape") {
-        inputRef.current?.blur();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   const handlePlusClick = () => {
     fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log("File selected:", file.name);
-      // Implementation for image upload would go here
-    }
   };
 
   const isUrl = (string: string) => {
@@ -66,80 +45,148 @@ export function CommandBar({
     }
   };
 
+  const processUrls = useCallback(
+    async (urls: string[]) => {
+      // Process each URL
+      for (const rawUrl of urls) {
+        const url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+        const tempId = `temp-${Date.now()}-${Math.random()}`;
+
+        // Optimistic UI
+        const optimisticBookmark: BookmarkRow = {
+          id: tempId,
+          url: url,
+          title: url,
+          favicon_url: null,
+          description: null,
+          group_id: null,
+          user_id: "",
+          created_at: new Date().toISOString(),
+          order_index: null,
+          is_enriching: true,
+        };
+
+        onAddBookmark(optimisticBookmark);
+
+        try {
+          const bookmarkId = await addBookmark({ url, is_enriching: true });
+          onUpdateBookmark(tempId, { id: bookmarkId });
+
+          fetch(`/api/metadata?url=${encodeURIComponent(url)}`)
+            .then((res) => res.json())
+            .then((metadata) => {
+              if (metadata && !metadata.error) {
+                enrichBookmark(bookmarkId, {
+                  title: metadata.title,
+                  favicon_url: metadata.favicon,
+                  description: metadata.description,
+                });
+                onUpdateBookmark(bookmarkId, {
+                  title: metadata.title,
+                  favicon_url: metadata.favicon,
+                  description: metadata.description,
+                  is_enriching: false,
+                });
+              }
+            });
+        } catch (error) {
+          console.error("Failed to add extracted bookmark:", error);
+        }
+      }
+    },
+    [onAddBookmark, onUpdateBookmark],
+  );
+
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      // Prioritize image paste
+      const items = e.clipboardData?.items;
+      if (items) {
+        for (const item of Array.from(items)) {
+          if (item.type.startsWith("image/")) {
+            const file = item.getAsFile();
+            if (file) {
+              e.preventDefault();
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = async () => {
+                const base64 = reader.result as string;
+                const base64Data = base64.split(",")[1];
+                const urls = await extractLinks(base64Data, true);
+                if (urls.length > 0) {
+                  await processUrls(urls);
+                }
+              };
+              return;
+            }
+          }
+        }
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+      if (e.key === "Escape") {
+        inputRef.current?.blur();
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [processUrls]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        // Convert to base64
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+          const base64 = reader.result as string;
+          // Extract base64 without prefix
+          const base64Data = base64.split(",")[1];
+          const urls = await extractLinks(base64Data, true);
+          if (urls.length > 0) {
+            await processUrls(urls);
+          }
+        };
+      } catch (error) {
+        console.error("Image processing failed:", error);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return; // Removed || isLoading
+    if (!inputValue.trim()) return;
 
     const value = inputValue.trim();
-    // No need for global loading state blocking the whole bar,
-    // we'll handle it per-submission if we had a list of submissions,
-    // but for now let's just clear the input immediately.
+    setInputValue("");
+    inputRef.current?.blur();
 
-    if (isUrl(value)) {
-      setInputValue("");
-      inputRef.current?.blur();
-
-      const url = value.startsWith("http") ? value : `https://${value}`;
-
-      // Generate a temporary ID for optimistic UI
-      const tempId = `temp-${Date.now()}`;
-
-      // Add optimistic bookmark immediately
-      const optimisticBookmark: BookmarkRow = {
-        id: tempId,
-        url: url,
-        title: url,
-        favicon_url: null,
-        description: null,
-        group_id: null,
-        user_id: "",
-        created_at: new Date().toISOString(),
-        order_index: null,
-        is_enriching: true,
-      };
-
-      onAddBookmark(optimisticBookmark);
-
-      try {
-        // 1. Server Insert (get real ID)
-        const bookmarkId = await addBookmark({
-          url: url,
-          is_enriching: true,
-        });
-
-        // Update the temp ID with the real ID
-        onUpdateBookmark(tempId, { id: bookmarkId });
-
-        // 2. Background Scrape (non-blocking)
-        fetch(`/api/metadata?url=${encodeURIComponent(value)}`)
-          .then((res) => res.json())
-          .then((metadata) => {
-            if (metadata && !metadata.error) {
-              // Update server
-              enrichBookmark(bookmarkId, {
-                title: metadata.title,
-                favicon_url: metadata.favicon,
-                description: metadata.description,
-              });
-
-              // Update local state immediately
-              onUpdateBookmark(bookmarkId, {
-                title: metadata.title,
-                favicon_url: metadata.favicon,
-                description: metadata.description,
-                is_enriching: false,
-              });
-            }
-          })
-          .catch((err) => console.error("Background scrape failed:", err));
-      } catch (error) {
-        console.error("Instant insert failed:", error);
-        // Remove the optimistic bookmark on error
-        // TODO: Implement removeBookmark callback
-      }
+    if (isUrl(value) && !value.includes(" ")) {
+      // Single URL flow (existing)
+      await processUrls([value]);
     } else {
-      console.log("Searching or adding text:", value);
-      setInputValue("");
+      // AI Extraction flow for text
+      try {
+        const urls = await extractLinks(value);
+        if (urls.length > 0) {
+          await processUrls(urls);
+        } else {
+          console.log("No links found by AI or just searching.");
+        }
+      } catch (error) {
+        console.error("AI extraction failed:", error);
+      }
     }
   };
 
