@@ -1,6 +1,7 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
+import { Add01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -176,7 +177,7 @@ export function CommandBar({
                 onClick={handlePlusClick}
                 className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/40 transition-all hover:bg-muted hover:text-primary active:scale-90"
               >
-                <Plus className="h-4 w-4" />
+                <HugeiconsIcon icon={Add01Icon} size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent className="rounded-lg font-medium">
@@ -185,8 +186,10 @@ export function CommandBar({
           </Tooltip>
         </TooltipProvider>
 
-        <Search
-          className={`h-4 w-4 shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/20"}`}
+        <HugeiconsIcon
+          icon={Search01Icon}
+          size={16}
+          className={`shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/20"}`}
         />
 
         <input

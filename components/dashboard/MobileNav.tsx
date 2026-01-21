@@ -1,11 +1,12 @@
 "use client";
 
 import {
-  ChevronLeft,
-  LayoutGrid,
-  RotateCcw,
-  MoreHorizontal,
-} from "lucide-react";
+  ArrowLeft01Icon,
+  GridIcon,
+  RotateLeft01Icon,
+  MoreHorizontalIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 
 export function MobileNav() {
@@ -16,7 +17,7 @@ export function MobileNav() {
         size="icon"
         className="h-11 w-11 rounded-2xl hover:bg-muted/50 transition-all active:scale-90"
       >
-        <ChevronLeft className="h-5 w-5" />
+        <HugeiconsIcon icon={ArrowLeft01Icon} size={20} />
       </Button>
 
       <div className="flex items-center gap-1.5 rounded-2xl bg-muted/20 p-1">
@@ -24,7 +25,7 @@ export function MobileNav() {
           size="icon"
           className="h-11 w-11 rounded-2xl bg-foreground text-background shadow-lg hover:bg-foreground/90 transition-all active:scale-95"
         >
-          <LayoutGrid className="h-5 w-5" />
+          <HugeiconsIcon icon={GridIcon} size={20} />
         </Button>
       </div>
 
@@ -33,7 +34,7 @@ export function MobileNav() {
         size="icon"
         className="h-11 w-11 rounded-2xl hover:bg-muted/50 transition-all active:scale-90"
       >
-        <RotateCcw className="h-5 w-5" />
+        <HugeiconsIcon icon={RotateLeft01Icon} size={20} />
       </Button>
 
       <div className="mx-1 h-5 w-px bg-border/40" />
@@ -43,7 +44,7 @@ export function MobileNav() {
         size="icon"
         className="h-11 w-11 rounded-2xl hover:bg-muted/50 transition-all active:scale-90"
       >
-        <MoreHorizontal className="h-5 w-5" />
+        <HugeiconsIcon icon={MoreHorizontalIcon} size={20} />
       </Button>
     </div>
   );

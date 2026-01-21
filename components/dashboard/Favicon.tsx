@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import NextImage from "next/image";
-import { Bookmark as BookmarkIcon } from "lucide-react";
+import { Bookmark01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 interface FaviconProps {
   url: string;
@@ -48,7 +49,11 @@ export function Favicon({ url, domain, title, isEnriching }: FaviconProps) {
       }`}
     >
       {isEnriching ? (
-        <BookmarkIcon className="h-5 w-5 text-muted-foreground/20" />
+        <HugeiconsIcon
+          icon={Bookmark01Icon}
+          size={20}
+          className="text-muted-foreground/20"
+        />
       ) : !imageError ? (
         <NextImage
           src={useGoogleFallback ? googleFallbackUrl : url || googleFallbackUrl}

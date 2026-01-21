@@ -23,7 +23,7 @@ export function DashboardContent({
   initialGroups,
 }: DashboardContentProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
-  const [groups] = useState<GroupRow[]>(initialGroups);
+  const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
 
   const addOptimisticBookmark = useCallback(
@@ -40,14 +40,13 @@ export function DashboardContent({
 
   const updateBookmark = useCallback(
     (oldId: string, updates: Partial<BookmarkRow>) => {
-      setBookmarks((prev) => {
-        if (updates.id && updates.id !== oldId) {
-          return prev.map((b) =>
-            b.id === oldId ? { ...b, ...updates, id: updates.id } : b,
-          );
-        }
-        return prev.map((b) => (b.id === oldId ? { ...b, ...updates } : b));
-      });
+      setBookmarks((prev) =>
+        prev.map((b) => {
+          if (b.id !== oldId) return b;
+          const newId = updates.id ?? b.id;
+          return { ...b, ...updates, id: newId };
+        }),
+      );
     },
     [],
   );
@@ -94,6 +93,23 @@ export function DashboardContent({
     activeGroupId === "all" ? true : b.group_id === activeGroupId,
   );
 
+  const handleGroupCreated = useCallback(
+    (id: string, name: string, icon: string) => {
+      const newGroup: GroupRow = {
+        id,
+        name,
+        icon,
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+        color: null,
+        order_index: null,
+      };
+      setGroups((prev) => [...prev, newGroup]);
+      setActiveGroupId(id);
+    },
+    [user.id],
+  );
+
   return (
     <>
       <DashboardNav
@@ -101,6 +117,7 @@ export function DashboardContent({
         groups={groups}
         activeGroupId={activeGroupId}
         onGroupSelect={setActiveGroupId}
+        onGroupCreated={handleGroupCreated}
       />
       <div className="flex flex-col gap-6 px-4 pt-4 md:pt-6">
         {/* Search/Command Bar */}

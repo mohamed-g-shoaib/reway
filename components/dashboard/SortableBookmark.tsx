@@ -2,7 +2,14 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Pencil, Copy, ExternalLink, Trash2, MoreVertical } from "lucide-react";
+import {
+  PencilEdit01Icon,
+  Copy01Icon,
+  Link01Icon,
+  Delete02Icon,
+  MoreVerticalIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Bookmark as BookmarkType } from "@/types/dashboard";
 import {
@@ -120,7 +127,7 @@ export function SortableBookmark({
                   size="icon"
                   className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                 >
-                  <Pencil className="h-4 w-4" />
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
@@ -135,7 +142,7 @@ export function SortableBookmark({
                   size="icon"
                   className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                 >
-                  <Copy className="h-4 w-4" />
+                  <HugeiconsIcon icon={Copy01Icon} size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
@@ -151,7 +158,7 @@ export function SortableBookmark({
                   className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                   onClick={openInNewTab}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  <HugeiconsIcon icon={Link01Icon} size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
@@ -170,7 +177,7 @@ export function SortableBookmark({
                     onDelete?.(bookmark.id);
                   }}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <HugeiconsIcon icon={Delete02Icon} size={16} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
@@ -192,7 +199,11 @@ export function SortableBookmark({
                   onClick={(e) => e.stopPropagation()}
                   onPointerDown={(e) => e.stopPropagation()}
                 >
-                  <MoreVertical className="h-4 w-4 text-muted-foreground/60" />
+                  <HugeiconsIcon
+                    icon={MoreVerticalIcon}
+                    size={16}
+                    className="text-muted-foreground/60"
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -200,16 +211,16 @@ export function SortableBookmark({
                 className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
               >
                 <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                  <Pencil className="h-4 w-4" /> Edit
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                  <Copy className="h-4 w-4" /> Copy Link
+                  <HugeiconsIcon icon={Copy01Icon} size={16} /> Copy Link
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
                   onClick={openInNewTab}
                 >
-                  <ExternalLink className="h-4 w-4" /> Open
+                  <HugeiconsIcon icon={Link01Icon} size={16} /> Open
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium"
@@ -218,7 +229,7 @@ export function SortableBookmark({
                     onDelete?.(bookmark.id);
                   }}
                 >
-                  <Trash2 className="h-4 w-4" /> Delete
+                  <HugeiconsIcon icon={Delete02Icon} size={16} /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

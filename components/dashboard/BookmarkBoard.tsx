@@ -22,7 +22,8 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { SortableBookmark } from "./SortableBookmark";
 import { createPortal } from "react-dom";
-import { Bookmark as BookmarkIcon, Plus } from "lucide-react";
+import { Bookmark01Icon, Add01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
 import { Favicon } from "./Favicon";
@@ -80,7 +81,11 @@ export function BookmarkBoard({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
         <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted/30 mb-6">
-          <BookmarkIcon className="h-10 w-10 text-muted-foreground/40" />
+          <HugeiconsIcon
+            icon={Bookmark01Icon}
+            size={40}
+            className="text-muted-foreground/40"
+          />
         </div>
         <h3 className="text-xl font-bold text-foreground">No bookmarks yet</h3>
         <p className="text-muted-foreground mt-2 max-w-70">
@@ -103,7 +108,7 @@ export function BookmarkBoard({
             )
           }
         >
-          <Plus className="h-4 w-4" />
+          <HugeiconsIcon icon={Add01Icon} size={16} />
           Add Bookmark
         </Button>
       </div>
