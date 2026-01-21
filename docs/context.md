@@ -50,3 +50,6 @@ benefit: users can save any link instantly by pasting it into the Command Bar; t
 
 feature number #17: Optimistic UI and Background Enrichment
 benefit: absolute zero-latency experience where bookmarks appear instantly upon entry, with metadata filling in dynamically without blocking the user or requiring a page reload
+
+feature number #18: Persistent Organization & Management
+benefit: users can reorder bookmarks via drag-and-drop and delete unwanted links with optimistic UI updates; the app automatically persists the custom order to the database, ensuring their workspace remains personalized even after reload

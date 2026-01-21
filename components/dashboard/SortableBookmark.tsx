@@ -26,9 +26,13 @@ import {
 
 interface SortableBookmarkProps {
   bookmark: BookmarkType & { is_enriching?: boolean };
+  onDelete?: (id: string) => void;
 }
 
-export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
+export function SortableBookmark({
+  bookmark,
+  onDelete,
+}: SortableBookmarkProps) {
   const {
     attributes,
     listeners,
@@ -179,6 +183,10 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
                   variant="ghost"
                   size="icon"
                   className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete?.(bookmark.id);
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -221,7 +229,13 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
                 >
                   <ExternalLink className="h-4 w-4" /> Open
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium">
+                <DropdownMenuItem
+                  className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete?.(bookmark.id);
+                  }}
+                >
                   <Trash2 className="h-4 w-4" /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

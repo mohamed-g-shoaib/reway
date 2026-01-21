@@ -30,10 +30,15 @@ interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
   onReorder: (newOrder: BookmarkRow[]) => void;
+  onDeleteBookmark: (id: string) => void;
 }
 
-export function BookmarkBoard({ bookmarks, onReorder }: BookmarkBoardProps) {
-  // Removed internal bookmarks state
+export function BookmarkBoard({
+  bookmarks,
+  onReorder,
+  onDeleteBookmark,
+}: BookmarkBoardProps) {
+  // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
   const dndContextId = useId();
 
@@ -135,6 +140,7 @@ export function BookmarkBoard({ bookmarks, onReorder }: BookmarkBoardProps) {
               return (
                 <SortableBookmark
                   key={bookmark.id}
+                  onDelete={onDeleteBookmark}
                   bookmark={{
                     id: bookmark.id,
                     title: bookmark.title,
