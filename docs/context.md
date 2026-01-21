@@ -20,3 +20,6 @@ benefit: professional entryway and secure authentication for power users
 
 feature number #7: Enable typedRoutes and fetch logging in next.config.ts
 benefit: improved type safety for navigation and better debugging for API calls
+
+feature number #8: Implement Dashboard shell with high-performance DnD bookmarks, Command Bar, and Mobile Nav
+benefit: snappy, tool-like interaction for managing bookmarks across devices
