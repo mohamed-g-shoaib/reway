@@ -17,8 +17,8 @@ export function CommandBar() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Focus on Cmd+K or Ctrl+F
-      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "f")) {
+      // Focus on Cmd+F or Ctrl+F
+      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
         e.preventDefault();
         inputRef.current?.focus();
       }
@@ -46,7 +46,7 @@ export function CommandBar() {
 
   return (
     <div
-      className={`relative mx-auto w-full max-w-4xl transition-all duration-300 ease-out ${
+      className={`relative w-full transition-all duration-300 ease-out ${
         isFocused ? "scale-[1.01]" : "scale-100"
       }`}
     >
@@ -96,9 +96,6 @@ export function CommandBar() {
 
         <div className="flex items-center gap-2 px-1">
           <kbd className="inline-flex h-7 select-none items-center gap-1 rounded-lg border border-muted-foreground/10 bg-muted/50 px-2 font-mono text-[10px] font-bold text-muted-foreground/40 shadow-inner">
-            <span className="text-xs">⌘</span> K
-          </kbd>
-          <kbd className="inline-flex h-7 select-none items-center gap-1 rounded-lg border border-muted-foreground/10 bg-muted/50 px-2 font-mono text-[10px] font-bold text-muted-foreground/40 shadow-inner">
             <span className="text-xs">⌘</span> F
           </kbd>
         </div>
@@ -108,7 +105,7 @@ export function CommandBar() {
       {!isFocused && (
         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
-            Press <span className="text-muted-foreground/50">⌘ K</span> to start
+            Press <span className="text-muted-foreground/50">⌘ F</span> to start
             typing
           </p>
         </div>

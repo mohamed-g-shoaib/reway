@@ -8,6 +8,7 @@ import {
   Copy,
   ExternalLink,
   Trash2,
+  MoreVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Bookmark as BookmarkType } from "@/types/dashboard";
@@ -17,6 +18,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SortableBookmarkProps {
   bookmark: BookmarkType;
@@ -55,12 +62,12 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
           : ""
       }`}
     >
-      <div
-        className="flex min-w-0 flex-1 items-center gap-3"
-        onClick={openInNewTab}
-      >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Favicon Container */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm group-hover:shadow-md transition-shadow">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          onClick={openInNewTab}
+        >
           {bookmark.favicon ? (
             <img
               src={bookmark.favicon}
@@ -73,11 +80,17 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
         </div>
 
         {/* Text Content */}
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-sm font-bold text-foreground md:text-base group-hover:text-primary transition-colors">
+        <div className="flex min-w-0 flex-col gap-0.5 w-fit">
+          <span
+            className="w-fit max-w-full truncate text-sm font-bold text-foreground md:text-base group-hover:text-primary transition-colors cursor-pointer"
+            onClick={openInNewTab}
+          >
             {bookmark.title}
           </span>
-          <span className="text-xs font-medium text-muted-foreground/70">
+          <span
+            className="w-fit text-xs font-medium text-muted-foreground/70 cursor-pointer"
+            onClick={openInNewTab}
+          >
             {bookmark.domain}
           </span>
         </div>
@@ -85,16 +98,16 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
 
       {/* Actions / Date Container */}
       <div className="flex shrink-0 items-center min-w-25 justify-end">
-        {/* Date: Visible by default, hidden on hover */}
-        <span className="text-sm font-medium text-muted-foreground/50 group-hover:hidden transition-all tabular-nums">
+        {/* Desktop Date: Hidden on hover if not mobile */}
+        <span className="text-sm font-medium text-muted-foreground/50 group-hover:hidden transition-all tabular-nums md:block">
           {bookmark.createdAt}
         </span>
 
-        {/* Action Buttons: Visible only on hover */}
+        {/* Desktop Action Buttons: Visible only on hover and on desktop */}
         <div
-          className="hidden items-center gap-1 group-hover:flex animate-in fade-in-0 slide-in-from-right-2 duration-200"
-          onClick={(e) => e.stopPropagation()} // Prevent drag start when clicking icons
-          onPointerDown={(e) => e.stopPropagation()} // Essential for dnd-kit with whole-row drag
+          className="hidden items-center gap-1 md:group-hover:flex animate-in fade-in-0 slide-in-from-right-2 duration-200 cursor-default"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <TooltipProvider delayDuration={400}>
             <Tooltip>
@@ -102,7 +115,7 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -117,7 +130,7 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -132,7 +145,7 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                   onClick={openInNewTab}
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -148,16 +161,53 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm"
+                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium">
+              <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
                 Delete
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+        </div>
+
+        {/* Mobile Action Menu */}
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4 text-muted-foreground/60" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
+            >
+              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
+                <Pencil className="h-4 w-4" /> Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
+                <Copy className="h-4 w-4" /> Copy Link
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                onClick={openInNewTab}
+              >
+                <ExternalLink className="h-4 w-4" /> Open
+              </DropdownMenuItem>
+              <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium">
+                <Trash2 className="h-4 w-4" /> Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>

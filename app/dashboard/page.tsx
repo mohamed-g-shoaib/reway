@@ -14,8 +14,8 @@ export default function DashboardPage() {
       {/* Navigation */}
       <DashboardNav />
 
-      {/* Main Content */}
-      <main className="container mx-auto max-w-5xl px-4 py-8 md:py-16">
+      {/* Main Content - Global width container */}
+      <main className="mx-auto w-full max-w-3xl px-4 py-8 md:py-16">
         <div className="flex flex-col gap-12">
           {/* Search/Command Bar */}
           <CommandBar />

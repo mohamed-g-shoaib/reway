@@ -106,8 +106,8 @@ export function BookmarkBoard() {
   }
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-4xl px-4 md:px-0">
-      <div className="flex items-center justify-between px-4 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
+    <div className="mt-8 w-full">
+      <div className="flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
         <span>Title</span>
         <span>Created At</span>
       </div>
@@ -123,7 +123,7 @@ export function BookmarkBoard() {
           items={currentBookmarks.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="flex flex-col gap-1">
+          <div className="-mx-4 flex flex-col gap-1">
             {currentBookmarks.map((bookmark) => (
               <SortableBookmark key={bookmark.id} bookmark={bookmark} />
             ))}

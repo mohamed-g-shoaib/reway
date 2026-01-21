@@ -22,4 +22,7 @@ feature number #7: Enable typedRoutes and fetch logging in next.config.ts
 benefit: improved type safety for navigation and better debugging for API calls
 
 feature number #8: Implement Dashboard shell with high-performance DnD bookmarks, Command Bar, and Mobile Nav
-benefit: snappy, tool-like interaction for managing bookmarks across devices
+benefit: snappy, tool-like interaction with row-level drag, hover actions, and keyboard-first navigation
+
+feature number #9: Refine Dashboard UI/UX, standardize global layout width (768px), and add mobile action menus
+benefit: improved precision in interactions (cursors/shortcuts), perfect vertical alignment across all devices, and touch-optimized accessibility for bookmark actions
