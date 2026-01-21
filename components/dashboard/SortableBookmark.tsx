@@ -47,7 +47,7 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
 
   const openInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(`https://${bookmark.domain}`, "_blank");
+    window.open(bookmark.url, "_blank");
   };
 
   return (

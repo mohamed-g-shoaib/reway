@@ -3,6 +3,7 @@ import { CommandBar } from "@/components/dashboard/CommandBar";
 import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { getUser } from "./layout";
+import { getBookmarks, getGroups } from "@/lib/supabase/queries";
 
 export const metadata = {
   title: "Dashboard | Reway",
@@ -10,7 +11,11 @@ export const metadata = {
 };
 
 export default async function DashboardPage() {
-  const user = await getUser();
+  const [user, bookmarks, groups] = await Promise.all([
+    getUser(),
+    getBookmarks(),
+    getGroups(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -24,7 +29,7 @@ export default async function DashboardPage() {
           <CommandBar />
 
           {/* Bookmark List Section */}
-          <BookmarkBoard />
+          <BookmarkBoard initialBookmarks={bookmarks} initialGroups={groups} />
         </div>
       </main>
 

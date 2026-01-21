@@ -20,58 +20,26 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { Bookmark } from "@/types/dashboard";
 import { SortableBookmark } from "./SortableBookmark";
 import { createPortal } from "react-dom";
-import { Bookmark as BookmarkIcon } from "lucide-react";
+import { Bookmark as BookmarkIcon, Plus } from "lucide-react";
+import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
+import { Button } from "@/components/ui/button";
 
-const MOCK_BOOKMARKS: Record<string, Bookmark[]> = {
-  all: [
-    {
-      id: "1",
-      title:
-        "GitHub - zaidmukaddam/scira: Scira (Formerly MiniPerplx) is a minimalistic AI-p...",
-      domain: "github.com",
-      favicon: "https://www.google.com/s2/favicons?domain=github.com&sz=64",
-      createdAt: "Jan 6",
-      groupId: "all",
-    },
-    {
-      id: "2",
-      title: "AI SDK",
-      domain: "ai-sdk.dev",
-      favicon: "https://www.google.com/s2/favicons?domain=ai-sdk.dev&sz=64",
-      createdAt: "Jan 6",
-      groupId: "all",
-    },
-    {
-      id: "3",
-      title: "Anannas - Single API to access any model",
-      domain: "anannas.ai",
-      favicon: "https://www.google.com/s2/favicons?domain=anannas.ai&sz=64",
-      createdAt: "Jan 6",
-      groupId: "all",
-    },
-    {
-      id: "4",
-      title: "Zaid (@zaidmukaddam) on X",
-      domain: "x.com",
-      favicon: "https://www.google.com/s2/favicons?domain=x.com&sz=64",
-      createdAt: "Jan 6",
-      groupId: "all",
-    },
-  ],
-};
+interface BookmarkBoardProps {
+  initialBookmarks: BookmarkRow[];
+  initialGroups: GroupRow[];
+}
 
-export function BookmarkBoard() {
-  const [data, setData] = useState(MOCK_BOOKMARKS);
+export function BookmarkBoard({ initialBookmarks }: BookmarkBoardProps) {
+  const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [activeId, setActiveId] = useState<string | null>(null);
   const dndContextId = useId();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Increased distance to distinguish between click and drag
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -79,9 +47,8 @@ export function BookmarkBoard() {
     }),
   );
 
-  const currentBookmarks = data["all"];
   const activeBookmark = activeId
-    ? currentBookmarks.find((b) => b.id === activeId)
+    ? bookmarks.find((b) => b.id === activeId)
     : null;
 
   function handleDragStart(event: DragStartEvent) {
@@ -92,18 +59,49 @@ export function BookmarkBoard() {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      setData((prev) => {
-        const oldIndex = prev["all"].findIndex((b) => b.id === active.id);
-        const newIndex = prev["all"].findIndex((b) => b.id === over.id);
-
-        return {
-          ...prev,
-          all: arrayMove(prev["all"], oldIndex, newIndex),
-        };
+      setBookmarks((prev) => {
+        const oldIndex = prev.findIndex((b) => b.id === active.id);
+        const newIndex = prev.findIndex((b) => b.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
       });
+      // TODO: Persist order to database
     }
 
     setActiveId(null);
+  }
+
+  if (bookmarks.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
+        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted/30 mb-6">
+          <BookmarkIcon className="h-10 w-10 text-muted-foreground/40" />
+        </div>
+        <h3 className="text-xl font-bold text-foreground">No bookmarks yet</h3>
+        <p className="text-muted-foreground mt-2 max-w-70">
+          Press{" "}
+          <kbd className="font-sans text-xs bg-muted px-1.5 py-0.5 rounded border border-border/50 shadow-sm">
+            ⌘
+          </kbd>{" "}
+          +{" "}
+          <kbd className="font-sans text-xs bg-muted px-1.5 py-0.5 rounded border border-border/50 shadow-sm">
+            K
+          </kbd>{" "}
+          to add your first link.
+        </p>
+        <Button
+          variant="outline"
+          className="mt-8 rounded-2xl gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all active:scale-95"
+          onClick={() =>
+            document.dispatchEvent(
+              new KeyboardEvent("keydown", { key: "k", metaKey: true }),
+            )
+          }
+        >
+          <Plus className="h-4 w-4" />
+          Add Bookmark
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -122,13 +120,36 @@ export function BookmarkBoard() {
         modifiers={[restrictToVerticalAxis]}
       >
         <SortableContext
-          items={currentBookmarks.map((b) => b.id)}
+          items={bookmarks.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="-mx-4 flex flex-col gap-1">
-            {currentBookmarks.map((bookmark) => (
-              <SortableBookmark key={bookmark.id} bookmark={bookmark} />
-            ))}
+            {bookmarks.map((bookmark) => {
+              let domain = "link";
+              try {
+                domain = new URL(bookmark.url).hostname.replace("www.", "");
+              } catch {
+                // Ignore invalid URLs
+              }
+
+              return (
+                <SortableBookmark
+                  key={bookmark.id}
+                  bookmark={{
+                    id: bookmark.id,
+                    title: bookmark.title,
+                    url: bookmark.url,
+                    domain: domain,
+                    favicon: bookmark.favicon_url || undefined,
+                    createdAt: new Date(bookmark.created_at).toLocaleDateString(
+                      undefined,
+                      { month: "short", day: "numeric" },
+                    ),
+                    groupId: bookmark.group_id || "all",
+                  }}
+                />
+              );
+            })}
           </div>
         </SortableContext>
 
@@ -145,36 +166,55 @@ export function BookmarkBoard() {
                 }),
               }}
             >
-              {activeBookmark ? (
-                <div className="flex items-center justify-between rounded-xl bg-background/95 border border-primary/20 px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-md scale-[1.02] ring-1 ring-primary/5">
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm">
-                      {activeBookmark.favicon ? (
-                        <img
-                          src={activeBookmark.favicon}
-                          alt=""
-                          className="h-6 w-6 rounded-sm object-contain"
-                        />
-                      ) : (
-                        <BookmarkIcon className="h-5 w-5 text-muted-foreground/60" />
-                      )}
-                    </div>
-                    <div className="flex min-w-0 flex-col gap-0.5">
-                      <span className="truncate text-sm font-bold text-foreground">
-                        {activeBookmark.title}
-                      </span>
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {activeBookmark.domain}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex shrink-0 items-center pl-6">
-                    <span className="text-sm font-medium text-muted-foreground/50">
-                      {activeBookmark.createdAt}
-                    </span>
-                  </div>
-                </div>
-              ) : null}
+              {activeBookmark
+                ? (() => {
+                    let domain = "link";
+                    try {
+                      domain = new URL(activeBookmark.url).hostname.replace(
+                        "www.",
+                        "",
+                      );
+                    } catch {
+                      // Ignore
+                    }
+
+                    return (
+                      <div className="flex items-center justify-between rounded-xl bg-background/95 border border-primary/20 px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-md scale-[1.02] ring-1 ring-primary/5">
+                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm">
+                            {activeBookmark.favicon_url ? (
+                              <img
+                                src={activeBookmark.favicon_url}
+                                alt=""
+                                className="h-6 w-6 rounded-sm object-contain"
+                              />
+                            ) : (
+                              <BookmarkIcon className="h-5 w-5 text-muted-foreground/60" />
+                            )}
+                          </div>
+                          <div className="flex min-w-0 flex-col gap-0.5">
+                            <span className="truncate text-sm font-bold text-foreground">
+                              {activeBookmark.title}
+                            </span>
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {domain}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 items-center pl-6">
+                          <span className="text-sm font-medium text-muted-foreground/50">
+                            {new Date(
+                              activeBookmark.created_at,
+                            ).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })()
+                : null}
             </DragOverlay>,
             document.body,
           )}
