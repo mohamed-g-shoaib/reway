@@ -1,6 +1,5 @@
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
-import { CommandBar } from "@/components/dashboard/CommandBar";
-import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
+import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { getUser } from "./layout";
 import { getBookmarks, getGroups } from "@/lib/supabase/queries";
@@ -24,13 +23,7 @@ export default async function DashboardPage() {
 
       {/* Main Content - Global width container */}
       <main className="mx-auto w-full max-w-3xl px-4 py-8 md:py-16">
-        <div className="flex flex-col gap-12">
-          {/* Search/Command Bar */}
-          <CommandBar />
-
-          {/* Bookmark List Section */}
-          <BookmarkBoard initialBookmarks={bookmarks} initialGroups={groups} />
-        </div>
+        <DashboardContent initialBookmarks={bookmarks} initialGroups={groups} />
       </main>
 
       <MobileNav />

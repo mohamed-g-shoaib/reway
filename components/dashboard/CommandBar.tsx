@@ -10,8 +10,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { addBookmark, enrichBookmark } from "@/app/dashboard/actions"; // Added enrichBookmark
+import { BookmarkRow } from "@/lib/supabase/queries";
 
-export function CommandBar() {
+interface CommandBarProps {
+  onAddBookmark: (bookmark: BookmarkRow) => void;
+  onUpdateBookmark: (id: string, updates: Partial<BookmarkRow>) => void;
+}
+
+export function CommandBar({
+  onAddBookmark,
+  onUpdateBookmark,
+}: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
   // Removed: const [isLoading, setIsLoading] = useState(false);
@@ -69,31 +78,63 @@ export function CommandBar() {
       setInputValue("");
       inputRef.current?.blur();
 
+      const url = value.startsWith("http") ? value : `https://${value}`;
+
+      // Generate a temporary ID for optimistic UI
+      const tempId = `temp-${Date.now()}`;
+
+      // Add optimistic bookmark immediately
+      const optimisticBookmark: BookmarkRow = {
+        id: tempId,
+        url: url,
+        title: url,
+        favicon_url: null,
+        description: null,
+        group_id: null,
+        user_id: "",
+        created_at: new Date().toISOString(),
+        order_index: null,
+        is_enriching: true,
+      };
+
+      onAddBookmark(optimisticBookmark);
+
       try {
-        // 1. Instant Insert
+        // 1. Server Insert (get real ID)
         const bookmarkId = await addBookmark({
-          url: value.startsWith("http") ? value : `https://${value}`,
+          url: url,
           is_enriching: true,
         });
+
+        // Update the temp ID with the real ID
+        onUpdateBookmark(tempId, { id: bookmarkId });
 
         // 2. Background Scrape (non-blocking)
         fetch(`/api/metadata?url=${encodeURIComponent(value)}`)
           .then((res) => res.json())
           .then((metadata) => {
             if (metadata && !metadata.error) {
-              // Assuming enrichBookmark is defined elsewhere or will be added
-              // For now, this will cause a compilation error if not defined.
+              // Update server
               enrichBookmark(bookmarkId, {
-                // Uncommented and ensured call
                 title: metadata.title,
                 favicon_url: metadata.favicon,
                 description: metadata.description,
+              });
+
+              // Update local state immediately
+              onUpdateBookmark(bookmarkId, {
+                title: metadata.title,
+                favicon_url: metadata.favicon,
+                description: metadata.description,
+                is_enriching: false,
               });
             }
           })
           .catch((err) => console.error("Background scrape failed:", err));
       } catch (error) {
         console.error("Instant insert failed:", error);
+        // Remove the optimistic bookmark on error
+        // TODO: Implement removeBookmark callback
       }
     } else {
       console.log("Searching or adding text:", value);
