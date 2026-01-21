@@ -22,7 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut } from "@/app/dashboard/actions";
 import { SettingsDialog } from "./SettingsDialog";
 
-import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
+import { GroupRow } from "@/lib/supabase/queries";
 
 export interface User {
   id: string;
@@ -37,13 +37,6 @@ interface DashboardNavProps {
   activeGroupId: string;
   onGroupSelect: (id: string) => void;
 }
-
-const IconMap: Record<string, React.ReactNode> = {
-  LayoutGrid: <LayoutGrid className="h-4 w-4" />,
-  Folder: <Folder className="h-4 w-4" />,
-  Code: <LayoutGrid className="h-4 w-4 text-blue-500" />, // Example custom
-  Heart: <LayoutGrid className="h-4 w-4 text-red-500" />,
-};
 
 export function DashboardNav({
   user,
@@ -68,57 +61,65 @@ export function DashboardNav({
     .slice(0, 2);
 
   return (
-    <nav className="bg-background/50 backdrop-blur-md sticky top-0 z-40">
-      <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
-        <div className="flex items-center gap-0">
-          {/* Dynamic Group Icon */}
-          <div className="h-8 w-10 flex items-center justify-start shrink-0">
-            {activeGroup.icon === "LayoutGrid" ? (
-              <LayoutGrid className="h-5 w-5 text-foreground/80" />
-            ) : (
-              <Folder className="h-5 w-5 text-foreground/80" />
-            )}
-          </div>
-
-          {/* Group Switcher */}
+    <nav className="bg-background/50 backdrop-blur-md sticky top-6 z-40">
+      <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
+        <div className="flex items-center">
+          {/* Unified Group Switcher (Icon + Name) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-9 gap-2 px-2.5 rounded-2xl text-sm font-semibold hover:bg-muted/50 transition-all active:scale-[0.98]"
+                className="h-10 gap-2 px-2 rounded-2xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98] -ml-2"
               >
-                {activeGroup.name}
-                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/50" />
+                <div className="flex items-center justify-center h-8 w-8">
+                  {activeGroup.icon === "LayoutGrid" ? (
+                    <LayoutGrid className="h-4.5 w-4.5 text-foreground/80" />
+                  ) : (
+                    <Folder className="h-4.5 w-4.5 text-foreground/80" />
+                  )}
+                </div>
+                <span className="truncate max-w-30 md:max-w-50">
+                  {activeGroup.name}
+                </span>
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/30" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-48 rounded-2xl p-2 shadow-xl animate-in slide-in-from-top-2 duration-200"
+              className="w-56 rounded-2xl p-2 shadow-xl animate-in slide-in-from-top-2 duration-200"
             >
               <DropdownMenuItem
-                className={`rounded-xl font-medium cursor-pointer flex items-center gap-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary" : ""}`}
+                className={`rounded-xl font-medium cursor-pointer flex items-center gap-2.5 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary" : ""}`}
                 onClick={() => onGroupSelect("all")}
               >
-                <LayoutGrid className="h-4 w-4" />
+                <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-muted/50">
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </div>
                 All Bookmarks
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="my-2" />
 
-              {groups.map((group) => (
-                <DropdownMenuItem
-                  key={group.id}
-                  className={`rounded-xl cursor-pointer flex items-center gap-2 ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
-                  onClick={() => onGroupSelect(group.id)}
-                >
-                  <Folder className="h-4 w-4" />
-                  {group.name}
-                </DropdownMenuItem>
-              ))}
+              <div className="max-h-75 overflow-y-auto">
+                {groups.map((group) => (
+                  <DropdownMenuItem
+                    key={group.id}
+                    className={`rounded-xl cursor-pointer flex items-center gap-2.5 py-2 ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
+                    onClick={() => onGroupSelect(group.id)}
+                  >
+                    <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-muted/50">
+                      <Folder className="h-3.5 w-3.5" />
+                    </div>
+                    {group.name}
+                  </DropdownMenuItem>
+                ))}
+              </div>
 
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center gap-2">
-                <Plus className="h-4 w-4" />
+              <DropdownMenuSeparator className="my-2" />
+              <DropdownMenuItem className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center gap-2.5 py-2">
+                <div className="h-7 w-7 flex items-center justify-center rounded-lg bg-primary/10">
+                  <Plus className="h-3.5 w-3.5" />
+                </div>
                 Create Group
               </DropdownMenuItem>
             </DropdownMenuContent>

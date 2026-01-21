@@ -23,7 +23,7 @@ export function DashboardContent({
   initialGroups,
 }: DashboardContentProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
-  const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
+  const [groups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
 
   const addOptimisticBookmark = useCallback(
@@ -102,7 +102,7 @@ export function DashboardContent({
         activeGroupId={activeGroupId}
         onGroupSelect={setActiveGroupId}
       />
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-6 px-4 pt-4 md:pt-6">
         {/* Search/Command Bar */}
         <CommandBar
           onAddBookmark={addOptimisticBookmark}

@@ -17,8 +17,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Main Content - No longer has Nav here, it moved inside DashboardContent */}
-      <main className="mx-auto w-full max-w-3xl px-4 py-4 md:py-8">
+      <main className="mx-auto w-full max-w-3xl pt-6 pb-16">
         <DashboardContent
           user={user}
           initialBookmarks={bookmarks}
