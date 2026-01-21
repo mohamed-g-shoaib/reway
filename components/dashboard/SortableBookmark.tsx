@@ -13,11 +13,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Bookmark as BookmarkType } from "@/types/dashboard";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -120,70 +115,46 @@ export function SortableBookmark({
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                >
-                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Edit
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+              aria-label="Edit bookmark"
+            >
+              <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
+            </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                >
-                  <HugeiconsIcon icon={Copy01Icon} size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Copy Link
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+              aria-label="Copy link"
+            >
+              <HugeiconsIcon icon={Copy01Icon} size={16} />
+            </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                  onClick={openInNewTab}
-                >
-                  <HugeiconsIcon icon={Link01Icon} size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Open
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+              onClick={openInNewTab}
+              aria-label="Open link"
+            >
+              <HugeiconsIcon icon={Link01Icon} size={16} />
+            </Button>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete?.(bookmark.id);
-                  }}
-                >
-                  <HugeiconsIcon icon={Delete02Icon} size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
-                Delete
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(bookmark.id);
+              }}
+              aria-label="Delete bookmark"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={16} />
+            </Button>
           </div>
         )}
 
