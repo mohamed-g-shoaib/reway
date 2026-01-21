@@ -5,7 +5,7 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   PencilEdit01Icon,
   Copy01Icon,
-  Link01Icon,
+  ArrowUpRight03Icon,
   Delete02Icon,
   MoreVerticalIcon,
 } from "@hugeicons/core-free-icons";
@@ -140,7 +140,7 @@ export function SortableBookmark({
               onClick={openInNewTab}
               aria-label="Open link"
             >
-              <HugeiconsIcon icon={Link01Icon} size={16} />
+              <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} />
             </Button>
 
             <Button
@@ -191,7 +191,7 @@ export function SortableBookmark({
                   className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
                   onClick={openInNewTab}
                 >
-                  <HugeiconsIcon icon={Link01Icon} size={16} /> Open
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium"
