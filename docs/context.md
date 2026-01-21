@@ -56,3 +56,9 @@ benefit: users can reorder bookmarks via drag-and-drop and delete unwanted links
 
 feature number #19: Smart Favicon Fallback System
 benefit: ensures a premium visual experience for every bookmark; if a site's primary icon is missing or blocked, the app automatically falls back to secondary sources or creates a beautifully styled initial-letter placeholder with domain-stable colors
+
+feature number #20: Full Migration to Hugeicons & Removal of Lucide
+benefit: 100% bespoke visual language with sharper, more premium icons; removing lucide-react reduces bundle weight and ensures a consistent, tool-like aesthetic across the entire interface
+
+feature number #21: Categorized Group Navigation & Icon Picker
+benefit: sophisticated organization where users can group bookmarks into flat categories with a specialized icon picker; the UI uses a categorized hugeicons list to allow meaningful visual distinctions between folders, all with instant optimistic updates
