@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useId } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -66,6 +66,7 @@ const MOCK_BOOKMARKS: Record<string, Bookmark[]> = {
 export function BookmarkBoard() {
   const [data, setData] = useState(MOCK_BOOKMARKS);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const dndContextId = useId();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -113,6 +114,7 @@ export function BookmarkBoard() {
       </div>
 
       <DndContext
+        id={dndContextId}
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}

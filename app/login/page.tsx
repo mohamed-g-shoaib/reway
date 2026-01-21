@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,19 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Chrome } from "lucide-react";
+import { signInWithGoogle } from "./actions";
 
 export default function LoginPage() {
-  const supabase = createClient();
-
-  const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md border-border bg-card shadow-lg">
@@ -35,14 +24,16 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <Button
-            variant="outline"
-            className="h-12 w-full gap-2 rounded-xl text-base font-medium transition-all hover:bg-accent hover:text-accent-foreground"
-            onClick={handleLogin}
-          >
-            <Chrome className="size-5" />
-            Continue with Google
-          </Button>
+          <form action={signInWithGoogle}>
+            <Button
+              type="submit"
+              variant="outline"
+              className="h-12 w-full gap-2 rounded-xl text-base font-medium transition-all hover:bg-accent hover:text-accent-foreground"
+            >
+              <Chrome className="size-5" />
+              Continue with Google
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
