@@ -77,7 +77,7 @@ export function SortableBookmark({
           <span
             className={`w-fit max-w-full truncate text-sm font-bold transition-all cursor-pointer ${
               bookmark.is_enriching
-                ? "text-muted-foreground/30 animate-pulse bg-muted/20 rounded-md px-2 -ml-2"
+                ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-md px-2 -ml-2"
                 : "text-foreground group-hover:text-primary"
             }`}
             onClick={openInNewTab}
@@ -87,7 +87,7 @@ export function SortableBookmark({
           <span
             className={`w-fit text-xs font-medium cursor-pointer transition-all ${
               bookmark.is_enriching
-                ? "text-muted-foreground/10 animate-pulse bg-muted/10 rounded-md px-2 -ml-2 h-3"
+                ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-md px-2 -ml-2 h-3"
                 : "text-muted-foreground/70"
             }`}
             onClick={openInNewTab}
@@ -102,7 +102,9 @@ export function SortableBookmark({
         {/* Desktop Date: Fades out on hover if not mobile */}
         <span
           className={`text-sm font-medium text-muted-foreground/50 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
-            bookmark.is_enriching ? "animate-pulse" : ""
+            bookmark.is_enriching
+              ? "animate-shimmer bg-linear-to-r from-transparent via-muted/30 to-transparent bg-size-[200%_100%] px-2 rounded-md"
+              : ""
           }`}
         >
           {bookmark.is_enriching ? "Enriching..." : bookmark.createdAt}

@@ -47,52 +47,61 @@ export function CommandBar({
 
   const processUrls = useCallback(
     async (urls: string[]) => {
-      // Process each URL
-      for (const rawUrl of urls) {
+      // 1. Create all optimistic bookmarks at once
+      const optimisticMap = urls.map((rawUrl) => {
         const url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
         const tempId = `temp-${Date.now()}-${Math.random()}`;
-
-        // Optimistic UI
-        const optimisticBookmark: BookmarkRow = {
-          id: tempId,
-          url: url,
-          title: url,
-          favicon_url: null,
-          description: null,
-          group_id: null,
-          user_id: "",
-          created_at: new Date().toISOString(),
-          order_index: null,
-          is_enriching: true,
+        return {
+          url,
+          tempId,
+          optimistic: {
+            id: tempId,
+            url: url,
+            title: url,
+            favicon_url: null,
+            description: null,
+            group_id: null,
+            user_id: "",
+            created_at: new Date().toISOString(),
+            order_index: null,
+            is_enriching: true,
+          } as BookmarkRow,
         };
+      });
 
-        onAddBookmark(optimisticBookmark);
+      // Add all to UI immediately
+      optimisticMap.forEach((item) => onAddBookmark(item.optimistic));
 
-        try {
-          const bookmarkId = await addBookmark({ url, is_enriching: true });
-          onUpdateBookmark(tempId, { id: bookmarkId });
+      // 2. Process all server actions in parallel
+      await Promise.all(
+        optimisticMap.map(async ({ url, tempId }) => {
+          try {
+            const bookmarkId = await addBookmark({ url, is_enriching: true });
+            onUpdateBookmark(tempId, { id: bookmarkId });
 
-          fetch(`/api/metadata?url=${encodeURIComponent(url)}`)
-            .then((res) => res.json())
-            .then((metadata) => {
-              if (metadata && !metadata.error) {
-                enrichBookmark(bookmarkId, {
-                  title: metadata.title,
-                  favicon_url: metadata.favicon,
-                  description: metadata.description,
-                });
-                onUpdateBookmark(bookmarkId, {
-                  title: metadata.title,
-                  favicon_url: metadata.favicon,
-                  description: metadata.description,
-                  is_enriching: false,
-                });
-              }
-            });
-        } catch (error) {
-          console.error("Failed to add extracted bookmark:", error);
-        }
-      }
+            // Background Scrape
+            fetch(`/api/metadata?url=${encodeURIComponent(url)}`)
+              .then((res) => res.json())
+              .then((metadata) => {
+                if (metadata && !metadata.error) {
+                  enrichBookmark(bookmarkId, {
+                    title: metadata.title,
+                    favicon_url: metadata.favicon,
+                    description: metadata.description,
+                  });
+                  onUpdateBookmark(bookmarkId, {
+                    title: metadata.title,
+                    favicon_url: metadata.favicon,
+                    description: metadata.description,
+                    is_enriching: false,
+                  });
+                }
+              });
+          } catch (error) {
+            console.error("Failed to add extracted bookmark:", error);
+          }
+        }),
+      );
     },
     [onAddBookmark, onUpdateBookmark],
   );
