@@ -38,6 +38,10 @@ Reway is a high-performance, tool-like bookmarking application built with Next.j
 - [x] Enable bookmark reordering/sorting (DnD persistence in DB)
 - [x] Add bookmark deletion and editing
 - [x] Complete Migration to Hugeicons (Lucide removed)
+- [x] Implement **AI Link Extraction** (Gemini 2.5 Flash-Lite)
+- [x] Add **Clipboard Paste Support** (Images + Text)
+- [x] Implement **Batch Optimistic UI** & Parallel Processing
+- [x] Add **Premium Shimmer Effects** for loading states
 
 ---
 

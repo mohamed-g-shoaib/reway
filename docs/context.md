@@ -62,3 +62,9 @@ benefit: 100% bespoke visual language with sharper, more premium icons; removing
 
 feature number #21: Categorized Group Navigation & Icon Picker
 benefit: sophisticated organization where users can group bookmarks into flat categories with a specialized icon picker; the UI uses a categorized hugeicons list to allow meaningful visual distinctions between folders, all with instant optimistic updates
+
+feature number #22: AI-Powered "Magic" Link Extraction
+benefit: users can paste images (screenshots) or large blocks of text directly into the dashboard; the app uses Gemini 2.5 Flash-Lite to instantly extract and save all URLs found within the content, making it effortless to capture research from mobile or messy notes
+
+feature number #23: Clipboard Image Support & Batch Optimistic UI
+benefit: seamless workflow where pasting an image instantly populates the dashboard with multiple "shimmering" cards for every link found; uses parallel server-side processing to ensure that even extracting 10+ links feels instantaneous and professional

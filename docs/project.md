@@ -60,22 +60,24 @@ Reway is a high-performance, premium bookmark manager built with **Next.js 16**,
 - **Foundation**: Next.js 16 App Router with Supabase Auth and Database. Implemented "Optimistic UI" for zero-latency interactions.
 - **Design System**: A custom "Graphite" aesthetic using Vanilla CSS, Glassmorphism, and **Hugeicons**. We completely removed `lucide-react` to ensure a bespoke, premium look.
 - **Core Components**:
-  - **Command Bar**: A central, keyboard-first interface (Cmd+K style) for searching and saving URLs.
+  - **Command Bar**: A central, keyboard-first interface (Cmd+K style) for searching and saving URLs. Now features **AI-powered link extraction** and **clipboard support**.
   - **Intelligent Navbar**: Left-side navigation with group persistence, active indicators, and a modern "plus" button for group creation.
-  - **Bookmark Board**: A grid of bookmarks with automatic metadata enrichment (fetching titles/favicons in the background).
+  - **Bookmark Board**: A grid of bookmarks with automatic metadata enrichment and a premium **shimmer-based loading effect**.
   - **Group System**: Functional group creation with a sophisticated icon picker powered by a categorized `Hugeicons` list.
 
 ### Implementation Details
 
+- **AI Extraction Engine**: Integrated **Gemini 2.5 Flash-Lite** via Vercel AI SDK. Supports extracting multiple links from "walls of text" and **OCR extraction from screenshots**.
+- **Clipboard Integration**: Implemented a global paste listener that detects images and text, processing them through the AI extraction flow instantly.
+- **Parallel Batching**: Refactored the creation flow to support **batch optimistic updates**. Multiple links from a single paste/upload appear in the UI simultaneously and save in parallel.
 - **Hugeicons Migration**: Switched to `@hugeicons/core-free-icons` for better tree-shaking and a sharper visual language. Managed through a central map in `lib/hugeicons-list.ts`.
 - **Supabase Integration**: Robust RLS policies and server-side client generation. Auto-generated types for full end-to-end safety.
-- **Optimistic Workflows**: URL submission instantly creates a "pending" card while a background edge function enriches the data.
 
 ### Future Focus
 
-- **AI Extraction**: Using Gemini-2.5-flash-lite to parse links from walls of text or screenshots.
+- **The Grid Refactor**: Moving from a vertical list to a responsive 2D grid while maintaining drag-and-drop stability.
 - **Global Search**: High-performance client-side filtering.
-- **Data Persistence**: Ensuring DnD reordering remains slick and syncs reliably.
+- **Data Persistence**: Ensuring DnD reordering remains slick across different viewports.
 
 ### Tools & Preferences
 
