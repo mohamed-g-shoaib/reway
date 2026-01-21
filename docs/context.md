@@ -26,3 +26,9 @@ benefit: snappy, tool-like interaction with row-level drag, hover actions, and k
 
 feature number #9: Refine Dashboard UI/UX, standardize global layout width (768px), and add mobile action menus
 benefit: improved precision in interactions (cursors/shortcuts), perfect vertical alignment across all devices, and touch-optimized accessibility for bookmark actions
+
+feature number #10: Implement theme management with next-themes and custom ModeToggle
+benefit: seamless dark/light mode switching with system preference support and premium UI integration
+
+feature number #11: Fix auth flow redirects and session-based navigation logic
+benefit: smooth transition from login to dashboard and automatic redirection of authenticated users away from public auth pages

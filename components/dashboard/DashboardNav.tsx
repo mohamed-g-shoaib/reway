@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export function DashboardNav() {
   return (
@@ -101,7 +102,7 @@ export function DashboardNav() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Placeholder for future global actions/notifications */}
+          <ModeToggle />
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/30 text-[10px] font-bold tracking-widest text-muted-foreground/60 uppercase border border-border/5">
             v1.0.0-beta
           </div>
