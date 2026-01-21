@@ -67,14 +67,28 @@ export async function updateBookmarksOrder(
 ) {
   const supabase = await createClient();
 
-  // Perform multiple updates in a single transaction-like call if possible,
-  // but Supabase JS doesn't support bulk updates with different values easily.
-  // We'll use a Promise.all for now or a single .upsert if we have all keys.
-  const { error } = await supabase.from("bookmarks").upsert(updates);
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
 
-  if (error) {
-    console.error("Error updating order:", error);
-    throw new Error("Failed to update order");
+  // Use individual updates to avoid satisfying NOT NULL constraints on other columns (like URL)
+  // for an upsert/insert operation.
+  const updatePromises = updates.map(
+    (update) =>
+      supabase
+        .from("bookmarks")
+        .update({ order_index: update.order_index })
+        .eq("id", update.id)
+        .eq("user_id", userData.user.id), // Security check
+  );
+
+  const results = await Promise.all(updatePromises);
+
+  const firstError = results.find((r) => r.error)?.error;
+  if (firstError) {
+    console.error("Error updating order:", firstError);
+    throw new Error(`Failed to update order: ${firstError.message}`);
   }
 
   revalidatePath("/dashboard");

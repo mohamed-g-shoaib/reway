@@ -53,3 +53,6 @@ benefit: absolute zero-latency experience where bookmarks appear instantly upon 
 
 feature number #18: Persistent Organization & Management
 benefit: users can reorder bookmarks via drag-and-drop and delete unwanted links with optimistic UI updates; the app automatically persists the custom order to the database, ensuring their workspace remains personalized even after reload
+
+feature number #19: Smart Favicon Fallback System
+benefit: ensures a premium visual experience for every bookmark; if a site's primary icon is missing or blocked, the app automatically falls back to secondary sources or creates a beautifully styled initial-letter placeholder with domain-stable colors

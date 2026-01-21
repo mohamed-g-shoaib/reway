@@ -2,14 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  Bookmark as BookmarkIcon,
-  Pencil,
-  Copy,
-  ExternalLink,
-  Trash2,
-  MoreVertical,
-} from "lucide-react";
+import { Pencil, Copy, ExternalLink, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Bookmark as BookmarkType } from "@/types/dashboard";
 import {
@@ -23,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Favicon } from "./Favicon";
 
 interface SortableBookmarkProps {
   bookmark: BookmarkType & { is_enriching?: boolean };
@@ -67,25 +61,13 @@ export function SortableBookmark({
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Favicon Container */}
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm hover:shadow-md transition-all cursor-pointer ${
-            bookmark.is_enriching
-              ? "animate-pulse bg-muted/30 border-muted/50"
-              : ""
-          }`}
-          onClick={openInNewTab}
-        >
-          {bookmark.favicon && !bookmark.is_enriching ? (
-            <img
-              src={bookmark.favicon}
-              alt=""
-              className="h-6 w-6 rounded-sm object-contain"
-            />
-          ) : (
-            <BookmarkIcon
-              className={`h-5 w-5 ${bookmark.is_enriching ? "text-muted-foreground/20" : "text-muted-foreground/60"}`}
-            />
-          )}
+        <div onClick={openInNewTab}>
+          <Favicon
+            url={bookmark.favicon || ""}
+            domain={bookmark.domain || ""}
+            title={bookmark.title || ""}
+            isEnriching={bookmark.is_enriching}
+          />
         </div>
 
         {/* Text Content */}

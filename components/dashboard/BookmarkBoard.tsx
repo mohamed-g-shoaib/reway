@@ -25,6 +25,7 @@ import { createPortal } from "react-dom";
 import { Bookmark as BookmarkIcon, Plus } from "lucide-react";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
+import { Favicon } from "./Favicon";
 
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
@@ -188,17 +189,11 @@ export function BookmarkBoard({
                     return (
                       <div className="flex items-center justify-between rounded-xl bg-background/95 border border-primary/20 px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-md scale-[1.02] ring-1 ring-primary/5">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm">
-                            {activeBookmark.favicon_url ? (
-                              <img
-                                src={activeBookmark.favicon_url}
-                                alt=""
-                                className="h-6 w-6 rounded-sm object-contain"
-                              />
-                            ) : (
-                              <BookmarkIcon className="h-5 w-5 text-muted-foreground/60" />
-                            )}
-                          </div>
+                          <Favicon
+                            url={activeBookmark.favicon_url || ""}
+                            domain={domain}
+                            title={activeBookmark.title || ""}
+                          />
                           <div className="flex min-w-0 flex-col gap-0.5">
                             <span className="truncate text-sm font-bold text-foreground">
                               {activeBookmark.title}
