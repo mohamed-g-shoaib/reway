@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Bookmark, Search, Zap, Globe, Github } from "lucide-react";
+import {
+  ArrowRight01Icon,
+  Bookmark01Icon,
+  Search01Icon,
+  ZapIcon,
+  Globe02Icon,
+  GithubIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { ModeToggle } from "@/components/mode-toggle";
 
 export default function LandingPage() {
@@ -11,7 +19,7 @@ export default function LandingPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 text-foreground">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Bookmark className="size-5" />
+              <HugeiconsIcon icon={Bookmark01Icon} size={20} />
             </div>
             <span className="text-xl font-bold tracking-tight">Reway</span>
           </div>
@@ -42,7 +50,11 @@ export default function LandingPage() {
             <Link href="/login">
               <Button className="rounded-xl px-4 text-sm font-medium shadow-sm">
                 Get Started
-                <ArrowRight className="ml-1 size-4" />
+                <HugeiconsIcon
+                  icon={ArrowRight01Icon}
+                  size={16}
+                  className="ml-1"
+                />
               </Button>
             </Link>
           </div>
@@ -57,7 +69,7 @@ export default function LandingPage() {
 
           <div className="mx-auto max-w-4xl text-center">
             <div className="mb-6 inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
-              <Zap className="mr-1.5 size-3" />
+              <HugeiconsIcon icon={ZapIcon} size={12} className="mr-1.5" />
               Instant Bookmarking Reimagined
             </div>
             <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
@@ -76,7 +88,11 @@ export default function LandingPage() {
                   className="h-14 rounded-2xl px-8 text-base font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
                 >
                   Get Started for Free
-                  <ArrowRight className="ml-2 size-5" />
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={20}
+                    className="ml-2"
+                  />
                 </Button>
               </Link>
               <Button
@@ -84,7 +100,7 @@ export default function LandingPage() {
                 size="lg"
                 className="h-14 rounded-2xl px-8 text-base font-semibold transition-all hover:bg-accent/50"
               >
-                <Globe className="mr-2 size-5" />
+                <HugeiconsIcon icon={Globe02Icon} size={20} className="mr-2" />
                 See Demo
               </Button>
             </div>
@@ -111,17 +127,17 @@ export default function LandingPage() {
                 {
                   title: "Smart Extraction",
                   desc: "Paste a URL and we pull title, favicon, and preview images automatically.",
-                  icon: Zap,
+                  icon: ZapIcon,
                 },
                 {
                   title: "Search That Works",
                   desc: "Find anything in milliseconds. Search through titles, URLs, and descriptions.",
-                  icon: Search,
+                  icon: Search01Icon,
                 },
                 {
                   title: "Secure Sync",
                   desc: "Your data is yours. Encrypted and synced across all your devices.",
-                  icon: Globe,
+                  icon: Globe02Icon,
                 },
               ].map((f, i) => (
                 <div
@@ -129,7 +145,7 @@ export default function LandingPage() {
                   className="group flex flex-col rounded-3xl border border-border bg-card p-8 transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5"
                 >
                   <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all group-hover:scale-110">
-                    <f.icon className="size-6" />
+                    <HugeiconsIcon icon={f.icon} size={24} />
                   </div>
                   <h3 className="mb-2 text-xl font-bold text-foreground">
                     {f.title}
@@ -171,7 +187,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/40 py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex items-center gap-2 text-foreground/60">
-            <Bookmark className="size-4" />
+            <HugeiconsIcon icon={Bookmark01Icon} size={16} />
             <span className="text-sm font-semibold tracking-tight">Reway</span>
             <span className="text-sm font-normal">© 2026</span>
           </div>
@@ -192,7 +208,7 @@ export default function LandingPage() {
               href="https://github.com"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              <Github className="size-5" />
+              <HugeiconsIcon icon={GithubIcon} size={20} />
             </Link>
           </div>
         </div>

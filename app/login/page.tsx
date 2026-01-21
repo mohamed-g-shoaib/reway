@@ -8,7 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Chrome } from "lucide-react";
+import { ChromeIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { signInWithGoogle } from "./actions";
 
 export default function LoginPage() {
@@ -30,7 +31,7 @@ export default function LoginPage() {
               variant="outline"
               className="h-12 w-full gap-2 rounded-xl text-base font-medium transition-all hover:bg-accent hover:text-accent-foreground"
             >
-              <Chrome className="size-5" />
+              <HugeiconsIcon icon={ChromeIcon} size={20} />
               Continue with Google
             </Button>
           </form>

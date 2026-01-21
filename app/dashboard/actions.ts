@@ -33,7 +33,7 @@ export async function addBookmark(formData: {
     .limit(1)
     .single();
 
-  const nextOrderIndex = minOrderData ? minOrderData.order_index - 1 : 0;
+  const nextOrderIndex = minOrderData ? (minOrderData.order_index ?? 0) - 1 : 0;
 
   // Use the URL as title if none provided (instant mode)
   const title = formData.title || formData.url;
@@ -131,4 +131,31 @@ export async function enrichBookmark(
   }
 
   revalidatePath("/dashboard");
+}
+
+export async function createGroup(formData: { name: string; icon: string }) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { data, error } = await supabase
+    .from("groups")
+    .insert({
+      name: formData.name,
+      icon: formData.icon,
+      user_id: userData.user.id,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("Error creating group:", error);
+    throw new Error("Failed to create group");
+  }
+
+  revalidatePath("/dashboard");
+  return data.id;
 }

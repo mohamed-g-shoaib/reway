@@ -21,6 +21,6 @@ export async function signInWithGoogle(): Promise<void> {
   }
 
   if (data.url) {
-    redirect(data.url);
+    redirect(data.url as never);
   }
 }
