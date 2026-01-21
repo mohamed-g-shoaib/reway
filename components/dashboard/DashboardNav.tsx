@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Settings, LogOut, User, Sparkles } from "lucide-react";
+import { ChevronDown, Settings, LogOut, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,8 +12,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "@/components/mode-toggle";
+import { signOut } from "@/app/dashboard/actions";
+import { SettingsDialog } from "./SettingsDialog";
 
-export function DashboardNav() {
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar_url?: string;
+}
+
+interface DashboardNavProps {
+  user: User;
+}
+
+export function DashboardNav({ user }: DashboardNavProps) {
+  // Get initials from name
+  const initials = user.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
     <nav className="border-b bg-background/50 backdrop-blur-md sticky top-0 z-40">
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
@@ -26,9 +47,9 @@ export function DashboardNav() {
                 className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="" alt="User" />
+                  <AvatarImage src={user.avatar_url} alt={user.name} />
                   <AvatarFallback className="bg-linear-to-br from-pink-500 to-rose-500 text-white font-semibold text-xs transition-transform active:scale-95">
-                    Z
+                    {initials}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -39,30 +60,43 @@ export function DashboardNav() {
             >
               <DropdownMenuLabel className="px-2 py-1.5 font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Zaid</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user.name}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    zaid@reway.so
+                    {user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5">
-                <User className="h-4 w-4" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5">
-                <Settings className="h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
+              <SettingsDialog>
+                <DropdownMenuItem
+                  className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+              </SettingsDialog>
               <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium">
                 <Sparkles className="h-4 w-4" />
                 Upgrade to Pro
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer transition-colors focus:bg-destructive/5 focus:text-destructive">
-                <LogOut className="h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
+              <form action={signOut}>
+                <DropdownMenuItem
+                  asChild
+                  className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer transition-colors focus:bg-destructive/5 focus:text-destructive w-full"
+                >
+                  <button
+                    type="submit"
+                    className="w-full flex items-center gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Log out
+                  </button>
+                </DropdownMenuItem>
+              </form>
             </DropdownMenuContent>
           </DropdownMenu>
 

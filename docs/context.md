@@ -32,3 +32,12 @@ benefit: seamless dark/light mode switching with system preference support and p
 
 feature number #11: Fix auth flow redirects and session-based navigation logic
 benefit: smooth transition from login to dashboard and automatic redirection of authenticated users away from public auth pages
+
+feature number #12: Migrate to Next.js 16 `proxy.ts` convention and implement robust cookie-aware auth callback
+benefit: resolves redirect loops on localhost by ensuring cookies are explicitly set on response objects before redirection, matching latest framework standards
+
+feature number #13: Implement real-time user profile data and Settings dialog
+benefit: personalized experience with real Google avatars/names and a centralized hub for theme and account preferences
+
+feature number #14: Resolve DnD hydration errors and fix auth token Verifier conflicts
+benefit: stable UI rendering across server/client and cleaner browser storage by eliminating legacy Supabase verifier cookies
