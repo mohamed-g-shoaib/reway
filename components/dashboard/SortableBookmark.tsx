@@ -15,7 +15,6 @@ import { Bookmark as BookmarkType } from "@/types/dashboard";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
@@ -111,10 +110,10 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
       </div>
 
       {/* Actions / Date Container */}
-      <div className="flex shrink-0 items-center min-w-25 justify-end">
-        {/* Desktop Date: Hidden on hover if not mobile */}
+      <div className="relative flex shrink-0 items-center min-w-25 justify-end">
+        {/* Desktop Date: Fades out on hover if not mobile */}
         <span
-          className={`text-sm font-medium text-muted-foreground/50 group-hover:hidden transition-all tabular-nums md:block ${
+          className={`text-sm font-medium text-muted-foreground/50 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
             bookmark.is_enriching ? "animate-pulse" : ""
           }`}
         >
@@ -124,72 +123,70 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
         {/* Desktop Action Buttons: Visible only on hover and on desktop */}
         {!bookmark.is_enriching && (
           <div
-            className="hidden items-center gap-1 md:group-hover:flex animate-in fade-in-0 slide-in-from-right-2 duration-200 cursor-default"
+            className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
           >
-            <TooltipProvider delayDuration={400}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                  Edit
-                </TooltipContent>
-              </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
+                Edit
+              </TooltipContent>
+            </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                  Copy Link
-                </TooltipContent>
-              </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
+                Copy Link
+              </TooltipContent>
+            </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                    onClick={openInNewTab}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                  Open
-                </TooltipContent>
-              </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                  onClick={openInNewTab}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
+                Open
+              </TooltipContent>
+            </Tooltip>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
-                  Delete
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
+                Delete
+              </TooltipContent>
+            </Tooltip>
           </div>
         )}
 

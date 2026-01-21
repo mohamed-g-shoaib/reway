@@ -47,3 +47,6 @@ benefit: secure multi-tenant architecture where user data is private by default 
 
 feature number #16: Implement Metadata Scraper and Bookmark Creation Flow
 benefit: users can save any link instantly by pasting it into the Command Bar; titles, favicons, and metadata are automatically extracted on the server for a premium, effortless experience
+
+feature number #17: Optimistic UI and Background Enrichment
+benefit: absolute zero-latency experience where bookmarks appear instantly upon entry, with metadata filling in dynamically without blocking the user or requiring a page reload

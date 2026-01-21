@@ -27,12 +27,13 @@ import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
 
 interface BookmarkBoardProps {
-  initialBookmarks: BookmarkRow[];
+  bookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
+  onReorder: (newOrder: BookmarkRow[]) => void;
 }
 
-export function BookmarkBoard({ initialBookmarks }: BookmarkBoardProps) {
-  const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
+export function BookmarkBoard({ bookmarks, onReorder }: BookmarkBoardProps) {
+  // Removed internal bookmarks state
   const [activeId, setActiveId] = useState<string | null>(null);
   const dndContextId = useId();
 
@@ -59,11 +60,10 @@ export function BookmarkBoard({ initialBookmarks }: BookmarkBoardProps) {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      setBookmarks((prev) => {
-        const oldIndex = prev.findIndex((b) => b.id === active.id);
-        const newIndex = prev.findIndex((b) => b.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
-      });
+      const oldIndex = bookmarks.findIndex((b) => b.id === active.id);
+      const newIndex = bookmarks.findIndex((b) => b.id === over.id);
+      const newOrder = arrayMove(bookmarks, oldIndex, newIndex);
+      onReorder(newOrder);
       // TODO: Persist order to database
     }
 

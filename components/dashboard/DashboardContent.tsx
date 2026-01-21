@@ -36,6 +36,11 @@ export function DashboardContent({
     [],
   );
 
+  const handleReorder = useCallback((newOrder: BookmarkRow[]) => {
+    setBookmarks(newOrder);
+    // TODO: Trigger server saving
+  }, []);
+
   return (
     <div className="flex flex-col gap-12">
       {/* Search/Command Bar */}
@@ -46,8 +51,9 @@ export function DashboardContent({
 
       {/* Bookmark List Section */}
       <BookmarkBoard
-        initialBookmarks={bookmarks}
+        bookmarks={bookmarks}
         initialGroups={initialGroups}
+        onReorder={handleReorder}
       />
     </div>
   );
