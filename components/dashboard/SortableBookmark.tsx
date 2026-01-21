@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface SortableBookmarkProps {
-  bookmark: BookmarkType;
+  bookmark: BookmarkType & { is_enriching?: boolean };
 }
 
 export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
@@ -65,33 +65,47 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Favicon Container */}
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm hover:shadow-md transition-all cursor-pointer ${
+            bookmark.is_enriching
+              ? "animate-pulse bg-muted/30 border-muted/50"
+              : ""
+          }`}
           onClick={openInNewTab}
         >
-          {bookmark.favicon ? (
+          {bookmark.favicon && !bookmark.is_enriching ? (
             <img
               src={bookmark.favicon}
               alt=""
               className="h-6 w-6 rounded-sm object-contain"
             />
           ) : (
-            <BookmarkIcon className="h-5 w-5 text-muted-foreground/60" />
+            <BookmarkIcon
+              className={`h-5 w-5 ${bookmark.is_enriching ? "text-muted-foreground/20" : "text-muted-foreground/60"}`}
+            />
           )}
         </div>
 
         {/* Text Content */}
         <div className="flex min-w-0 flex-col gap-0.5 w-fit">
           <span
-            className="w-fit max-w-full truncate text-sm font-bold text-foreground md:text-base group-hover:text-primary transition-colors cursor-pointer"
+            className={`w-fit max-w-full truncate text-sm font-bold transition-all cursor-pointer md:text-base ${
+              bookmark.is_enriching
+                ? "text-muted-foreground/30 animate-pulse bg-muted/20 rounded-md px-2 -ml-2"
+                : "text-foreground group-hover:text-primary"
+            }`}
             onClick={openInNewTab}
           >
             {bookmark.title}
           </span>
           <span
-            className="w-fit text-xs font-medium text-muted-foreground/70 cursor-pointer"
+            className={`w-fit text-xs font-medium cursor-pointer transition-all ${
+              bookmark.is_enriching
+                ? "text-muted-foreground/10 animate-pulse bg-muted/10 rounded-md px-2 -ml-2 h-3"
+                : "text-muted-foreground/70"
+            }`}
             onClick={openInNewTab}
           >
-            {bookmark.domain}
+            {bookmark.is_enriching ? "" : bookmark.domain}
           </span>
         </div>
       </div>
@@ -99,116 +113,124 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
       {/* Actions / Date Container */}
       <div className="flex shrink-0 items-center min-w-25 justify-end">
         {/* Desktop Date: Hidden on hover if not mobile */}
-        <span className="text-sm font-medium text-muted-foreground/50 group-hover:hidden transition-all tabular-nums md:block">
-          {bookmark.createdAt}
+        <span
+          className={`text-sm font-medium text-muted-foreground/50 group-hover:hidden transition-all tabular-nums md:block ${
+            bookmark.is_enriching ? "animate-pulse" : ""
+          }`}
+        >
+          {bookmark.is_enriching ? "Enriching..." : bookmark.createdAt}
         </span>
 
         {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-        <div
-          className="hidden items-center gap-1 md:group-hover:flex animate-in fade-in-0 slide-in-from-right-2 duration-200 cursor-default"
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <TooltipProvider delayDuration={400}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Edit
-              </TooltipContent>
-            </Tooltip>
+        {!bookmark.is_enriching && (
+          <div
+            className="hidden items-center gap-1 md:group-hover:flex animate-in fade-in-0 slide-in-from-right-2 duration-200 cursor-default"
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <TooltipProvider delayDuration={400}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
+                  Edit
+                </TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Copy Link
-              </TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
+                  Copy Link
+                </TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                  onClick={openInNewTab}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Open
-              </TooltipContent>
-            </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                    onClick={openInNewTab}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
+                  Open
+                </TooltipContent>
+              </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
-                Delete
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
+                  Delete
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
 
         {/* Mobile Action Menu */}
-        <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
-                onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
+        {!bookmark.is_enriching && (
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4 text-muted-foreground/60" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
               >
-                <MoreVertical className="h-4 w-4 text-muted-foreground/60" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
-            >
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                <Pencil className="h-4 w-4" /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                <Copy className="h-4 w-4" /> Copy Link
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-                onClick={openInNewTab}
-              >
-                <ExternalLink className="h-4 w-4" /> Open
-              </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium">
-                <Trash2 className="h-4 w-4" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
+                  <Pencil className="h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
+                  <Copy className="h-4 w-4" /> Copy Link
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                  onClick={openInNewTab}
+                >
+                  <ExternalLink className="h-4 w-4" /> Open
+                </DropdownMenuItem>
+                <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium">
+                  <Trash2 className="h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
     </div>
   );

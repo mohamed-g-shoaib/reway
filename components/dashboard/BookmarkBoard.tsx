@@ -146,6 +146,7 @@ export function BookmarkBoard({ initialBookmarks }: BookmarkBoardProps) {
                       { month: "short", day: "numeric" },
                     ),
                     groupId: bookmark.group_id || "all",
+                    is_enriching: bookmark.is_enriching || false,
                   }}
                 />
               );

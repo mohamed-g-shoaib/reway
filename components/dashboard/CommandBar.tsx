@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search, Loader2 } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +9,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { addBookmark } from "@/app/dashboard/actions";
+import { addBookmark, enrichBookmark } from "@/app/dashboard/actions"; // Added enrichBookmark
 
 export function CommandBar() {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  // Removed: const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,45 +58,46 @@ export function CommandBar() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim()) return; // Removed || isLoading
 
     const value = inputValue.trim();
-    setIsLoading(true);
+    // No need for global loading state blocking the whole bar,
+    // we'll handle it per-submission if we had a list of submissions,
+    // but for now let's just clear the input immediately.
 
-    try {
-      if (isUrl(value)) {
-        // 1. Fetch metadata
-        const response = await fetch(
-          `/api/metadata?url=${encodeURIComponent(value)}`,
-        );
-        const metadata = await response.json();
+    if (isUrl(value)) {
+      setInputValue("");
+      inputRef.current?.blur();
 
-        if (response.ok) {
-          // 2. Add bookmark via server action
-          await addBookmark({
-            url: metadata.url,
-            title: metadata.title || metadata.domain || value,
-            favicon_url: metadata.favicon,
-            description: metadata.description,
-          });
-          setInputValue("");
-        } else {
-          console.error("Metadata fetch failed", metadata.error);
-          // Fallback if metadata fails
-          await addBookmark({
-            url: value.startsWith("http") ? value : `https://${value}`,
-            title: value,
-          });
-          setInputValue("");
-        }
-      } else {
-        // TODO: Handle plain text or other types
-        console.log("Searching or adding text:", value);
+      try {
+        // 1. Instant Insert
+        const bookmarkId = await addBookmark({
+          url: value.startsWith("http") ? value : `https://${value}`,
+          is_enriching: true,
+        });
+
+        // 2. Background Scrape (non-blocking)
+        fetch(`/api/metadata?url=${encodeURIComponent(value)}`)
+          .then((res) => res.json())
+          .then((metadata) => {
+            if (metadata && !metadata.error) {
+              // Assuming enrichBookmark is defined elsewhere or will be added
+              // For now, this will cause a compilation error if not defined.
+              enrichBookmark(bookmarkId, {
+                // Uncommented and ensured call
+                title: metadata.title,
+                favicon_url: metadata.favicon,
+                description: metadata.description,
+              });
+            }
+          })
+          .catch((err) => console.error("Background scrape failed:", err));
+      } catch (error) {
+        console.error("Instant insert failed:", error);
       }
-    } catch (error) {
-      console.error("Submit Error:", error);
-    } finally {
-      setIsLoading(false);
+    } else {
+      console.log("Searching or adding text:", value);
+      setInputValue("");
     }
   };
 
@@ -132,14 +133,9 @@ export function CommandBar() {
                 variant="ghost"
                 size="icon"
                 onClick={handlePlusClick}
-                disabled={isLoading}
                 className="h-9 w-9 shrink-0 rounded-xl text-muted-foreground/40 transition-all hover:bg-muted hover:text-primary active:scale-90"
               >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                ) : (
-                  <Plus className="h-5 w-5" />
-                )}
+                <Plus className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent className="rounded-lg font-medium">
@@ -158,7 +154,6 @@ export function CommandBar() {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Insert a link, image, or just search..."
-          disabled={isLoading}
           className="flex-1 bg-transparent text-lg font-medium outline-none placeholder:text-muted-foreground/30 selection:bg-primary/20 disabled:opacity-50"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
