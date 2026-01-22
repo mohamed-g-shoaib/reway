@@ -202,3 +202,88 @@ export async function createGroup(formData: { name: string; icon: string }) {
   revalidatePath("/dashboard");
   return data.id;
 }
+
+export async function updateGroup(
+  id: string,
+  formData: { name: string; icon: string },
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("groups")
+    .update({
+      name: formData.name,
+      icon: formData.icon,
+    })
+    .eq("id", id)
+    .eq("user_id", userData.user.id);
+
+  if (error) {
+    console.error("Error updating group:", error);
+    throw new Error("Failed to update group");
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function deleteGroup(id: string) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("groups")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userData.user.id);
+
+  if (error) {
+    console.error("Error deleting group:", error);
+    throw new Error("Failed to delete group");
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function updateBookmark(
+  id: string,
+  formData: {
+    title: string;
+    url: string;
+    description?: string;
+    group_id?: string | null;
+  },
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("bookmarks")
+    .update({
+      title: formData.title,
+      url: formData.url,
+      description: formData.description,
+      group_id: formData.group_id,
+    })
+    .eq("id", id)
+    .eq("user_id", userData.user.id);
+
+  if (error) {
+    console.error("Error updating bookmark:", error);
+    throw new Error("Failed to update bookmark");
+  }
+
+  revalidatePath("/dashboard");
+}
