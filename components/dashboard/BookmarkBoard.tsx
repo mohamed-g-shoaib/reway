@@ -33,6 +33,7 @@ import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Favicon } from "./Favicon";
+import { getDomain } from "@/lib/utils";
 
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
@@ -204,12 +205,7 @@ export function BookmarkBoard({
         >
           <div className="-mx-4 flex flex-col gap-1">
             {bookmarks.map((bookmark) => {
-              let domain = "link";
-              try {
-                domain = new URL(bookmark.url).hostname.replace("www.", "");
-              } catch {
-                // Ignore invalid URLs
-              }
+              const domain = getDomain(bookmark.url);
 
               return (
                 <SortableBookmark
@@ -252,15 +248,7 @@ export function BookmarkBoard({
             >
               {activeBookmark
                 ? (() => {
-                    let domain = "link";
-                    try {
-                      domain = new URL(activeBookmark.url).hostname.replace(
-                        "www.",
-                        "",
-                      );
-                    } catch {
-                      // Ignore
-                    }
+                    const domain = getDomain(activeBookmark.url);
 
                     return (
                       <div className="flex items-center justify-between rounded-xl bg-background/95 border border-primary/20 px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-md scale-[1.02] ring-1 ring-primary/5">

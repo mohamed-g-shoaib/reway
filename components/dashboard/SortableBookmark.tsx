@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -46,7 +46,7 @@ interface SortableBookmarkProps {
   ) => Promise<void>;
 }
 
-export function SortableBookmark({
+export const SortableBookmark = memo(function SortableBookmark({
   bookmark,
   onDelete,
   groups = [],
@@ -264,7 +264,7 @@ export function SortableBookmark({
                   No group
                 </DropdownMenuItem>
 
-                {groups.length > 0 && (
+                {groups.length > 0 ? (
                   <>
                     <DropdownMenuSeparator className="my-1" />
                     <div className="max-h-60 overflow-y-auto">
@@ -286,7 +286,7 @@ export function SortableBookmark({
                       })}
                     </div>
                   </>
-                )}
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -377,7 +377,7 @@ export function SortableBookmark({
         </span>
 
         {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-        {!bookmark.is_enriching && (
+        {!bookmark.is_enriching ? (
           <div
             className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
             onClick={(e) => e.stopPropagation()}
@@ -447,10 +447,10 @@ export function SortableBookmark({
               </div>
             </Button>
           </div>
-        )}
+        ) : null}
 
         {/* Mobile Action Menu */}
-        {!bookmark.is_enriching && (
+        {!bookmark.is_enriching ? (
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -511,8 +511,8 @@ export function SortableBookmark({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
-}
+});

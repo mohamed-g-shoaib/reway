@@ -285,7 +285,7 @@ export function CommandBar({
       </form>
 
       {/* Visual Indicator for shortcuts when not focused */}
-      {!isFocused && !inputValue && (
+      {!isFocused && !inputValue ? (
         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
             Press{" "}
@@ -295,7 +295,7 @@ export function CommandBar({
             to start typing
           </p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

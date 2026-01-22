@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { CommandBar } from "@/components/dashboard/CommandBar";
 import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
@@ -183,14 +183,16 @@ export function DashboardContent({
     [],
   );
 
-  // Calculate bookmark counts per group
-  const groupCounts = groups.reduce(
-    (acc, group) => {
-      acc[group.id] = bookmarks.filter((b) => b.group_id === group.id).length;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
+  // Calculate bookmark counts per group (O(N) single-pass)
+  const groupCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const b of bookmarks) {
+      if (b.group_id) {
+        counts[b.group_id] = (counts[b.group_id] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [bookmarks]);
 
   return (
     <>

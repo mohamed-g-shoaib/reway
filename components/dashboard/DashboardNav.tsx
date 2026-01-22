@@ -29,10 +29,21 @@ import {
   PencilEdit01Icon,
   Alert02Icon,
 } from "@hugeicons/core-free-icons";
-import { IconPickerPopover } from "./IconPickerPopover";
 import { Button as UIButton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createGroup } from "@/app/dashboard/actions";
+import dynamic from "next/dynamic";
+
+// Dynamically load the heavy icon picker to optimize initial bundle size
+const IconPickerPopover = dynamic(
+  () => import("./IconPickerPopover").then((mod) => mod.IconPickerPopover),
+  {
+    loading: () => (
+      <div className="h-8 w-8 animate-pulse rounded-lg bg-primary/10" />
+    ),
+    ssr: false,
+  },
+);
 
 export interface User {
   id: string;
@@ -164,14 +175,14 @@ export function DashboardNav({
                   className="h-10 gap-2 px-2 rounded-2xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98] -ml-2"
                 >
                   <div className="flex items-center justify-center h-8 w-8">
-                    {ActiveIcon && (
+                    {ActiveIcon ? (
                       <HugeiconsIcon
                         icon={ActiveIcon}
                         size={18}
                         strokeWidth={2}
                         className="text-foreground/80"
                       />
-                    )}
+                    ) : null}
                   </div>
                   <span className="truncate max-w-30 md:max-w-50">
                     {activeGroup.name}
@@ -195,7 +206,7 @@ export function DashboardNav({
                   All Bookmarks
                 </DropdownMenuItem>
 
-                {groups.length > 0 && (
+                {groups.length > 0 ? (
                   <div
                     className={`max-h-75 overflow-y-auto ${groups.length > 1 ? "border-t border-border/50 my-1 pt-1" : "mt-1"}`}
                   >
@@ -291,13 +302,13 @@ export function DashboardNav({
                           }}
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {GroupIcon && (
+                            {GroupIcon ? (
                               <HugeiconsIcon
                                 icon={GroupIcon}
                                 size={16}
                                 strokeWidth={2}
                               />
-                            )}
+                            ) : null}
                             <span className="truncate">{group.name}</span>
                           </div>
                           <div
@@ -362,7 +373,7 @@ export function DashboardNav({
                       );
                     })}
                   </div>
-                )}
+                ) : null}
 
                 <DropdownMenuSeparator className="my-2" />
 
