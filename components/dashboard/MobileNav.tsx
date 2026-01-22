@@ -15,7 +15,7 @@ export function MobileNav() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-11 w-11 rounded-2xl hover:bg-muted/50 transition-all active:scale-90"
+        className="h-11 w-11 rounded-4xl hover:bg-muted/50 transition-all active:scale-90"
       >
         <HugeiconsIcon icon={ArrowLeft01Icon} size={20} />
       </Button>
@@ -23,7 +23,7 @@ export function MobileNav() {
       <div className="flex items-center gap-1.5 rounded-2xl bg-muted/20 p-1">
         <Button
           size="icon"
-          className="h-11 w-11 rounded-2xl bg-foreground text-background shadow-lg hover:bg-foreground/90 transition-all active:scale-95"
+          className="h-11 w-11 rounded-4xl bg-foreground text-background shadow-lg hover:bg-foreground/90 transition-all active:scale-95"
         >
           <HugeiconsIcon icon={GridIcon} size={20} />
         </Button>
@@ -32,7 +32,7 @@ export function MobileNav() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-11 w-11 rounded-2xl hover:bg-muted/50 transition-all active:scale-90"
+        className="h-11 w-11 rounded-4xl hover:bg-muted/50 transition-all active:scale-90"
       >
         <HugeiconsIcon icon={RotateLeft01Icon} size={20} />
       </Button>
@@ -42,7 +42,7 @@ export function MobileNav() {
       <Button
         variant="ghost"
         size="icon"
-        className="h-11 w-11 rounded-2xl hover:bg-muted/50 transition-all active:scale-90"
+        className="h-11 w-11 rounded-4xl hover:bg-muted/50 transition-all active:scale-90"
       >
         <HugeiconsIcon icon={MoreHorizontalIcon} size={20} />
       </Button>

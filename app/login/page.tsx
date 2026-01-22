@@ -29,7 +29,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               variant="outline"
-              className="h-12 w-full gap-2 rounded-xl text-base font-medium transition-all hover:bg-accent hover:text-accent-foreground"
+              className="h-12 w-full gap-2 rounded-4xl text-base font-medium transition-all hover:bg-accent hover:text-accent-foreground"
             >
               <HugeiconsIcon icon={ChromeIcon} size={20} />
               Continue with Google

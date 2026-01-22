@@ -172,7 +172,7 @@ export function DashboardNav({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-10 gap-2 px-2 rounded-2xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98] -ml-2"
+                  className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98] -ml-2"
                 >
                   <div className="flex items-center justify-center h-8 w-8">
                     {ActiveIcon ? (
@@ -199,11 +199,13 @@ export function DashboardNav({
                 className="w-56 rounded-2xl p-2 shadow-xl animate-in slide-in-from-top-2 duration-200"
               >
                 <DropdownMenuItem
-                  className={`rounded-xl font-medium cursor-pointer flex items-center gap-3 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary" : ""}`}
+                  className={`rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
                   onClick={() => onGroupSelect("all")}
                 >
-                  <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
-                  All Bookmarks
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
+                    <span>All Bookmarks</span>
+                  </div>
                 </DropdownMenuItem>
 
                 {groups.length > 0 ? (
@@ -231,7 +233,7 @@ export function DashboardNav({
                               >
                                 <button
                                   type="button"
-                                  className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+                                  className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
                                 >
                                   <HugeiconsIcon
                                     icon={
@@ -265,14 +267,14 @@ export function DashboardNav({
                               <UIButton
                                 size="sm"
                                 variant="ghost"
-                                className="h-7 px-3 text-xs"
+                                className="h-7 px-3 text-xs rounded-4xl"
                                 onClick={() => setEditingGroupId(null)}
                               >
                                 Cancel
                               </UIButton>
                               <UIButton
                                 size="sm"
-                                className="h-7 px-3 text-xs"
+                                className="h-7 px-3 text-xs rounded-4xl"
                                 onClick={() => handleUpdateGroup(group.id)}
                                 disabled={!editGroupName.trim() || isUpdating}
                               >
@@ -288,7 +290,7 @@ export function DashboardNav({
                       return (
                         <DropdownMenuItem
                           key={group.id}
-                          className={`rounded-xl cursor-pointer flex items-center justify-between gap-2 py-2 ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
+                          className={`rounded-xl cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
                           onSelect={(e) => {
                             // If we click a button (edit/delete), don't close the menu
                             const isButton = (e.target as HTMLElement).closest(
@@ -390,7 +392,7 @@ export function DashboardNav({
                       >
                         <button
                           type="button"
-                          className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
+                          className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
                         >
                           <HugeiconsIcon
                             icon={ALL_ICONS_MAP[newGroupIcon]}
@@ -419,14 +421,14 @@ export function DashboardNav({
                       <UIButton
                         size="sm"
                         variant="ghost"
-                        className="h-7 px-3 text-xs"
+                        className="h-7 px-3 text-xs rounded-4xl"
                         onClick={handleInlineCreateCancel}
                       >
                         Cancel
                       </UIButton>
                       <UIButton
                         size="sm"
-                        className="h-7 px-3 text-xs"
+                        className="h-7 px-3 text-xs rounded-4xl"
                         onClick={handleInlineCreate}
                         disabled={!newGroupName.trim() || isCreating}
                       >
@@ -436,18 +438,21 @@ export function DashboardNav({
                   </div>
                 ) : (
                   <DropdownMenuItem
-                    className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center gap-3 py-2"
+                    className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center justify-between gap-3 py-2"
                     onSelect={(e) => {
                       e.preventDefault();
                       setIsInlineCreating(true);
                     }}
                   >
-                    <HugeiconsIcon
-                      icon={Add01Icon}
-                      size={16}
-                      className="shrink-0"
-                    />
-                    New Group
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <HugeiconsIcon
+                        icon={Add01Icon}
+                        size={16}
+                        strokeWidth={2}
+                        className="shrink-0"
+                      />
+                      <span>New Group</span>
+                    </div>
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -486,14 +491,14 @@ export function DashboardNav({
                 <DropdownMenuSeparator />
                 <SettingsDialog>
                   <DropdownMenuItem
-                    className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5"
+                    className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5 py-2"
                     onSelect={(e) => e.preventDefault()}
                   >
                     <HugeiconsIcon icon={Settings01Icon} size={16} />
                     Settings
                   </DropdownMenuItem>
                 </SettingsDialog>
-                <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium">
+                <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2">
                   <HugeiconsIcon icon={AiMagicIcon} size={16} />
                   Upgrade to Pro
                 </DropdownMenuItem>
@@ -501,7 +506,7 @@ export function DashboardNav({
                 <form action={signOut}>
                   <DropdownMenuItem
                     asChild
-                    className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer transition-colors focus:bg-destructive/5 focus:text-destructive w-full"
+                    className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer transition-colors focus:bg-destructive/5 focus:text-destructive w-full py-2"
                   >
                     <button
                       type="submit"

@@ -113,23 +113,24 @@ export function BookmarkBoard({
           />
         </div>
         <h3 className="text-xl font-bold text-foreground">No bookmarks yet</h3>
-        <p className="text-muted-foreground mt-2 max-w-70">
-          Press{" "}
-          <kbd className="font-sans text-xs bg-muted px-1.5 py-0.5 rounded border border-border/50 shadow-sm">
-            ⌘
-          </kbd>{" "}
-          +{" "}
-          <kbd className="font-sans text-xs bg-muted px-1.5 py-0.5 rounded border border-border/50 shadow-sm">
-            K
-          </kbd>{" "}
-          to add your first link.
-        </p>
+        <div className="flex items-center gap-1.5 text-muted-foreground mt-2 max-w-70">
+          <span>Press</span>
+          <KbdGroup>
+            <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+            <Kbd>K</Kbd>
+          </KbdGroup>
+          <span>to add your first link.</span>
+        </div>
         <Button
           variant="outline"
-          className="mt-8 rounded-2xl gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all active:scale-95"
+          className="mt-8 rounded-4xl gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all active:scale-95"
           onClick={() =>
             document.dispatchEvent(
-              new KeyboardEvent("keydown", { key: "k", metaKey: true }),
+              new KeyboardEvent("keydown", {
+                key: "k",
+                metaKey: isMac,
+                ctrlKey: !isMac,
+              }),
             )
           }
         >

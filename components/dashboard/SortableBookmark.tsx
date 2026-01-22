@@ -10,9 +10,10 @@ import {
   ArrowUpRight03Icon,
   Delete02Icon,
   Alert02Icon,
-  MoreVerticalIcon,
-  ArrowDown01Icon,
   GridIcon,
+  Link01Icon,
+  File02Icon,
+  MoreVerticalIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,6 @@ import {
 import { Favicon } from "./Favicon";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { GroupRow } from "@/lib/supabase/queries";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 
@@ -148,122 +148,55 @@ export const SortableBookmark = memo(function SortableBookmark({
     return (
       <div
         ref={setNodeRef}
-        className="group relative flex flex-col rounded-2xl px-4 py-4 bg-muted/20 border border-border/30 space-y-3"
+        style={style}
+        className="group relative flex flex-col rounded-2xl p-3 bg-muted/20 border border-border/30 space-y-3 shadow-sm"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label
-              htmlFor={`title-${bookmark.id}`}
-              className="text-xs font-semibold text-muted-foreground"
-            >
-              Title
-            </Label>
-            <Input
-              id={`title-${bookmark.id}`}
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Bookmark title"
-              className="h-9 text-sm rounded-xl"
-              autoFocus
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              htmlFor={`url-${bookmark.id}`}
-              className="text-xs font-semibold text-muted-foreground"
-            >
-              URL
-            </Label>
-            <Input
-              id={`url-${bookmark.id}`}
-              value={editUrl}
-              onChange={(e) => setEditUrl(e.target.value)}
-              placeholder="https://..."
-              className="h-9 text-sm rounded-xl"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              htmlFor={`description-${bookmark.id}`}
-              className="text-xs font-semibold text-muted-foreground"
-            >
-              Description (Optional)
-            </Label>
-            <Textarea
-              id={`description-${bookmark.id}`}
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-              placeholder="Add a description..."
-              className="text-sm rounded-xl resize-none"
-              rows={2}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label
-              htmlFor={`group-${bookmark.id}`}
-              className="text-xs font-semibold text-muted-foreground"
-            >
-              Group
-            </Label>
+        <div className="flex flex-col gap-2.5">
+          {/* Main Info Row: Icon/Group & Title */}
+          <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full h-9 rounded-xl justify-between px-3 font-normal"
+                <button
+                  type="button"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all active:scale-95"
                 >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    {editGroupId === "no-group" ? (
-                      <>
+                  {editGroupId === "no-group" ? (
+                    <HugeiconsIcon
+                      icon={GridIcon}
+                      size={16}
+                      className="text-muted-foreground/50"
+                    />
+                  ) : (
+                    (() => {
+                      const group = groups.find((g) => g.id === editGroupId);
+                      const Icon =
+                        group?.icon && ALL_ICONS_MAP[group.icon]
+                          ? ALL_ICONS_MAP[group.icon]
+                          : GridIcon;
+                      return (
                         <HugeiconsIcon
-                          icon={GridIcon}
-                          size={14}
-                          className="text-muted-foreground/50"
+                          icon={Icon}
+                          size={16}
+                          className="text-primary"
                         />
-                        <span className="truncate">No group</span>
-                      </>
-                    ) : (
-                      (() => {
-                        const group = groups.find((g) => g.id === editGroupId);
-                        const Icon =
-                          group?.icon && ALL_ICONS_MAP[group.icon]
-                            ? ALL_ICONS_MAP[group.icon]
-                            : GridIcon;
-                        return (
-                          <>
-                            <HugeiconsIcon
-                              icon={Icon}
-                              size={14}
-                              className="text-primary"
-                            />
-                            <span className="truncate font-medium">
-                              {group?.name || "Select group"}
-                            </span>
-                          </>
-                        );
-                      })()
-                    )}
-                  </div>
-                  <HugeiconsIcon
-                    icon={ArrowDown01Icon}
-                    size={14}
-                    className="text-muted-foreground/30 shrink-0"
-                  />
-                </Button>
+                      );
+                    })()
+                  )}
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[calc(100vw-4rem)] md:w-64 rounded-xl p-1 animate-in slide-in-from-top-1 duration-200">
+              <DropdownMenuContent
+                align="start"
+                className="w-56 rounded-xl p-1 shadow-2xl"
+              >
                 <DropdownMenuItem
                   className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""}`}
                   onClick={() => setEditGroupId("no-group")}
                 >
                   <HugeiconsIcon icon={GridIcon} size={14} />
-                  No group
+                  No Group
                 </DropdownMenuItem>
-
                 {groups.length > 0 ? (
                   <>
                     <DropdownMenuSeparator className="my-1" />
@@ -289,25 +222,68 @@ export const SortableBookmark = memo(function SortableBookmark({
                 ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <Input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Title"
+              className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-sm font-bold focus-visible:ring-primary/20"
+              autoFocus
+            />
+          </div>
+
+          {/* URL Row */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/30 border border-dashed border-border/50">
+              <HugeiconsIcon
+                icon={Link01Icon}
+                size={14}
+                className="text-muted-foreground/30"
+              />
+            </div>
+            <Input
+              value={editUrl}
+              onChange={(e) => setEditUrl(e.target.value)}
+              placeholder="URL"
+              className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-xs font-medium text-muted-foreground focus-visible:ring-primary/20"
+            />
+          </div>
+
+          {/* Description Row */}
+          <div className="flex gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/30 border border-dashed border-border/50">
+              <HugeiconsIcon
+                icon={File02Icon}
+                size={14}
+                className="text-muted-foreground/30"
+              />
+            </div>
+            <Textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Description (Optional)"
+              className="flex-1 bg-background/50 border-border/50 rounded-xl text-xs py-2 min-h-15 resize-none focus-visible:ring-primary/20"
+            />
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-2 border-t border-border/10">
+        {/* Actions Row */}
+        <div className="flex justify-end gap-2 pt-1">
           <Button
             size="sm"
             variant="ghost"
-            className="h-8 px-4 rounded-xl"
+            className="h-8 px-3 text-xs rounded-4xl hover:bg-background/50"
             onClick={handleCancelEdit}
           >
             Cancel
           </Button>
           <Button
             size="sm"
-            className="h-8 px-4 rounded-xl"
+            className="h-8 px-4 text-xs font-bold rounded-4xl shadow-sm"
             onClick={handleSaveEdit}
             disabled={!editTitle.trim() || !editUrl.trim() || isSaving}
           >
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </div>
@@ -343,7 +319,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           <span
             className={`truncate text-sm font-bold transition-all cursor-pointer ${
               bookmark.is_enriching
-                ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-md px-2 -ml-2"
+                ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2"
                 : "text-foreground group-hover:text-primary"
             }`}
             onClick={openInNewTab}
@@ -353,7 +329,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           <span
             className={`text-xs font-medium cursor-pointer transition-all truncate ${
               bookmark.is_enriching
-                ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-md px-2 -ml-2 h-3"
+                ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2 h-3"
                 : "text-muted-foreground/70"
             }`}
             onClick={openInNewTab}
@@ -369,7 +345,7 @@ export const SortableBookmark = memo(function SortableBookmark({
         <span
           className={`text-sm font-medium text-muted-foreground/50 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
             bookmark.is_enriching
-              ? "animate-shimmer bg-linear-to-r from-transparent via-muted/30 to-transparent bg-size-[200%_100%] px-2 rounded-md"
+              ? "animate-shimmer bg-linear-to-r from-transparent via-muted/30 to-transparent bg-size-[200%_100%] px-2 rounded-lg"
               : ""
           }`}
         >

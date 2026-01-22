@@ -52,7 +52,7 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
               <Button
                 variant={theme === "light" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-xl"
+                className="flex-1 gap-2 rounded-4xl"
                 onClick={() => setTheme("light")}
               >
                 <HugeiconsIcon icon={Sun01Icon} size={16} />
@@ -61,7 +61,7 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
               <Button
                 variant={theme === "dark" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-xl"
+                className="flex-1 gap-2 rounded-4xl"
                 onClick={() => setTheme("dark")}
               >
                 <HugeiconsIcon icon={Moon02Icon} size={16} />
@@ -70,7 +70,7 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
               <Button
                 variant={theme === "system" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-xl"
+                className="flex-1 gap-2 rounded-4xl"
                 onClick={() => setTheme("system")}
               >
                 <HugeiconsIcon icon={ComputerIcon} size={16} />
@@ -111,7 +111,7 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full rounded-xl border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive"
+                className="w-full rounded-4xl border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive"
                 disabled
               >
                 Delete Account
