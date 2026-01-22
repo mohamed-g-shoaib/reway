@@ -15,6 +15,9 @@ interface DashboardContentProps {
 import {
   updateBookmarksOrder,
   deleteBookmark as deleteAction,
+  updateBookmark as updateBookmarkAction,
+  updateGroup as updateGroupAction,
+  deleteGroup as deleteGroupAction,
 } from "@/app/dashboard/actions";
 
 export function DashboardContent({
@@ -110,14 +113,96 @@ export function DashboardContent({
     [user.id],
   );
 
+  const handleUpdateGroup = useCallback(
+    async (id: string, name: string, icon: string) => {
+      // Optimistic update
+      setGroups((prev) =>
+        prev.map((g) => (g.id === id ? { ...g, name, icon } : g)),
+      );
+      try {
+        await updateGroupAction(id, { name, icon });
+      } catch (error) {
+        console.error("Update group failed:", error);
+      }
+    },
+    [],
+  );
+
+  const handleDeleteGroup = useCallback(
+    async (id: string) => {
+      // Optimistic delete
+      setGroups((prev) => prev.filter((g) => g.id !== id));
+      if (activeGroupId === id) {
+        setActiveGroupId("all");
+      }
+      try {
+        await deleteGroupAction(id);
+      } catch (error) {
+        console.error("Delete group failed:", error);
+      }
+    },
+    [activeGroupId],
+  );
+
+  const handleEditBookmark = useCallback(
+    async (
+      id: string,
+      data: {
+        title: string;
+        url: string;
+        description?: string;
+        group_id?: string;
+      },
+    ) => {
+      // Optimistic update
+      setBookmarks((prev) =>
+        prev.map((b) =>
+          b.id === id
+            ? {
+                ...b,
+                title: data.title,
+                url: data.url,
+                description: data.description ?? null,
+                group_id: data.group_id ?? null,
+              }
+            : b,
+        ),
+      );
+
+      try {
+        await updateBookmarkAction(id, {
+          title: data.title,
+          url: data.url,
+          description: data.description,
+          group_id: data.group_id || null,
+        });
+      } catch (error) {
+        console.error("Update bookmark failed:", error);
+      }
+    },
+    [],
+  );
+
+  // Calculate bookmark counts per group
+  const groupCounts = groups.reduce(
+    (acc, group) => {
+      acc[group.id] = bookmarks.filter((b) => b.group_id === group.id).length;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   return (
     <>
       <DashboardNav
         user={user}
         groups={groups}
         activeGroupId={activeGroupId}
+        groupCounts={groupCounts}
         onGroupSelect={setActiveGroupId}
         onGroupCreated={handleGroupCreated}
+        onGroupUpdate={handleUpdateGroup}
+        onGroupDelete={handleDeleteGroup}
       />
       <div className="flex flex-col gap-6 px-4 pt-4 md:pt-6">
         {/* Search/Command Bar */}
@@ -132,6 +217,7 @@ export function DashboardContent({
           initialGroups={groups}
           onReorder={handleReorder}
           onDeleteBookmark={handleDeleteBookmark}
+          onEditBookmark={handleEditBookmark}
         />
       </div>
     </>

@@ -11,6 +11,8 @@ import {
   Delete02Icon,
   Alert02Icon,
   MoreVerticalIcon,
+  ArrowDown01Icon,
+  GridIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
@@ -20,20 +22,46 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Favicon } from "./Favicon";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { GroupRow } from "@/lib/supabase/queries";
+import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 
 interface SortableBookmarkProps {
   bookmark: BookmarkType & { is_enriching?: boolean };
   onDelete?: (id: string) => void;
+  groups?: GroupRow[];
+  onEdit?: (
+    id: string,
+    data: {
+      title: string;
+      url: string;
+      description?: string;
+      group_id?: string;
+    },
+  ) => Promise<void>;
 }
 
 export function SortableBookmark({
   bookmark,
   onDelete,
+  groups = [],
+  onEdit,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(bookmark.title || "");
+  const [editUrl, setEditUrl] = useState(bookmark.url);
+  const [editDescription, setEditDescription] = useState("");
+  const [editGroupId, setEditGroupId] = useState(
+    bookmark.groupId || "no-group",
+  );
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
     attributes,
@@ -79,6 +107,214 @@ export function SortableBookmark({
     }
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setEditTitle(bookmark.title || "");
+    setEditUrl(bookmark.url);
+    setEditDescription(bookmark.description || "");
+    setEditGroupId(bookmark.groupId || "no-group");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditTitle(bookmark.title || "");
+    setEditUrl(bookmark.url);
+    setEditDescription("");
+    setEditGroupId(bookmark.groupId || "no-group");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editTitle.trim() || !editUrl.trim() || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      await onEdit?.(bookmark.id, {
+        title: editTitle.trim(),
+        url: editUrl.trim(),
+        description: editDescription.trim() || undefined,
+        group_id: editGroupId === "no-group" ? undefined : editGroupId,
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to save bookmark:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Inline Edit Mode
+  if (isEditing) {
+    return (
+      <div
+        ref={setNodeRef}
+        className="group relative flex flex-col rounded-2xl px-4 py-4 bg-muted/20 border border-border/30 space-y-3"
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`title-${bookmark.id}`}
+              className="text-xs font-semibold text-muted-foreground"
+            >
+              Title
+            </Label>
+            <Input
+              id={`title-${bookmark.id}`}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Bookmark title"
+              className="h-9 text-sm rounded-xl"
+              autoFocus
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`url-${bookmark.id}`}
+              className="text-xs font-semibold text-muted-foreground"
+            >
+              URL
+            </Label>
+            <Input
+              id={`url-${bookmark.id}`}
+              value={editUrl}
+              onChange={(e) => setEditUrl(e.target.value)}
+              placeholder="https://..."
+              className="h-9 text-sm rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`description-${bookmark.id}`}
+              className="text-xs font-semibold text-muted-foreground"
+            >
+              Description (Optional)
+            </Label>
+            <Textarea
+              id={`description-${bookmark.id}`}
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Add a description..."
+              className="text-sm rounded-xl resize-none"
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label
+              htmlFor={`group-${bookmark.id}`}
+              className="text-xs font-semibold text-muted-foreground"
+            >
+              Group
+            </Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-9 rounded-xl justify-between px-3 font-normal"
+                >
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    {editGroupId === "no-group" ? (
+                      <>
+                        <HugeiconsIcon
+                          icon={GridIcon}
+                          size={14}
+                          className="text-muted-foreground/50"
+                        />
+                        <span className="truncate">No group</span>
+                      </>
+                    ) : (
+                      (() => {
+                        const group = groups.find((g) => g.id === editGroupId);
+                        const Icon =
+                          group?.icon && ALL_ICONS_MAP[group.icon]
+                            ? ALL_ICONS_MAP[group.icon]
+                            : GridIcon;
+                        return (
+                          <>
+                            <HugeiconsIcon
+                              icon={Icon}
+                              size={14}
+                              className="text-primary"
+                            />
+                            <span className="truncate font-medium">
+                              {group?.name || "Select group"}
+                            </span>
+                          </>
+                        );
+                      })()
+                    )}
+                  </div>
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    size={14}
+                    className="text-muted-foreground/30 shrink-0"
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[calc(100vw-4rem)] md:w-64 rounded-xl p-1 animate-in slide-in-from-top-1 duration-200">
+                <DropdownMenuItem
+                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""}`}
+                  onClick={() => setEditGroupId("no-group")}
+                >
+                  <HugeiconsIcon icon={GridIcon} size={14} />
+                  No group
+                </DropdownMenuItem>
+
+                {groups.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator className="my-1" />
+                    <div className="max-h-60 overflow-y-auto">
+                      {groups.map((group) => {
+                        const Icon =
+                          group.icon && ALL_ICONS_MAP[group.icon]
+                            ? ALL_ICONS_MAP[group.icon]
+                            : GridIcon;
+                        return (
+                          <DropdownMenuItem
+                            key={group.id}
+                            className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === group.id ? "bg-primary/5 text-primary font-bold" : ""}`}
+                            onClick={() => setEditGroupId(group.id)}
+                          >
+                            <HugeiconsIcon icon={Icon} size={14} />
+                            <span className="truncate">{group.name}</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-border/10">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 px-4 rounded-xl"
+            onClick={handleCancelEdit}
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            className="h-8 px-4 rounded-xl"
+            onClick={handleSaveEdit}
+            disabled={!editTitle.trim() || !editUrl.trim() || isSaving}
+          >
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal Bookmark View
   return (
     <div
       ref={setNodeRef}
@@ -151,6 +387,7 @@ export function SortableBookmark({
               variant="ghost"
               size="icon"
               className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+              onClick={handleEdit}
               aria-label="Edit bookmark"
             >
               <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
@@ -235,7 +472,10 @@ export function SortableBookmark({
                 align="end"
                 className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
               >
-                <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
+                <DropdownMenuItem
+                  className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                  onClick={handleEdit}
+                >
                   <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
