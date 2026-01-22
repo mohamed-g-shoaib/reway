@@ -135,40 +135,43 @@ export function BookmarkBoard({
       <div className="hidden md:flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
         <span>Title</span>
 
-        {/* Keyboard Shortcut Guide */}
-        <div className="flex items-center gap-6 text-[10px] normal-case font-medium">
-          <div className="flex items-center gap-1.5">
-            <KbdGroup className="gap-0.5">
-              <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
-                <HugeiconsIcon icon={ArrowUp01Icon} size={10} />
-              </Kbd>
-              <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
-                <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
-              </Kbd>
-            </KbdGroup>
-            <span>navigate</span>
-          </div>
+        {/* Right side: Keyboard Guide + Created At */}
+        <div className="flex items-center gap-8">
+          {/* Keyboard Shortcut Guide */}
+          <div className="flex items-center gap-6 text-[10px] normal-case font-medium">
+            <div className="flex items-center gap-1.5">
+              <KbdGroup className="gap-0.5">
+                <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
+                  <HugeiconsIcon icon={ArrowUp01Icon} size={10} />
+                </Kbd>
+                <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
+                  <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
+                </Kbd>
+              </KbdGroup>
+              <span>navigate</span>
+            </div>
 
-          <div className="flex items-center gap-1.5">
-            <Kbd>Space</Kbd>
-            <span>preview</span>
-          </div>
+            <div className="flex items-center gap-1.5">
+              <Kbd>Space</Kbd>
+              <span>preview</span>
+            </div>
 
-          <div className="flex items-center gap-1.5">
-            <Kbd>⏎</Kbd>
-            <span>copy</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <KbdGroup>
-              <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+            <div className="flex items-center gap-1.5">
               <Kbd>⏎</Kbd>
-            </KbdGroup>
-            <span>open</span>
-          </div>
-        </div>
+              <span>copy</span>
+            </div>
 
-        <span className="uppercase">Created At</span>
+            <div className="flex items-center gap-1.5">
+              <KbdGroup>
+                <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+                <Kbd>⏎</Kbd>
+              </KbdGroup>
+              <span>open</span>
+            </div>
+          </div>
+
+          <span className="uppercase">Created At</span>
+        </div>
       </div>
 
       {/* Mobile Header - Simple */}

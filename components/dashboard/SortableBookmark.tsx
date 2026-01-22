@@ -103,7 +103,7 @@ export function SortableBookmark({
         </div>
 
         {/* Text Content - Limited width to prevent overflow */}
-        <div className="flex min-w-0 flex-col gap-0.5 max-w-[calc(100%-200px)] md:max-w-[calc(100%-300px)]">
+        <div className="flex min-w-0 flex-col gap-0.5 max-w-[calc(100%-150px)] md:max-w-[calc(100%-450px)]">
           <span
             className={`truncate text-sm font-bold transition-all cursor-pointer ${
               bookmark.is_enriching
@@ -163,10 +163,15 @@ export function SortableBookmark({
               onClick={handleCopyLink}
               aria-label="Copy link"
             >
-              <HugeiconsIcon
-                icon={isCopied ? Tick01Icon : Copy01Icon}
-                size={16}
-              />
+              <div
+                className="transition-all duration-200 ease-in-out"
+                key={isCopied ? "tick" : "copy"}
+              >
+                <HugeiconsIcon
+                  icon={isCopied ? Tick01Icon : Copy01Icon}
+                  size={16}
+                />
+              </div>
             </Button>
 
             <Button
@@ -194,10 +199,15 @@ export function SortableBookmark({
                   : "Delete bookmark"
               }
             >
-              <HugeiconsIcon
-                icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                size={16}
-              />
+              <div
+                className="transition-all duration-200 ease-in-out"
+                key={isDeleteConfirm ? "alert" : "delete"}
+              >
+                <HugeiconsIcon
+                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                  size={16}
+                />
+              </div>
             </Button>
           </div>
         )}
