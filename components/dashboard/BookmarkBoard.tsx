@@ -39,12 +39,23 @@ interface BookmarkBoardProps {
   initialGroups: GroupRow[];
   onReorder: (newOrder: BookmarkRow[]) => void;
   onDeleteBookmark: (id: string) => void;
+  onEditBookmark: (
+    id: string,
+    data: {
+      title: string;
+      url: string;
+      description?: string;
+      group_id?: string;
+    },
+  ) => Promise<void>;
 }
 
 export function BookmarkBoard({
   bookmarks,
+  initialGroups,
   onReorder,
   onDeleteBookmark,
+  onEditBookmark,
 }: BookmarkBoardProps) {
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -85,7 +96,6 @@ export function BookmarkBoard({
       const newIndex = bookmarks.findIndex((b) => b.id === over.id);
       const newOrder = arrayMove(bookmarks, oldIndex, newIndex);
       onReorder(newOrder);
-      // TODO: Persist order to database
     }
 
     setActiveId(null);
@@ -205,11 +215,14 @@ export function BookmarkBoard({
                 <SortableBookmark
                   key={bookmark.id}
                   onDelete={onDeleteBookmark}
+                  onEdit={onEditBookmark}
+                  groups={initialGroups}
                   bookmark={{
                     id: bookmark.id,
                     title: bookmark.title,
                     url: bookmark.url,
                     domain: domain,
+                    description: bookmark.description || undefined,
                     favicon: bookmark.favicon_url || undefined,
                     createdAt: new Date(bookmark.created_at).toLocaleDateString(
                       undefined,
