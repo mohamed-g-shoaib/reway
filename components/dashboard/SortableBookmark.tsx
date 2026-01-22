@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   PencilEdit01Icon,
   Copy01Icon,
+  Tick01Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
   MoreVerticalIcon,
@@ -29,6 +31,8 @@ export function SortableBookmark({
   bookmark,
   onDelete,
 }: SortableBookmarkProps) {
+  const [isCopied, setIsCopied] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -47,6 +51,17 @@ export function SortableBookmark({
   const openInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(bookmark.url, "_blank");
+  };
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(bookmark.url);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
   };
 
   return (
@@ -72,10 +87,10 @@ export function SortableBookmark({
           />
         </div>
 
-        {/* Text Content */}
-        <div className="flex min-w-0 flex-col gap-0.5 w-fit">
+        {/* Text Content - Limited width to prevent overflow */}
+        <div className="flex min-w-0 flex-col gap-0.5 max-w-[calc(100%-200px)] md:max-w-[calc(100%-300px)]">
           <span
-            className={`w-fit max-w-full truncate text-sm font-bold transition-all cursor-pointer ${
+            className={`truncate text-sm font-bold transition-all cursor-pointer ${
               bookmark.is_enriching
                 ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-md px-2 -ml-2"
                 : "text-foreground group-hover:text-primary"
@@ -85,7 +100,7 @@ export function SortableBookmark({
             {bookmark.title}
           </span>
           <span
-            className={`w-fit text-xs font-medium cursor-pointer transition-all ${
+            className={`text-xs font-medium cursor-pointer transition-all truncate ${
               bookmark.is_enriching
                 ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-md px-2 -ml-2 h-3"
                 : "text-muted-foreground/70"
@@ -130,9 +145,13 @@ export function SortableBookmark({
               variant="ghost"
               size="icon"
               className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+              onClick={handleCopyLink}
               aria-label="Copy link"
             >
-              <HugeiconsIcon icon={Copy01Icon} size={16} />
+              <HugeiconsIcon
+                icon={isCopied ? Tick01Icon : Copy01Icon}
+                size={16}
+              />
             </Button>
 
             <Button
@@ -186,8 +205,15 @@ export function SortableBookmark({
                 <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
                   <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                  <HugeiconsIcon icon={Copy01Icon} size={16} /> Copy Link
+                <DropdownMenuItem
+                  className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                  onClick={handleCopyLink}
+                >
+                  <HugeiconsIcon
+                    icon={isCopied ? Tick01Icon : Copy01Icon}
+                    size={16}
+                  />
+                  {isCopied ? "Copied!" : "Copy Link"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"

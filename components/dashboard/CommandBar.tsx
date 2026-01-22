@@ -2,7 +2,7 @@
 
 import { Add01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -16,6 +16,7 @@ import {
   extractLinks,
 } from "@/app/dashboard/actions";
 import { BookmarkRow } from "@/lib/supabase/queries";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 interface CommandBarProps {
   onAddBookmark: (bookmark: BookmarkRow) => void;
@@ -28,9 +29,16 @@ export function CommandBar({
 }: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  // Removed: const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Detect OS for keyboard shortcuts
+  const isMac = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform),
+    [],
+  );
 
   const handlePlusClick = () => {
     fileInputRef.current?.click();
@@ -260,9 +268,19 @@ export function CommandBar({
         />
 
         <div className="flex items-center gap-2 px-1">
-          <kbd className="inline-flex h-7 select-none items-center gap-1 rounded-lg border border-muted-foreground/10 bg-muted/50 px-2 font-mono text-[10px] font-bold text-muted-foreground/40 shadow-inner">
-            <span className="text-xs">⌘</span> F
-          </kbd>
+          <KbdGroup>
+            {isMac ? (
+              <>
+                <Kbd>⌘</Kbd>
+                <Kbd>F</Kbd>
+              </>
+            ) : (
+              <>
+                <Kbd>Ctrl</Kbd>
+                <Kbd>F</Kbd>
+              </>
+            )}
+          </KbdGroup>
         </div>
       </form>
 
@@ -270,8 +288,11 @@ export function CommandBar({
       {!isFocused && !inputValue && (
         <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
-            Press <span className="text-muted-foreground/50">⌘ F</span> to start
-            typing
+            Press{" "}
+            <span className="text-muted-foreground/50">
+              {isMac ? "⌘ F" : "Ctrl F"}
+            </span>{" "}
+            to start typing
           </p>
         </div>
       )}

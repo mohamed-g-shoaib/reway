@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useId } from "react";
+import React, { useState, useId, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -22,10 +22,16 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { SortableBookmark } from "./SortableBookmark";
 import { createPortal } from "react-dom";
-import { Bookmark01Icon, Add01Icon } from "@hugeicons/core-free-icons";
+import {
+  Bookmark01Icon,
+  Add01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Favicon } from "./Favicon";
 
 interface BookmarkBoardProps {
@@ -43,6 +49,14 @@ export function BookmarkBoard({
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
   const dndContextId = useId();
+
+  // Detect OS for keyboard shortcuts
+  const isMac = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform),
+    [],
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -117,7 +131,48 @@ export function BookmarkBoard({
 
   return (
     <div className="mt-4 w-full">
-      <div className="flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
+      {/* Header with keyboard shortcuts - Desktop only */}
+      <div className="hidden md:flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
+        <span>Title</span>
+
+        {/* Keyboard Shortcut Guide */}
+        <div className="flex items-center gap-6 text-[10px] normal-case font-medium">
+          <div className="flex items-center gap-1.5">
+            <KbdGroup className="gap-0.5">
+              <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
+                <HugeiconsIcon icon={ArrowUp01Icon} size={10} />
+              </Kbd>
+              <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
+                <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
+              </Kbd>
+            </KbdGroup>
+            <span>navigate</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Kbd>Space</Kbd>
+            <span>preview</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Kbd>⏎</Kbd>
+            <span>copy</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <KbdGroup>
+              <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+              <Kbd>⏎</Kbd>
+            </KbdGroup>
+            <span>open</span>
+          </div>
+        </div>
+
+        <span className="uppercase">Created At</span>
+      </div>
+
+      {/* Mobile Header - Simple */}
+      <div className="flex md:hidden items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
         <span>Title</span>
         <span>Created At</span>
       </div>
