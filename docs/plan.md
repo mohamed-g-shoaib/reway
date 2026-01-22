@@ -42,6 +42,10 @@ Reway is a high-performance, tool-like bookmarking application built with Next.j
 - [x] Add **Clipboard Paste Support** (Images + Text)
 - [x] Implement **Batch Optimistic UI** & Parallel Processing
 - [x] Add **Premium Shimmer Effects** for loading states
+- [x] Implement **OS-Aware Keyboard Shortcuts** & Cheat Sheet Header
+- [x] Implement **Two-Click Delete Pattern** with Animated Transitions
+- [ ] Implement **Inline Bookmark Editor** (Row expansion)
+- [ ] Implement **Inline Group Creation & Editing** (With Popover Icon Picker)
 
 ---
 

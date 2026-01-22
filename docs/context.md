@@ -70,4 +70,7 @@ feature number #23: Clipboard Image Support & Batch Optimistic UI
 benefit: seamless workflow where pasting an image instantly populates the dashboard with multiple "shimmering" cards for every link found; uses parallel server-side processing to ensure that even extracting 10+ links feels instantaneous and professional
 
 feature number #24: UI Polish & Accessibility Improvements
-benefit: fixed title truncation to prevent overflow over action buttons, added visual copy feedback with checkmark icon, implemented OS-aware keyboard shortcuts (⌘/Ctrl detection), and added a comprehensive keyboard shortcut guide header for discoverability; all improvements maintain the premium Graphite aesthetic while enhancing usability
+benefit: fixed title truncation to prevent overflow over action buttons, added visual copy feedback with animated checkmark icon, implemented OS-aware keyboard shortcuts (⌘/Ctrl detection), and added a comprehensive keyboard shortcut guide header for discoverability; all improvements maintain the premium Graphite aesthetic while enhancing usability
+
+feature number #25: Smooth Animated Transitions & Two-Click Delete Confirmation
+benefit: implemented a non-intrusive two-click delete pattern for bookmarks that swaps the trash icon for a warning alert upon first click, preventing accidental deletions without annoying modals; all icon state changes (Copy to Tick, Delete to Alert) feature smooth 200ms transitions for a high-end, responsive feel

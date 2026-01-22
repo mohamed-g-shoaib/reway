@@ -76,6 +76,8 @@ Reway is a high-performance, premium bookmark manager built with **Next.js 16**,
 ### Future Focus
 
 - **The Grid Refactor**: Moving from a vertical list to a responsive 2D grid while maintaining drag-and-drop stability.
+- **Micro-Interactions**: Continuing to refine animated icon transitions and haptic-like visual feedback across the platform.
+- **Inline Editing Flow**: Transitioning from dialog-heavy interactions to purely inline, keyboard-friendly expansion states for editing bookmarks and groups.
 - **Global Search**: High-performance client-side filtering.
 - **Data Persistence**: Ensuring DnD reordering remains slick across different viewports.
 
