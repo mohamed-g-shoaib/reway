@@ -4,6 +4,7 @@ export interface Bookmark {
   url: string;
   domain: string;
   favicon?: string;
+  description?: string;
   createdAt: string;
   groupId: string;
 }
