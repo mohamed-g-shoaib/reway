@@ -43,9 +43,5 @@ next-env.d.ts
 # agent
 .agent
 
-# documentation
-/docs/*
-!/docs/context.md
-
 # examples
 /examples
