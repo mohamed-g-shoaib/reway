@@ -17,10 +17,12 @@ Waterfalls are the #1 performance killer. Every sequential `await` adds full net
 Reducing initial bundle size directly improves TTI (Time to Interactive) and LCP (Largest Contentful Paint).
 
 - **Avoid Barrel Files**: Never import from index files re-exporting thousands of modules (e.g., `lucide-react`, `shadcn/ui` entry points). Use direct imports:
+
   ```typescript
   // CORRECT: Direct import
   import CheckIcon from "lucide-react/dist/esm/icons/check";
   ```
+
 - **Conditional Module Loading**: Use `next/dynamic` for heavy components (modals, editors) or modules that only run on the client (`typeof window !== 'undefined'`).
 - **Defer Third-Party Scripts**: Load analytics and trackers using `next/script` with `afterInteractive` or `lazyOnload`.
 - **Preload on Intent**: Preload heavy bundles on hover or focus to reduce perceived latency.
