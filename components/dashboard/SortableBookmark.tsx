@@ -9,6 +9,7 @@ import {
   Tick01Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
+  Alert02Icon,
   MoreVerticalIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -32,6 +33,7 @@ export function SortableBookmark({
   onDelete,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
 
   const {
     attributes,
@@ -61,6 +63,19 @@ export function SortableBookmark({
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isDeleteConfirm) {
+      // Second click - Actually delete
+      onDelete?.(bookmark.id);
+    } else {
+      // First click - Show warning
+      setIsDeleteConfirm(true);
+      // Reset after 3 seconds if not clicked again
+      setTimeout(() => setIsDeleteConfirm(false), 3000);
     }
   };
 
@@ -167,14 +182,22 @@ export function SortableBookmark({
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete?.(bookmark.id);
-              }}
-              aria-label="Delete bookmark"
+              className={`h-9 w-9 rounded-xl hover:shadow-sm cursor-pointer transition-colors ${
+                isDeleteConfirm
+                  ? "bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                  : "hover:bg-destructive/10 hover:text-destructive"
+              }`}
+              onClick={handleDelete}
+              aria-label={
+                isDeleteConfirm
+                  ? "Click again to confirm delete"
+                  : "Delete bookmark"
+              }
             >
-              <HugeiconsIcon icon={Delete02Icon} size={16} />
+              <HugeiconsIcon
+                icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                size={16}
+              />
             </Button>
           </div>
         )}
@@ -222,13 +245,18 @@ export function SortableBookmark({
                   <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete?.(bookmark.id);
-                  }}
+                  className={`rounded-xl flex items-center gap-2 cursor-pointer font-medium ${
+                    isDeleteConfirm
+                      ? "text-destructive bg-destructive/5 focus:bg-destructive/10 focus:text-destructive"
+                      : "text-destructive focus:bg-destructive/5 focus:text-destructive"
+                  }`}
+                  onClick={handleDelete}
                 >
-                  <HugeiconsIcon icon={Delete02Icon} size={16} /> Delete
+                  <HugeiconsIcon
+                    icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                    size={16}
+                  />
+                  {isDeleteConfirm ? "Click to Confirm" : "Delete"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
