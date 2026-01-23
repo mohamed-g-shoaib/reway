@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { google } from "@/lib/ai";
 import { generateText } from "ai";
+import { fetchMetadata, normalizeUrl } from "@/lib/metadata";
 
 export async function signOut() {
   const supabase = await createClient();
@@ -57,9 +58,9 @@ export async function addBookmark(formData: {
   url: string;
   title?: string;
   favicon_url?: string;
+  og_image_url?: string;
   description?: string;
   group_id?: string;
-  is_enriching?: boolean;
 }) {
   const supabase = await createClient();
 
@@ -78,19 +79,22 @@ export async function addBookmark(formData: {
 
   const nextOrderIndex = minOrderData ? (minOrderData.order_index ?? 0) - 1 : 0;
 
-  // Use the URL as title if none provided (instant mode)
-  const title = formData.title || formData.url;
+  const normalizedUrl = normalizeUrl(formData.url);
+  const title = formData.title || normalizedUrl;
 
   const { data, error } = await supabase
     .from("bookmarks")
     .insert({
-      url: formData.url,
+      url: normalizedUrl,
+      normalized_url: normalizedUrl,
       title: title,
       favicon_url: formData.favicon_url,
+      og_image_url: formData.og_image_url,
+      image_url: formData.og_image_url, // initial guess
       description: formData.description,
       group_id: formData.group_id,
       user_id: userData.user.id,
-      is_enriching: formData.is_enriching ?? false,
+      status: "pending",
       order_index: nextOrderIndex,
     })
     .select("id")
@@ -101,8 +105,44 @@ export async function addBookmark(formData: {
     throw new Error("Failed to add bookmark");
   }
 
+  // No longer triggering background enrichment here to avoid unawaited promise issues
+  // processBookmarkMetadata(data.id, normalizedUrl);
+
   revalidatePath("/dashboard");
   return data.id;
+}
+
+export async function enrichCreatedBookmark(id: string, url: string) {
+  try {
+    const metadata = await fetchMetadata(url);
+    const supabase = await createClient();
+
+    await supabase
+      .from("bookmarks")
+      .update({
+        title: metadata.title,
+        description: metadata.description,
+        favicon_url: metadata.favicon,
+        og_image_url: metadata.ogImage,
+        image_url: metadata.ogImage,
+        status: "ready",
+        last_fetched_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    revalidatePath("/dashboard");
+  } catch (error) {
+    console.error("Enrichment failed for", url, error);
+    const supabase = await createClient();
+    await supabase
+      .from("bookmarks")
+      .update({
+        status: "failed",
+        error_reason: error instanceof Error ? error.message : "Unknown error",
+      })
+      .eq("id", id);
+    revalidatePath("/dashboard");
+  }
 }
 
 export async function updateBookmarksOrder(
@@ -155,7 +195,10 @@ export async function enrichBookmark(
   metadata: {
     title?: string;
     favicon_url?: string;
+    og_image_url?: string;
     description?: string;
+    image_url?: string;
+    status?: "pending" | "ready" | "failed";
   },
 ) {
   const supabase = await createClient();
@@ -164,7 +207,6 @@ export async function enrichBookmark(
     .from("bookmarks")
     .update({
       ...metadata,
-      is_enriching: false,
     })
     .eq("id", id);
 

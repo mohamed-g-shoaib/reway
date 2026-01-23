@@ -29,6 +29,15 @@ export function DashboardContent({
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
 
+  // Sync state with server props when they change (e.g. after revalidatePath)
+  React.useEffect(() => {
+    setBookmarks(initialBookmarks);
+  }, [initialBookmarks]);
+
+  React.useEffect(() => {
+    setGroups(initialGroups);
+  }, [initialGroups]);
+
   const addOptimisticBookmark = useCallback(
     (bookmark: BookmarkRow) => {
       // If we're in a specific group, ensure the new bookmark gets that group_id

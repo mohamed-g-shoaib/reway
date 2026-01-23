@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   addBookmark,
-  enrichBookmark,
+  enrichCreatedBookmark,
   extractLinks,
 } from "@/app/dashboard/actions";
 import { BookmarkRow } from "@/lib/supabase/queries";
@@ -72,7 +72,7 @@ export function CommandBar({
             user_id: "",
             created_at: new Date().toISOString(),
             order_index: null,
-            is_enriching: true,
+            status: "pending",
           } as BookmarkRow,
         };
       });
@@ -84,27 +84,10 @@ export function CommandBar({
       await Promise.all(
         optimisticMap.map(async ({ url, tempId }) => {
           try {
-            const bookmarkId = await addBookmark({ url, is_enriching: true });
+            const bookmarkId = await addBookmark({ url });
             onUpdateBookmark(tempId, { id: bookmarkId });
-
-            // Background Scrape
-            fetch(`/api/metadata?url=${encodeURIComponent(url)}`)
-              .then((res) => res.json())
-              .then((metadata) => {
-                if (metadata && !metadata.error) {
-                  enrichBookmark(bookmarkId, {
-                    title: metadata.title,
-                    favicon_url: metadata.favicon,
-                    description: metadata.description,
-                  });
-                  onUpdateBookmark(bookmarkId, {
-                    title: metadata.title,
-                    favicon_url: metadata.favicon,
-                    description: metadata.description,
-                    is_enriching: false,
-                  });
-                }
-              });
+            // Chain enrichment immediately
+            await enrichCreatedBookmark(bookmarkId, url);
           } catch (error) {
             console.error("Failed to add extracted bookmark:", error);
           }
