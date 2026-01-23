@@ -185,3 +185,49 @@ body,
   scrollbar-width: thin;
   scrollbar-color: var(--muted-foreground) var(--muted);
 }
+
+/* Sonner Toast Customization */
+[data-sonner-toast] {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 1.25rem !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  background: var(--background) !important;
+  border-color: color-mix(
+    in oklab,
+    var(--border),
+    var(--primary) 40%
+  ) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  /* Graphite with a muted reddish tint */
+  background: color-mix(
+    in oklab,
+    var(--background),
+    var(--destructive) 5%
+  ) !important;
+  border-color: color-mix(
+    in oklab,
+    var(--border),
+    var(--destructive) 30%
+  ) !important;
+  color: var(--foreground) !important;
+}
+
+/* Style the icons to match the theme */
+[data-sonner-toast] [data-icon] {
+  color: var(--primary);
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: color-mix(in oklab, var(--primary), var(--destructive) 60%);
+}

@@ -33,6 +33,7 @@ import { Button as UIButton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createGroup } from "@/app/dashboard/actions";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 
 // Dynamically load the heavy icon picker to optimize initial bundle size
 const IconPickerPopover = dynamic(
@@ -130,6 +131,7 @@ export function DashboardNav({
     if (deleteConfirmGroupId === id) {
       onGroupDelete?.(id);
       setDeleteConfirmGroupId(null);
+      toast.error("Group deleted");
     } else {
       setDeleteConfirmGroupId(id);
       setTimeout(() => setDeleteConfirmGroupId(null), 3000);

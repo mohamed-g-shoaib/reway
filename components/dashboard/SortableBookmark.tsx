@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { GroupRow } from "@/lib/supabase/queries";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
+import { toast } from "sonner";
 
 interface SortableBookmarkProps {
   bookmark: BookmarkType & { status?: string | null };
@@ -90,9 +91,11 @@ export const SortableBookmark = memo(function SortableBookmark({
     try {
       await navigator.clipboard.writeText(bookmark.url);
       setIsCopied(true);
+      toast.success("URL copied to clipboard");
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error("Failed to copy URL");
     }
   };
 
@@ -101,6 +104,7 @@ export const SortableBookmark = memo(function SortableBookmark({
     if (isDeleteConfirm) {
       // Second click - Actually delete
       onDelete?.(bookmark.id);
+      toast.error("Bookmark deleted");
     } else {
       // First click - Show warning
       setIsDeleteConfirm(true);
@@ -337,7 +341,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               className={`block truncate text-xs font-medium cursor-pointer transition-all ${
                 bookmark.status === "pending"
                   ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2 h-3"
-                  : "text-muted-foreground/70"
+                  : "text-muted-foreground/70 group-hover:text-muted-foreground"
               }`}
               onClick={openInNewTab}
             >
