@@ -84,7 +84,7 @@ export function QuickGlanceDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-125 p-0 overflow-hidden border-border bg-background rounded-2xl shadow-2xl ring-0 focus:outline-none"
+        className="sm:max-w-125 p-0 overflow-hidden border-border bg-background rounded-2xl ring-0 focus:outline-none"
         showCloseButton={false}
       >
         <DialogTitle className="sr-only">
@@ -225,7 +225,7 @@ export function QuickGlanceDialog({
               </Button>
               <Button
                 variant="default"
-                className="h-9 px-6 rounded-xl text-[13px] font-bold gap-2 shadow-sm"
+                className="h-9 px-6 rounded-xl text-[13px] font-bold gap-2"
                 onClick={handleOpenUrl}
               >
                 <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />

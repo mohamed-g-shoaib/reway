@@ -195,8 +195,8 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
         onSubmit={handleSubmit}
         className={`group flex items-center gap-3 rounded-2xl border bg-background px-4 py-2 transition-all duration-200 ${
           isFocused
-            ? "border-primary/30 ring-2 ring-primary/10 shadow-xl"
-            : "border-border shadow-sm hover:border-border/80"
+            ? "border-primary/30 ring-2 ring-primary/10"
+            : "border-border hover:border-border/80"
         }`}
       >
         {/* Hidden File Input */}

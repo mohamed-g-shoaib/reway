@@ -198,7 +198,7 @@ export function DashboardNav({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-56 rounded-2xl p-2 shadow-xl animate-in slide-in-from-top-2 duration-200"
+                className="w-56 rounded-2xl p-2 animate-in slide-in-from-top-2 duration-200"
               >
                 <DropdownMenuItem
                   className={`rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
@@ -481,7 +481,7 @@ export function DashboardNav({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 rounded-2xl p-2 shadow-xl ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95"
+                className="w-56 rounded-2xl p-2 ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95"
               >
                 <DropdownMenuLabel className="px-2 py-1.5 font-normal">
                   <div className="flex flex-col space-y-1">

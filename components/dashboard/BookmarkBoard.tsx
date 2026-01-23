@@ -329,7 +329,7 @@ export function BookmarkBoard({
                     const domain = getDomain(activeBookmark.url);
 
                     return (
-                      <div className="flex items-center justify-between rounded-xl bg-background/95 border border-primary/20 px-4 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.1)] backdrop-blur-md scale-[1.02] ring-1 ring-primary/5">
+                      <div className="flex items-center justify-between rounded-xl bg-background border border-primary/30 px-4 py-4 backdrop-blur-md scale-[1.02] ring-1 ring-primary/10">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
                           <Favicon
                             url={activeBookmark.favicon_url || ""}

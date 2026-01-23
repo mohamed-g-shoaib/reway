@@ -200,7 +200,7 @@ export const SortableBookmark = memo(function SortableBookmark({
       <div
         ref={setNodeRef}
         style={style}
-        className="group relative flex flex-col rounded-2xl p-3 bg-muted/20 border border-border/30 space-y-3 shadow-sm"
+        className="group relative flex flex-col rounded-2xl p-3 bg-muted/20 border border-border/30 space-y-3"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
@@ -239,7 +239,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-56 rounded-xl p-1 shadow-2xl"
+                className="w-56 rounded-xl p-1"
               >
                 <DropdownMenuItem
                   className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""}`}
@@ -330,7 +330,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           </Button>
           <Button
             size="sm"
-            className="h-8 px-4 text-xs font-bold rounded-4xl shadow-sm"
+            className="h-8 px-4 text-xs font-bold rounded-4xl"
             onClick={handleSaveEdit}
             disabled={!editTitle.trim() || !editUrl.trim() || isSaving}
           >
@@ -356,7 +356,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
           } ${
             isDragging
-              ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
+              ? "z-50 bg-background border border-primary/20 scale-[1.02]"
               : isSelected
                 ? "bg-primary/5 border border-primary/40"
                 : ""
@@ -443,7 +443,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
                   onClick={handleEdit}
                   aria-label="Edit bookmark"
                 >
@@ -453,7 +453,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
                   onClick={handleCopyLink}
                   aria-label="Copy link"
                 >
@@ -471,7 +471,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
                   onClick={openInNewTab}
                   aria-label="Open link"
                 >
@@ -481,9 +481,9 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`h-9 w-9 rounded-xl hover:shadow-sm cursor-pointer transition-colors ${
+                  className={`h-9 w-9 rounded-xl transition-all duration-200 cursor-pointer ${
                     isDeleteConfirm
-                      ? "bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                      ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                       : "hover:bg-destructive/10 hover:text-destructive"
                   }`}
                   onClick={handleDelete}
@@ -527,7 +527,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
+                    className="w-40 rounded-2xl p-2 ring-1 ring-black/5"
                   >
                     <DropdownMenuItem
                       className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"

@@ -54,7 +54,7 @@ export function CreateGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-150 rounded-3xl p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/50 shadow-2xl">
+      <DialogContent className="sm:max-w-150 rounded-3xl p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/50">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold tracking-tight">
             Create Group
@@ -86,7 +86,7 @@ export function CreateGroupDialog({
               <Label className="text-sm font-semibold text-muted-foreground ml-1">
                 Select Icon
               </Label>
-              <ScrollArea className="h-[300px] pr-4">
+              <ScrollArea className="h-75 pr-4">
                 <div className="space-y-6">
                   {ICON_CATEGORIES.map((category) => (
                     <div key={category.name} className="space-y-3">
@@ -103,7 +103,7 @@ export function CreateGroupDialog({
                               title={iconName}
                               className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
                                 selectedIcon === iconName
-                                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
+                                  ? "bg-primary text-primary-foreground scale-105"
                                   : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                               }`}
                             >
@@ -127,7 +127,7 @@ export function CreateGroupDialog({
             <Button
               type="submit"
               disabled={!name.trim() || isLoading}
-              className="w-full rounded-2xl h-11 font-bold shadow-lg shadow-primary/10 transition-all active:scale-[0.98]"
+              className="w-full rounded-2xl h-11 font-bold transition-all active:scale-[0.98]"
             >
               {isLoading ? "Creating..." : "Create Group"}
             </Button>

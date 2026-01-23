@@ -32,7 +32,7 @@ export function IconPickerPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        className="w-[320px] p-0 border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl rounded-2xl"
+        className="w-[320px] p-0 border-border/50 bg-background/95 backdrop-blur-xl rounded-2xl"
         align="start"
         side="bottom"
         sideOffset={8}
@@ -58,7 +58,7 @@ export function IconPickerPopover({
                       title={iconName}
                       className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${
                         selectedIcon === iconName
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105"
+                          ? "bg-primary text-primary-foreground scale-105"
                           : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:scale-105"
                       }`}
                     >

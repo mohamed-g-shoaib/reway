@@ -54,8 +54,8 @@ export function Favicon({
         isEnriching
           ? "animate-pulse bg-muted/30 border-muted/50"
           : imageError
-            ? `${initials.color} shadow-sm`
-            : "bg-background border-border shadow-sm hover:shadow-md",
+            ? `${initials.color}`
+            : "bg-background border-border hover:bg-muted/30",
         className,
       )}
     >
