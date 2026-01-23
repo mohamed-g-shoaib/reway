@@ -15,6 +15,7 @@ import {
   Link01Icon,
   File02Icon,
   MoreVerticalIcon,
+  ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,14 @@ import {
 import { Favicon } from "./Favicon";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+} from "@/components/ui/context-menu";
 import { GroupRow } from "@/lib/supabase/queries";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { toast } from "sonner";
@@ -57,6 +66,7 @@ interface SortableBookmarkProps {
   ) => Promise<void>;
   isEditing?: boolean;
   onEditDone?: () => void;
+  onPreview?: (id: string) => void;
 }
 
 export const SortableBookmark = memo(function SortableBookmark({
@@ -76,6 +86,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   groups = [],
   isEditing: forceEditing,
   onEditDone,
+  onPreview,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
@@ -332,231 +343,307 @@ export const SortableBookmark = memo(function SortableBookmark({
 
   // Normal Bookmark View
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ${
-        status === "pending"
-          ? "pointer-events-none"
-          : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
-      } ${
-        isDragging
-          ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
-          : isSelected
-            ? "bg-primary/5 border border-primary/20 shadow-sm"
-            : ""
-      }`}
-    >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        {/* Favicon Container */}
-        <div onClick={openInNewTab}>
-          <Favicon
-            url={favicon || ""}
-            domain={domain || ""}
-            title={title || ""}
-            isEnriching={status === "pending"}
-          />
-        </div>
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ${
+            status === "pending"
+              ? "pointer-events-none"
+              : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
+          } ${
+            isDragging
+              ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
+              : isSelected
+                ? "bg-primary/5 border border-primary/40"
+                : ""
+          }`}
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            {/* Favicon Container */}
+            <div onClick={openInNewTab}>
+              <Favicon
+                url={favicon || ""}
+                domain={domain || ""}
+                title={title || ""}
+                isEnriching={status === "pending"}
+              />
+            </div>
 
-        {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-2 md:pr-36">
-          <div className="w-fit max-w-full">
+            {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-2 md:pr-36">
+              <div className="w-fit max-w-full">
+                {status === "pending" ? (
+                  <TextShimmer
+                    as="span"
+                    className="block truncate text-sm font-semibold"
+                    duration={2.5}
+                  >
+                    {title || "Loading..."}
+                  </TextShimmer>
+                ) : (
+                  <span
+                    className="block truncate text-sm font-semibold transition-all cursor-pointer text-foreground group-hover:text-primary"
+                    onClick={openInNewTab}
+                  >
+                    {title}
+                  </span>
+                )}
+              </div>
+              <div className="w-fit max-w-full h-4">
+                {status === "pending" ? (
+                  <TextShimmer
+                    as="span"
+                    className="block truncate text-xs font-medium"
+                    duration={2.5}
+                    delay={0.2}
+                  >
+                    Fetching details...
+                  </TextShimmer>
+                ) : (
+                  <span
+                    className="block truncate text-xs font-medium cursor-pointer transition-all text-muted-foreground/70 group-hover:text-muted-foreground"
+                    onClick={openInNewTab}
+                  >
+                    {domain}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Actions / Date Container */}
+          <div className="relative flex shrink-0 items-center min-w-25 justify-end">
+            {/* Desktop Date: Fades out on hover if not mobile */}
             {status === "pending" ? (
               <TextShimmer
                 as="span"
-                className="block truncate text-sm font-bold"
+                className="text-sm font-medium tabular-nums"
                 duration={2.5}
+                delay={0.4}
               >
-                {title || "Loading..."}
+                Enriching...
               </TextShimmer>
             ) : (
-              <span
-                className="block truncate text-sm font-bold transition-all cursor-pointer text-foreground group-hover:text-primary"
-                onClick={openInNewTab}
-              >
-                {title}
+              <span className="text-xs font-medium text-muted-foreground/60 transition-all duration-200 tabular-nums md:block group-hover:opacity-0">
+                {createdAt}
               </span>
             )}
-          </div>
-          <div className="w-fit max-w-full h-4">
-            {status === "pending" ? (
-              <TextShimmer
-                as="span"
-                className="block truncate text-xs font-medium"
-                duration={2.5}
-                delay={0.2}
-              >
-                Fetching details...
-              </TextShimmer>
-            ) : (
-              <span
-                className="block truncate text-xs font-medium cursor-pointer transition-all text-muted-foreground/70 group-hover:text-muted-foreground"
-                onClick={openInNewTab}
-              >
-                {domain}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
 
-      {/* Actions / Date Container */}
-      <div className="relative flex shrink-0 items-center min-w-25 justify-end">
-        {/* Desktop Date: Fades out on hover if not mobile */}
-        {status === "pending" ? (
-          <TextShimmer
-            as="span"
-            className="text-sm font-medium tabular-nums"
-            duration={2.5}
-            delay={0.4}
-          >
-            Enriching...
-          </TextShimmer>
-        ) : (
-          <span className="text-sm font-medium text-muted-foreground/80 transition-all duration-200 tabular-nums md:block group-hover:opacity-0">
-            {createdAt}
-          </span>
-        )}
-
-        {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-        {status !== "pending" ? (
-          <div
-            className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
-            onClick={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-              onClick={handleEdit}
-              aria-label="Edit bookmark"
-            >
-              <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-              onClick={handleCopyLink}
-              aria-label="Copy link"
-            >
+            {/* Desktop Action Buttons: Visible only on hover and on desktop */}
+            {status !== "pending" ? (
               <div
-                className="transition-all duration-200 ease-in-out"
-                key={isCopied ? "tick" : "copy"}
+                className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
               >
-                <HugeiconsIcon
-                  icon={isCopied ? Tick01Icon : Copy01Icon}
-                  size={16}
-                />
-              </div>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-              onClick={openInNewTab}
-              aria-label="Open link"
-            >
-              <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`h-9 w-9 rounded-xl hover:shadow-sm cursor-pointer transition-colors ${
-                isDeleteConfirm
-                  ? "bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
-                  : "hover:bg-destructive/10 hover:text-destructive"
-              }`}
-              onClick={handleDelete}
-              aria-label={
-                isDeleteConfirm
-                  ? "Click again to confirm delete"
-                  : "Delete bookmark"
-              }
-            >
-              <div
-                className="transition-all duration-200 ease-in-out"
-                key={isDeleteConfirm ? "alert" : "delete"}
-              >
-                <HugeiconsIcon
-                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                  size={16}
-                />
-              </div>
-            </Button>
-          </div>
-        ) : null}
-
-        {/* Mobile Action Menu */}
-        {status !== "pending" ? (
-          <div className="md:hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
-                  onClick={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <HugeiconsIcon
-                    icon={MoreVerticalIcon}
-                    size={16}
-                    className="text-muted-foreground/60"
-                  />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
-              >
-                <DropdownMenuItem
-                  className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                   onClick={handleEdit}
+                  aria-label="Edit bookmark"
                 >
-                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                   onClick={handleCopyLink}
+                  aria-label="Copy link"
                 >
-                  <HugeiconsIcon
-                    icon={isCopied ? Tick01Icon : Copy01Icon}
-                    size={16}
-                  />
-                  {isCopied ? "Copied!" : "Copy Link"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                  <div
+                    className="transition-all duration-200 ease-in-out"
+                    key={isCopied ? "tick" : "copy"}
+                  >
+                    <HugeiconsIcon
+                      icon={isCopied ? Tick01Icon : Copy01Icon}
+                      size={16}
+                    />
+                  </div>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
                   onClick={openInNewTab}
+                  aria-label="Open link"
                 >
-                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className={`rounded-xl flex items-center gap-2 cursor-pointer font-medium ${
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-9 w-9 rounded-xl hover:shadow-sm cursor-pointer transition-colors ${
                     isDeleteConfirm
-                      ? "text-destructive bg-destructive/5 focus:bg-destructive/10 focus:text-destructive"
-                      : "text-destructive focus:bg-destructive/5 focus:text-destructive"
+                      ? "bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive"
+                      : "hover:bg-destructive/10 hover:text-destructive"
                   }`}
                   onClick={handleDelete}
+                  aria-label={
+                    isDeleteConfirm
+                      ? "Click again to confirm delete"
+                      : "Delete bookmark"
+                  }
                 >
-                  <HugeiconsIcon
-                    icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                    size={16}
-                  />
-                  {isDeleteConfirm ? "Click to Confirm" : "Delete"}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <div
+                    className="transition-all duration-200 ease-in-out"
+                    key={isDeleteConfirm ? "alert" : "delete"}
+                  >
+                    <HugeiconsIcon
+                      icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                      size={16}
+                    />
+                  </div>
+                </Button>
+              </div>
+            ) : null}
+
+            {/* Mobile Action Menu */}
+            {status !== "pending" ? (
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <HugeiconsIcon
+                        icon={MoreVerticalIcon}
+                        size={16}
+                        className="text-muted-foreground/60"
+                      />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
+                  >
+                    <DropdownMenuItem
+                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                      onClick={handleEdit}
+                    >
+                      <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                      onClick={handleCopyLink}
+                    >
+                      <HugeiconsIcon
+                        icon={isCopied ? Tick01Icon : Copy01Icon}
+                        size={16}
+                      />
+                      {isCopied ? "Copied!" : "Copy Link"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                      onClick={openInNewTab}
+                    >
+                      <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className={`rounded-xl flex items-center gap-2 cursor-pointer font-medium ${
+                        isDeleteConfirm
+                          ? "text-destructive bg-destructive/5 focus:bg-destructive/10 focus:text-destructive"
+                          : "text-destructive focus:bg-destructive/5 focus:text-destructive"
+                      }`}
+                      onClick={handleDelete}
+                    >
+                      <HugeiconsIcon
+                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                        size={16}
+                      />
+                      {isDeleteConfirm ? "Click to Confirm" : "Delete"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : null}
           </div>
-        ) : null}
-      </div>
-    </div>
+        </div>
+      </ContextMenuTrigger>
+
+      <ContextMenuContent className="w-56 rounded-2xl p-1.5">
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onClick={openInNewTab}
+        >
+          <HugeiconsIcon
+            icon={ArrowUpRight03Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Open in New Tab</span>
+          <ContextMenuShortcut>⏎</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onClick={() => onPreview?.(id)}
+        >
+          <HugeiconsIcon
+            icon={ViewIcon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Quick Glance</span>
+          <ContextMenuShortcut>Space</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onSelect={(e) => {
+            e.preventDefault();
+            handleCopyLink(e as unknown as React.MouseEvent);
+          }}
+        >
+          <HugeiconsIcon
+            icon={Copy01Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Copy Link</span>
+          <ContextMenuShortcut>C</ContextMenuShortcut>
+        </ContextMenuItem>
+
+        <ContextMenuSeparator />
+
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onSelect={(e) => {
+            e.preventDefault();
+            handleEdit(e as unknown as React.MouseEvent);
+          }}
+        >
+          <HugeiconsIcon
+            icon={PencilEdit01Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Edit Bookmark</span>
+          <ContextMenuShortcut>E</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem
+          variant="destructive"
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onSelect={(e) => {
+            e.preventDefault();
+            handleDelete(e as unknown as React.MouseEvent);
+          }}
+        >
+          <HugeiconsIcon icon={Delete02Icon} size={16} />
+          <span>{isDeleteConfirm ? "Click again to delete" : "Delete"}</span>
+          <ContextMenuShortcut>⌫</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 });

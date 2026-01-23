@@ -298,6 +298,13 @@ export function BookmarkBoard({
                 groupsMap={groupsMap}
                 isEditing={editingId === bookmark.id}
                 onEditDone={() => setEditingId(null)}
+                onPreview={(id) => {
+                  const b = bookmarks.find((bm) => bm.id === id);
+                  if (b) {
+                    setPreviewBookmark(b);
+                    setIsPreviewOpen(true);
+                  }
+                }}
                 {...bookmark}
               />
             ))}
