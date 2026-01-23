@@ -200,7 +200,7 @@ export const SortableBookmark = memo(function SortableBookmark({
       <div
         ref={setNodeRef}
         style={style}
-        className="group relative flex flex-col rounded-2xl p-3 bg-muted/20 border border-border/30 space-y-3"
+        className="group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3"
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
@@ -356,9 +356,9 @@ export const SortableBookmark = memo(function SortableBookmark({
               : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
           } ${
             isDragging
-              ? "z-50 bg-background border border-primary/20 scale-[1.02]"
+              ? "z-50 bg-background ring-1 ring-primary/20 scale-[1.02]"
               : isSelected
-                ? "bg-primary/5 border border-primary/40"
+                ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
                 : ""
           }`}
         >
@@ -527,7 +527,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="w-40 rounded-2xl p-2 ring-1 ring-black/5"
+                    className="w-40 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
                   >
                     <DropdownMenuItem
                       className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"

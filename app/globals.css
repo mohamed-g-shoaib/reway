@@ -178,43 +178,21 @@ body,
 [data-sonner-toast] {
   background: var(--background) !important;
   color: var(--foreground) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 1.25rem !important;
+  border-radius: 2rem !important;
   font-family: inherit !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(24px) !important;
+  /* 'Gold Standard' border: Theme-aware foreground/5 */
+  border: 1px solid color-mix(in oklab, var(--foreground), transparent 95%) !important;
+  /* 'Gold Standard' rim: 1px white/5 for physical MacOS edge */
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.05) !important;
 }
 
-[data-sonner-toast][data-type="success"] {
-  background: var(--background) !important;
-  border-color: color-mix(
-    in oklab,
-    var(--border),
-    var(--primary) 40%
-  ) !important;
-}
-
-[data-sonner-toast][data-type="error"] {
-  /* Graphite with a muted reddish tint */
-  background: color-mix(
-    in oklab,
-    var(--background),
-    var(--destructive) 5%
-  ) !important;
-  border-color: color-mix(
-    in oklab,
-    var(--border),
-    var(--destructive) 30%
-  ) !important;
+[data-sonner-toast] [data-icon] {
   color: var(--foreground) !important;
 }
 
-/* Style the icons to match the theme */
-[data-sonner-toast] [data-icon] {
-  color: var(--primary);
-}
-
 [data-sonner-toast][data-type="error"] [data-icon] {
-  color: color-mix(in oklab, var(--primary), var(--destructive) 60%);
+  color: var(--destructive) !important;
 }

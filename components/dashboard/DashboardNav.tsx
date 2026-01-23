@@ -198,7 +198,7 @@ export function DashboardNav({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-56 rounded-2xl p-2 animate-in slide-in-from-top-2 duration-200"
+                className="w-56 rounded-2xl p-2 animate-in slide-in-from-top-2 duration-200 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
               >
                 <DropdownMenuItem
                   className={`rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
@@ -225,7 +225,7 @@ export function DashboardNav({
                         return (
                           <div
                             key={group.id}
-                            className="px-2 py-3 space-y-2 bg-muted/20 rounded-xl border border-border/30"
+                            className="relative px-2 py-3 space-y-2 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="flex items-center gap-2">
@@ -387,7 +387,7 @@ export function DashboardNav({
                 {/* Inline Create Mode */}
                 {isInlineCreating ? (
                   <div
-                    className="px-2 py-3 space-y-2 bg-primary/5 rounded-xl border border-primary/20"
+                    className="relative px-2 py-3 space-y-2 bg-primary/5 rounded-xl ring-1 ring-primary/20 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center gap-2">
