@@ -32,9 +32,10 @@ import { GroupRow } from "@/lib/supabase/queries";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 
 interface SortableBookmarkProps {
-  bookmark: BookmarkType & { is_enriching?: boolean };
+  bookmark: BookmarkType & { status?: string | null };
   onDelete?: (id: string) => void;
   groups?: GroupRow[];
+  isSelected?: boolean;
   onEdit?: (
     id: string,
     data: {
@@ -49,6 +50,7 @@ interface SortableBookmarkProps {
 export const SortableBookmark = memo(function SortableBookmark({
   bookmark,
   onDelete,
+  isSelected,
   groups = [],
   onEdit,
 }: SortableBookmarkProps) {
@@ -271,8 +273,8 @@ export const SortableBookmark = memo(function SortableBookmark({
         <div className="flex justify-end gap-2 pt-1">
           <Button
             size="sm"
-            variant="ghost"
-            className="h-8 px-3 text-xs rounded-4xl hover:bg-background/50"
+            variant="secondary"
+            className="h-8 px-3 text-xs rounded-4xl font-bold"
             onClick={handleCancelEdit}
           >
             Cancel
@@ -300,7 +302,9 @@ export const SortableBookmark = memo(function SortableBookmark({
       className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing ${
         isDragging
           ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
-          : ""
+          : isSelected
+            ? "bg-primary/5 border border-primary/20 shadow-sm"
+            : ""
       }`}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -310,7 +314,7 @@ export const SortableBookmark = memo(function SortableBookmark({
             url={bookmark.favicon || ""}
             domain={bookmark.domain || ""}
             title={bookmark.title || ""}
-            isEnriching={bookmark.is_enriching}
+            isEnriching={bookmark.status === "pending"}
           />
         </div>
 
@@ -318,7 +322,7 @@ export const SortableBookmark = memo(function SortableBookmark({
         <div className="flex min-w-0 flex-col gap-0.5 max-w-[calc(100%-150px)] md:max-w-[calc(100%-450px)]">
           <span
             className={`truncate text-sm font-bold transition-all cursor-pointer ${
-              bookmark.is_enriching
+              bookmark.status === "pending"
                 ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2"
                 : "text-foreground group-hover:text-primary"
             }`}
@@ -328,13 +332,13 @@ export const SortableBookmark = memo(function SortableBookmark({
           </span>
           <span
             className={`text-xs font-medium cursor-pointer transition-all truncate ${
-              bookmark.is_enriching
+              bookmark.status === "pending"
                 ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2 h-3"
                 : "text-muted-foreground/70"
             }`}
             onClick={openInNewTab}
           >
-            {bookmark.is_enriching ? "" : bookmark.domain}
+            {bookmark.status === "pending" ? "" : bookmark.domain}
           </span>
         </div>
       </div>
@@ -344,16 +348,16 @@ export const SortableBookmark = memo(function SortableBookmark({
         {/* Desktop Date: Fades out on hover if not mobile */}
         <span
           className={`text-sm font-medium text-muted-foreground/50 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
-            bookmark.is_enriching
+            bookmark.status === "pending"
               ? "animate-shimmer bg-linear-to-r from-transparent via-muted/30 to-transparent bg-size-[200%_100%] px-2 rounded-lg"
               : ""
           }`}
         >
-          {bookmark.is_enriching ? "Enriching..." : bookmark.createdAt}
+          {bookmark.status === "pending" ? "Enriching..." : bookmark.createdAt}
         </span>
 
         {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-        {!bookmark.is_enriching ? (
+        {bookmark.status !== "pending" ? (
           <div
             className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
             onClick={(e) => e.stopPropagation()}
@@ -426,7 +430,7 @@ export const SortableBookmark = memo(function SortableBookmark({
         ) : null}
 
         {/* Mobile Action Menu */}
-        {!bookmark.is_enriching ? (
+        {bookmark.status !== "pending" ? (
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

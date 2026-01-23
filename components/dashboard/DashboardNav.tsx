@@ -266,9 +266,12 @@ export function DashboardNav({
                             <div className="flex justify-end gap-2">
                               <UIButton
                                 size="sm"
-                                variant="ghost"
-                                className="h-7 px-3 text-xs rounded-4xl"
-                                onClick={() => setEditingGroupId(null)}
+                                variant="secondary"
+                                className="h-7 px-3 text-xs rounded-4xl font-bold"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingGroupId(null);
+                                }}
                               >
                                 Cancel
                               </UIButton>
@@ -420,8 +423,8 @@ export function DashboardNav({
                     <div className="flex justify-end gap-2">
                       <UIButton
                         size="sm"
-                        variant="ghost"
-                        className="h-7 px-3 text-xs rounded-4xl"
+                        variant="secondary"
+                        className="h-7 px-3 text-xs rounded-4xl font-bold"
                         onClick={handleInlineCreateCancel}
                       >
                         Cancel
