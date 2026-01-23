@@ -355,7 +355,7 @@ export const SortableBookmark = memo(function SortableBookmark({
       <div className="relative flex shrink-0 items-center min-w-25 justify-end">
         {/* Desktop Date: Fades out on hover if not mobile */}
         <span
-          className={`text-sm font-medium text-muted-foreground/50 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
+          className={`text-sm font-medium text-muted-foreground/80 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
             bookmark.status === "pending"
               ? "animate-shimmer bg-linear-to-r from-transparent via-muted/30 to-transparent bg-size-[200%_100%] px-2 rounded-lg"
               : ""

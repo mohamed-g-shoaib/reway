@@ -222,7 +222,7 @@ export function CommandBar({
                 variant="ghost"
                 size="icon"
                 onClick={handlePlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/40 transition-all hover:bg-muted hover:text-primary active:scale-90"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-all hover:bg-muted hover:text-primary active:scale-90"
               >
                 <HugeiconsIcon icon={Add01Icon} size={16} />
               </Button>
@@ -236,7 +236,7 @@ export function CommandBar({
         <HugeiconsIcon
           icon={Search01Icon}
           size={16}
-          className={`shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/20"}`}
+          className={`shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/50"}`}
         />
 
         <input
@@ -245,7 +245,7 @@ export function CommandBar({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Insert a link, image, or just search..."
-          className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/30 selection:bg-primary/20 disabled:opacity-50"
+          className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />

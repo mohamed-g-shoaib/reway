@@ -201,7 +201,7 @@ export function BookmarkBoard({
   return (
     <div className="mt-4 w-full">
       {/* Header with keyboard shortcuts - Desktop only */}
-      <div className="hidden md:flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
+      <div className="hidden md:flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
         <span>Title</span>
 
         {/* Right side: Keyboard Guide + Created At */}
@@ -244,7 +244,7 @@ export function BookmarkBoard({
       </div>
 
       {/* Mobile Header - Simple */}
-      <div className="flex md:hidden items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/40 uppercase">
+      <div className="flex md:hidden items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
         <span>Title</span>
         <span>Created At</span>
       </div>
