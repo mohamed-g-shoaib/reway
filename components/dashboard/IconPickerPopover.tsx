@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ICON_CATEGORIES, getCategoryIcon } from "@/lib/hugeicons-list";
+import { ICON_CATEGORIES } from "@/lib/hugeicons-list";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 interface IconPickerPopoverProps {
