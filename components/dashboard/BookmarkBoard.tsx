@@ -242,7 +242,7 @@ export function BookmarkBoard({
       data-slot="bookmark-board"
     >
       {/* Header with keyboard shortcuts - Desktop only */}
-      <div className="hidden md:flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+      <div className="hidden md:flex items-center justify-between px-4 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
         <span>Title</span>
 
         {/* Right side: Keyboard Guide + Created At */}
@@ -303,7 +303,7 @@ export function BookmarkBoard({
           strategy={verticalListSortingStrategy}
         >
           <div
-            className="-mx-4 flex flex-col gap-1 bookmark-board-empty-space"
+            className="flex flex-col gap-1 bookmark-board-empty-space"
             data-slot="bookmark-board"
           >
             {displayBookmarks.map((bookmark, index) => (
