@@ -5,14 +5,23 @@ import NextImage from "next/image";
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
+import { cn } from "@/lib/utils";
+
 interface FaviconProps {
   url: string;
   domain: string;
   title: string;
   isEnriching?: boolean;
+  className?: string;
 }
 
-export function Favicon({ url, domain, title, isEnriching }: FaviconProps) {
+export function Favicon({
+  url,
+  domain,
+  title,
+  isEnriching,
+  className,
+}: FaviconProps) {
   const [imageError, setImageError] = useState(false);
   const [useGoogleFallback, setUseGoogleFallback] = useState(false);
 
@@ -40,13 +49,15 @@ export function Favicon({ url, domain, title, isEnriching }: FaviconProps) {
 
   return (
     <div
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-all overflow-hidden ${
+      className={cn(
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-all overflow-hidden",
         isEnriching
           ? "animate-pulse bg-muted/30 border-muted/50"
           : imageError
             ? `${initials.color} shadow-sm`
-            : "bg-background border-border shadow-sm hover:shadow-md"
-      }`}
+            : "bg-background border-border shadow-sm hover:shadow-md",
+        className,
+      )}
     >
       {isEnriching ? (
         <HugeiconsIcon

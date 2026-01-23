@@ -34,6 +34,9 @@ import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Favicon } from "./Favicon";
 import { getDomain } from "@/lib/utils";
+import { QuickGlanceDialog } from "./QuickGlanceDialog";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
@@ -60,6 +63,11 @@ export function BookmarkBoard({
 }: BookmarkBoardProps) {
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewBookmark, setPreviewBookmark] = useState<BookmarkRow | null>(
+    null,
+  );
   const dndContextId = useId();
 
   // Detect OS for keyboard shortcuts
@@ -101,6 +109,55 @@ export function BookmarkBoard({
 
     setActiveId(null);
   }
+
+  // Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex((prev) =>
+          prev < bookmarks.length - 1 ? prev + 1 : prev,
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+      } else if (e.key === " ") {
+        if (selectedIndex >= 0) {
+          e.preventDefault();
+          setPreviewBookmark(bookmarks[selectedIndex]);
+          setIsPreviewOpen(true);
+        }
+      } else if (e.key === "Enter") {
+        if (selectedIndex >= 0) {
+          e.preventDefault();
+          const bookmark = bookmarks[selectedIndex];
+          if (e.metaKey || e.ctrlKey) {
+            window.open(bookmark.url, "_blank", "noopener,noreferrer");
+          } else {
+            navigator.clipboard.writeText(bookmark.url);
+            toast.success("URL copied to clipboard");
+          }
+        }
+      } else if (e.key === "Escape") {
+        setSelectedIndex(-1);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [bookmarks, selectedIndex]);
+
+  // Ensure selected index stays within bounds when bookmarks change
+  const clampedSelectedIndex =
+    selectedIndex >= bookmarks.length ? -1 : selectedIndex;
 
   if (bookmarks.length === 0) {
     return (
@@ -205,7 +262,7 @@ export function BookmarkBoard({
           strategy={verticalListSortingStrategy}
         >
           <div className="-mx-4 flex flex-col gap-1">
-            {bookmarks.map((bookmark) => {
+            {bookmarks.map((bookmark, index) => {
               const domain = getDomain(bookmark.url);
 
               return (
@@ -213,11 +270,14 @@ export function BookmarkBoard({
                   key={bookmark.id}
                   onDelete={onDeleteBookmark}
                   onEdit={onEditBookmark}
+                  isSelected={clampedSelectedIndex === index}
                   groups={initialGroups}
                   bookmark={{
                     id: bookmark.id,
                     title: bookmark.title,
                     url: bookmark.url,
+                    image_url: bookmark.image_url || undefined,
+                    og_image_url: bookmark.og_image_url || undefined,
                     domain: domain,
                     description: bookmark.description || undefined,
                     favicon: bookmark.favicon_url || undefined,
@@ -226,7 +286,7 @@ export function BookmarkBoard({
                       { month: "short", day: "numeric" },
                     ),
                     groupId: bookmark.group_id || "all",
-                    is_enriching: bookmark.is_enriching || false,
+                    status: bookmark.status || "ready",
                   }}
                 />
               );
@@ -286,6 +346,21 @@ export function BookmarkBoard({
             document.body,
           )}
       </DndContext>
+
+      <QuickGlanceDialog
+        bookmark={previewBookmark}
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        onEdit={() => {
+          setIsPreviewOpen(false);
+          toast.info("Select the bookmark and click the edit icon to modify.");
+        }}
+        onDelete={(id) => {
+          setIsPreviewOpen(false);
+          onDeleteBookmark(id);
+        }}
+        groups={initialGroups}
+      />
     </div>
   );
 }
