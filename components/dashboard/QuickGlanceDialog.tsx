@@ -84,7 +84,7 @@ export function QuickGlanceDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-125 p-0 overflow-hidden border-border bg-background rounded-2xl ring-0 focus:outline-none"
+        className="sm:max-w-125 p-0 overflow-hidden border-border bg-background rounded-4xl ring-0 focus:outline-none after:absolute after:inset-0 after:rounded-4xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
         showCloseButton={false}
       >
         <DialogTitle className="sr-only">

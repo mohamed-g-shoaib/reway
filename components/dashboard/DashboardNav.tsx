@@ -166,7 +166,7 @@ export function DashboardNav({
 
   return (
     <>
-      <nav className="bg-background/50 backdrop-blur-md sticky top-6 z-40">
+      <nav className="bg-background/80 backdrop-blur-xl sticky top-6 z-40 mx-auto max-w-3xl rounded-3xl border border-border/50 transition-all duration-300 after:absolute after:inset-0 after:rounded-3xl after:ring-1 after:ring-white/5 after:pointer-events-none group-data-[scrolled=true]/body:top-2">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
           <div className="flex items-center">
             {/* Unified Group Switcher (Icon + Name) */}
