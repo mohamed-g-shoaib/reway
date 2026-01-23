@@ -81,10 +81,27 @@ export async function GET(request: NextRequest) {
       favicon = `${baseUrl.origin}/favicon.ico`;
     }
 
+    // 4. Extract OG Image
+    let ogImage =
+      root
+        .querySelector('meta[property="og:image"]')
+        ?.getAttribute("content") ||
+      root
+        .querySelector('meta[name="twitter:image"]')
+        ?.getAttribute("content") ||
+      "";
+
+    // Resolve relative OG image URLs
+    if (ogImage && !ogImage.startsWith("http")) {
+      const baseUrl = new URL(targetUrl);
+      ogImage = new URL(ogImage, baseUrl.origin).toString();
+    }
+
     return NextResponse.json({
       title: title.trim(),
       description: description?.trim() || "",
       favicon: favicon,
+      ogImage: ogImage,
       domain: new URL(targetUrl).hostname.replace("www.", ""),
       url: targetUrl,
     });
