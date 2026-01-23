@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, memo } from "react";
+import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -17,7 +18,6 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
-import { Bookmark as BookmarkType } from "@/types/dashboard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,9 +33,18 @@ import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { toast } from "sonner";
 
 interface SortableBookmarkProps {
-  bookmark: BookmarkType & { status?: string | null };
+  id: string;
+  title: string;
+  url: string;
+  domain: string;
+  status: string;
+  favicon?: string;
+  description?: string;
+  createdAt: string;
+  groupId: string;
   onDelete?: (id: string) => void;
   groups?: GroupRow[];
+  groupsMap?: Map<string, GroupRow>;
   isSelected?: boolean;
   onEdit?: (
     id: string,
@@ -49,8 +58,17 @@ interface SortableBookmarkProps {
 }
 
 export const SortableBookmark = memo(function SortableBookmark({
-  bookmark,
+  id,
+  title,
+  url,
+  domain,
+  status,
+  favicon,
+  description,
+  createdAt,
+  groupId,
   onDelete,
+  groupsMap,
   isSelected,
   groups = [],
   onEdit,
@@ -58,12 +76,10 @@ export const SortableBookmark = memo(function SortableBookmark({
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(bookmark.title || "");
-  const [editUrl, setEditUrl] = useState(bookmark.url);
+  const [editTitle, setEditTitle] = useState(title || "");
+  const [editUrl, setEditUrl] = useState(url);
   const [editDescription, setEditDescription] = useState("");
-  const [editGroupId, setEditGroupId] = useState(
-    bookmark.groupId || "no-group",
-  );
+  const [editGroupId, setEditGroupId] = useState(groupId || "no-group");
   const [isSaving, setIsSaving] = useState(false);
 
   const {
@@ -73,23 +89,25 @@ export const SortableBookmark = memo(function SortableBookmark({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: bookmark.id });
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.3 : 1,
+    contentVisibility: "auto" as const,
+    containIntrinsicSize: "0 48px" as const,
   };
 
   const openInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(bookmark.url, "_blank");
+    window.open(url, "_blank");
   };
 
   const handleCopyLink = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await navigator.clipboard.writeText(bookmark.url);
+      await navigator.clipboard.writeText(url);
       setIsCopied(true);
       toast.success("URL copied to clipboard");
       setTimeout(() => setIsCopied(false), 2000);
@@ -103,7 +121,7 @@ export const SortableBookmark = memo(function SortableBookmark({
     e.stopPropagation();
     if (isDeleteConfirm) {
       // Second click - Actually delete
-      onDelete?.(bookmark.id);
+      onDelete?.(id);
       toast.error("Bookmark deleted");
     } else {
       // First click - Show warning
@@ -116,18 +134,18 @@ export const SortableBookmark = memo(function SortableBookmark({
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
-    setEditTitle(bookmark.title || "");
-    setEditUrl(bookmark.url);
-    setEditDescription(bookmark.description || "");
-    setEditGroupId(bookmark.groupId || "no-group");
+    setEditTitle(title || "");
+    setEditUrl(url);
+    setEditDescription(description || "");
+    setEditGroupId(groupId || "no-group");
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setEditTitle(bookmark.title || "");
-    setEditUrl(bookmark.url);
+    setEditTitle(title || "");
+    setEditUrl(url);
     setEditDescription("");
-    setEditGroupId(bookmark.groupId || "no-group");
+    setEditGroupId(groupId || "no-group");
   };
 
   const handleSaveEdit = async () => {
@@ -135,7 +153,7 @@ export const SortableBookmark = memo(function SortableBookmark({
 
     setIsSaving(true);
     try {
-      await onEdit?.(bookmark.id, {
+      await onEdit?.(id, {
         title: editTitle.trim(),
         url: editUrl.trim(),
         description: editDescription.trim() || undefined,
@@ -176,7 +194,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     />
                   ) : (
                     (() => {
-                      const group = groups.find((g) => g.id === editGroupId);
+                      const group = groupsMap?.get(editGroupId);
                       const Icon =
                         group?.icon && ALL_ICONS_MAP[group.icon]
                           ? ALL_ICONS_MAP[group.icon]
@@ -303,7 +321,11 @@ export const SortableBookmark = memo(function SortableBookmark({
       style={style}
       {...attributes}
       {...listeners}
-      className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing ${
+      className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ${
+        status === "pending"
+          ? "pointer-events-none"
+          : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
+      } ${
         isDragging
           ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
           : isSelected
@@ -315,38 +337,51 @@ export const SortableBookmark = memo(function SortableBookmark({
         {/* Favicon Container */}
         <div onClick={openInNewTab}>
           <Favicon
-            url={bookmark.favicon || ""}
-            domain={bookmark.domain || ""}
-            title={bookmark.title || ""}
-            isEnriching={bookmark.status === "pending"}
+            url={favicon || ""}
+            domain={domain || ""}
+            title={title || ""}
+            isEnriching={status === "pending"}
           />
         </div>
 
         {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-2 md:pr-36">
           <div className="w-fit max-w-full">
-            <span
-              className={`block truncate text-sm font-bold transition-all cursor-pointer ${
-                bookmark.status === "pending"
-                  ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2"
-                  : "text-foreground group-hover:text-primary"
-              }`}
-              onClick={openInNewTab}
-            >
-              {bookmark.title}
-            </span>
+            {status === "pending" ? (
+              <TextShimmer
+                as="span"
+                className="block truncate text-sm font-bold"
+                duration={2.5}
+              >
+                {title || "Loading..."}
+              </TextShimmer>
+            ) : (
+              <span
+                className="block truncate text-sm font-bold transition-all cursor-pointer text-foreground group-hover:text-primary"
+                onClick={openInNewTab}
+              >
+                {title}
+              </span>
+            )}
           </div>
-          <div className="w-fit max-w-full">
-            <span
-              className={`block truncate text-xs font-medium cursor-pointer transition-all ${
-                bookmark.status === "pending"
-                  ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2 h-3"
-                  : "text-muted-foreground/70 group-hover:text-muted-foreground"
-              }`}
-              onClick={openInNewTab}
-            >
-              {bookmark.status === "pending" ? "" : bookmark.domain}
-            </span>
+          <div className="w-fit max-w-full h-4">
+            {status === "pending" ? (
+              <TextShimmer
+                as="span"
+                className="block truncate text-xs font-medium"
+                duration={2.5}
+                delay={0.2}
+              >
+                Fetching details...
+              </TextShimmer>
+            ) : (
+              <span
+                className="block truncate text-xs font-medium cursor-pointer transition-all text-muted-foreground/70 group-hover:text-muted-foreground"
+                onClick={openInNewTab}
+              >
+                {domain}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -354,18 +389,23 @@ export const SortableBookmark = memo(function SortableBookmark({
       {/* Actions / Date Container */}
       <div className="relative flex shrink-0 items-center min-w-25 justify-end">
         {/* Desktop Date: Fades out on hover if not mobile */}
-        <span
-          className={`text-sm font-medium text-muted-foreground/80 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 ${
-            bookmark.status === "pending"
-              ? "animate-shimmer bg-linear-to-r from-transparent via-muted/30 to-transparent bg-size-[200%_100%] px-2 rounded-lg"
-              : ""
-          }`}
-        >
-          {bookmark.status === "pending" ? "Enriching..." : bookmark.createdAt}
-        </span>
+        {status === "pending" ? (
+          <TextShimmer
+            as="span"
+            className="text-sm font-medium tabular-nums"
+            duration={2.5}
+            delay={0.4}
+          >
+            Enriching...
+          </TextShimmer>
+        ) : (
+          <span className="text-sm font-medium text-muted-foreground/80 transition-all duration-200 tabular-nums md:block group-hover:opacity-0">
+            {createdAt}
+          </span>
+        )}
 
         {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-        {bookmark.status !== "pending" ? (
+        {status !== "pending" ? (
           <div
             className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
             onClick={(e) => e.stopPropagation()}
@@ -438,7 +478,7 @@ export const SortableBookmark = memo(function SortableBookmark({
         ) : null}
 
         {/* Mobile Action Menu */}
-        {bookmark.status !== "pending" ? (
+        {status !== "pending" ? (
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

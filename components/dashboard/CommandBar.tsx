@@ -20,13 +20,9 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 interface CommandBarProps {
   onAddBookmark: (bookmark: BookmarkRow) => void;
-  onUpdateBookmark: (id: string, updates: Partial<BookmarkRow>) => void;
 }
 
-export function CommandBar({
-  onAddBookmark,
-  onUpdateBookmark,
-}: CommandBarProps) {
+export function CommandBar({ onAddBookmark }: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -58,12 +54,12 @@ export function CommandBar({
       // 1. Create all optimistic bookmarks at once
       const optimisticMap = urls.map((rawUrl) => {
         const url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
-        const tempId = `temp-${Date.now()}-${Math.random()}`;
+        const stableId = crypto.randomUUID();
         return {
           url,
-          tempId,
+          stableId,
           optimistic: {
-            id: tempId,
+            id: stableId,
             url: url,
             title: url,
             favicon_url: null,
@@ -82,10 +78,9 @@ export function CommandBar({
 
       // 2. Process all server actions in parallel
       await Promise.all(
-        optimisticMap.map(async ({ url, tempId }) => {
+        optimisticMap.map(async ({ url, stableId }) => {
           try {
-            const bookmarkId = await addBookmark({ url });
-            onUpdateBookmark(tempId, { id: bookmarkId });
+            const bookmarkId = await addBookmark({ url, id: stableId });
             // Chain enrichment immediately
             await enrichCreatedBookmark(bookmarkId, url);
           } catch (error) {
@@ -94,7 +89,7 @@ export function CommandBar({
         }),
       );
     },
-    [onAddBookmark, onUpdateBookmark],
+    [onAddBookmark],
   );
 
   useEffect(() => {

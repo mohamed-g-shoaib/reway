@@ -56,6 +56,7 @@ export async function extractLinks(content: string, isImage = false) {
 
 export async function addBookmark(formData: {
   url: string;
+  id?: string;
   title?: string;
   favicon_url?: string;
   og_image_url?: string;
@@ -85,6 +86,7 @@ export async function addBookmark(formData: {
   const { data, error } = await supabase
     .from("bookmarks")
     .insert({
+      id: formData.id,
       url: normalizedUrl,
       normalized_url: normalizedUrl,
       title: title,

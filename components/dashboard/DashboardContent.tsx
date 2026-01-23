@@ -50,19 +50,6 @@ export function DashboardContent({
     [activeGroupId],
   );
 
-  const updateBookmark = useCallback(
-    (oldId: string, updates: Partial<BookmarkRow>) => {
-      setBookmarks((prev) =>
-        prev.map((b) => {
-          if (b.id !== oldId) return b;
-          const newId = updates.id ?? b.id;
-          return { ...b, ...updates, id: newId };
-        }),
-      );
-    },
-    [],
-  );
-
   const handleDeleteBookmark = useCallback(async (id: string) => {
     // Optimistic delete
     setBookmarks((prev) => prev.filter((b) => b.id !== id));
@@ -217,10 +204,7 @@ export function DashboardContent({
       />
       <div className="flex flex-col gap-6 px-4 pt-4 md:pt-6">
         {/* Search/Command Bar */}
-        <CommandBar
-          onAddBookmark={addOptimisticBookmark}
-          onUpdateBookmark={updateBookmark}
-        />
+        <CommandBar onAddBookmark={addOptimisticBookmark} />
 
         {/* Bookmark List Section */}
         <BookmarkBoard

@@ -70,6 +70,31 @@ export function BookmarkBoard({
   );
   const dndContextId = useId();
 
+  // Pre-calculate and memoize transformed bookmarks to prevent unnecessary re-renders
+  const displayBookmarks = useMemo(() => {
+    return bookmarks.map((b) => ({
+      id: b.id,
+      title: b.title,
+      url: b.url,
+      image_url: b.image_url || undefined,
+      og_image_url: b.og_image_url || undefined,
+      domain: getDomain(b.url),
+      description: b.description || undefined,
+      favicon: b.favicon_url || undefined,
+      createdAt: new Date(b.created_at).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      }),
+      groupId: b.group_id || "all",
+      status: b.status || "ready",
+    }));
+  }, [bookmarks]);
+
+  // Pre-calculate groups map for O(1) lookups in children
+  const groupsMap = useMemo(() => {
+    return new Map(initialGroups.map((g) => [g.id, g]));
+  }, [initialGroups]);
+
   // Detect OS for keyboard shortcuts
   const isMac = useMemo(
     () =>
@@ -258,39 +283,21 @@ export function BookmarkBoard({
         modifiers={[restrictToVerticalAxis]}
       >
         <SortableContext
-          items={bookmarks.map((b) => b.id)}
+          items={displayBookmarks.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="-mx-4 flex flex-col gap-1">
-            {bookmarks.map((bookmark, index) => {
-              const domain = getDomain(bookmark.url);
-
-              return (
-                <SortableBookmark
-                  key={bookmark.id}
-                  onDelete={onDeleteBookmark}
-                  onEdit={onEditBookmark}
-                  isSelected={clampedSelectedIndex === index}
-                  groups={initialGroups}
-                  bookmark={{
-                    id: bookmark.id,
-                    title: bookmark.title,
-                    url: bookmark.url,
-                    image_url: bookmark.image_url || undefined,
-                    og_image_url: bookmark.og_image_url || undefined,
-                    domain: domain,
-                    description: bookmark.description || undefined,
-                    favicon: bookmark.favicon_url || undefined,
-                    createdAt: new Date(bookmark.created_at).toLocaleDateString(
-                      undefined,
-                      { month: "short", day: "numeric" },
-                    ),
-                    groupId: bookmark.group_id || "all",
-                    status: bookmark.status || "ready",
-                  }}
-                />
-              );
-            })}
+            {displayBookmarks.map((bookmark, index) => (
+              <SortableBookmark
+                key={bookmark.id}
+                onDelete={onDeleteBookmark}
+                onEdit={onEditBookmark}
+                isSelected={clampedSelectedIndex === index}
+                groups={initialGroups}
+                groupsMap={groupsMap}
+                {...bookmark}
+              />
+            ))}
           </div>
         </SortableContext>
 
