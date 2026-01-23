@@ -68,6 +68,7 @@ export function BookmarkBoard({
   const [previewBookmark, setPreviewBookmark] = useState<BookmarkRow | null>(
     null,
   );
+  const [editingId, setEditingId] = useState<string | null>(null);
   const dndContextId = useId();
 
   // Pre-calculate and memoize transformed bookmarks to prevent unnecessary re-renders
@@ -295,6 +296,8 @@ export function BookmarkBoard({
                 isSelected={clampedSelectedIndex === index}
                 groups={initialGroups}
                 groupsMap={groupsMap}
+                isEditing={editingId === bookmark.id}
+                onEditDone={() => setEditingId(null)}
                 {...bookmark}
               />
             ))}
@@ -358,9 +361,9 @@ export function BookmarkBoard({
         bookmark={previewBookmark}
         open={isPreviewOpen}
         onOpenChange={setIsPreviewOpen}
-        onEdit={() => {
+        onEdit={(bookmark) => {
           setIsPreviewOpen(false);
-          toast.info("Select the bookmark and click the edit icon to modify.");
+          setEditingId(bookmark.id);
         }}
         onDelete={(id) => {
           setIsPreviewOpen(false);

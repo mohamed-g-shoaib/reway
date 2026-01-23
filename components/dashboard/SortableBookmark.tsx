@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -55,6 +55,8 @@ interface SortableBookmarkProps {
       group_id?: string;
     },
   ) => Promise<void>;
+  isEditing?: boolean;
+  onEditDone?: () => void;
 }
 
 export const SortableBookmark = memo(function SortableBookmark({
@@ -70,8 +72,10 @@ export const SortableBookmark = memo(function SortableBookmark({
   onDelete,
   groupsMap,
   isSelected,
-  groups = [],
   onEdit,
+  groups = [],
+  isEditing: forceEditing,
+  onEditDone,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
@@ -81,6 +85,16 @@ export const SortableBookmark = memo(function SortableBookmark({
   const [editDescription, setEditDescription] = useState("");
   const [editGroupId, setEditGroupId] = useState(groupId || "no-group");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (forceEditing) {
+      setIsEditing(true);
+      setEditTitle(title || "");
+      setEditUrl(url);
+      setEditDescription(description || "");
+      setEditGroupId(groupId || "no-group");
+    }
+  }, [forceEditing, title, url, description, groupId]);
 
   const {
     attributes,
@@ -146,6 +160,7 @@ export const SortableBookmark = memo(function SortableBookmark({
     setEditUrl(url);
     setEditDescription("");
     setEditGroupId(groupId || "no-group");
+    onEditDone?.();
   };
 
   const handleSaveEdit = async () => {
@@ -160,6 +175,7 @@ export const SortableBookmark = memo(function SortableBookmark({
         group_id: editGroupId === "no-group" ? undefined : editGroupId,
       });
       setIsEditing(false);
+      onEditDone?.();
     } catch (error) {
       console.error("Failed to save bookmark:", error);
     } finally {

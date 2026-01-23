@@ -15,6 +15,7 @@ import {
   Copy01Icon,
   ArrowUpRight01Icon,
   Cancel01Icon,
+  Alert02Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Favicon } from "./Favicon";
@@ -39,6 +40,24 @@ export function QuickGlanceDialog({
   onDelete,
   groups,
 }: QuickGlanceDialogProps) {
+  const [isDeleteConfirm, setIsDeleteConfirm] = React.useState(false);
+
+  // Reset confirmation when bookmark changes or dialog closes
+  React.useEffect(() => {
+    setIsDeleteConfirm(false);
+  }, [bookmark?.id, open]);
+
+  const handleDelete = () => {
+    if (isDeleteConfirm) {
+      onDelete(bookmark?.id || "");
+      setIsDeleteConfirm(false);
+      toast.error("Bookmark deleted");
+    } else {
+      setIsDeleteConfirm(true);
+      setTimeout(() => setIsDeleteConfirm(false), 3000);
+    }
+  };
+
   if (!bookmark) return null;
 
   const domain = getDomain(bookmark.url);
@@ -138,10 +157,23 @@ export function QuickGlanceDialog({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="rounded-lg text-muted-foreground/60 hover:text-destructive"
-                  onClick={() => onDelete(bookmark.id)}
+                  className={`rounded-lg transition-colors ${
+                    isDeleteConfirm
+                      ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                      : "text-muted-foreground/60 hover:text-destructive"
+                  }`}
+                  onClick={handleDelete}
+                  title={isDeleteConfirm ? "Click again to confirm" : "Delete"}
                 >
-                  <HugeiconsIcon icon={Delete02Icon} size={18} />
+                  <div
+                    className="transition-all duration-200"
+                    key={isDeleteConfirm ? "alert" : "delete"}
+                  >
+                    <HugeiconsIcon
+                      icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                      size={18}
+                    />
+                  </div>
                 </Button>
               </div>
             </div>
@@ -183,13 +215,6 @@ export function QuickGlanceDialog({
 
             {/* Footer Buttons */}
             <div className="flex items-center justify-end gap-2 pt-1">
-              <Button
-                variant="secondary"
-                className="h-9 px-4 rounded-xl text-[13px] font-bold"
-                onClick={() => onOpenChange(false)}
-              >
-                Close
-              </Button>
               <Button
                 variant="secondary"
                 className="h-9 px-4 rounded-xl text-[13px] font-bold gap-2"
