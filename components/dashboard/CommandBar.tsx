@@ -193,11 +193,11 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
     >
       <form
         onSubmit={handleSubmit}
-        className={`group relative flex items-center gap-3 rounded-2xl bg-background px-4 py-2 transition-all duration-200 ${
+        className={`group relative flex items-center gap-3 rounded-2xl bg-background px-4 py-2 transition-all duration-300 ease-in-out ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
-            : "ring-1 ring-foreground/5 animate-in fade-in duration-500 after:ring-white/3 dark:after:ring-white/5"
-        } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate`}
+            : "ring-1 ring-foreground/5 after:ring-white/5"
+        } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] after:transition-all after:duration-300 shadow-none isolate`}
       >
         {/* Hidden File Input */}
         <input

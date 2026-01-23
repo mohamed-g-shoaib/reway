@@ -177,8 +177,20 @@ export function BookmarkBoard({
       }
     };
 
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Clear selection if clicking outside of any bookmark card
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-slot="bookmark-card"]')) {
+        setSelectedIndex(-1);
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("mousedown", handleGlobalClick);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("mousedown", handleGlobalClick);
+    };
   }, [bookmarks, selectedIndex]);
 
   // Ensure selected index stays within bounds when bookmarks change
@@ -225,7 +237,10 @@ export function BookmarkBoard({
   }
 
   return (
-    <div className="mt-4 w-full">
+    <div
+      className="mt-4 w-full bookmark-board-empty-space"
+      data-slot="bookmark-board"
+    >
       {/* Header with keyboard shortcuts - Desktop only */}
       <div className="hidden md:flex items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
         <span>Title</span>
@@ -287,7 +302,10 @@ export function BookmarkBoard({
           items={displayBookmarks.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="-mx-4 flex flex-col gap-1">
+          <div
+            className="-mx-4 flex flex-col gap-1 bookmark-board-empty-space"
+            data-slot="bookmark-board"
+          >
             {displayBookmarks.map((bookmark, index) => (
               <SortableBookmark
                 key={bookmark.id}

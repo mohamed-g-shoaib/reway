@@ -32,7 +32,7 @@ export function IconPickerPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        className="w-[320px] p-0 border-border/50 bg-background/95 backdrop-blur-xl rounded-2xl"
+        className="w-[320px] p-0 ring-foreground/5 bg-popover backdrop-blur-xl rounded-2xl ring-1 last:relative after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
         align="start"
         side="bottom"
         sideOffset={8}

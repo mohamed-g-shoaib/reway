@@ -225,7 +225,7 @@ export function DashboardNav({
                         return (
                           <div
                             key={group.id}
-                            className="relative px-2 py-3 space-y-2 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
+                            className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <div className="flex items-center gap-2">
@@ -295,7 +295,7 @@ export function DashboardNav({
                       return (
                         <DropdownMenuItem
                           key={group.id}
-                          className={`rounded-xl cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
+                          className={`rounded-xl cursor-pointer flex items-center justify-between gap-3 py-2 group/menu-item transition-colors ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"} ${isDeleteConfirm ? "bg-muted/50" : ""}`}
                           onSelect={(e) => {
                             // If we click a button (edit/delete), don't close the menu
                             const isButton = (e.target as HTMLElement).closest(
@@ -318,63 +318,51 @@ export function DashboardNav({
                             ) : null}
                             <span className="truncate">{group.name}</span>
                           </div>
-                          <div
-                            className="flex items-center gap-1 shrink-0"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <span className="text-xs text-muted-foreground/50 mr-1">
-                              {getBookmarkCount(group.id)}
-                            </span>
-                            <button
-                              type="button"
-                              className="p-1 hover:bg-muted/50 rounded-md transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingGroupId(group.id);
-                                setEditGroupName(group.name);
-                                setEditGroupIcon(group.icon || "folder");
-                              }}
-                            >
-                              <HugeiconsIcon
-                                icon={PencilEdit01Icon}
-                                size={14}
-                                className="text-muted-foreground/70"
-                              />
-                            </button>
-                            <button
-                              type="button"
-                              className={`p-1 rounded-md transition-all duration-200 ${
-                                isDeleteConfirm
-                                  ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                  : "hover:bg-destructive/10 hover:text-destructive"
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteGroupClick(group.id);
-                              }}
-                              title={
-                                isDeleteConfirm
-                                  ? "Click again to confirm"
-                                  : "Delete group"
-                              }
-                            >
-                              <div
-                                className="transition-all duration-200 ease-in-out"
-                                key={isDeleteConfirm ? "alert" : "delete"}
+                          <div className="flex items-center gap-1.5 shrink-0 min-w-17.5 justify-end relative">
+                            {/* Actions visible only on hover */}
+                            <div className="flex items-center gap-1 opacity-0 group-hover/menu-item:opacity-100 transition-opacity absolute right-0 bg-inherit pl-2">
+                              <button
+                                type="button"
+                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all active:scale-95"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingGroupId(group.id);
+                                  setEditGroupName(group.name);
+                                  setEditGroupIcon(group.icon || "folder");
+                                }}
+                              >
+                                <HugeiconsIcon
+                                  icon={PencilEdit01Icon}
+                                  size={14}
+                                />
+                              </button>
+                              <button
+                                type="button"
+                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all active:scale-95 ${
+                                  isDeleteConfirm
+                                    ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                    : "text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteGroupClick(group.id);
+                                }}
                               >
                                 <HugeiconsIcon
                                   icon={
                                     isDeleteConfirm ? Alert02Icon : Delete02Icon
                                   }
                                   size={14}
-                                  className={
-                                    isDeleteConfirm
-                                      ? "text-destructive"
-                                      : "text-destructive/70"
-                                  }
                                 />
-                              </div>
-                            </button>
+                              </button>
+                              <span className="text-xs text-muted-foreground/50 ml-1">
+                                {getBookmarkCount(group.id)}
+                              </span>
+                            </div>
+                            {/* Counter visible always when not hovered */}
+                            <span className="text-xs text-muted-foreground/50 group-hover/menu-item:opacity-0 transition-opacity">
+                              {getBookmarkCount(group.id)}
+                            </span>
                           </div>
                         </DropdownMenuItem>
                       );
@@ -387,7 +375,7 @@ export function DashboardNav({
                 {/* Inline Create Mode */}
                 {isInlineCreating ? (
                   <div
-                    className="relative px-2 py-3 space-y-2 bg-primary/5 rounded-xl ring-1 ring-primary/20 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
+                    className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center gap-2">

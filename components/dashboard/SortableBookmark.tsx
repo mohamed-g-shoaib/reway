@@ -350,6 +350,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           style={style}
           {...attributes}
           {...listeners}
+          data-slot="bookmark-card"
           className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ${
             status === "pending"
               ? "pointer-events-none"
@@ -481,7 +482,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`h-9 w-9 rounded-xl transition-all duration-200 cursor-pointer ${
+                  className={`h-9 w-9 rounded-xl transition-all duration-200 cursor-pointer text-destructive/70 ${
                     isDeleteConfirm
                       ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                       : "hover:bg-destructive/10 hover:text-destructive"
