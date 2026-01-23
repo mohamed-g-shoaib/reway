@@ -318,28 +318,32 @@ export const SortableBookmark = memo(function SortableBookmark({
           />
         </div>
 
-        {/* Text Content - Limited width to prevent overflow */}
-        <div className="flex min-w-0 flex-col gap-0.5 max-w-[calc(100%-150px)] md:max-w-[calc(100%-450px)]">
-          <span
-            className={`truncate text-sm font-bold transition-all cursor-pointer ${
-              bookmark.status === "pending"
-                ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2"
-                : "text-foreground group-hover:text-primary"
-            }`}
-            onClick={openInNewTab}
-          >
-            {bookmark.title}
-          </span>
-          <span
-            className={`text-xs font-medium cursor-pointer transition-all truncate ${
-              bookmark.status === "pending"
-                ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2 h-3"
-                : "text-muted-foreground/70"
-            }`}
-            onClick={openInNewTab}
-          >
-            {bookmark.status === "pending" ? "" : bookmark.domain}
-          </span>
+        {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-2 md:pr-36">
+          <div className="w-fit max-w-full">
+            <span
+              className={`block truncate text-sm font-bold transition-all cursor-pointer ${
+                bookmark.status === "pending"
+                  ? "text-muted-foreground/30 animate-shimmer bg-linear-to-r from-transparent via-muted/40 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2"
+                  : "text-foreground group-hover:text-primary"
+              }`}
+              onClick={openInNewTab}
+            >
+              {bookmark.title}
+            </span>
+          </div>
+          <div className="w-fit max-w-full">
+            <span
+              className={`block truncate text-xs font-medium cursor-pointer transition-all ${
+                bookmark.status === "pending"
+                  ? "text-muted-foreground/10 animate-shimmer bg-linear-to-r from-transparent via-muted/20 to-transparent bg-size-[200%_100%] rounded-lg px-2 -ml-2 h-3"
+                  : "text-muted-foreground/70"
+              }`}
+              onClick={openInNewTab}
+            >
+              {bookmark.status === "pending" ? "" : bookmark.domain}
+            </span>
+          </div>
         </div>
       </div>
 
