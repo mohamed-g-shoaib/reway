@@ -354,7 +354,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ${
             status === "pending"
               ? "pointer-events-none"
-              : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
+              : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
           } ${
             isDragging
               ? "z-50 bg-background ring-1 ring-primary/20"
