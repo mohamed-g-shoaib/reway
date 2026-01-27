@@ -224,6 +224,10 @@ body,
   font-size: 13px !important;
   font-weight: 600 !important;
   backdrop-filter: blur(24px) !important;
+  transition-duration: 180ms !important;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+  animation-duration: 180ms !important;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
   /* 'Gold Standard' border: Theme-aware foreground/5 */
   border: 1px solid color-mix(in oklab, var(--foreground), transparent 95%) !important;
   /* 'Gold Standard' rim: 1px white/5 for physical MacOS edge */
