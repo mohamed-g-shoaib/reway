@@ -224,10 +224,10 @@ export function DashboardNav({
                 className="w-56 rounded-2xl p-2 animate-in slide-in-from-top-2 duration-200 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
               >
                 <DropdownMenuItem
-                  className={`rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
+                  className={`group rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${activeGroupId === "all" ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
                   onClick={() => onGroupSelect("all")}
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex items-center gap-3 flex-1 min-w-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5">
                     <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
                     <span>All Bookmarks</span>
                   </div>
@@ -323,12 +323,12 @@ export function DashboardNav({
                         >
                           <DropdownMenuItem
                             asChild
-                            className={`flex-1 cursor-pointer py-2 pr-20 transition-colors ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
+                            className={`group flex-1 cursor-pointer py-2 pr-20 transition-colors ${activeGroupId === group.id ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"}`}
                             onSelect={() => onGroupSelect(group.id)}
                           >
                             <button
                               type="button"
-                              className="flex w-full items-center gap-3 px-3 text-left"
+                              className="flex w-full items-center gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
                             >
                               {GroupIcon ? (
                                 <HugeiconsIcon
@@ -346,7 +346,7 @@ export function DashboardNav({
                             <div className="flex items-center gap-1 md:hidden">
                               <button
                                 type="button"
-                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-colors active:scale-95"
+                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setEditingGroupId(group.id);
@@ -359,7 +359,7 @@ export function DashboardNav({
                               </button>
                               <button
                                 type="button"
-                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-colors active:scale-95 ${
+                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
                                   isDeleteConfirm
                                     ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                                     : "text-destructive hover:bg-destructive/10 hover:text-destructive"
@@ -393,7 +393,7 @@ export function DashboardNav({
                               <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/menu-row:opacity-100 focus-within:opacity-100 transition-opacity pointer-events-none group-hover/menu-row:pointer-events-auto">
                                 <button
                                   type="button"
-                                  className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-colors active:scale-95"
+                                  className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setEditingGroupId(group.id);
@@ -406,7 +406,7 @@ export function DashboardNav({
                                 </button>
                                 <button
                                   type="button"
-                                  className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-colors active:scale-95 ${
+                                  className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
                                     isDeleteConfirm
                                       ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                                       : "text-destructive hover:bg-destructive/10 hover:text-destructive"
@@ -561,7 +561,7 @@ export function DashboardNav({
                     <UIButton
                       size="sm"
                       variant={viewMode === "list" ? "default" : "outline"}
-                      className="flex-1 rounded-4xl text-xs"
+                      className="flex-1 rounded-4xl text-xs transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                       onClick={() => setViewMode("list")}
                     >
                       List
@@ -569,7 +569,7 @@ export function DashboardNav({
                     <UIButton
                       size="sm"
                       variant={viewMode === "card" ? "default" : "outline"}
-                      className="flex-1 rounded-4xl text-xs"
+                      className="flex-1 rounded-4xl text-xs transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                       onClick={() => setViewMode("card")}
                     >
                       Card
@@ -577,7 +577,7 @@ export function DashboardNav({
                     <UIButton
                       size="sm"
                       variant={viewMode === "icon" ? "default" : "outline"}
-                      className="flex-1 rounded-4xl text-xs"
+                      className="flex-1 rounded-4xl text-xs transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                       onClick={() => setViewMode("icon")}
                     >
                       Icon
