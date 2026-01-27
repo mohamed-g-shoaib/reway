@@ -124,6 +124,12 @@ export const SortableBookmark = memo(function SortableBookmark({
     opacity: isDragging ? 0 : 1,
   };
 
+  const dragStyle = isDragging 
+    ? "z-50 bg-background ring-1 ring-primary/20" 
+    : isSelected
+      ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
+      : "";
+
   const openInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(url, "_blank");
@@ -199,8 +205,13 @@ export const SortableBookmark = memo(function SortableBookmark({
     return (
       <div
         ref={setNodeRef}
-        style={style}
-        className="group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3"
+        className={`group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3 ${
+          isDragging ? "opacity-0" : "opacity-100"
+        }`}
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition,
+        }}
         onClick={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
       >
@@ -211,7 +222,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all active:scale-95"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
                 >
                   {editGroupId === "no-group" ? (
                     <HugeiconsIcon
@@ -347,21 +358,23 @@ export const SortableBookmark = memo(function SortableBookmark({
       <ContextMenuTrigger asChild>
         <div
           ref={setNodeRef}
-          style={style}
-          {...attributes}
-          {...listeners}
-          data-slot="bookmark-card"
-          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ${
+          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-colors duration-200 ${
             status === "pending"
               ? "pointer-events-none"
               : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
-          } ${
-            isDragging
-              ? "z-50 bg-background ring-1 ring-primary/20"
-              : isSelected
-                ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
-                : ""
+          } ${dragStyle} ${
+            isDragging ? "opacity-0" : "opacity-100"
           }`}
+          style={{
+            transform: CSS.Transform.toString(transform),
+            transition,
+          }}
+          {...attributes}
+          {...listeners}
+          data-slot="bookmark-card"
+          role="button"
+          tabIndex={status === "pending" ? -1 : 0}
+          aria-roledescription="Draggable bookmark"
         >
           <div className="flex min-w-0 flex-1 items-center gap-3">
             {/* Favicon Container */}
@@ -387,7 +400,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </TextShimmer>
                 ) : (
                   <span
-                    className="block truncate text-sm font-semibold transition-all cursor-pointer text-foreground group-hover:text-primary"
+                    className="block truncate text-sm font-semibold transition-colors cursor-pointer text-foreground group-hover:text-primary"
                     onClick={openInNewTab}
                   >
                     {title}
@@ -406,7 +419,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </TextShimmer>
                 ) : (
                   <span
-                    className="block truncate text-xs font-medium cursor-pointer transition-all text-muted-foreground/70 group-hover:text-muted-foreground"
+                    className="block truncate text-xs font-medium cursor-pointer transition-colors text-muted-foreground/70 group-hover:text-muted-foreground"
                     onClick={openInNewTab}
                   >
                     {domain}
@@ -429,7 +442,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 Enriching...
               </TextShimmer>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground/60 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
+              <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
                 {rowContent === "group"
                   ? (() => {
                       if (groupId === "all" || !groupsMap || !groupId)
@@ -444,7 +457,7 @@ export const SortableBookmark = memo(function SortableBookmark({
             {/* Desktop Action Buttons: Visible only on hover and on desktop */}
             {status !== "pending" ? (
               <div
-                className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 cursor-default"
+                className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 cursor-default"
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
               >
@@ -463,7 +476,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   size="icon"
                   className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
                   onClick={handleCopyLink}
-                  aria-label="Copy link"
+                  aria-label={isCopied ? "URL copied" : "Copy link"}
                 >
                   <div
                     className="transition-all duration-200 ease-in-out"
@@ -482,7 +495,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   size="icon"
                   className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
                   onClick={openInNewTab}
-                  aria-label="Open link"
+                  aria-label="Open link in new tab"
                 >
                   <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} />
                 </Button>
@@ -490,7 +503,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`h-9 w-9 rounded-xl transition-all duration-200 cursor-pointer text-destructive hover:text-destructive ${
+                  className={`h-9 w-9 rounded-xl transition-colors duration-200 cursor-pointer text-destructive hover:text-destructive ${
                     isDeleteConfirm
                       ? "bg-destructive/10 hover:bg-destructive/20"
                       : "hover:bg-destructive/10"
