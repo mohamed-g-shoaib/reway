@@ -205,13 +205,16 @@ export function BookmarkBoard({
           />
         </div>
         <h3 className="text-xl font-bold text-foreground">No bookmarks yet</h3>
-        <div className="flex items-center gap-1.5 text-muted-foreground mt-2 max-w-70">
-          <span>Press</span>
-          <KbdGroup>
+        <div className="flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground mt-2 max-w-70">
+          <span className="hidden md:inline">Press</span>
+          <KbdGroup className="hidden md:inline-flex">
             <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
             <Kbd>K</Kbd>
           </KbdGroup>
-          <span>to add your first link.</span>
+          <span className="hidden md:inline">to add your first link.</span>
+          <span className="md:hidden">
+            Add your first links to get started.
+          </span>
         </div>
         <Button
           variant="outline"
