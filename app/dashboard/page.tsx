@@ -16,8 +16,8 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="mx-auto w-full max-w-3xl px-4 pt-6 pb-16">
+    <div className="h-screen overflow-hidden bg-background text-foreground">
+      <main className="mx-auto w-full max-w-3xl px-4 pt-6">
         <DashboardContent
           user={user}
           initialBookmarks={bookmarks}

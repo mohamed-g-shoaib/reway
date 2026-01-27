@@ -172,7 +172,7 @@ export function DashboardNav({
 
   return (
     <>
-      <nav className="bg-background/80 backdrop-blur-xl sticky top-6 z-40 mx-auto max-w-3xl rounded-3xl transition-all duration-300 group-data-[scrolled=true]/body:top-2 shadow-sm">
+      <nav className="z-40 mx-auto max-w-3xl transition-all duration-300 group-data-[scrolled=true]/body:top-2">
         <div className="flex h-14 w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Link

@@ -238,50 +238,9 @@ export function BookmarkBoard({
 
   return (
     <div
-      className="mt-4 w-full bookmark-board-empty-space"
+      className="w-full bookmark-board-empty-space"
       data-slot="bookmark-board"
     >
-      {/* Header with keyboard shortcuts - Desktop only */}
-      <div className="hidden md:flex items-center justify-between px-4 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-        <span>Title</span>
-
-        {/* Right side: Keyboard Guide + Created At */}
-        <div className="flex items-center gap-8">
-          {/* Keyboard Shortcut Guide */}
-          <div className="flex items-center gap-6 text-[10px] normal-case font-medium">
-            <div className="flex items-center gap-1.5">
-              <KbdGroup className="gap-0.5">
-                <Kbd>↑</Kbd>
-                <Kbd>↓</Kbd>
-              </KbdGroup>
-              <span>navigate</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Kbd>Space</Kbd>
-              <span>preview</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Kbd>⏎</Kbd>
-              <span>copy</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <KbdGroup>
-                <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
-                <Kbd>⏎</Kbd>
-              </KbdGroup>
-              <span>open</span>
-            </div>
-          </div>
-
-          <span className="uppercase">
-            {rowContent === "group" ? "Group" : "Created At"}
-          </span>
-        </div>
-      </div>
-
       <DndContext
         id={dndContextId}
         sensors={sensors}

@@ -5,6 +5,7 @@ import { CommandBar } from "@/components/dashboard/CommandBar";
 import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { DashboardNav, type User } from "@/components/dashboard/DashboardNav";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 interface DashboardContentProps {
   user: User;
@@ -193,31 +194,67 @@ export function DashboardContent({
 
   return (
     <>
-      <DashboardNav
-        user={user}
-        groups={groups}
-        activeGroupId={activeGroupId}
-        groupCounts={groupCounts}
-        onGroupSelect={setActiveGroupId}
-        onGroupCreated={handleGroupCreated}
-        onGroupUpdate={handleUpdateGroup}
-        onGroupDelete={handleDeleteGroup}
-        rowContent={rowContent}
-        setRowContent={setRowContent}
-      />
-      <div className="flex flex-col gap-6 pt-4 md:pt-6">
-        {/* Search/Command Bar */}
-        <CommandBar onAddBookmark={addOptimisticBookmark} />
+      <div className="flex flex-col h-[calc(100vh-2rem)] overflow-hidden">
+        {/* Fixed Header Section */}
+        <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
+          <DashboardNav
+            user={user}
+            groups={groups}
+            activeGroupId={activeGroupId}
+            groupCounts={groupCounts}
+            onGroupSelect={setActiveGroupId}
+            onGroupCreated={handleGroupCreated}
+            onGroupUpdate={handleUpdateGroup}
+            onGroupDelete={handleDeleteGroup}
+            rowContent={rowContent}
+            setRowContent={setRowContent}
+          />
+          <div className="pt-4 md:pt-6">
+            <CommandBar onAddBookmark={addOptimisticBookmark} />
+          </div>
 
-        {/* Bookmark List Section */}
-        <BookmarkBoard
-          bookmarks={filteredBookmarks}
-          initialGroups={groups}
-          onReorder={handleReorder}
-          onDeleteBookmark={handleDeleteBookmark}
-          onEditBookmark={handleEditBookmark}
-          rowContent={rowContent}
-        />
+          {/* Table Header - Fixed */}
+          <div className="hidden md:flex items-center justify-between px-5 pt-5 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+            <span>Title</span>
+            <div className="flex items-center gap-8">
+              {/* Keyboard Shortcut Guide */}
+              <div className="flex items-center gap-6 text-[10px] normal-case font-medium opacity-50 hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1.5">
+                  <KbdGroup className="gap-0.5">
+                    <Kbd>↑</Kbd>
+                    <Kbd>↓</Kbd>
+                  </KbdGroup>
+                  <span>navigate</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Kbd>Space</Kbd>
+                  <span>preview</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Kbd>⏎</Kbd>
+                  <span>copy</span>
+                </div>
+              </div>
+              <span className="uppercase">
+                {rowContent === "group" ? "Group" : "Created At"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Scrollable Bookmarks Section */}
+        <div className="flex-1 overflow-y-auto min-h-0 px-1 pt-1 pb-4 scrollbar-hover-only">
+          <div>
+            <BookmarkBoard
+              bookmarks={filteredBookmarks}
+              initialGroups={groups}
+              onReorder={handleReorder}
+              onDeleteBookmark={handleDeleteBookmark}
+              onEditBookmark={handleEditBookmark}
+              rowContent={rowContent}
+            />
+          </div>
+        </div>
       </div>
     </>
   );
