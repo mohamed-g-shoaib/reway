@@ -6,6 +6,8 @@ import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { DashboardNav, type User } from "@/components/dashboard/DashboardNav";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { useIsMac } from "@/hooks/useIsMac";
+import { toast } from "sonner";
 
 interface DashboardContentProps {
   user: User;
@@ -30,21 +32,20 @@ export function DashboardContent({
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
-  const isMac = useMemo(
-    () =>
-      typeof window !== "undefined" &&
-      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform),
-    [],
-  );
+  const isMac = useIsMac();
 
   // Sync state with server props when they change (e.g. after revalidatePath)
-  React.useEffect(() => {
+  // Use useCallback to prevent unnecessary re-renders
+  const syncBookmarks = React.useCallback(() => {
     setBookmarks(initialBookmarks);
   }, [initialBookmarks]);
 
-  React.useEffect(() => {
+  const syncGroups = React.useCallback(() => {
     setGroups(initialGroups);
   }, [initialGroups]);
+
+  React.useEffect(syncBookmarks, [syncBookmarks]);
+  React.useEffect(syncGroups, [syncGroups]);
 
   const addOptimisticBookmark = useCallback(
     (bookmark: BookmarkRow) => {
@@ -65,7 +66,13 @@ export function DashboardContent({
       await deleteAction(id);
     } catch (error) {
       console.error("Delete failed:", error);
-      // Optional: restore bookmarks if delete fails
+      // Restore bookmark if delete failed
+      setBookmarks((prev) => {
+        const deletedBookmark = initialBookmarks.find((b) => b.id === id);
+        return deletedBookmark ? [...prev, deletedBookmark] : prev;
+      });
+      // Show error to user
+      toast.error("Failed to delete bookmark");
     }
   }, []);
 
@@ -90,15 +97,20 @@ export function DashboardContent({
         await updateBookmarksOrder(updates);
       } catch (error) {
         console.error("Reorder failed:", error);
+        toast.error("Failed to reorder bookmarks");
+        // Restore original order by re-fetching or reverting
+        setBookmarks(initialBookmarks);
       }
     },
     [activeGroupId],
   );
 
-  // Filter bookmarks based on active group
-  const filteredBookmarks = bookmarks.filter((b) =>
-    activeGroupId === "all" ? true : b.group_id === activeGroupId,
-  );
+  // Filter bookmarks based on active group - memoized to prevent unnecessary re-renders
+  const filteredBookmarks = useMemo(() => {
+    return bookmarks.filter((b) =>
+      activeGroupId === "all" ? true : b.group_id === activeGroupId,
+    );
+  }, [bookmarks, activeGroupId]);
 
   const handleGroupCreated = useCallback(
     (id: string, name: string, icon: string) => {
@@ -127,6 +139,11 @@ export function DashboardContent({
         await updateGroupAction(id, { name, icon });
       } catch (error) {
         console.error("Update group failed:", error);
+        toast.error("Failed to update group");
+        // Revert optimistic update
+        setGroups((prev) =>
+          prev.map((g) => (g.id === id ? groups.find((og) => og.id === id) || g : g)),
+        );
       }
     },
     [],
@@ -143,6 +160,12 @@ export function DashboardContent({
         await deleteGroupAction(id);
       } catch (error) {
         console.error("Delete group failed:", error);
+        toast.error("Failed to delete group");
+        // Restore group if delete failed
+        setGroups((prev) => {
+          const deletedGroup = initialGroups.find((g) => g.id === id);
+          return deletedGroup ? [...prev, deletedGroup] : prev;
+        });
       }
     },
     [activeGroupId],
@@ -182,6 +205,17 @@ export function DashboardContent({
         });
       } catch (error) {
         console.error("Update bookmark failed:", error);
+        toast.error("Failed to update bookmark");
+        // Revert optimistic update
+        setBookmarks((prev) =>
+          prev.map((b) => {
+            if (b.id === id) {
+              const originalBookmark = initialBookmarks.find((ob) => ob.id === id);
+              return originalBookmark || b;
+            }
+            return b;
+          }),
+        );
       }
     },
     [],
