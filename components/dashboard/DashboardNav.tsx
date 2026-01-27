@@ -172,12 +172,12 @@ export function DashboardNav({
 
   return (
     <>
-      <nav className="z-40 mx-auto max-w-3xl transition-all duration-300 group-data-[scrolled=true]/body:top-2">
+      <nav className="z-40 mx-auto max-w-3xl transition-transform duration-300 group-data-[scrolled=true]/body:top-2">
         <div className="flex h-14 w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="flex shrink-0 items-center transition-all hover:opacity-80 active:scale-95"
+              className="flex shrink-0 items-center transition-opacity hover:opacity-80 active:scale-95"
             >
               <Image
                 src="/logo.svg"
@@ -193,7 +193,7 @@ export function DashboardNav({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98]"
+                  className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-colors active:scale-[0.98]"
                 >
                   <div className="flex items-center justify-center h-8 w-8">
                     {ActiveIcon ? (
@@ -255,6 +255,7 @@ export function DashboardNav({
                                 <button
                                   type="button"
                                   className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                                  aria-label="Select group icon"
                                 >
                                   <HugeiconsIcon
                                     icon={
@@ -338,17 +339,18 @@ export function DashboardNav({
                             <span className="truncate">{group.name}</span>
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0 min-w-17.5 justify-end relative">
-                            {/* Actions visible only on hover */}
-                            <div className="flex items-center gap-1 opacity-0 group-hover/menu-item:opacity-100 transition-opacity absolute right-0 bg-inherit pl-2">
+                            {/* Mobile: Actions always visible */}
+                            <div className="flex items-center gap-1 md:hidden">
                               <button
                                 type="button"
-                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all active:scale-95"
+                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-colors active:scale-95"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setEditingGroupId(group.id);
                                   setEditGroupName(group.name);
                                   setEditGroupIcon(group.icon || "folder");
                                 }}
+                                aria-label={`Edit ${group.name}`}
                               >
                                 <HugeiconsIcon
                                   icon={PencilEdit01Icon}
@@ -357,7 +359,7 @@ export function DashboardNav({
                               </button>
                               <button
                                 type="button"
-                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all active:scale-95 ${
+                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-colors active:scale-95 ${
                                   isDeleteConfirm
                                     ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                                     : "text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
@@ -366,6 +368,11 @@ export function DashboardNav({
                                   e.stopPropagation();
                                   handleDeleteGroupClick(group.id);
                                 }}
+                                aria-label={
+                                  isDeleteConfirm
+                                    ? `Confirm delete ${group.name}`
+                                    : `Delete ${group.name}`
+                                }
                               >
                                 <HugeiconsIcon
                                   icon={
@@ -378,8 +385,56 @@ export function DashboardNav({
                                 {getBookmarkCount(group.id)}
                               </span>
                             </div>
-                            {/* Counter visible always when not hovered */}
-                            <span className="text-xs text-muted-foreground/50 group-hover/menu-item:opacity-0 transition-opacity">
+                            
+                            {/* Desktop: Actions visible on hover */}
+                            <div className="hidden md:flex items-center gap-1 opacity-0 group-hover/menu-item:opacity-100 transition-opacity absolute right-0 bg-inherit pl-2">
+                              <button
+                                type="button"
+                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-colors active:scale-95"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingGroupId(group.id);
+                                  setEditGroupName(group.name);
+                                  setEditGroupIcon(group.icon || "folder");
+                                }}
+                                aria-label={`Edit ${group.name}`}
+                              >
+                                <HugeiconsIcon
+                                  icon={PencilEdit01Icon}
+                                  size={14}
+                                />
+                              </button>
+                              <button
+                                type="button"
+                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-colors active:scale-95 ${
+                                  isDeleteConfirm
+                                    ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                    : "text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
+                                }`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteGroupClick(group.id);
+                                }}
+                                aria-label={
+                                  isDeleteConfirm
+                                    ? `Confirm delete ${group.name}`
+                                    : `Delete ${group.name}`
+                                }
+                              >
+                                <HugeiconsIcon
+                                  icon={
+                                    isDeleteConfirm ? Alert02Icon : Delete02Icon
+                                  }
+                                  size={14}
+                                />
+                              </button>
+                              <span className="text-xs text-muted-foreground/50 ml-1">
+                                {getBookmarkCount(group.id)}
+                              </span>
+                            </div>
+                            
+                            {/* Desktop: Counter visible when not hovered */}
+                            <span className="hidden text-xs text-muted-foreground/50 group-hover/menu-item:opacity-0 transition-opacity md:block">
                               {getBookmarkCount(group.id)}
                             </span>
                           </div>
@@ -405,6 +460,7 @@ export function DashboardNav({
                         <button
                           type="button"
                           className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                          aria-label="Select group icon"
                         >
                           <HugeiconsIcon
                             icon={ALL_ICONS_MAP[newGroupIcon]}
@@ -488,7 +544,7 @@ export function DashboardNav({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 rounded-2xl p-2 ring-1 ring-black/5 animate-in fade-in-0 zoom-in-95"
+                className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 animate-in slide-in-from-top-2 duration-200 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
               >
                 <DropdownMenuLabel className="px-2 py-1.5 font-normal">
                   <div className="flex flex-col space-y-1">
