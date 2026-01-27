@@ -285,7 +285,7 @@ export function BookmarkBoard({
       </div>
 
       {/* Mobile Header - Simple */}
-      <div className="flex md:hidden items-center justify-between pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+      <div className="flex md:hidden items-center justify-between px-4 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
         <span>Title</span>
         <span>Created At</span>
       </div>
@@ -347,7 +347,7 @@ export function BookmarkBoard({
                     const domain = getDomain(activeBookmark.url);
 
                     return (
-                      <div className="relative flex items-center justify-between rounded-2xl bg-background/80 ring-1 ring-foreground/5 px-4 py-4 backdrop-blur-xl scale-[1.02] after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate">
+                      <div className="relative flex items-center justify-between rounded-2xl bg-background/80 ring-1 ring-foreground/5 px-4 py-4 backdrop-blur-xl scale-[0.98] after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
                           <Favicon
                             url={activeBookmark.favicon_url || ""}

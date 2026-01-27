@@ -357,7 +357,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
           } ${
             isDragging
-              ? "z-50 bg-background ring-1 ring-primary/20 scale-[1.02]"
+              ? "z-50 bg-background ring-1 ring-primary/20 scale-[0.98]"
               : isSelected
                 ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
                 : ""
