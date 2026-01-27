@@ -32,6 +32,7 @@ import { getDomain } from "@/lib/utils";
 import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useIsMac } from "@/hooks/useIsMac";
 
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
@@ -94,12 +95,7 @@ export function BookmarkBoard({
   }, [initialGroups]);
 
   // Detect OS for keyboard shortcuts
-  const isMac = useMemo(
-    () =>
-      typeof window !== "undefined" &&
-      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform),
-    [],
-  );
+  const isMac = useIsMac();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
