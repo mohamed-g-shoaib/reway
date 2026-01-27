@@ -202,7 +202,7 @@ export function DashboardContent({
         onGroupUpdate={handleUpdateGroup}
         onGroupDelete={handleDeleteGroup}
       />
-      <div className="flex flex-col gap-6 px-4 pt-4 md:pt-6">
+      <div className="flex flex-col gap-6 pt-4 md:pt-6">
         {/* Search/Command Bar */}
         <CommandBar onAddBookmark={addOptimisticBookmark} />
 
