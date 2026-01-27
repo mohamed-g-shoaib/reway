@@ -30,6 +30,12 @@ export function DashboardContent({
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
+  const isMac = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform),
+    [],
+  );
 
   // Sync state with server props when they change (e.g. after revalidatePath)
   React.useEffect(() => {
@@ -194,7 +200,7 @@ export function DashboardContent({
 
   return (
     <>
-      <div className="flex flex-col h-[calc(100vh-2rem)] overflow-hidden">
+      <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
         {/* Fixed Header Section */}
         <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
           <DashboardNav
@@ -214,36 +220,55 @@ export function DashboardContent({
           </div>
 
           {/* Table Header - Fixed */}
-          <div className="hidden md:flex items-center justify-between px-5 pt-5 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+          <div className="hidden md:grid grid-cols-[1fr_auto_1fr] items-center px-5 pt-8 pb-5 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
             <span>Title</span>
-            <div className="flex items-center gap-8">
-              {/* Keyboard Shortcut Guide */}
-              <div className="flex items-center gap-6 text-[10px] normal-case font-medium opacity-50 hover:opacity-100 transition-opacity">
-                <div className="flex items-center gap-1.5">
-                  <KbdGroup className="gap-0.5">
-                    <Kbd>↑</Kbd>
-                    <Kbd>↓</Kbd>
-                  </KbdGroup>
-                  <span>navigate</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Kbd>Space</Kbd>
-                  <span>preview</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Kbd>⏎</Kbd>
-                  <span>copy</span>
-                </div>
+
+            {/* Keyboard Shortcut Guide - Centered */}
+            <div className="flex items-center gap-6 text-[11px] normal-case font-medium text-muted-foreground/50">
+              <div className="flex items-center gap-1.5">
+                <KbdGroup className="gap-0.5">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                    ↑
+                  </Kbd>
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                    ↓
+                  </Kbd>
+                </KbdGroup>
+                <span>navigate</span>
               </div>
-              <span className="uppercase">
-                {rowContent === "group" ? "Group" : "Created At"}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                  Space
+                </Kbd>
+                <span>preview</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <KbdGroup className="gap-0.5">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                    {isMac ? "⌘" : "Ctrl"}
+                  </Kbd>
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                    ⏎
+                  </Kbd>
+                </KbdGroup>
+                <span>open</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                  ⏎
+                </Kbd>
+                <span>copy</span>
+              </div>
             </div>
+
+            <span className="text-right uppercase">
+              {rowContent === "group" ? "Group" : "Created At"}
+            </span>
           </div>
         </div>
 
         {/* Scrollable Bookmarks Section */}
-        <div className="flex-1 overflow-y-auto min-h-0 px-1 pt-1 pb-4 scrollbar-hover-only">
+        <div className="flex-1 overflow-y-auto min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
           <div>
             <BookmarkBoard
               bookmarks={filteredBookmarks}
