@@ -113,6 +113,7 @@ export function DashboardContent({
     );
   }, [bookmarks, activeGroupId]);
 
+
   const handleGroupCreated = useCallback(
     (id: string, name: string, icon: string) => {
       const newGroup: GroupRow = {
@@ -257,110 +258,77 @@ export function DashboardContent({
           </div>
 
           {/* Table Header - Fixed (List view only) */}
-          {viewMode === "list" ? (
-            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] items-center px-5 pt-8 pb-5 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-              <span>Title</span>
-
-              {/* Keyboard Shortcut Guide - Centered */}
-              <div className="flex items-center gap-6 text-[11px] normal-case font-medium text-muted-foreground/50">
-                <div className="flex items-center gap-1.5">
-                  <KbdGroup className="gap-0.5">
+          <div className="hidden md:flex items-center gap-6 px-5 pt-6 pb-3 text-[11px] font-medium text-muted-foreground/50">
+            <div className="flex items-center gap-1.5">
+              <KbdGroup className="gap-0.5">
+                {viewMode !== "list" ? (
+                  <>
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                      ←
+                    </Kbd>
                     <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
                       ↑
                     </Kbd>
                     <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
                       ↓
                     </Kbd>
-                  </KbdGroup>
-                  <span>navigate</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
-                    Space
-                  </Kbd>
-                  <span>preview</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <KbdGroup className="gap-0.5">
-                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
-                      {isMac ? "⌘" : "Ctrl"}
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                      →
+                    </Kbd>
+                  </>
+                ) : (
+                  <>
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                      ↑
                     </Kbd>
                     <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                      ⏎
+                      ↓
                     </Kbd>
-                  </KbdGroup>
-                  <span>open</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                    ⏎
-                  </Kbd>
-                  <span>copy</span>
-                </div>
-              </div>
-
-              <span className="text-right uppercase">
-                {rowContent === "group" ? "Group" : "Created At"}
-              </span>
+                  </>
+                )}
+              </KbdGroup>
+              <span>navigate</span>
             </div>
-          ) : (
-            <div className="hidden md:flex items-center gap-6 px-5 pt-6 pb-3 text-[11px] font-medium text-muted-foreground/50">
-              <div className="flex items-center gap-1.5">
-                <KbdGroup className="gap-0.5">
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                    ←
-                  </Kbd>
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                    ↑
-                  </Kbd>
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                    ↓
-                  </Kbd>
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                    →
-                  </Kbd>
-                </KbdGroup>
-                <span>navigate</span>
-              </div>
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5">
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                Space
+              </Kbd>
+              <span>preview</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <KbdGroup className="gap-0.5">
                 <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
-                  Space
+                  {isMac ? "⌘" : "Ctrl"}
                 </Kbd>
-                <span>preview</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <KbdGroup className="gap-0.5">
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
-                    {isMac ? "⌘" : "Ctrl"}
-                  </Kbd>
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                    ⏎
-                  </Kbd>
-                </KbdGroup>
-                <span>open</span>
-              </div>
-              <div className="flex items-center gap-1.5">
                 <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
                   ⏎
                 </Kbd>
-                <span>copy</span>
-              </div>
+              </KbdGroup>
+              <span>open</span>
             </div>
-          )}
+            <div className="flex items-center gap-1.5">
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                ⏎
+              </Kbd>
+              <span>copy</span>
+            </div>
+          </div>
         </div>
 
         {/* Scrollable Bookmarks Section */}
-        <div className="flex-1 overflow-y-auto min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
-          <div>
-            <BookmarkBoard
-              bookmarks={filteredBookmarks}
-              initialGroups={groups}
-              onReorder={handleReorder}
-              onDeleteBookmark={handleDeleteBookmark}
-              onEditBookmark={handleEditBookmark}
-              rowContent={rowContent}
-              viewMode={viewMode}
-            />
+        <div className="flex-1 min-h-0">
+          <div className="h-full overflow-y-auto min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
+            <div>
+              <BookmarkBoard
+                bookmarks={filteredBookmarks}
+                initialGroups={groups}
+                onReorder={handleReorder}
+                onDeleteBookmark={handleDeleteBookmark}
+                onEditBookmark={handleEditBookmark}
+                rowContent={rowContent}
+                viewMode={viewMode}
+              />
+            </div>
           </div>
         </div>
       </div>
