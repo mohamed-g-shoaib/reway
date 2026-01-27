@@ -247,7 +247,9 @@ export function DashboardContent({
                 : "hover:text-foreground/80"
             }`}
           >
-            <span className="h-px w-8 bg-border/60 transition-all duration-300 ease-out group-hover:w-12 group-hover:bg-border" />
+            <span className={`h-px transition-all duration-300 ease-out ${
+              activeGroupId === "all" ? "w-12 opacity-80" : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+            } bg-current`} />
             <span>All Bookmarks</span>
           </button>
           {groups.map((group) => (
@@ -261,7 +263,9 @@ export function DashboardContent({
                   : "hover:text-foreground/80"
               }`}
             >
-              <span className="h-px w-8 bg-border/60 transition-all duration-300 ease-out group-hover:w-12 group-hover:bg-border" />
+              <span className={`h-px transition-all duration-300 ease-out ${
+                activeGroupId === group.id ? "w-12 opacity-80" : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+              } bg-current`} />
               <span className="truncate max-w-40">{group.name}</span>
             </button>
           ))}
