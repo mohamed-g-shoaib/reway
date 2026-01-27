@@ -1,6 +1,6 @@
 "use client";
 
-import { Add01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -186,11 +186,7 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
   };
 
   return (
-    <div
-      className={`relative w-full transition-all duration-300 ease-out ${
-        isFocused ? "scale-[1.01]" : "scale-100"
-      }`}
-    >
+    <div className="relative w-full">
       <form
         onSubmit={handleSubmit}
         className={`group relative flex items-center gap-3 rounded-2xl bg-background px-4 py-2 transition-all duration-300 ease-in-out ${
@@ -227,12 +223,6 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-
-        <HugeiconsIcon
-          icon={Search01Icon}
-          size={16}
-          className={`shrink-0 transition-colors duration-300 ${isFocused ? "text-primary" : "text-muted-foreground/50"}`}
-        />
 
         <input
           ref={inputRef}

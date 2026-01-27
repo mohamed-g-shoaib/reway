@@ -23,6 +23,8 @@ import { useState } from "react";
 import { GroupRow } from "@/lib/supabase/queries";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { HugeiconsIcon } from "@hugeicons/react";
+import Image from "next/image";
+import Link from "next/link";
 import {
   GridIcon,
   Delete02Icon,
@@ -167,14 +169,27 @@ export function DashboardNav({
   return (
     <>
       <nav className="bg-background/80 backdrop-blur-xl sticky top-6 z-40 mx-auto max-w-3xl rounded-3xl transition-all duration-300 group-data-[scrolled=true]/body:top-2 shadow-sm">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-          <div className="flex items-center">
+        <div className="flex h-14 w-full items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="flex shrink-0 items-center transition-all hover:opacity-80 active:scale-95"
+            >
+              <Image
+                src="/logo.svg"
+                width={28}
+                height={28}
+                alt="Reway Logo"
+                className="select-none dark:invert"
+              />
+            </Link>
+
             {/* Unified Group Switcher (Icon + Name) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-10 gap-2 px-4 rounded-xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98]"
+                  className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-all active:scale-[0.98]"
                 >
                   <div className="flex items-center justify-center h-8 w-8">
                     {ActiveIcon ? (
