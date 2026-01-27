@@ -472,6 +472,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     <HugeiconsIcon
                       icon={isCopied ? Tick01Icon : Copy01Icon}
                       size={16}
+                      className={isCopied ? "text-green-500" : ""}
                     />
                   </div>
                 </Button>
@@ -489,10 +490,10 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`h-9 w-9 rounded-xl transition-all duration-200 cursor-pointer text-destructive/70 ${
+                  className={`h-9 w-9 rounded-xl transition-all duration-200 cursor-pointer text-destructive hover:text-destructive ${
                     isDeleteConfirm
-                      ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                      : "hover:bg-destructive/10 hover:text-destructive"
+                      ? "bg-destructive/10 hover:bg-destructive/20"
+                      : "hover:bg-destructive/10"
                   }`}
                   onClick={handleDelete}
                   aria-label={
@@ -550,6 +551,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                       <HugeiconsIcon
                         icon={isCopied ? Tick01Icon : Copy01Icon}
                         size={16}
+                        className={isCopied ? "text-green-500" : ""}
                       />
                       {isCopied ? "Copied!" : "Copy Link"}
                     </DropdownMenuItem>
