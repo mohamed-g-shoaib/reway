@@ -17,6 +17,7 @@ import {
 } from "@/app/dashboard/actions";
 import { BookmarkRow } from "@/lib/supabase/queries";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { useIsMac } from "@/hooks/useIsMac";
 
 interface CommandBarProps {
   onAddBookmark: (bookmark: BookmarkRow) => void;
@@ -29,12 +30,7 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Detect OS for keyboard shortcuts
-  const isMac = useMemo(
-    () =>
-      typeof window !== "undefined" &&
-      /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform),
-    [],
-  );
+  const isMac = useIsMac();
 
   const handlePlusClick = () => {
     fileInputRef.current?.click();
@@ -189,7 +185,7 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
     <div className="relative w-full">
       <form
         onSubmit={handleSubmit}
-        className={`group relative flex items-center gap-3 rounded-2xl bg-background px-4 py-2 transition-all duration-300 ease-in-out ${
+        className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-colors duration-300 ease-in-out ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
             : "ring-1 ring-foreground/5 after:ring-white/5"
@@ -202,6 +198,8 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
           onChange={handleFileChange}
           className="hidden"
           accept="image/*"
+          aria-label="Upload image file"
+          title="Upload image file to extract bookmarks"
         />
 
         {/* Action Icon (Plus or Loading) */}
@@ -213,7 +211,8 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
                 variant="ghost"
                 size="icon"
                 onClick={handlePlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-all hover:bg-muted hover:text-primary active:scale-90"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-colors hover:bg-muted hover:text-primary active:scale-90"
+                aria-label="Add image or file"
               >
                 <HugeiconsIcon icon={Add01Icon} size={16} />
               </Button>
@@ -233,6 +232,7 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
           className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          aria-label="Search or add bookmarks"
         />
 
         <div className="hidden items-center gap-2 px-1 md:flex">
