@@ -284,12 +284,6 @@ export function BookmarkBoard({
         </div>
       </div>
 
-      {/* Mobile Header - Simple */}
-      <div className="flex md:hidden items-center justify-between px-4 pb-4 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-        <span>Title</span>
-        <span>Created At</span>
-      </div>
-
       <DndContext
         id={dndContextId}
         sensors={sensors}

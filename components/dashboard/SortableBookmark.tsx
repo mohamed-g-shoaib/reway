@@ -375,7 +375,7 @@ export const SortableBookmark = memo(function SortableBookmark({
             </div>
 
             {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-2 md:pr-36">
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-8 md:pr-36">
               <div className="w-fit max-w-full">
                 {status === "pending" ? (
                   <TextShimmer
@@ -417,7 +417,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           </div>
 
           {/* Actions / Date Container */}
-          <div className="relative flex shrink-0 items-center min-w-25 justify-end">
+          <div className="relative flex shrink-0 items-center min-w-0 md:min-w-25 justify-end">
             {/* Desktop Date: Fades out on hover if not mobile */}
             {status === "pending" ? (
               <TextShimmer
@@ -515,7 +515,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
+                      className="h-9 w-9 -mr-3 rounded-xl hover:bg-muted/50 cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
                       onPointerDown={(e) => e.stopPropagation()}
                     >
