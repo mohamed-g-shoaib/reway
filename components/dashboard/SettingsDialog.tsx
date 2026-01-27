@@ -26,12 +26,16 @@ interface SettingsDialogProps {
   children: React.ReactNode;
   rowContent: "date" | "group";
   onRowContentChange: (value: "date" | "group") => void;
+  viewMode: "list" | "card" | "icon";
+  onViewModeChange: (value: "list" | "card" | "icon") => void;
 }
 
 export function SettingsDialog({
   children,
   rowContent,
   onRowContentChange,
+  viewMode,
+  onViewModeChange,
 }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -49,6 +53,40 @@ export function SettingsDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* View Mode Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">View Mode</h3>
+            <div className="flex gap-2">
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl"
+                onClick={() => onViewModeChange("list")}
+              >
+                List
+              </Button>
+              <Button
+                variant={viewMode === "card" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl"
+                onClick={() => onViewModeChange("card")}
+              >
+                Card
+              </Button>
+              <Button
+                variant={viewMode === "icon" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl"
+                onClick={() => onViewModeChange("icon")}
+              >
+                Icon
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground px-1">
+              Switch between list, card, and icon layouts.
+            </p>
+          </div>
+
           {/* View Options Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">

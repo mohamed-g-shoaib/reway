@@ -32,6 +32,7 @@ export function DashboardContent({
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
+  const [viewMode, setViewMode] = useState<"list" | "card" | "icon">("list");
   const isMac = useIsMac();
 
   // Sync state with server props when they change (e.g. after revalidatePath)
@@ -248,24 +249,75 @@ export function DashboardContent({
             onGroupDelete={handleDeleteGroup}
             rowContent={rowContent}
             setRowContent={setRowContent}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
           />
           <div className="pt-4 md:pt-6">
             <CommandBar onAddBookmark={addOptimisticBookmark} />
           </div>
 
-          {/* Table Header - Fixed */}
-          <div className="hidden md:grid grid-cols-[1fr_auto_1fr] items-center px-5 pt-8 pb-5 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
-            <span>Title</span>
+          {/* Table Header - Fixed (List view only) */}
+          {viewMode === "list" ? (
+            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] items-center px-5 pt-8 pb-5 text-[11px] font-bold tracking-widest text-muted-foreground/70 uppercase">
+              <span>Title</span>
 
-            {/* Keyboard Shortcut Guide - Centered */}
-            <div className="flex items-center gap-6 text-[11px] normal-case font-medium text-muted-foreground/50">
+              {/* Keyboard Shortcut Guide - Centered */}
+              <div className="flex items-center gap-6 text-[11px] normal-case font-medium text-muted-foreground/50">
+                <div className="flex items-center gap-1.5">
+                  <KbdGroup className="gap-0.5">
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                      ↑
+                    </Kbd>
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                      ↓
+                    </Kbd>
+                  </KbdGroup>
+                  <span>navigate</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                    Space
+                  </Kbd>
+                  <span>preview</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <KbdGroup className="gap-0.5">
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                      {isMac ? "⌘" : "Ctrl"}
+                    </Kbd>
+                    <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                      ⏎
+                    </Kbd>
+                  </KbdGroup>
+                  <span>open</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                    ⏎
+                  </Kbd>
+                  <span>copy</span>
+                </div>
+              </div>
+
+              <span className="text-right uppercase">
+                {rowContent === "group" ? "Group" : "Created At"}
+              </span>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-6 px-5 pt-6 pb-3 text-[11px] font-medium text-muted-foreground/50">
               <div className="flex items-center gap-1.5">
                 <KbdGroup className="gap-0.5">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                    ←
+                  </Kbd>
                   <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
                     ↑
                   </Kbd>
                   <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
                     ↓
+                  </Kbd>
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
+                    →
                   </Kbd>
                 </KbdGroup>
                 <span>navigate</span>
@@ -294,11 +346,7 @@ export function DashboardContent({
                 <span>copy</span>
               </div>
             </div>
-
-            <span className="text-right uppercase">
-              {rowContent === "group" ? "Group" : "Created At"}
-            </span>
-          </div>
+          )}
         </div>
 
         {/* Scrollable Bookmarks Section */}
@@ -311,6 +359,7 @@ export function DashboardContent({
               onDeleteBookmark={handleDeleteBookmark}
               onEditBookmark={handleEditBookmark}
               rowContent={rowContent}
+              viewMode={viewMode}
             />
           </div>
         </div>

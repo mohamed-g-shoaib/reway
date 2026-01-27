@@ -66,6 +66,8 @@ interface DashboardNavProps {
   onGroupDelete?: (id: string) => void;
   rowContent: "date" | "group";
   setRowContent: (value: "date" | "group") => void;
+  viewMode: "list" | "card" | "icon";
+  setViewMode: (value: "list" | "card" | "icon") => void;
 }
 
 export function DashboardNav({
@@ -79,6 +81,8 @@ export function DashboardNav({
   onGroupDelete,
   rowContent,
   setRowContent,
+  viewMode,
+  setViewMode,
 }: DashboardNavProps) {
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -549,9 +553,43 @@ export function DashboardNav({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <div className="px-2 py-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+                    View mode
+                  </p>
+                  <div className="flex gap-2">
+                    <UIButton
+                      size="sm"
+                      variant={viewMode === "list" ? "default" : "outline"}
+                      className="flex-1 rounded-4xl text-xs"
+                      onClick={() => setViewMode("list")}
+                    >
+                      List
+                    </UIButton>
+                    <UIButton
+                      size="sm"
+                      variant={viewMode === "card" ? "default" : "outline"}
+                      className="flex-1 rounded-4xl text-xs"
+                      onClick={() => setViewMode("card")}
+                    >
+                      Card
+                    </UIButton>
+                    <UIButton
+                      size="sm"
+                      variant={viewMode === "icon" ? "default" : "outline"}
+                      className="flex-1 rounded-4xl text-xs"
+                      onClick={() => setViewMode("icon")}
+                    >
+                      Icon
+                    </UIButton>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
                 <SettingsDialog
                   rowContent={rowContent}
                   onRowContentChange={setRowContent}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
                 >
                   <DropdownMenuItem
                     className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5 py-2"
