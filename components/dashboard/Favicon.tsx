@@ -50,7 +50,7 @@ export function Favicon({
   return (
     <div
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-all overflow-hidden",
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border transition-transform overflow-hidden",
         isEnriching
           ? "animate-pulse bg-muted/30 border-muted/50"
           : imageError

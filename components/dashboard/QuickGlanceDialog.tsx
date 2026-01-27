@@ -167,7 +167,7 @@ export function QuickGlanceDialog({
                   title={isDeleteConfirm ? "Click again to confirm" : "Delete"}
                 >
                   <div
-                    className="transition-all duration-200"
+                    className="transition-transform duration-200"
                     key={isDeleteConfirm ? "alert" : "delete"}
                   >
                     <HugeiconsIcon

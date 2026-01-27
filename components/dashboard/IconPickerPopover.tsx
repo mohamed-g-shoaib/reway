@@ -56,7 +56,7 @@ export function IconPickerPopover({
                       type="button"
                       onClick={() => handleIconSelect(iconName)}
                       title={iconName}
-                      className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-150 ${
+                      className={`flex h-9 w-9 items-center justify-center rounded-lg transition-transform duration-150 ${
                         selectedIcon === iconName
                           ? "bg-primary text-primary-foreground scale-105"
                           : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:scale-105"

@@ -101,7 +101,7 @@ export function CreateGroupDialog({
                               type="button"
                               onClick={() => setSelectedIcon(iconName)}
                               title={iconName}
-                              className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+                              className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-200 ${
                                 selectedIcon === iconName
                                   ? "bg-primary text-primary-foreground scale-105"
                                   : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -127,7 +127,7 @@ export function CreateGroupDialog({
             <Button
               type="submit"
               disabled={!name.trim() || isLoading}
-              className="w-full rounded-2xl h-11 font-bold transition-all active:scale-[0.98]"
+              className="w-full rounded-2xl h-11 font-bold transition-transform active:scale-[0.98]"
             >
               {isLoading ? "Creating..." : "Create Group"}
             </Button>

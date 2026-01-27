@@ -214,7 +214,7 @@ export function BookmarkBoard({
         </div>
         <Button
           variant="outline"
-          className="mt-8 rounded-4xl gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all active:scale-95"
+          className="mt-8 rounded-4xl gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-transform active:scale-95"
           onClick={() =>
             document.dispatchEvent(
               new KeyboardEvent("keydown", {

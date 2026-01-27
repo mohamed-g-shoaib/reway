@@ -138,7 +138,7 @@ export function GroupListItem({
         <div className="flex items-center gap-1 opacity-0 group-hover/menu-item:opacity-100 transition-opacity absolute right-0 bg-inherit pl-2">
           <button
             type="button"
-            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all active:scale-95"
+            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform active:scale-95"
             onClick={(e) => {
               e.stopPropagation();
               onEdit(group.id);
@@ -149,7 +149,7 @@ export function GroupListItem({
           </button>
           <button
             type="button"
-            className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all active:scale-95 ${
+            className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-transform active:scale-95 ${
               isDeleteConfirm
                 ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                 : "text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
