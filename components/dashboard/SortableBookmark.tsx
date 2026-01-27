@@ -250,7 +250,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-56 rounded-xl p-1"
+                className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
               >
                 <DropdownMenuItem
                   className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""}`}
@@ -291,6 +291,15 @@ export const SortableBookmark = memo(function SortableBookmark({
               placeholder="Title"
               className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-sm font-bold focus-visible:ring-primary/20"
               autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSaveEdit();
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  handleCancelEdit();
+                }
+              }}
             />
           </div>
 
@@ -308,6 +317,15 @@ export const SortableBookmark = memo(function SortableBookmark({
               onChange={(e) => setEditUrl(e.target.value)}
               placeholder="URL"
               className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-xs font-medium text-muted-foreground focus-visible:ring-primary/20"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSaveEdit();
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  handleCancelEdit();
+                }
+              }}
             />
           </div>
 
@@ -325,6 +343,15 @@ export const SortableBookmark = memo(function SortableBookmark({
               onChange={(e) => setEditDescription(e.target.value)}
               placeholder="Description (Optional)"
               className="flex-1 bg-background/50 border-border/50 rounded-xl text-xs py-2 min-h-15 resize-none focus-visible:ring-primary/20"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSaveEdit();
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  handleCancelEdit();
+                }
+              }}
             />
           </div>
         </div>
@@ -479,7 +506,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   aria-label={isCopied ? "URL copied" : "Copy link"}
                 >
                   <div
-                    className="transition-all duration-200 ease-in-out"
+                    className="transition-transform duration-200 ease-in-out"
                     key={isCopied ? "tick" : "copy"}
                   >
                     <HugeiconsIcon
@@ -516,7 +543,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   }
                 >
                   <div
-                    className="transition-all duration-200 ease-in-out"
+                    className="transition-transform duration-200 ease-in-out"
                     key={isDeleteConfirm ? "alert" : "delete"}
                   >
                     <HugeiconsIcon
