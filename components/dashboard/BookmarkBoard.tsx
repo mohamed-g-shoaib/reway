@@ -52,6 +52,7 @@ interface BookmarkBoardProps {
       group_id?: string;
     },
   ) => Promise<void>;
+  rowContent: "date" | "group";
 }
 
 export function BookmarkBoard({
@@ -60,6 +61,7 @@ export function BookmarkBoard({
   onReorder,
   onDeleteBookmark,
   onEditBookmark,
+  rowContent,
 }: BookmarkBoardProps) {
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -280,7 +282,9 @@ export function BookmarkBoard({
             </div>
           </div>
 
-          <span className="uppercase">Created At</span>
+          <span className="uppercase">
+            {rowContent === "group" ? "Group" : "Created At"}
+          </span>
         </div>
       </div>
 
@@ -317,6 +321,7 @@ export function BookmarkBoard({
                     setIsPreviewOpen(true);
                   }
                 }}
+                rowContent={rowContent}
                 {...bookmark}
               />
             ))}

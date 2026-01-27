@@ -67,6 +67,7 @@ interface SortableBookmarkProps {
   isEditing?: boolean;
   onEditDone?: () => void;
   onPreview?: (id: string) => void;
+  rowContent?: "date" | "group";
 }
 
 export const SortableBookmark = memo(function SortableBookmark({
@@ -87,6 +88,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   isEditing: forceEditing,
   onEditDone,
   onPreview,
+  rowContent = "date",
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
@@ -429,8 +431,15 @@ export const SortableBookmark = memo(function SortableBookmark({
                 Enriching...
               </TextShimmer>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground/60 transition-all duration-200 tabular-nums md:block group-hover:opacity-0">
-                {createdAt}
+              <span className="text-xs font-medium text-muted-foreground/60 transition-all duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
+                {rowContent === "group"
+                  ? (() => {
+                      if (groupId === "all" || !groupsMap || !groupId)
+                        return "No Group";
+                      const group = groupsMap.get(groupId);
+                      return group?.name || "No Group";
+                    })()
+                  : createdAt}
               </span>
             )}
 

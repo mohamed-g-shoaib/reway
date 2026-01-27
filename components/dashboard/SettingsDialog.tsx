@@ -24,9 +24,15 @@ import { useTheme } from "next-themes";
 
 interface SettingsDialogProps {
   children: React.ReactNode;
+  rowContent: "date" | "group";
+  onRowContentChange: (value: "date" | "group") => void;
 }
 
-export function SettingsDialog({ children }: SettingsDialogProps) {
+export function SettingsDialog({
+  children,
+  rowContent,
+  onRowContentChange,
+}: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -43,6 +49,34 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* View Options Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              Row Content
+            </h3>
+            <div className="flex gap-2">
+              <Button
+                variant={rowContent === "date" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl"
+                onClick={() => onRowContentChange("date")}
+              >
+                Date
+              </Button>
+              <Button
+                variant={rowContent === "group" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl"
+                onClick={() => onRowContentChange("group")}
+              >
+                Group
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground px-1">
+              Choose what to display in the right column of your bookmarks.
+            </p>
+          </div>
+
           {/* Appearance Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">

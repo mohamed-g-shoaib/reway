@@ -28,6 +28,7 @@ export function DashboardContent({
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
+  const [rowContent, setRowContent] = useState<"date" | "group">("date");
 
   // Sync state with server props when they change (e.g. after revalidatePath)
   React.useEffect(() => {
@@ -201,6 +202,8 @@ export function DashboardContent({
         onGroupCreated={handleGroupCreated}
         onGroupUpdate={handleUpdateGroup}
         onGroupDelete={handleDeleteGroup}
+        rowContent={rowContent}
+        setRowContent={setRowContent}
       />
       <div className="flex flex-col gap-6 pt-4 md:pt-6">
         {/* Search/Command Bar */}
@@ -213,6 +216,7 @@ export function DashboardContent({
           onReorder={handleReorder}
           onDeleteBookmark={handleDeleteBookmark}
           onEditBookmark={handleEditBookmark}
+          rowContent={rowContent}
         />
       </div>
     </>

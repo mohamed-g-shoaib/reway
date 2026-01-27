@@ -64,6 +64,8 @@ interface DashboardNavProps {
   onGroupCreated?: (id: string, name: string, icon: string) => void;
   onGroupUpdate?: (id: string, name: string, icon: string) => void;
   onGroupDelete?: (id: string) => void;
+  rowContent: "date" | "group";
+  setRowContent: (value: "date" | "group") => void;
 }
 
 export function DashboardNav({
@@ -75,6 +77,8 @@ export function DashboardNav({
   onGroupCreated,
   onGroupUpdate,
   onGroupDelete,
+  rowContent,
+  setRowContent,
 }: DashboardNavProps) {
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -497,7 +501,10 @@ export function DashboardNav({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <SettingsDialog>
+                <SettingsDialog
+                  rowContent={rowContent}
+                  onRowContentChange={setRowContent}
+                >
                   <DropdownMenuItem
                     className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5 py-2"
                     onSelect={(e) => e.preventDefault()}
