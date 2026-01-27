@@ -106,18 +106,23 @@ export function SortableBookmarkIcon({
           {...attributes}
           {...listeners}
           data-slot="bookmark-card"
-          className={`group relative flex flex-col items-center gap-3 rounded-2xl bg-muted/20 p-4 text-center ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate transition-colors hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
+          className={`group relative flex flex-col items-center gap-3 rounded-2xl bg-muted/20 p-4 text-center ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate transition-all duration-200 ease-out hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
             isSelected ? "ring-2 ring-primary/30" : ""
           } ${isDragging ? "opacity-0" : ""}`}
         >
-          <Favicon
-            url={favicon || ""}
-            domain={domain}
-            title={title}
-            className="h-12 w-12"
-          />
+          <div className="cursor-pointer" onClick={handleOpen}>
+            <Favicon
+              url={favicon || ""}
+              domain={domain}
+              title={title}
+              className="h-12 w-12"
+            />
+          </div>
           <span className="text-xs font-semibold text-foreground truncate w-full">
-            <span className="cursor-pointer" onClick={handleOpen}>
+            <span
+              className="cursor-pointer transition-colors duration-200 ease-out hover:text-primary"
+              onClick={handleOpen}
+            >
               {title}
             </span>
           </span>

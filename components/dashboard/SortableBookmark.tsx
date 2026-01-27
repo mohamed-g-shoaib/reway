@@ -385,7 +385,7 @@ export const SortableBookmark = memo(function SortableBookmark({
       <ContextMenuTrigger asChild>
         <div
           ref={setNodeRef}
-          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-colors duration-200 ${
+          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ease-out ${
             status === "pending"
               ? "pointer-events-none"
               : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
@@ -405,7 +405,7 @@ export const SortableBookmark = memo(function SortableBookmark({
         >
           <div className="flex min-w-0 flex-1 items-center gap-3">
             {/* Favicon Container */}
-            <div onClick={openInNewTab}>
+            <div onClick={openInNewTab} className="cursor-pointer">
               <Favicon
                 url={favicon || ""}
                 domain={domain || ""}
@@ -484,14 +484,14 @@ export const SortableBookmark = memo(function SortableBookmark({
             {/* Desktop Action Buttons: Visible only on hover and on desktop */}
             {status !== "pending" ? (
               <div
-                className="absolute right-0 flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 cursor-default"
+                className="absolute right-0 flex items-center gap-1 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 ease-out cursor-default"
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
               >
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                   onClick={handleEdit}
                   aria-label="Edit bookmark"
                 >
@@ -501,7 +501,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                   onClick={handleCopyLink}
                   aria-label={isCopied ? "URL copied" : "Copy link"}
                 >
@@ -520,7 +520,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                   onClick={openInNewTab}
                   aria-label="Open link in new tab"
                 >
@@ -530,7 +530,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`h-9 w-9 rounded-xl transition-colors duration-200 cursor-pointer text-destructive hover:text-destructive ${
+                  className={`h-9 w-9 rounded-xl transition-all duration-200 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
                     isDeleteConfirm
                       ? "bg-destructive/10 hover:bg-destructive/20"
                       : "hover:bg-destructive/10"

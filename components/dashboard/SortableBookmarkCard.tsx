@@ -127,12 +127,14 @@ export function SortableBookmarkCard({
           } ${isDragging ? "opacity-0" : ""}`}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <Favicon
-              url={favicon || ""}
-              domain={domain}
-              title={title}
-              className="h-9 w-9"
-            />
+            <div className="cursor-pointer" onClick={handleOpen}>
+              <Favicon
+                url={favicon || ""}
+                domain={domain}
+                title={title}
+                className="h-9 w-9"
+              />
+            </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-foreground">
                 <span className="cursor-pointer" onClick={handleOpen}>
@@ -150,14 +152,14 @@ export function SortableBookmarkCard({
           <div className="flex items-center justify-between text-xs text-muted-foreground/70">
             <span className="truncate max-w-[70%]">{metaLabel}</span>
             <div
-              className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
+              className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-all md:duration-200 md:ease-out"
               onClick={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
             >
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer"
+                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={handleEdit}
                 aria-label="Edit bookmark"
               >
@@ -166,7 +168,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer"
+                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={handleCopy}
                 aria-label={isCopied ? "URL copied" : "Copy link"}
               >
@@ -184,7 +186,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer"
+                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={handleOpen}
                 aria-label="Open link"
               >
@@ -193,7 +195,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 rounded-lg transition-colors cursor-pointer text-destructive hover:text-destructive ${
+                className={`h-7 w-7 rounded-lg transition-all duration-200 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
                   isDeleteConfirm
                     ? "bg-destructive/10 hover:bg-destructive/20"
                     : "hover:bg-destructive/10"
