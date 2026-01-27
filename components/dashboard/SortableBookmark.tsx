@@ -121,9 +121,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
-    contentVisibility: "auto" as const,
-    containIntrinsicSize: "0 48px" as const,
+    opacity: isDragging ? 0 : 1,
   };
 
   const openInNewTab = (e: React.MouseEvent) => {
@@ -359,7 +357,7 @@ export const SortableBookmark = memo(function SortableBookmark({
               : "hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing"
           } ${
             isDragging
-              ? "z-50 bg-background ring-1 ring-primary/20 scale-[0.98]"
+              ? "z-50 bg-background ring-1 ring-primary/20"
               : isSelected
                 ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
                 : ""

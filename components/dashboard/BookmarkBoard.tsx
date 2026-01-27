@@ -323,10 +323,12 @@ export function BookmarkBoard({
           createPortal(
             <DragOverlay
               dropAnimation={{
+                duration: 350,
+                easing: "cubic-bezier(0.18, 1, 0.32, 1)",
                 sideEffects: defaultDropAnimationSideEffects({
                   styles: {
                     active: {
-                      opacity: "0.4",
+                      opacity: "0",
                     },
                   },
                 }),
@@ -337,7 +339,7 @@ export function BookmarkBoard({
                     const domain = getDomain(activeBookmark.url);
 
                     return (
-                      <div className="relative flex items-center justify-between rounded-2xl bg-background/80 ring-1 ring-foreground/5 px-4 py-4 backdrop-blur-xl scale-[0.98] after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate">
+                      <div className="relative flex items-center justify-between rounded-2xl bg-background/80 ring-1 ring-foreground/5 px-4 py-1.5 backdrop-blur-xl after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate">
                         <div className="flex min-w-0 flex-1 items-center gap-3">
                           <Favicon
                             url={activeBookmark.favicon_url || ""}
