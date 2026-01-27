@@ -236,7 +236,36 @@ export function DashboardContent({
 
   return (
     <>
-      <div className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
+      <div className="relative flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
+        <aside className="hidden lg:flex fixed left-6 top-28 z-30 flex-col gap-2 text-sm text-muted-foreground/70">
+          <button
+            type="button"
+            onClick={() => setActiveGroupId("all")}
+            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
+              activeGroupId === "all"
+                ? "text-foreground font-semibold"
+                : "hover:text-foreground/80"
+            }`}
+          >
+            <span className="h-px w-8 bg-border/60 transition-all duration-300 ease-out group-hover:w-12 group-hover:bg-border" />
+            <span>All Bookmarks</span>
+          </button>
+          {groups.map((group) => (
+            <button
+              key={group.id}
+              type="button"
+              onClick={() => setActiveGroupId(group.id)}
+              className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
+                activeGroupId === group.id
+                  ? "text-foreground font-semibold"
+                  : "hover:text-foreground/80"
+              }`}
+            >
+              <span className="h-px w-8 bg-border/60 transition-all duration-300 ease-out group-hover:w-12 group-hover:bg-border" />
+              <span className="truncate max-w-40">{group.name}</span>
+            </button>
+          ))}
+        </aside>
         {/* Fixed Header Section */}
         <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
           <DashboardNav
