@@ -275,29 +275,13 @@ export function BookmarkBoard({
           <span className="hidden md:inline">Press</span>
           <KbdGroup className="hidden md:inline-flex">
             <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
-            <Kbd>K</Kbd>
+            <Kbd>F</Kbd>
           </KbdGroup>
           <span className="hidden md:inline">to add your first link.</span>
           <span className="md:hidden">
             Add your first links to get started.
           </span>
         </div>
-        <Button
-          variant="outline"
-          className="mt-8 rounded-4xl gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-transform active:scale-95"
-          onClick={() =>
-            document.dispatchEvent(
-              new KeyboardEvent("keydown", {
-                key: "k",
-                metaKey: isMac,
-                ctrlKey: !isMac,
-              }),
-            )
-          }
-        >
-          <HugeiconsIcon icon={Add01Icon} size={16} />
-          Add Bookmark
-        </Button>
       </div>
     );
   }
