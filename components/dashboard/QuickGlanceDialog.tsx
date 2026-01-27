@@ -102,6 +102,7 @@ export function QuickGlanceDialog({
             <button
               onClick={() => onOpenChange(false)}
               className="text-muted-foreground/40 hover:text-foreground transition-colors p-1"
+              aria-label="Close dialog"
             >
               <HugeiconsIcon icon={Cancel01Icon} size={18} />
             </button>
