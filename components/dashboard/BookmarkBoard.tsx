@@ -22,12 +22,7 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { SortableBookmark } from "./SortableBookmark";
 import { createPortal } from "react-dom";
-import {
-  Bookmark01Icon,
-  Add01Icon,
-  ArrowUp01Icon,
-  ArrowDown01Icon,
-} from "@hugeicons/core-free-icons";
+import { Bookmark01Icon, Add01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/button";
@@ -253,12 +248,8 @@ export function BookmarkBoard({
           <div className="flex items-center gap-6 text-[10px] normal-case font-medium">
             <div className="flex items-center gap-1.5">
               <KbdGroup className="gap-0.5">
-                <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
-                  <HugeiconsIcon icon={ArrowUp01Icon} size={10} />
-                </Kbd>
-                <Kbd className="p-0.5 h-5 w-5 flex items-center justify-center">
-                  <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
-                </Kbd>
+                <Kbd>↑</Kbd>
+                <Kbd>↓</Kbd>
               </KbdGroup>
               <span>navigate</span>
             </div>
