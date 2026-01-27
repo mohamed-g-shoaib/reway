@@ -60,7 +60,7 @@ export function SettingsDialog({
               <Button
                 variant={viewMode === "list" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => onViewModeChange("list")}
               >
                 List
@@ -68,7 +68,7 @@ export function SettingsDialog({
               <Button
                 variant={viewMode === "card" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => onViewModeChange("card")}
               >
                 Card
@@ -76,7 +76,7 @@ export function SettingsDialog({
               <Button
                 variant={viewMode === "icon" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => onViewModeChange("icon")}
               >
                 Icon
@@ -96,7 +96,7 @@ export function SettingsDialog({
               <Button
                 variant={rowContent === "date" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => onRowContentChange("date")}
               >
                 Date
@@ -104,7 +104,7 @@ export function SettingsDialog({
               <Button
                 variant={rowContent === "group" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => onRowContentChange("group")}
               >
                 Group
@@ -124,7 +124,7 @@ export function SettingsDialog({
               <Button
                 variant={theme === "light" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => setTheme("light")}
               >
                 <HugeiconsIcon icon={Sun01Icon} size={16} />
@@ -133,7 +133,7 @@ export function SettingsDialog({
               <Button
                 variant={theme === "dark" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => setTheme("dark")}
               >
                 <HugeiconsIcon icon={Moon02Icon} size={16} />
@@ -142,7 +142,7 @@ export function SettingsDialog({
               <Button
                 variant={theme === "system" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-4xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => setTheme("system")}
               >
                 <HugeiconsIcon icon={ComputerIcon} size={16} />
