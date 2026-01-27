@@ -185,11 +185,11 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
     <div className="relative w-full">
       <form
         onSubmit={handleSubmit}
-        className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-colors duration-300 ease-in-out ${
+        className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ease-out ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
             : "ring-1 ring-foreground/5 after:ring-white/5"
-        } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] after:transition-all after:duration-300 shadow-none isolate`}
+        } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] after:transition-all after:duration-200 motion-reduce:transition-none shadow-none isolate`}
       >
         {/* Hidden File Input */}
         <input
@@ -211,7 +211,7 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
                 variant="ghost"
                 size="icon"
                 onClick={handlePlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-colors hover:bg-muted hover:text-primary active:scale-90"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-all duration-200 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
                 aria-label="Add image or file"
               >
                 <HugeiconsIcon icon={Add01Icon} size={16} />
