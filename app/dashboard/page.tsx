@@ -2,6 +2,7 @@ import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { getUser } from "./layout";
 import { getBookmarks, getGroups } from "@/lib/supabase/queries";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata = {
   title: "Dashboard | Reway",
@@ -9,23 +10,30 @@ export const metadata = {
 };
 
 export default async function DashboardPage() {
-  const [user, bookmarks, groups] = await Promise.all([
-    getUser(),
-    getBookmarks(),
-    getGroups(),
-  ]);
+  try {
+    const [user, bookmarks, groups] = await Promise.all([
+      getUser(),
+      getBookmarks(),
+      getGroups(),
+    ]);
 
-  return (
-    <div className="h-screen overflow-hidden bg-background text-foreground">
-      <main className="mx-auto w-full max-w-3xl px-4 py-6">
-        <DashboardContent
-          user={user}
-          initialBookmarks={bookmarks}
-          initialGroups={groups}
-        />
-      </main>
+    return (
+      <ErrorBoundary>
+        <div className="h-screen overflow-hidden bg-background text-foreground">
+          <main className="mx-auto w-full max-w-3xl px-4 py-6">
+            <DashboardContent
+              user={user}
+              initialBookmarks={bookmarks}
+              initialGroups={groups}
+            />
+          </main>
 
-      <MobileNav />
-    </div>
-  );
+          <MobileNav />
+        </div>
+      </ErrorBoundary>
+    );
+  } catch (error) {
+    console.error("Failed to load dashboard:", error);
+    throw error; // Let ErrorBoundary handle it
+  }
 }
