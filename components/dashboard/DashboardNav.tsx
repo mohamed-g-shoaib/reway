@@ -6,6 +6,9 @@ import {
   Logout01Icon,
   AiMagicIcon,
   Add01Icon,
+  Menu01Icon,
+  SquareIcon,
+  CircleIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -181,7 +184,7 @@ export function DashboardNav({
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="flex shrink-0 items-center transition-opacity hover:opacity-80 active:scale-95"
+              className="hidden md:flex shrink-0 items-center transition-opacity hover:opacity-80 active:scale-95"
             >
               <Image
                 src="/logo.svg"
@@ -537,7 +540,108 @@ export function DashboardNav({
             </DropdownMenu>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Mobile View Mode Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden size-9 rounded-xl hover:bg-muted/50 transition-colors active:scale-95"
+                  aria-label="Change view mode"
+                >
+                  <HugeiconsIcon
+                    icon={
+                      viewMode === "list"
+                        ? Menu01Icon
+                        : viewMode === "card"
+                          ? SquareIcon
+                          : CircleIcon
+                    }
+                    size={18}
+                    strokeWidth={2}
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-36 rounded-2xl p-2 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
+              >
+                <DropdownMenuItem
+                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${viewMode === "list" ? "bg-primary/5 text-primary font-medium" : ""}`}
+                  onClick={() => setViewMode("list")}
+                >
+                  <HugeiconsIcon icon={Menu01Icon} size={16} />
+                  List
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${viewMode === "card" ? "bg-primary/5 text-primary font-medium" : ""}`}
+                  onClick={() => setViewMode("card")}
+                >
+                  <HugeiconsIcon icon={SquareIcon} size={16} />
+                  Card
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${viewMode === "icon" ? "bg-primary/5 text-primary font-medium" : ""}`}
+                  onClick={() => setViewMode("icon")}
+                >
+                  <HugeiconsIcon icon={CircleIcon} size={16} />
+                  Icon
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Desktop View Mode Controls */}
+            <div className="hidden md:flex items-center gap-1 px-1 py-1 rounded-xl bg-muted/30">
+              <UIButton
+                size="icon"
+                variant={viewMode === "list" ? "default" : "ghost"}
+                className="size-8 rounded-lg transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => setViewMode("list")}
+                aria-label="List view"
+              >
+                <HugeiconsIcon icon={Menu01Icon} size={16} strokeWidth={2} />
+              </UIButton>
+              <UIButton
+                size="icon"
+                variant={viewMode === "card" ? "default" : "ghost"}
+                className="size-8 rounded-lg transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => setViewMode("card")}
+                aria-label="Card view"
+              >
+                <HugeiconsIcon icon={SquareIcon} size={16} strokeWidth={2} />
+              </UIButton>
+              <UIButton
+                size="icon"
+                variant={viewMode === "icon" ? "default" : "ghost"}
+                className="size-8 rounded-lg transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => setViewMode("icon")}
+                aria-label="Icon view"
+              >
+                <HugeiconsIcon icon={CircleIcon} size={16} strokeWidth={2} />
+              </UIButton>
+            </div>
+
+            {/* Settings Button */}
+            <SettingsDialog
+              rowContent={rowContent}
+              onRowContentChange={setRowContent}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-9 rounded-xl hover:bg-muted/50 transition-colors active:scale-95"
+                aria-label="Settings"
+              >
+                <HugeiconsIcon
+                  icon={Settings01Icon}
+                  size={18}
+                  strokeWidth={2}
+                />
+              </Button>
+            </SettingsDialog>
+
+            {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -567,55 +671,6 @@ export function DashboardNav({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <div
-                  className="px-2 py-2 space-y-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
-                    View mode
-                  </p>
-                  <div className="flex gap-2">
-                    <UIButton
-                      size="sm"
-                      variant={viewMode === "list" ? "default" : "outline"}
-                      className="flex-1 rounded-4xl text-xs transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                      onClick={() => setViewMode("list")}
-                    >
-                      List
-                    </UIButton>
-                    <UIButton
-                      size="sm"
-                      variant={viewMode === "card" ? "default" : "outline"}
-                      className="flex-1 rounded-4xl text-xs transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                      onClick={() => setViewMode("card")}
-                    >
-                      Card
-                    </UIButton>
-                    <UIButton
-                      size="sm"
-                      variant={viewMode === "icon" ? "default" : "outline"}
-                      className="flex-1 rounded-4xl text-xs transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                      onClick={() => setViewMode("icon")}
-                    >
-                      Icon
-                    </UIButton>
-                  </div>
-                </div>
-                <DropdownMenuSeparator />
-                <SettingsDialog
-                  rowContent={rowContent}
-                  onRowContentChange={setRowContent}
-                  viewMode={viewMode}
-                  onViewModeChange={setViewMode}
-                >
-                  <DropdownMenuItem
-                    className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5 py-2"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <HugeiconsIcon icon={Settings01Icon} size={16} />
-                    Settings
-                  </DropdownMenuItem>
-                </SettingsDialog>
                 <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2">
                   <HugeiconsIcon icon={AiMagicIcon} size={16} />
                   Upgrade to Pro
