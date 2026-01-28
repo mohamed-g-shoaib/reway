@@ -42,6 +42,8 @@ next-env.d.ts
 
 # agent
 .agent
+.windsurf
+.cursor
 
 # examples
 /examples
