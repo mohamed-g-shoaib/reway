@@ -33,6 +33,8 @@ export function DashboardContent({
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
   const [viewMode, setViewMode] = useState<"list" | "card" | "icon">("list");
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const isMac = useIsMac();
   const letterCycleRef = React.useRef<Record<string, number>>({});
 
@@ -267,6 +269,49 @@ export function DashboardContent({
     [],
   );
 
+  const handleToggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      // Exit selection mode if no items selected
+      if (next.size === 0) {
+        setSelectionMode(false);
+      }
+      return next;
+    });
+  }, []);
+
+  const handleBulkDelete = useCallback(async () => {
+    const idsToDelete = Array.from(selectedIds);
+    if (idsToDelete.length === 0) return;
+
+    // Optimistic delete
+    setBookmarks((prev) => prev.filter((b) => !selectedIds.has(b.id)));
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+
+    try {
+      await Promise.all(idsToDelete.map((id) => deleteAction(id)));
+      toast.success(
+        `Deleted ${idsToDelete.length} bookmark${idsToDelete.length > 1 ? "s" : ""}`,
+      );
+    } catch (error) {
+      console.error("Bulk delete failed:", error);
+      toast.error("Failed to delete some bookmarks");
+      // Restore bookmarks
+      setBookmarks(initialBookmarks);
+    }
+  }, [selectedIds, initialBookmarks]);
+
+  const handleCancelSelection = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
   // Calculate bookmark counts per group (O(N) single-pass)
   const groupCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -324,7 +369,7 @@ export function DashboardContent({
               </Kbd>
               <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">A–Z</Kbd>
             </KbdGroup>
-            <span>Switch Group (Repeat to Cycle)</span>
+            <span>Switch Group</span>
           </div>
           <button
             type="button"
@@ -439,6 +484,17 @@ export function DashboardContent({
               <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">⏎</Kbd>
               <span>copy</span>
             </div>
+            <div className="flex items-center gap-1.5">
+              <KbdGroup className="gap-0.5">
+                <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
+                  Shift
+                </Kbd>
+                <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
+                  Click
+                </Kbd>
+              </KbdGroup>
+              <span>bulk delete</span>
+            </div>
           </div>
         </div>
 
@@ -454,10 +510,40 @@ export function DashboardContent({
                 onEditBookmark={handleEditBookmark}
                 rowContent={rowContent}
                 viewMode={viewMode}
+                selectionMode={selectionMode}
+                selectedIds={selectedIds}
+                onToggleSelection={handleToggleSelection}
+                onEnterSelectionMode={() => setSelectionMode(true)}
               />
             </div>
           </div>
         </div>
+
+        {/* Floating Action Bar */}
+        {selectionMode && selectedIds.size > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-background border border-border/50 shadow-lg ring-1 ring-foreground/5">
+              <span className="text-sm font-medium text-foreground">
+                {selectedIds.size} selected
+              </span>
+              <div className="h-4 w-px bg-border/50" />
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 font-medium text-sm transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelSelection}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-medium text-sm transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -68,6 +68,10 @@ interface SortableBookmarkProps {
   onEditDone?: () => void;
   onPreview?: (id: string) => void;
   rowContent?: "date" | "group";
+  selectionMode?: boolean;
+  isSelectionChecked?: boolean;
+  onToggleSelection?: (id: string) => void;
+  onEnterSelectionMode?: () => void;
 }
 
 export const SortableBookmark = memo(function SortableBookmark({
@@ -89,6 +93,10 @@ export const SortableBookmark = memo(function SortableBookmark({
   onEditDone,
   onPreview,
   rowContent = "date",
+  selectionMode = false,
+  isSelectionChecked = false,
+  onToggleSelection,
+  onEnterSelectionMode,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
@@ -124,8 +132,8 @@ export const SortableBookmark = memo(function SortableBookmark({
     opacity: isDragging ? 0 : 1,
   };
 
-  const dragStyle = isDragging 
-    ? "z-50 bg-background ring-1 ring-primary/20" 
+  const dragStyle = isDragging
+    ? "z-50 bg-background ring-1 ring-primary/20"
     : isSelected
       ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
       : "";
@@ -292,10 +300,10 @@ export const SortableBookmark = memo(function SortableBookmark({
               className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-sm font-bold focus-visible:ring-primary/20"
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   handleSaveEdit();
-                } else if (e.key === 'Escape') {
+                } else if (e.key === "Escape") {
                   e.preventDefault();
                   handleCancelEdit();
                 }
@@ -318,10 +326,10 @@ export const SortableBookmark = memo(function SortableBookmark({
               placeholder="URL"
               className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-xs font-medium text-muted-foreground focus-visible:ring-primary/20"
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   handleSaveEdit();
-                } else if (e.key === 'Escape') {
+                } else if (e.key === "Escape") {
                   e.preventDefault();
                   handleCancelEdit();
                 }
@@ -344,10 +352,10 @@ export const SortableBookmark = memo(function SortableBookmark({
               placeholder="Description (Optional)"
               className="flex-1 bg-background/50 border-border/50 rounded-xl text-xs py-2 min-h-15 resize-none focus-visible:ring-primary/20"
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSaveEdit();
-                } else if (e.key === 'Escape') {
+                } else if (e.key === "Escape") {
                   e.preventDefault();
                   handleCancelEdit();
                 }
@@ -388,31 +396,83 @@ export const SortableBookmark = memo(function SortableBookmark({
           className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ease-out ${
             status === "pending"
               ? "pointer-events-none"
-              : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
-          } ${dragStyle} ${
-            isDragging ? "opacity-0" : "opacity-100"
-          }`}
+              : selectionMode
+                ? "hover:bg-muted/50 cursor-pointer"
+                : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
+          } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
           style={{
             transform: CSS.Transform.toString(transform),
             transition,
           }}
           {...attributes}
-          {...listeners}
+          {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
           role="button"
           tabIndex={status === "pending" ? -1 : 0}
           aria-roledescription="Draggable bookmark"
         >
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            {/* Favicon Container */}
-            <div onClick={openInNewTab} className="cursor-pointer">
-              <Favicon
-                url={favicon || ""}
-                domain={domain || ""}
-                title={title || ""}
-                isEnriching={status === "pending"}
-              />
-            </div>
+            {/* Favicon/Checkbox Container */}
+            {selectionMode ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSelection?.(id);
+                }}
+                className="size-9 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                aria-label={
+                  isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
+                }
+              >
+                <div
+                  className={`size-4 rounded border-2 flex items-center justify-center transition-colors ${
+                    isSelectionChecked
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground/30"
+                  }`}
+                >
+                  {isSelectionChecked && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      className="text-primary-foreground"
+                    >
+                      <path
+                        d="M10 3L4.5 8.5L2 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            ) : (
+              <div
+                onClick={(e) => {
+                  if (e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEnterSelectionMode?.();
+                    onToggleSelection?.(id);
+                  } else {
+                    openInNewTab(e);
+                  }
+                }}
+                className="cursor-pointer"
+              >
+                <Favicon
+                  url={favicon || ""}
+                  domain={domain || ""}
+                  title={title || ""}
+                  isEnriching={status === "pending"}
+                />
+              </div>
+            )}
 
             {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
             <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-8 md:pr-36">
@@ -482,7 +542,7 @@ export const SortableBookmark = memo(function SortableBookmark({
             )}
 
             {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-            {status !== "pending" ? (
+            {status !== "pending" && !selectionMode ? (
               <div
                 className="absolute right-0 flex items-center gap-1 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 ease-out cursor-default"
                 onClick={(e) => e.stopPropagation()}

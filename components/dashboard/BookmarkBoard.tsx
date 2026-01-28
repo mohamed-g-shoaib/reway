@@ -54,6 +54,10 @@ interface BookmarkBoardProps {
   ) => Promise<void>;
   rowContent: "date" | "group";
   viewMode: "list" | "card" | "icon";
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelection?: (id: string) => void;
+  onEnterSelectionMode?: () => void;
 }
 
 export function BookmarkBoard({
@@ -64,6 +68,10 @@ export function BookmarkBoard({
   onEditBookmark,
   rowContent,
   viewMode,
+  selectionMode = false,
+  selectedIds = new Set(),
+  onToggleSelection,
+  onEnterSelectionMode,
 }: BookmarkBoardProps) {
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -74,9 +82,8 @@ export function BookmarkBoard({
   );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [editSheetBookmark, setEditSheetBookmark] = useState<BookmarkRow | null>(
-    null,
-  );
+  const [editSheetBookmark, setEditSheetBookmark] =
+    useState<BookmarkRow | null>(null);
   const dndContextId = useId();
   const boardRef = useRef<HTMLDivElement>(null);
   const [gridColumns, setGridColumns] = useState(1);
@@ -301,7 +308,9 @@ export function BookmarkBoard({
       >
         <SortableContext
           items={displayBookmarks.map((b) => b.id)}
-          strategy={isGridView ? rectSortingStrategy : verticalListSortingStrategy}
+          strategy={
+            isGridView ? rectSortingStrategy : verticalListSortingStrategy
+          }
         >
           <div
             ref={boardRef}
@@ -385,6 +394,10 @@ export function BookmarkBoard({
                     }
                   }}
                   rowContent={rowContent}
+                  selectionMode={selectionMode}
+                  isSelectionChecked={selectedIds.has(bookmark.id)}
+                  onToggleSelection={onToggleSelection}
+                  onEnterSelectionMode={onEnterSelectionMode}
                   {...bookmark}
                 />
               );
@@ -431,13 +444,12 @@ export function BookmarkBoard({
                             </div>
                           </div>
                           <p className="text-xs text-muted-foreground/70">
-                            {new Date(activeBookmark.created_at).toLocaleDateString(
-                              undefined,
-                              {
-                                month: "short",
-                                day: "numeric",
-                              },
-                            )}
+                            {new Date(
+                              activeBookmark.created_at,
+                            ).toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
                           </p>
                         </div>
                       );
