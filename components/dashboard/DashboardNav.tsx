@@ -281,6 +281,8 @@ export function DashboardNav({
                                 className="h-8 flex-1 text-sm rounded-lg"
                                 autoFocus
                                 onKeyDown={(e) => {
+                                  // Stop all key events from propagating to prevent dropdown typeahead navigation
+                                  e.stopPropagation();
                                   if (e.key === "Enter") {
                                     handleUpdateGroup(group.id);
                                   } else if (e.key === "Escape") {
@@ -355,7 +357,10 @@ export function DashboardNav({
                                 }}
                                 aria-label={`Edit ${group.name}`}
                               >
-                                <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                                <HugeiconsIcon
+                                  icon={PencilEdit01Icon}
+                                  size={14}
+                                />
                               </button>
                               <button
                                 type="button"
@@ -375,7 +380,9 @@ export function DashboardNav({
                                 }
                               >
                                 <HugeiconsIcon
-                                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                                  icon={
+                                    isDeleteConfirm ? Alert02Icon : Delete02Icon
+                                  }
                                   size={14}
                                 />
                               </button>
@@ -402,7 +409,10 @@ export function DashboardNav({
                                   }}
                                   aria-label={`Edit ${group.name}`}
                                 >
-                                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                                  <HugeiconsIcon
+                                    icon={PencilEdit01Icon}
+                                    size={14}
+                                  />
                                 </button>
                                 <button
                                   type="button"
@@ -423,7 +433,9 @@ export function DashboardNav({
                                 >
                                   <HugeiconsIcon
                                     icon={
-                                      isDeleteConfirm ? Alert02Icon : Delete02Icon
+                                      isDeleteConfirm
+                                        ? Alert02Icon
+                                        : Delete02Icon
                                     }
                                     size={14}
                                   />
@@ -473,6 +485,8 @@ export function DashboardNav({
                         className="h-8 flex-1 text-sm rounded-lg"
                         autoFocus
                         onKeyDown={(e) => {
+                          // Stop all key events from propagating to prevent dropdown typeahead navigation
+                          e.stopPropagation();
                           if (e.key === "Enter") {
                             handleInlineCreate();
                           } else if (e.key === "Escape") {
@@ -553,7 +567,10 @@ export function DashboardNav({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <div className="px-2 py-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="px-2 py-2 space-y-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
                     View mode
                   </p>

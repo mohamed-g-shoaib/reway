@@ -34,6 +34,7 @@ export function DashboardContent({
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
   const [viewMode, setViewMode] = useState<"list" | "card" | "icon">("list");
   const isMac = useIsMac();
+  const letterCycleRef = React.useRef<Record<string, number>>({});
 
   // Sync state with server props when they change (e.g. after revalidatePath)
   // Use useCallback to prevent unnecessary re-renders
@@ -113,6 +114,45 @@ export function DashboardContent({
     );
   }, [bookmarks, activeGroupId]);
 
+  const groupsByFirstLetter = useMemo(() => {
+    const map: Record<string, string[]> = {};
+
+    // Helper to normalize accented characters to their base form
+    const normalizeChar = (char: string): string => {
+      // Use NFD decomposition to separate accents, then remove diacritics
+      return char
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    };
+
+    // Add "All Bookmarks" to the mapping
+    const allBookmarksFirstLetter = "a";
+    if (!map[allBookmarksFirstLetter]) {
+      map[allBookmarksFirstLetter] = [];
+    }
+    map[allBookmarksFirstLetter].push("all");
+
+    // Add actual groups
+    for (const group of groups) {
+      const firstChar = group.name.trim().charAt(0);
+      if (!firstChar) continue;
+
+      const normalizedLetter = normalizeChar(firstChar);
+      // Only map if it's a letter (a-z) - numbers and special chars are skipped
+      if (/[a-z]/.test(normalizedLetter)) {
+        if (!map[normalizedLetter]) {
+          map[normalizedLetter] = [];
+        }
+        map[normalizedLetter].push(group.id);
+      }
+    }
+    return map;
+  }, [groups]);
+
+  React.useEffect(() => {
+    letterCycleRef.current = {};
+  }, [groups]);
 
   const handleGroupCreated = useCallback(
     (id: string, name: string, icon: string) => {
@@ -144,7 +184,9 @@ export function DashboardContent({
         toast.error("Failed to update group");
         // Revert optimistic update
         setGroups((prev) =>
-          prev.map((g) => (g.id === id ? groups.find((og) => og.id === id) || g : g)),
+          prev.map((g) =>
+            g.id === id ? groups.find((og) => og.id === id) || g : g,
+          ),
         );
       }
     },
@@ -212,7 +254,9 @@ export function DashboardContent({
         setBookmarks((prev) =>
           prev.map((b) => {
             if (b.id === id) {
-              const originalBookmark = initialBookmarks.find((ob) => ob.id === id);
+              const originalBookmark = initialBookmarks.find(
+                (ob) => ob.id === id,
+              );
               return originalBookmark || b;
             }
             return b;
@@ -234,10 +278,54 @@ export function DashboardContent({
     return counts;
   }, [bookmarks]);
 
+  // Keyboard shortcut: Ctrl/Cmd + Letter to quickly navigate to groups
+  // Pressing the same letter multiple times cycles through groups starting with that letter
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only trigger with Ctrl/Cmd + single letter (no Alt or Shift modifiers)
+      if (!event.ctrlKey && !event.metaKey) return;
+      if (event.altKey || event.shiftKey) return;
+      if (event.key.length !== 1) return;
+
+      // Don't interfere when user is typing in input fields
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return;
+      }
+
+      const letter = event.key.toLowerCase();
+      const groupIds = groupsByFirstLetter[letter];
+      if (!groupIds || groupIds.length === 0) return;
+
+      event.preventDefault();
+      const currentIndex = letterCycleRef.current[letter] ?? -1;
+      const nextIndex = (currentIndex + 1) % groupIds.length;
+      letterCycleRef.current[letter] = nextIndex;
+      setActiveGroupId(groupIds[nextIndex]);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [groupsByFirstLetter]);
+
   return (
     <>
       <div className="relative flex flex-col h-[calc(100vh-3rem)] overflow-hidden">
         <aside className="hidden lg:flex fixed left-6 top-28 z-30 flex-col gap-2 text-sm text-muted-foreground/70">
+          <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
+            <KbdGroup className="gap-0.5">
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
+                {isMac ? "⌘" : "Ctrl"}
+              </Kbd>
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">A–Z</Kbd>
+            </KbdGroup>
+            <span>Switch Group (Repeat to Cycle)</span>
+          </div>
           <button
             type="button"
             onClick={() => setActiveGroupId("all")}
@@ -247,9 +335,13 @@ export function DashboardContent({
                 : "hover:text-foreground/80"
             }`}
           >
-            <span className={`h-px transition-all duration-300 ease-out ${
-              activeGroupId === "all" ? "w-12 opacity-80" : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-            } bg-current`} />
+            <span
+              className={`h-px transition-all duration-300 ease-out ${
+                activeGroupId === "all"
+                  ? "w-12 opacity-80"
+                  : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+              } bg-current`}
+            />
             <span>All Bookmarks</span>
           </button>
           {groups.map((group) => (
@@ -263,9 +355,13 @@ export function DashboardContent({
                   : "hover:text-foreground/80"
               }`}
             >
-              <span className={`h-px transition-all duration-300 ease-out ${
-                activeGroupId === group.id ? "w-12 opacity-80" : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-              } bg-current`} />
+              <span
+                className={`h-px transition-all duration-300 ease-out ${
+                  activeGroupId === group.id
+                    ? "w-12 opacity-80"
+                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                } bg-current`}
+              />
               <span className="truncate max-w-40">{group.name}</span>
             </button>
           ))}
@@ -340,9 +436,7 @@ export function DashboardContent({
               <span>open</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">
-                ⏎
-              </Kbd>
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">⏎</Kbd>
               <span>copy</span>
             </div>
           </div>
