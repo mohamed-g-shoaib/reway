@@ -77,8 +77,8 @@ export function FeaturesSection() {
             The Essentials, Without The Noise
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
-            Every feature reinforces the same promise: keep your knowledge clean,
-            searchable, and ready when you need it.
+            Every feature reinforces the same promise: keep your knowledge
+            clean, searchable, and ready when you need it.
           </p>
         </div>
 
@@ -113,23 +113,22 @@ export function FeaturesSection() {
 }
 
 function ExtractDemo() {
-  const [phase, setPhase] = useState(0);
-  const [typedIndex, setTypedIndex] = useState(0);
   const shouldReduceMotion = useReducedMotion();
+  const typingText = "check: linear.app, vercel.com, and ui.shadcn.com";
 
-  const typingText =
-    "check: https://linear.app, https://vercel.com, https://ui.shadcn.com";
+  const [phase, setPhase] = useState(shouldReduceMotion ? 2 : 0);
+  const [typedIndex, setTypedIndex] = useState(
+    shouldReduceMotion ? typingText.length : 0,
+  );
 
   useEffect(() => {
-    if (shouldReduceMotion) {
-      setTypedIndex(typingText.length);
-      setPhase(2);
-      return undefined;
-    }
-    if (phase !== 0) return undefined;
-    setTypedIndex(0);
+    if (shouldReduceMotion || phase !== 0) return undefined;
+
     let intervalId: ReturnType<typeof setInterval> | null = null;
-    const startTyping = () => {
+
+    // Reset index asynchronously to avoid cascading renders
+    const resetTimer = setTimeout(() => {
+      setTypedIndex(0);
       intervalId = setInterval(() => {
         setTypedIndex((prev) => {
           if (prev >= typingText.length) {
@@ -140,9 +139,10 @@ function ExtractDemo() {
           return prev + 1;
         });
       }, 28);
-    };
-    startTyping();
+    }, 0);
+
     return () => {
+      clearTimeout(resetTimer);
       if (intervalId) clearInterval(intervalId);
     };
   }, [phase, shouldReduceMotion, typingText]);
@@ -348,17 +348,23 @@ function NavigationDemo() {
     <div className="flex w-full justify-center">
       <div className="grid w-fit grid-cols-3 gap-4 text-[10px] text-muted-foreground/70">
         {[
-          { label: "Preview", keys: ["Space"] },
+          { label: "Switch Group", keys: ["⌘/Ctrl", "A–Z"] },
           { label: "Move", keys: ["↑", "↓", "←", "→"] },
+          { label: "Open", keys: ["⌘/Ctrl", "⏎"] },
+          { label: "Preview", keys: ["Space"] },
+          { label: "Bulk Delete", keys: ["Shift", "Click"] },
           { label: "Copy", keys: ["⏎"] },
-          { label: "Open", keys: ["⌘", "⏎"] },
-          { label: "Search", keys: ["⌘/Ctrl", "F"] },
-          { label: "Cancel", keys: ["Esc"] },
         ].map((shortcut) => (
-          <div key={shortcut.label} className="flex flex-col items-center gap-2">
+          <div
+            key={shortcut.label}
+            className="flex flex-col items-center gap-2"
+          >
             <KbdGroup className="gap-1">
               {shortcut.keys.map((key) => (
-                <Kbd key={key} className="h-[22px] min-w-[22px] px-1 text-[9px]">
+                <Kbd
+                  key={key}
+                  className="h-[22px] min-w-[22px] px-1 text-[9px]"
+                >
                   {key}
                 </Kbd>
               ))}
