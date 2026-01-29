@@ -2,6 +2,7 @@
 
 import {
   ArrowDown01Icon,
+  ArrowUpRight03Icon,
   Settings01Icon,
   Logout01Icon,
   AiMagicIcon,
@@ -9,6 +10,7 @@ import {
   Menu01Icon,
   SquareIcon,
   CircleIcon,
+  Key02Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,9 +41,11 @@ import { Input } from "@/components/ui/input";
 import { createGroup } from "@/app/dashboard/actions";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
+import type { IconPickerPopoverProps } from "./IconPickerPopover";
+import { ApiTokenDialog } from "./ApiTokenDialog";
 
 // Dynamically load the heavy icon picker to optimize initial bundle size
-const IconPickerPopover = dynamic(
+const IconPickerPopover = dynamic<IconPickerPopoverProps>(
   () => import("./IconPickerPopover").then((mod) => mod.IconPickerPopover),
   {
     loading: () => (
@@ -64,9 +68,20 @@ interface DashboardNavProps {
   activeGroupId: string;
   groupCounts?: Record<string, number>;
   onGroupSelect: (id: string) => void;
-  onGroupCreated?: (id: string, name: string, icon: string) => void;
-  onGroupUpdate?: (id: string, name: string, icon: string) => void;
+  onGroupCreated?: (
+    id: string,
+    name: string,
+    icon: string,
+    color?: string | null,
+  ) => void;
+  onGroupUpdate?: (
+    id: string,
+    name: string,
+    icon: string,
+    color?: string | null,
+  ) => void;
   onGroupDelete?: (id: string) => void;
+  onGroupOpen?: (id: string) => void;
   rowContent: "date" | "group";
   setRowContent: (value: "date" | "group") => void;
   viewMode: "list" | "card" | "icon";
@@ -82,6 +97,7 @@ export function DashboardNav({
   onGroupCreated,
   onGroupUpdate,
   onGroupDelete,
+  onGroupOpen,
   rowContent,
   setRowContent,
   viewMode,
@@ -90,10 +106,12 @@ export function DashboardNav({
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupIcon, setNewGroupIcon] = useState("folder");
+  const [newGroupColor, setNewGroupColor] = useState<string | null>("#6366f1");
   const [isCreating, setIsCreating] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editGroupName, setEditGroupName] = useState("");
   const [editGroupIcon, setEditGroupIcon] = useState("folder");
+  const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [deleteConfirmGroupId, setDeleteConfirmGroupId] = useState<
     string | null
@@ -102,10 +120,11 @@ export function DashboardNav({
   // Get current active group
   const activeGroup =
     activeGroupId === "all"
-      ? { name: "All Bookmarks", icon: "all" }
+      ? { name: "All Bookmarks", icon: "all", color: null }
       : groups.find((g) => g.id === activeGroupId) || {
           name: "Unknown",
           icon: "folder",
+          color: null,
         };
 
   const ActiveIcon =
@@ -131,7 +150,12 @@ export function DashboardNav({
     if (!editGroupName.trim() || isUpdating) return;
     setIsUpdating(true);
     try {
-      await onGroupUpdate?.(id, editGroupName.trim(), editGroupIcon);
+      await onGroupUpdate?.(
+        id,
+        editGroupName.trim(),
+        editGroupIcon,
+        editGroupColor,
+      );
       setEditingGroupId(null);
     } catch (error) {
       console.error("Failed to update group:", error);
@@ -159,11 +183,18 @@ export function DashboardNav({
       const groupId = await createGroup({
         name: newGroupName.trim(),
         icon: newGroupIcon,
+        color: newGroupColor,
       });
-      onGroupCreated?.(groupId, newGroupName.trim(), newGroupIcon);
+      onGroupCreated?.(
+        groupId,
+        newGroupName.trim(),
+        newGroupIcon,
+        newGroupColor,
+      );
       setIsInlineCreating(false);
       setNewGroupName("");
       setNewGroupIcon("folder");
+      setNewGroupColor("#6366f1");
     } catch (error) {
       console.error("Failed to create group:", error);
     } finally {
@@ -175,6 +206,7 @@ export function DashboardNav({
     setIsInlineCreating(false);
     setNewGroupName("");
     setNewGroupIcon("folder");
+    setNewGroupColor("#6366f1");
   };
 
   return (
@@ -208,6 +240,7 @@ export function DashboardNav({
                         icon={ActiveIcon}
                         size={18}
                         strokeWidth={2}
+                        style={{ color: activeGroup.color || undefined }}
                         className="text-foreground/80"
                       />
                     ) : null}
@@ -234,6 +267,17 @@ export function DashboardNav({
                     <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
                     <span>All Bookmarks</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onGroupOpen?.("all");
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-foreground transition-opacity"
+                    aria-label="Open all bookmarks"
+                  >
+                    <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                  </button>
                 </DropdownMenuItem>
 
                 {groups.length > 0 ? (
@@ -258,6 +302,8 @@ export function DashboardNav({
                               <IconPickerPopover
                                 selectedIcon={editGroupIcon}
                                 onIconSelect={setEditGroupIcon}
+                                color={editGroupColor}
+                                onColorChange={setEditGroupColor}
                               >
                                 <button
                                   type="button"
@@ -271,6 +317,9 @@ export function DashboardNav({
                                     }
                                     size={16}
                                     strokeWidth={2}
+                                    style={{
+                                      color: editGroupColor || "#6366f1",
+                                    }}
                                     className="text-primary"
                                   />
                                 </button>
@@ -294,7 +343,7 @@ export function DashboardNav({
                                 }}
                               />
                             </div>
-                            <div className="flex justify-end gap-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
                               <UIButton
                                 size="sm"
                                 variant="secondary"
@@ -340,86 +389,51 @@ export function DashboardNav({
                                   icon={GroupIcon}
                                   size={16}
                                   strokeWidth={2}
+                                  style={{ color: group.color || undefined }}
                                 />
                               ) : null}
                               <span className="truncate">{group.name}</span>
                             </button>
                           </DropdownMenuItem>
 
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
                             {/* Mobile: actions always visible */}
                             <div className="flex items-center gap-1 md:hidden">
-                              <button
-                                type="button"
-                                className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditingGroupId(group.id);
-                                  setEditGroupName(group.name);
-                                  setEditGroupIcon(group.icon || "folder");
-                                }}
-                                aria-label={`Edit ${group.name}`}
-                              >
-                                <HugeiconsIcon
-                                  icon={PencilEdit01Icon}
-                                  size={14}
-                                />
-                              </button>
-                              <button
-                                type="button"
-                                className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
-                                  isDeleteConfirm
-                                    ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                    : "text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteGroupClick(group.id);
-                                }}
-                                aria-label={
-                                  isDeleteConfirm
-                                    ? `Confirm delete ${group.name}`
-                                    : `Delete ${group.name}`
-                                }
-                              >
-                                <HugeiconsIcon
-                                  icon={
-                                    isDeleteConfirm ? Alert02Icon : Delete02Icon
-                                  }
-                                  size={14}
-                                />
-                              </button>
-                              <span className="text-xs text-muted-foreground/50 ml-1">
-                                {getBookmarkCount(group.id)}
-                              </span>
-                            </div>
-
-                            {/* Desktop: show count, reveal actions on row hover */}
-                            <div className="hidden md:block relative h-7 w-24">
-                              <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/50 opacity-100 group-hover/menu-row:opacity-0 transition-opacity">
-                                {getBookmarkCount(group.id)}
-                              </span>
-
-                              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/menu-row:opacity-100 focus-within:opacity-100 transition-opacity pointer-events-none group-hover/menu-row:pointer-events-auto">
+                              <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
                                 <button
                                   type="button"
-                                  className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                                  className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onGroupOpen?.(group.id);
+                                  }}
+                                  aria-label={`Open ${group.name}`}
+                                >
+                                  <HugeiconsIcon
+                                    icon={ArrowUpRight03Icon}
+                                    size={13}
+                                  />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setEditingGroupId(group.id);
                                     setEditGroupName(group.name);
                                     setEditGroupIcon(group.icon || "folder");
+                                    setEditGroupColor(group.color || "#6366f1");
                                   }}
                                   aria-label={`Edit ${group.name}`}
                                 >
                                   <HugeiconsIcon
                                     icon={PencilEdit01Icon}
-                                    size={14}
+                                    size={13}
                                   />
                                 </button>
                                 <button
                                   type="button"
-                                  className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
+                                  className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
                                     isDeleteConfirm
                                       ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                                       : "text-destructive hover:bg-destructive/10 hover:text-destructive"
@@ -440,10 +454,84 @@ export function DashboardNav({
                                         ? Alert02Icon
                                         : Delete02Icon
                                     }
-                                    size={14}
+                                    size={13}
                                   />
                                 </button>
-                                <span className="text-xs text-muted-foreground/50 ml-1">
+                              </div>
+                              <span className="text-xs text-muted-foreground/50">
+                                {getBookmarkCount(group.id)}
+                              </span>
+                            </div>
+
+                            {/* Desktop: show count, reveal actions on row hover */}
+                            <div className="hidden md:block relative h-7 w-24">
+                              <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/50 opacity-100 group-hover/menu-row:opacity-0 transition-opacity">
+                                {getBookmarkCount(group.id)}
+                              </span>
+
+                              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover/menu-row:opacity-100 focus-within:opacity-100 transition-opacity pointer-events-none group-hover/menu-row:pointer-events-auto">
+                                <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
+                                  <button
+                                    type="button"
+                                    className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      onGroupOpen?.(group.id);
+                                    }}
+                                    aria-label={`Open ${group.name}`}
+                                  >
+                                    <HugeiconsIcon
+                                      icon={ArrowUpRight03Icon}
+                                      size={13}
+                                    />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingGroupId(group.id);
+                                      setEditGroupName(group.name);
+                                      setEditGroupIcon(group.icon || "folder");
+                                      setEditGroupColor(
+                                        group.color || "#6366f1",
+                                      );
+                                    }}
+                                    aria-label={`Edit ${group.name}`}
+                                  >
+                                    <HugeiconsIcon
+                                      icon={PencilEdit01Icon}
+                                      size={13}
+                                    />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
+                                      isDeleteConfirm
+                                        ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                                        : "text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                    }`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteGroupClick(group.id);
+                                    }}
+                                    aria-label={
+                                      isDeleteConfirm
+                                        ? `Confirm delete ${group.name}`
+                                        : `Delete ${group.name}`
+                                    }
+                                  >
+                                    <HugeiconsIcon
+                                      icon={
+                                        isDeleteConfirm
+                                          ? Alert02Icon
+                                          : Delete02Icon
+                                      }
+                                      size={13}
+                                    />
+                                  </button>
+                                </div>
+                                <span className="text-xs text-muted-foreground/50">
                                   {getBookmarkCount(group.id)}
                                 </span>
                               </div>
@@ -467,6 +555,8 @@ export function DashboardNav({
                       <IconPickerPopover
                         selectedIcon={newGroupIcon}
                         onIconSelect={setNewGroupIcon}
+                        color={newGroupColor}
+                        onColorChange={setNewGroupColor}
                       >
                         <button
                           type="button"
@@ -477,6 +567,7 @@ export function DashboardNav({
                             icon={ALL_ICONS_MAP[newGroupIcon]}
                             size={16}
                             strokeWidth={2}
+                            style={{ color: newGroupColor || "#6366f1" }}
                             className="text-primary"
                           />
                         </button>
@@ -498,7 +589,7 @@ export function DashboardNav({
                         }}
                       />
                     </div>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <UIButton
                         size="sm"
                         variant="secondary"
@@ -671,6 +762,18 @@ export function DashboardNav({
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <ApiTokenDialog>
+                  <DropdownMenuItem
+                    className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <HugeiconsIcon icon={Key02Icon} size={16} />
+                    Manage Access Tokens
+                  </DropdownMenuItem>
+                </ApiTokenDialog>
                 <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2">
                   <HugeiconsIcon icon={AiMagicIcon} size={16} />
                   Upgrade to Pro
