@@ -161,7 +161,7 @@ export const SortableBookmark = memo(function SortableBookmark({
     if (isDeleteConfirm) {
       // Second click - Actually delete
       onDelete?.(id);
-      toast.error("Bookmark deleted");
+      setIsDeleteConfirm(false);
     } else {
       // First click - Show warning
       setIsDeleteConfirm(true);
@@ -395,7 +395,7 @@ export const SortableBookmark = memo(function SortableBookmark({
           ref={setNodeRef}
           className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ease-out ${
             status === "pending"
-              ? "pointer-events-none"
+              ? "opacity-60"
               : selectionMode
                 ? "hover:bg-muted/50 cursor-pointer"
                 : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"

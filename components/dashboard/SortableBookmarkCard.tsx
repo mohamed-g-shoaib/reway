@@ -37,6 +37,10 @@ interface SortableBookmarkCardProps {
   rowContent?: "date" | "group";
   groupsMap?: Map<string, GroupRow>;
   isSelected?: boolean;
+  selectionMode?: boolean;
+  isSelectionChecked?: boolean;
+  onToggleSelection?: (id: string) => void;
+  onEnterSelectionMode?: () => void;
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
   onPreview?: (id: string) => void;
@@ -53,6 +57,10 @@ export function SortableBookmarkCard({
   rowContent = "date",
   groupsMap,
   isSelected,
+  selectionMode = false,
+  isSelectionChecked = false,
+  onToggleSelection,
+  onEnterSelectionMode,
   onDelete,
   onEdit,
   onPreview,
@@ -60,8 +68,14 @@ export function SortableBookmarkCard({
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -95,7 +109,6 @@ export function SortableBookmarkCard({
     e?.stopPropagation();
     if (isDeleteConfirm) {
       onDelete?.(id);
-      toast.error("Bookmark deleted");
       setIsDeleteConfirm(false);
       return;
     }
@@ -120,21 +133,73 @@ export function SortableBookmarkCard({
           ref={setNodeRef}
           style={style}
           {...attributes}
-          {...listeners}
+          {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
           className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate transition-colors hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
-            isSelected ? "ring-2 ring-primary/30" : ""
+            isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
           } ${isDragging ? "opacity-0" : ""}`}
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="cursor-pointer" onClick={handleOpen}>
-              <Favicon
-                url={favicon || ""}
-                domain={domain}
-                title={title}
-                className="h-9 w-9"
-              />
-            </div>
+            {selectionMode ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onToggleSelection?.(id);
+                }}
+                className="size-9 shrink-0 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                aria-label={
+                  isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
+                }
+              >
+                <div
+                  className={`size-4 rounded border-2 flex items-center justify-center transition-colors ${
+                    isSelectionChecked
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground/30"
+                  }`}
+                >
+                  {isSelectionChecked && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      className="text-primary-foreground"
+                    >
+                      <path
+                        d="M10 3L4.5 8.5L2 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            ) : (
+              <div
+                className="cursor-pointer"
+                onClick={(event) => {
+                  if (event.shiftKey) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onEnterSelectionMode?.();
+                    onToggleSelection?.(id);
+                    return;
+                  }
+                  handleOpen(event);
+                }}
+              >
+                <Favicon
+                  url={favicon || ""}
+                  domain={domain}
+                  title={title}
+                  className="h-9 w-9"
+                />
+              </div>
+            )}
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-foreground">
                 <span className="cursor-pointer" onClick={handleOpen}>
@@ -202,7 +267,9 @@ export function SortableBookmarkCard({
                 }`}
                 onClick={handleDelete}
                 aria-label={
-                  isDeleteConfirm ? "Confirm delete bookmark" : "Delete bookmark"
+                  isDeleteConfirm
+                    ? "Confirm delete bookmark"
+                    : "Delete bookmark"
                 }
               >
                 <HugeiconsIcon

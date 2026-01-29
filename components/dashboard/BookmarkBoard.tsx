@@ -329,6 +329,10 @@ export function BookmarkBoard({
                   <SortableBookmarkCard
                     key={bookmark.id}
                     isSelected={clampedSelectedIndex === index}
+                    selectionMode={selectionMode}
+                    isSelectionChecked={selectedIds.has(bookmark.id)}
+                    onToggleSelection={onToggleSelection}
+                    onEnterSelectionMode={onEnterSelectionMode}
                     groupsMap={groupsMap}
                     onDelete={onDeleteBookmark}
                     onEdit={(id: string) => {
@@ -356,6 +360,10 @@ export function BookmarkBoard({
                   <SortableBookmarkIcon
                     key={bookmark.id}
                     isSelected={clampedSelectedIndex === index}
+                    selectionMode={selectionMode}
+                    isSelectionChecked={selectedIds.has(bookmark.id)}
+                    onToggleSelection={onToggleSelection}
+                    onEnterSelectionMode={onEnterSelectionMode}
                     onDelete={onDeleteBookmark}
                     onEdit={(id: string) => {
                       const target = bookmarks.find((bm) => bm.id === id);

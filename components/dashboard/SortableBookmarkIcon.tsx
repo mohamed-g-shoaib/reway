@@ -30,6 +30,10 @@ interface SortableBookmarkIconProps {
   domain: string;
   favicon?: string;
   isSelected?: boolean;
+  selectionMode?: boolean;
+  isSelectionChecked?: boolean;
+  onToggleSelection?: (id: string) => void;
+  onEnterSelectionMode?: () => void;
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
   onPreview?: (id: string) => void;
@@ -42,6 +46,10 @@ export function SortableBookmarkIcon({
   domain,
   favicon,
   isSelected,
+  selectionMode = false,
+  isSelectionChecked = false,
+  onToggleSelection,
+  onEnterSelectionMode,
   onDelete,
   onEdit,
   onPreview,
@@ -79,7 +87,6 @@ export function SortableBookmarkIcon({
     e?.stopPropagation();
     if (isDeleteConfirm) {
       onDelete?.(id);
-      toast.error("Bookmark deleted");
       setIsDeleteConfirm(false);
       return;
     }
@@ -104,20 +111,72 @@ export function SortableBookmarkIcon({
           ref={setNodeRef}
           style={style}
           {...attributes}
-          {...listeners}
+          {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
           className={`group relative flex flex-col items-center gap-3 rounded-2xl bg-muted/20 p-4 text-center ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate transition-all duration-200 ease-out hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
-            isSelected ? "ring-2 ring-primary/30" : ""
+            isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
           } ${isDragging ? "opacity-0" : ""}`}
         >
-          <div className="cursor-pointer" onClick={handleOpen}>
-            <Favicon
-              url={favicon || ""}
-              domain={domain}
-              title={title}
-              className="h-12 w-12"
-            />
-          </div>
+          {selectionMode ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleSelection?.(id);
+              }}
+              className="size-12 flex items-center justify-center rounded-2xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+              aria-label={
+                isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
+              }
+            >
+              <div
+                className={`size-5 rounded border-2 flex items-center justify-center transition-colors ${
+                  isSelectionChecked
+                    ? "bg-primary border-primary"
+                    : "border-muted-foreground/30"
+                }`}
+              >
+                {isSelectionChecked && (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="text-primary-foreground"
+                  >
+                    <path
+                      d="M10 3L4.5 8.5L2 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </div>
+            </button>
+          ) : (
+            <div
+              className="cursor-pointer"
+              onClick={(event) => {
+                if (event.shiftKey) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onEnterSelectionMode?.();
+                  onToggleSelection?.(id);
+                  return;
+                }
+                handleOpen(event);
+              }}
+            >
+              <Favicon
+                url={favicon || ""}
+                domain={domain}
+                title={title}
+                className="h-12 w-12"
+              />
+            </div>
+          )}
           <span className="text-xs font-semibold text-foreground truncate w-full">
             <span
               className="cursor-pointer transition-colors duration-200 ease-out hover:text-primary"
