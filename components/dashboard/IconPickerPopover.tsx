@@ -9,16 +9,21 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ICON_CATEGORIES } from "@/lib/hugeicons-list";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { ColorPicker } from "@/components/ui/color-picker";
 
-interface IconPickerPopoverProps {
+export interface IconPickerPopoverProps {
   selectedIcon: string;
   onIconSelect: (iconName: string) => void;
+  color?: string | null;
+  onColorChange?: (color: string) => void;
   children: React.ReactNode;
 }
 
 export function IconPickerPopover({
   selectedIcon,
   onIconSelect,
+  color,
+  onColorChange,
   children,
 }: IconPickerPopoverProps) {
   const [open, setOpen] = useState(false);
@@ -44,6 +49,21 @@ export function IconPickerPopover({
         </div>
         <ScrollArea className="h-[280px]">
           <div className="p-3 space-y-4">
+            {onColorChange ? (
+              <div className="space-y-2">
+                <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 px-1">
+                  Color Picker
+                </h5>
+                <div className="flex items-center gap-3 px-1">
+                  <ColorPicker
+                    value={color || "#6366f1"}
+                    onChange={onColorChange}
+                    aria-label="Pick group color"
+                    className="h-7 w-7 rounded-full"
+                  />
+                </div>
+              </div>
+            ) : null}
             {ICON_CATEGORIES.map((category) => (
               <div key={category.name} className="space-y-2">
                 <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50 px-1">
