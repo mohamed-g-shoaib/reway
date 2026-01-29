@@ -51,7 +51,6 @@ export function QuickGlanceDialog({
     if (isDeleteConfirm) {
       onDelete(bookmark?.id || "");
       setIsDeleteConfirm(false);
-      toast.error("Bookmark deleted");
     } else {
       setIsDeleteConfirm(true);
       setTimeout(() => setIsDeleteConfirm(false), 3000);
