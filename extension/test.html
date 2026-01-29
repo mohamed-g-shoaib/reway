@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extension Test Page</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .status {
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Extension Installation Test</h1>
+
+    <div id="status" class="status warning">Checking extension status...</div>
+
+    <h2>Installation Instructions</h2>
+    <ol>
+      <li>Open Chrome and go to chrome://extensions/</li>
+      <li>Enable "Developer mode" in the top right</li>
+      <li>Click "Load unpacked"</li>
+      <li>Select the "extension" folder from this project</li>
+      <li>Verify the extension icon appears in the browser toolbar</li>
+      <li>Click the extension icon to test the popup</li>
+    </ol>
+
+    <h2>Required Files Check</h2>
+    <div id="files-check">
+      <p>The following files should exist in the extension folder:</p>
+      <ul>
+        <li>manifest.json ✓</li>
+        <li>popup.html ✓</li>
+        <li>popup.js ✓</li>
+        <li>popup.css ✓</li>
+        <li>background.js ✓</li>
+        <li>content-script.js ✓</li>
+        <li>icons/icon16.png (required)</li>
+        <li>icons/icon48.png (required)</li>
+        <li>icons/icon128.png (required)</li>
+      </ul>
+    </div>
+
+    <script>
+      function checkExtension() {
+        const requestId = crypto.randomUUID();
+
+        const timeout = setTimeout(() => {
+          document.getElementById("status").innerHTML = `
+                    <strong>Extension not detected</strong><br>
+                    Please install the extension following the instructions above.
+                `;
+          document.getElementById("status").className = "status error";
+        }, 1000);
+
+        const onMessage = (event) => {
+          if (event?.data?.type !== "reway_extension_check_response") return;
+          if (event.data.requestId !== requestId) return;
+
+          clearTimeout(timeout);
+          window.removeEventListener("message", onMessage);
+
+          if (event.data.installed) {
+            document.getElementById("status").innerHTML = `
+                        <strong>✓ Extension detected successfully!</strong><br>
+                        The Reway extension is properly installed and responding.
+                    `;
+            document.getElementById("status").className = "status success";
+          } else {
+            document.getElementById("status").innerHTML = `
+                        <strong>Extension communication failed</strong><br>
+                        Extension may not be properly configured.
+                    `;
+            document.getElementById("status").className = "status error";
+          }
+        };
+
+        window.addEventListener("message", onMessage);
+        window.postMessage(
+          {
+            type: "reway_extension_check",
+            requestId: requestId,
+          },
+          "*",
+        );
+      }
+
+      // Check on page load
+      document.addEventListener("DOMContentLoaded", checkExtension);
+    </script>
+  </body>
+</html>
