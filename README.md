@@ -1,36 +1,268 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reway
 
-## Getting Started
+<div align="center">
+  <img src="app/opengraph-image.png" alt="Reway" width="800">
+</div>
 
-First, run the development server:
+Reway is a modern bookmark management application that provides intelligent organization, instant search, and seamless cross-device synchronization. It addresses the common problem of bookmark clutter across browsers and devices by offering a centralized, searchable repository with advanced grouping capabilities.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Problem Statement
+
+Traditional bookmark management suffers from several limitations:
+- Browser-specific storage creates silos across devices
+- Limited organization capabilities beyond basic folders
+- Poor search functionality within bookmark collections
+- No intelligent metadata enrichment or preview capabilities
+- Difficult to share or export bookmark collections systematically
+
+Reway solves these problems by providing a unified platform with enhanced organization, real-time synchronization, and intelligent content discovery.
+
+## Architecture
+
+### Core Components
+
+**Frontend Application**
+- Built with Next.js 16 using the App Router pattern
+- TypeScript for type safety and better developer experience
+- Tailwind CSS with shadcn/ui components for consistent design
+- React state management with optimistic updates for responsive UI
+
+**Backend Infrastructure**
+- Supabase as the primary database and authentication provider
+- PostgreSQL database with Row Level Security (RLS) policies
+- Real-time subscriptions using Supabase broadcast channels
+- Server-side API routes for bookmark operations and metadata enrichment
+
+**Browser Extension**
+- Chrome MV3 extension for instant bookmark capture
+- Secure token-based authentication with AES-256-GCM encryption
+- Background service worker for multi-tab operations
+- Content script integration for page metadata extraction
+
+### Database Schema
+
+The application uses three primary tables:
+
+```sql
+bookmarks
+- id, url, normalized_url, title, description
+- group_id, user_id, status, order_index
+- favicon_url, og_image_url, image_url
+- created_at, last_fetched_at
+
+groups  
+- id, name, icon, color, user_id
+- order_index, created_at
+
+api_tokens
+- id, name, token_prefix, token_hash
+- encrypted_token, user_id
+- created_at, last_used_at
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Real-time Architecture
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Reway uses Supabase broadcast triggers for scalable real-time updates:
+- User-specific private channels (`user:{userId}:bookmarks`, `user:{userId}:groups`)
+- Postgres triggers broadcast changes on INSERT/UPDATE/DELETE operations
+- Client-side subscriptions update UI instantly without page refreshes
+- Extension integration broadcasts new bookmarks to open dashboard tabs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technology Choices
 
-## Learn More
+### Frontend Stack
 
-To learn more about Next.js, take a look at the following resources:
+**Next.js 16**
+- App Router provides better file-based routing and layout patterns
+- Server components enable efficient data fetching and caching
+- Built-in optimizations for images, fonts, and performance
+- Strong TypeScript integration with excellent developer experience
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**React 19**
+- Concurrent features for better user experience
+- Improved server-side rendering capabilities
+- Enhanced developer tools and debugging support
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Tailwind CSS + shadcn/ui**
+- Utility-first CSS for rapid development
+- Consistent design system with accessible components
+- Dark mode support built into the design tokens
+- Customizable theme system matching brand requirements
 
-## Deploy on Vercel
+### Backend Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Supabase**
+- Managed PostgreSQL with automatic backups and scaling
+- Built-in authentication with social providers
+- Real-time subscriptions with broadcast channels
+- Row Level Security for secure multi-tenant data access
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**PostgreSQL**
+- Advanced indexing for fast bookmark search and filtering
+- JSON support for flexible metadata storage
+- Full-text search capabilities for content discovery
+- Strong consistency and ACID compliance
+
+### Extension Technology
+
+**Chrome MV3**
+- Modern extension API with improved security model
+- Service workers for background processing
+- Cross-origin fetch capabilities for API communication
+- Manifest V3 requirements for future Chrome compatibility
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js 18 or higher
+- pnpm package manager
+- Supabase account and project
+- Chrome browser for extension development
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/mohamed-g-shoaib/reway.git
+cd reway
+```
+
+2. Install dependencies:
+```bash
+pnpm install
+```
+
+3. Environment setup:
+```bash
+cp .env.example .env.local
+```
+
+Configure the following environment variables:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+TOKEN_ENCRYPTION_KEY=base64_encoded_32_byte_key
+```
+
+4. Database setup:
+```bash
+pnpm run db:push
+```
+
+5. Start development server:
+```bash
+pnpm run dev
+```
+
+6. Extension development:
+```bash
+# Load extension in Chrome
+# Navigate to chrome://extensions/
+# Enable Developer mode
+# Click "Load unpacked" and select the extension/ directory
+```
+
+### Project Structure
+
+```
+reway/
+├── app/                    # Next.js app router
+│   ├── api/               # API routes
+│   ├── dashboard/         # Dashboard pages
+│   └── globals.css        # Global styles
+├── components/            # React components
+│   ├── dashboard/         # Dashboard-specific components
+│   └── ui/               # Reusable UI components
+├── extension/             # Chrome extension
+│   ├── manifest.json     # Extension configuration
+│   ├── popup.html/js/css # Extension popup
+│   └── background.js     # Service worker
+├── lib/                   # Utility libraries
+│   ├── supabase/         # Database client
+│   └── tokens.ts         # Token management
+└── docs/                 # Documentation
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/signin` - User authentication
+- `POST /api/auth/signup` - User registration
+
+### Bookmarks
+- `GET /api/bookmarks` - List user bookmarks
+- `POST /api/bookmarks` - Create new bookmark
+- `PUT /api/bookmarks/[id]` - Update bookmark
+- `DELETE /api/bookmarks/[id]` - Delete bookmark
+
+### Extension API
+- `GET /api/extension/bookmarks` - Extension bookmark list
+- `POST /api/extension/bookmarks` - Extension bookmark creation
+- `GET /api/extension/groups` - Extension groups list
+
+### API Tokens
+- `GET /api/tokens` - List user tokens
+- `POST /api/tokens` - Create new token
+- `DELETE /api/tokens/[id]` - Delete token
+
+## Security Considerations
+
+### Token Management
+- API tokens use SHA-256 hashing for storage
+- Tokens are encrypted with AES-256-GCM before database storage
+- Service role key used for privileged operations
+- Token expiration and rotation capabilities
+
+### Data Protection
+- Row Level Security policies enforce user data isolation
+- HTTPS required for all API communications
+- Input validation and sanitization on all endpoints
+- SQL injection prevention through parameterized queries
+
+### Extension Security
+- Content Security Policy headers enforced
+- Minimal permissions requested in manifest
+- Secure token storage in Chrome local storage
+- Background script isolation from content scripts
+
+## Performance Optimizations
+
+### Frontend
+- React.memo and useMemo for component optimization
+- Virtual scrolling for large bookmark lists
+- Image optimization with Next.js Image component
+- Code splitting for reduced bundle size
+
+### Backend
+- Database indexes on frequently queried columns
+- Connection pooling for efficient database access
+- Caching strategies for metadata enrichment
+- Optimistic updates for responsive UI
+
+### Real-time
+- Broadcast channels instead of polling for efficiency
+- User-specific channels to reduce unnecessary traffic
+- Connection management with automatic reconnection
+- Event debouncing to prevent update storms
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make changes and commit: `git commit -m "Add feature"`
+4. Push to branch: `git push origin feature-name`
+5. Open a pull request
+
+### Development Guidelines
+
+- Follow TypeScript strict mode requirements
+- Use conventional commit messages
+- Ensure all components have proper TypeScript types
+- Write tests for new features and utilities
+- Follow the established code formatting with Prettier
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
