@@ -5,7 +5,7 @@ import { getBookmarks, getGroups } from "@/lib/supabase/queries";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata = {
-  title: "Dashboard | Reway",
+  title: "Dashboard",
   description: "Organize and search your bookmarks with Reway.",
 };
 
