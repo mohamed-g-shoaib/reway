@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import {
-  Settings,
-  Moon,
-  Sun,
-  Monitor,
-  Bell,
-  Shield,
-  Trash2,
-} from "lucide-react";
+  Settings01Icon,
+  Moon02Icon,
+  Sun01Icon,
+  ComputerIcon,
+  Notification01Icon,
+  SecurityIcon,
+  Delete02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
   DialogContent,
@@ -23,9 +24,15 @@ import { useTheme } from "next-themes";
 
 interface SettingsDialogProps {
   children: React.ReactNode;
+  rowContent: "date" | "group";
+  onRowContentChange: (value: "date" | "group") => void;
 }
 
-export function SettingsDialog({ children }: SettingsDialogProps) {
+export function SettingsDialog({
+  children,
+  rowContent,
+  onRowContentChange,
+}: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -34,14 +41,42 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-md rounded-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-lg">
+            <HugeiconsIcon icon={Settings01Icon} size={20} strokeWidth={2} />
             Settings
           </DialogTitle>
           <DialogDescription>Customize your Reway experience</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Row Content Section */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              Row Content
+            </h3>
+            <div className="flex gap-2">
+              <Button
+                variant={rowContent === "date" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => onRowContentChange("date")}
+              >
+                Date
+              </Button>
+              <Button
+                variant={rowContent === "group" ? "default" : "outline"}
+                size="sm"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => onRowContentChange("group")}
+              >
+                Group
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground px-1">
+              Choose what to display in the right column of your bookmarks.
+            </p>
+          </div>
+
           {/* Appearance Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">
@@ -51,28 +86,28 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
               <Button
                 variant={theme === "light" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => setTheme("light")}
               >
-                <Sun className="h-4 w-4" />
+                <HugeiconsIcon icon={Sun01Icon} size={16} />
                 Light
               </Button>
               <Button
                 variant={theme === "dark" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => setTheme("dark")}
               >
-                <Moon className="h-4 w-4" />
+                <HugeiconsIcon icon={Moon02Icon} size={16} />
                 Dark
               </Button>
               <Button
                 variant={theme === "system" ? "default" : "outline"}
                 size="sm"
-                className="flex-1 gap-2 rounded-xl"
+                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={() => setTheme("system")}
               >
-                <Monitor className="h-4 w-4" />
+                <HugeiconsIcon icon={ComputerIcon} size={16} />
                 System
               </Button>
             </div>
@@ -81,10 +116,10 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
           {/* Notifications Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Bell className="h-4 w-4" />
+              <HugeiconsIcon icon={Notification01Icon} size={18} />
               Notifications
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground ml-7">
               Notification settings coming soon.
             </p>
           </div>
@@ -92,10 +127,10 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
           {/* Privacy Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Shield className="h-4 w-4" />
+              <HugeiconsIcon icon={SecurityIcon} size={18} />
               Privacy & Security
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground ml-7">
               Your data is encrypted and stored securely.
             </p>
           </div>
@@ -103,20 +138,22 @@ export function SettingsDialog({ children }: SettingsDialogProps) {
           {/* Danger Zone */}
           <div className="space-y-3 pt-4 border-t">
             <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
-              <Trash2 className="h-4 w-4" />
+              <HugeiconsIcon icon={Delete02Icon} size={18} />
               Danger Zone
             </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full rounded-xl border-destructive/50 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              disabled
-            >
-              Delete Account
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              This action is irreversible. Coming soon.
-            </p>
+            <div className="ml-7 space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-4xl border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive"
+                disabled
+              >
+                Delete Account
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                This action is irreversible. Coming soon.
+              </p>
+            </div>
           </div>
         </div>
       </DialogContent>

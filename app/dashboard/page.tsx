@@ -1,34 +1,39 @@
-import { DashboardNav } from "@/components/dashboard/DashboardNav";
-import { CommandBar } from "@/components/dashboard/CommandBar";
-import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
+import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { getUser } from "./layout";
+import { getBookmarks, getGroups } from "@/lib/supabase/queries";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata = {
-  title: "Dashboard | Reway",
+  title: "Dashboard",
   description: "Organize and search your bookmarks with Reway.",
 };
 
 export default async function DashboardPage() {
-  const user = await getUser();
+  try {
+    const [user, bookmarks, groups] = await Promise.all([
+      getUser(),
+      getBookmarks(),
+      getGroups(),
+    ]);
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Navigation */}
-      <DashboardNav user={user} />
+    return (
+      <ErrorBoundary>
+        <div className="h-screen overflow-hidden bg-background text-foreground">
+          <main className="mx-auto w-full max-w-3xl px-4 py-6">
+            <DashboardContent
+              user={user}
+              initialBookmarks={bookmarks}
+              initialGroups={groups}
+            />
+          </main>
 
-      {/* Main Content - Global width container */}
-      <main className="mx-auto w-full max-w-3xl px-4 py-8 md:py-16">
-        <div className="flex flex-col gap-12">
-          {/* Search/Command Bar */}
-          <CommandBar />
-
-          {/* Bookmark List Section */}
-          <BookmarkBoard />
+          <MobileNav />
         </div>
-      </main>
-
-      <MobileNav />
-    </div>
-  );
+      </ErrorBoundary>
+    );
+  } catch (error) {
+    console.error("Failed to load dashboard:", error);
+    throw error; // Let ErrorBoundary handle it
+  }
 }

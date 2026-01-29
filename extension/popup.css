@@ -1,0 +1,561 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    "Geist",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --background: oklch(0.18 0 0);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.22 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.98 0 0);
+  --primary-foreground: oklch(0.18 0 0);
+  --secondary: oklch(0.28 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.25 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --destructive: oklch(0.55 0.22 28);
+  --border: oklch(0.28 0 0);
+  --input: oklch(0.25 0 0);
+  --ring: oklch(0.98 0 0);
+  --radius: 0.75rem;
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 360px;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.shell {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.header p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.3;
+}
+
+/* Card - Matches Dashboard */
+.card {
+  position: relative;
+  background: var(--card);
+  border-radius: var(--radius-4xl);
+  padding: 20px;
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--foreground), transparent 95%);
+  isolation: isolate;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, white, transparent 95%);
+  pointer-events: none;
+}
+
+.page-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: calc(var(--radius) + 10px);
+  background: var(--muted);
+  margin-bottom: 12px;
+  position: relative;
+  isolation: isolate;
+}
+
+.page-meta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, white, transparent 95%);
+  pointer-events: none;
+}
+
+.favicon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--foreground), transparent 95%);
+  object-fit: contain;
+}
+
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.url {
+  font-size: 12px;
+  color: color-mix(in oklab, var(--foreground), transparent 15%);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* Form Fields - Matches Dashboard Input */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.field span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  letter-spacing: 0.01em;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-family: inherit;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--input), transparent 80%);
+  border: none;
+  border-radius: var(--radius-4xl);
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--foreground), transparent 95%);
+}
+
+.field textarea {
+  height: auto;
+  min-height: 90px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
+.field input:focus,
+.field textarea:focus {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--foreground), transparent 95%),
+    0 0 0 2px color-mix(in oklab, var(--primary), transparent 70%);
+}
+
+/* Buttons - Matches Dashboard Button Component */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-4xl);
+  outline: none;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.2s ease;
+  position: relative;
+  isolation: isolate;
+}
+
+button:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.primary {
+  flex: 1;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, white, transparent 95%);
+  pointer-events: none;
+}
+
+.primary:hover {
+  background: color-mix(in oklab, var(--primary), transparent 20%);
+}
+
+.primary:active {
+  transform: scale(0.98);
+}
+
+.secondary {
+  width: 100%;
+  background: color-mix(in oklab, var(--input), transparent 80%);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--foreground), transparent 95%);
+}
+
+.secondary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, white, transparent 95%);
+  pointer-events: none;
+}
+
+.secondary:hover {
+  background: color-mix(in oklab, var(--input), transparent 60%);
+}
+
+.secondary:active {
+  transform: scale(0.98);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--muted-foreground);
+}
+
+.ghost:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.ghost:active {
+  transform: scale(0.98);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Status Messages */
+.status {
+  margin-top: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  border-radius: calc(var(--radius) + 4px);
+  background: color-mix(in oklab, var(--muted), transparent 50%);
+  text-align: center;
+  display: none;
+}
+
+.status:not(:empty) {
+  display: block;
+}
+
+.status[data-tone="error"] {
+  color: var(--destructive);
+  background: color-mix(in oklab, var(--destructive), transparent 90%);
+}
+
+/* Settings Section */
+.settings {
+  background: var(--card);
+}
+
+.settings-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.settings-header h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.settings-header p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+.link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.link:hover {
+  opacity: 0.7;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--muted-foreground), transparent 20%);
+}
+
+/* Custom Select - Matches Dashboard Radix Select */
+.select {
+  position: relative;
+}
+
+.select-trigger {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--input), transparent 80%);
+  border: none;
+  border-radius: var(--radius-4xl);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+  white-space: nowrap;
+  overflow: visible;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--foreground), transparent 95%),
+    inset 0 0 0 1px color-mix(in oklab, white, transparent 95%);
+}
+
+.select-trigger:hover {
+  background: color-mix(in oklab, var(--input), transparent 50%);
+}
+
+.select-trigger:focus,
+.select.open .select-trigger {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--foreground), transparent 90%),
+    inset 0 0 0 1px color-mix(in oklab, white, transparent 95%),
+    0 0 0 2px color-mix(in oklab, var(--primary), transparent 70%);
+}
+
+.select-trigger #group-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.6;
+  padding: 1px 0;
+}
+
+.select-chevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  transition: transform 0.15s ease;
+  display: inline-block;
+}
+
+.select-chevron::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.select.open .select-chevron {
+  transform: rotate(180deg);
+}
+
+.select-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  min-width: 100%;
+  max-height: 280px;
+  background: var(--popover);
+  border: none;
+  border-radius: calc(var(--radius) + 4px);
+  padding: 6px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  animation: slideInDown 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--foreground), transparent 95%),
+    inset 0 0 0 1px color-mix(in oklab, white, transparent 95%),
+    0 10px 38px -10px color-mix(in oklab, black, transparent 65%),
+    0 10px 20px -15px color-mix(in oklab, black, transparent 80%);
+}
+
+.select.open .select-menu {
+  display: block;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Scrollbar styling for dropdown */
+.select-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.select-menu::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.select-menu::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--foreground), transparent 85%);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.select-menu::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--foreground), transparent 75%);
+  background-clip: padding-box;
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.select-option:hover {
+  background: color-mix(in oklab, var(--muted), transparent 0%);
+  color: var(--foreground);
+}
+
+.select-option:focus-visible {
+  background: color-mix(in oklab, var(--muted), transparent 0%);
+  color: var(--foreground);
+}
+
+.select-option[data-selected="true"] {
+  background: color-mix(in oklab, var(--muted), transparent 0%);
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.select-option-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.select-option-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.6;
+  padding: 1px 0;
+}

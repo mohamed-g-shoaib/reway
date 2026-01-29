@@ -1,35 +1,122 @@
 "use client";
 
+import { useState, memo, useEffect } from "react";
+import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
-  Bookmark as BookmarkIcon,
-  Pencil,
-  Copy,
-  ExternalLink,
-  Trash2,
-  MoreVertical,
-} from "lucide-react";
+  PencilEdit01Icon,
+  Copy01Icon,
+  Tick01Icon,
+  ArrowUpRight03Icon,
+  Delete02Icon,
+  Alert02Icon,
+  GridIcon,
+  Link01Icon,
+  File02Icon,
+  MoreVerticalIcon,
+  ViewIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
-import { Bookmark as BookmarkType } from "@/types/dashboard";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Favicon } from "./Favicon";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+} from "@/components/ui/context-menu";
+import { GroupRow } from "@/lib/supabase/queries";
+import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
+import { toast } from "sonner";
 
 interface SortableBookmarkProps {
-  bookmark: BookmarkType;
+  id: string;
+  title: string;
+  url: string;
+  domain: string;
+  status: string;
+  favicon?: string;
+  description?: string;
+  createdAt: string;
+  groupId: string;
+  onDelete?: (id: string) => void;
+  groups?: GroupRow[];
+  groupsMap?: Map<string, GroupRow>;
+  isSelected?: boolean;
+  onEdit?: (
+    id: string,
+    data: {
+      title: string;
+      url: string;
+      description?: string;
+      group_id?: string;
+    },
+  ) => Promise<void>;
+  isEditing?: boolean;
+  onEditDone?: () => void;
+  onPreview?: (id: string) => void;
+  rowContent?: "date" | "group";
+  selectionMode?: boolean;
+  isSelectionChecked?: boolean;
+  onToggleSelection?: (id: string) => void;
+  onEnterSelectionMode?: () => void;
 }
 
-export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
+export const SortableBookmark = memo(function SortableBookmark({
+  id,
+  title,
+  url,
+  domain,
+  status,
+  favicon,
+  description,
+  createdAt,
+  groupId,
+  onDelete,
+  groupsMap,
+  isSelected,
+  onEdit,
+  groups = [],
+  isEditing: forceEditing,
+  onEditDone,
+  onPreview,
+  rowContent = "date",
+  selectionMode = false,
+  isSelectionChecked = false,
+  onToggleSelection,
+  onEnterSelectionMode,
+}: SortableBookmarkProps) {
+  const [isCopied, setIsCopied] = useState(false);
+  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(title || "");
+  const [editUrl, setEditUrl] = useState(url);
+  const [editDescription, setEditDescription] = useState("");
+  const [editGroupId, setEditGroupId] = useState(groupId || "no-group");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (forceEditing) {
+      setIsEditing(true);
+      setEditTitle(title || "");
+      setEditUrl(url);
+      setEditDescription(description || "");
+      setEditGroupId(groupId || "no-group");
+    }
+  }, [forceEditing, title, url, description, groupId]);
+
   const {
     attributes,
     listeners,
@@ -37,179 +124,636 @@ export function SortableBookmark({ bookmark }: SortableBookmarkProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: bookmark.id });
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
+    opacity: isDragging ? 0 : 1,
   };
+
+  const dragStyle = isDragging
+    ? "z-50 bg-background ring-1 ring-primary/20"
+    : isSelected
+      ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
+      : "";
 
   const openInNewTab = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(`https://${bookmark.domain}`, "_blank");
+    window.open(url, "_blank");
   };
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`group relative flex items-center justify-between rounded-2xl px-4 py-4 transition-all duration-200 hover:bg-muted/50 active:scale-[0.99] cursor-grab active:cursor-grabbing ${
-        isDragging
-          ? "z-50 shadow-2xl bg-background border border-primary/20 scale-[1.02]"
-          : ""
-      }`}
-    >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        {/* Favicon Container */}
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border bg-background shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-          onClick={openInNewTab}
-        >
-          {bookmark.favicon ? (
-            <img
-              src={bookmark.favicon}
-              alt=""
-              className="h-6 w-6 rounded-sm object-contain"
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(url);
+      setIsCopied(true);
+      toast.success("URL copied to clipboard");
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error("Failed to copy URL");
+    }
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isDeleteConfirm) {
+      // Second click - Actually delete
+      onDelete?.(id);
+      setIsDeleteConfirm(false);
+    } else {
+      // First click - Show warning
+      setIsDeleteConfirm(true);
+      // Reset after 3 seconds if not clicked again
+      setTimeout(() => setIsDeleteConfirm(false), 3000);
+    }
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsEditing(true);
+    setEditTitle(title || "");
+    setEditUrl(url);
+    setEditDescription(description || "");
+    setEditGroupId(groupId || "no-group");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditTitle(title || "");
+    setEditUrl(url);
+    setEditDescription("");
+    setEditGroupId(groupId || "no-group");
+    onEditDone?.();
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editTitle.trim() || !editUrl.trim() || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      await onEdit?.(id, {
+        title: editTitle.trim(),
+        url: editUrl.trim(),
+        description: editDescription.trim() || undefined,
+        group_id: editGroupId === "no-group" ? undefined : editGroupId,
+      });
+      setIsEditing(false);
+      onEditDone?.();
+    } catch (error) {
+      console.error("Failed to save bookmark:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Inline Edit Mode
+  if (isEditing) {
+    return (
+      <div
+        ref={setNodeRef}
+        className={`group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3 ${
+          isDragging ? "opacity-0" : "opacity-100"
+        }`}
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition,
+        }}
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col gap-2.5">
+          {/* Main Info Row: Icon/Group & Title */}
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                >
+                  {editGroupId === "no-group" ? (
+                    <HugeiconsIcon
+                      icon={GridIcon}
+                      size={16}
+                      className="text-muted-foreground/50"
+                    />
+                  ) : (
+                    (() => {
+                      const group = groupsMap?.get(editGroupId);
+                      const Icon =
+                        group?.icon && ALL_ICONS_MAP[group.icon]
+                          ? ALL_ICONS_MAP[group.icon]
+                          : GridIcon;
+                      return (
+                        <HugeiconsIcon
+                          icon={Icon}
+                          size={16}
+                          className="text-primary"
+                        />
+                      );
+                    })()
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
+              >
+                <DropdownMenuItem
+                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""}`}
+                  onClick={() => setEditGroupId("no-group")}
+                >
+                  <HugeiconsIcon icon={GridIcon} size={14} />
+                  No Group
+                </DropdownMenuItem>
+                {groups.length > 0 ? (
+                  <>
+                    <DropdownMenuSeparator className="my-1" />
+                    <div className="max-h-60 overflow-y-auto">
+                      {groups.map((group) => {
+                        const Icon =
+                          group.icon && ALL_ICONS_MAP[group.icon]
+                            ? ALL_ICONS_MAP[group.icon]
+                            : GridIcon;
+                        return (
+                          <DropdownMenuItem
+                            key={group.id}
+                            className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === group.id ? "bg-primary/5 text-primary font-bold" : ""}`}
+                            onClick={() => setEditGroupId(group.id)}
+                          >
+                            <HugeiconsIcon icon={Icon} size={14} />
+                            <span className="truncate">{group.name}</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Title"
+              className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-sm font-bold focus-visible:ring-primary/20"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSaveEdit();
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  handleCancelEdit();
+                }
+              }}
             />
-          ) : (
-            <BookmarkIcon className="h-5 w-5 text-muted-foreground/60" />
-          )}
+          </div>
+
+          {/* URL Row */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/30 border border-dashed border-border/50">
+              <HugeiconsIcon
+                icon={Link01Icon}
+                size={14}
+                className="text-muted-foreground/30"
+              />
+            </div>
+            <Input
+              value={editUrl}
+              onChange={(e) => setEditUrl(e.target.value)}
+              placeholder="URL"
+              className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-xs font-medium text-muted-foreground focus-visible:ring-primary/20"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleSaveEdit();
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  handleCancelEdit();
+                }
+              }}
+            />
+          </div>
+
+          {/* Description Row */}
+          <div className="flex gap-2">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/30 border border-dashed border-border/50">
+              <HugeiconsIcon
+                icon={File02Icon}
+                size={14}
+                className="text-muted-foreground/30"
+              />
+            </div>
+            <Textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Description (Optional)"
+              className="flex-1 bg-background/50 border-border/50 rounded-xl text-xs py-2 min-h-15 resize-none focus-visible:ring-primary/20"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSaveEdit();
+                } else if (e.key === "Escape") {
+                  e.preventDefault();
+                  handleCancelEdit();
+                }
+              }}
+            />
+          </div>
         </div>
 
-        {/* Text Content */}
-        <div className="flex min-w-0 flex-col gap-0.5 w-fit">
-          <span
-            className="w-fit max-w-full truncate text-sm font-bold text-foreground md:text-base group-hover:text-primary transition-colors cursor-pointer"
-            onClick={openInNewTab}
+        {/* Actions Row */}
+        <div className="flex justify-end gap-2 pt-1">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="h-8 px-3 text-xs rounded-4xl font-bold"
+            onClick={handleCancelEdit}
           >
-            {bookmark.title}
-          </span>
-          <span
-            className="w-fit text-xs font-medium text-muted-foreground/70 cursor-pointer"
-            onClick={openInNewTab}
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            className="h-8 px-4 text-xs font-bold rounded-4xl"
+            onClick={handleSaveEdit}
+            disabled={!editTitle.trim() || !editUrl.trim() || isSaving}
           >
-            {bookmark.domain}
-          </span>
+            {isSaving ? "Saving..." : "Save Changes"}
+          </Button>
         </div>
       </div>
+    );
+  }
 
-      {/* Actions / Date Container */}
-      <div className="flex shrink-0 items-center min-w-25 justify-end">
-        {/* Desktop Date: Hidden on hover if not mobile */}
-        <span className="text-sm font-medium text-muted-foreground/50 group-hover:hidden transition-all tabular-nums md:block">
-          {bookmark.createdAt}
-        </span>
-
-        {/* Desktop Action Buttons: Visible only on hover and on desktop */}
+  // Normal Bookmark View
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
         <div
-          className="hidden items-center gap-1 md:group-hover:flex animate-in fade-in-0 slide-in-from-right-2 duration-200 cursor-default"
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
+          ref={setNodeRef}
+          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ease-out ${
+            status === "pending"
+              ? "opacity-60"
+              : selectionMode
+                ? "hover:bg-muted/50 cursor-pointer"
+                : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
+          } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
+          style={{
+            transform: CSS.Transform.toString(transform),
+            transition,
+          }}
+          {...attributes}
+          {...(selectionMode ? {} : listeners)}
+          data-slot="bookmark-card"
+          role="button"
+          tabIndex={status === "pending" ? -1 : 0}
+          aria-roledescription="Draggable bookmark"
         >
-          <TooltipProvider delayDuration={400}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            {/* Favicon/Checkbox Container */}
+            {selectionMode ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSelection?.(id);
+                }}
+                className="size-9 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                aria-label={
+                  isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
+                }
+              >
+                <div
+                  className={`size-4 rounded border-2 flex items-center justify-center transition-colors ${
+                    isSelectionChecked
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground/30"
+                  }`}
                 >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Edit
-              </TooltipContent>
-            </Tooltip>
+                  {isSelectionChecked && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      className="text-primary-foreground"
+                    >
+                      <path
+                        d="M10 3L4.5 8.5L2 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            ) : (
+              <div
+                onClick={(e) => {
+                  if (e.shiftKey) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEnterSelectionMode?.();
+                    onToggleSelection?.(id);
+                  } else {
+                    openInNewTab(e);
+                  }
+                }}
+                className="cursor-pointer"
+              >
+                <Favicon
+                  url={favicon || ""}
+                  domain={domain || ""}
+                  title={title || ""}
+                  isEnriching={status === "pending"}
+                />
+              </div>
+            )}
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Copy Link
-              </TooltipContent>
-            </Tooltip>
+            {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-8 md:pr-36">
+              <div className="w-fit max-w-full">
+                {status === "pending" ? (
+                  <TextShimmer
+                    as="span"
+                    className="block truncate text-sm font-semibold"
+                    duration={2.5}
+                  >
+                    {title || "Loading..."}
+                  </TextShimmer>
+                ) : (
+                  <span
+                    className="block truncate text-sm font-semibold transition-colors cursor-pointer text-foreground group-hover:text-primary"
+                    onClick={openInNewTab}
+                  >
+                    {title}
+                  </span>
+                )}
+              </div>
+              <div className="w-fit max-w-full h-4">
+                {status === "pending" ? (
+                  <TextShimmer
+                    as="span"
+                    className="block truncate text-xs font-medium"
+                    duration={2.5}
+                    delay={0.2}
+                  >
+                    Fetching details...
+                  </TextShimmer>
+                ) : (
+                  <span
+                    className="block truncate text-xs font-medium cursor-pointer transition-colors text-muted-foreground/70 group-hover:text-muted-foreground"
+                    onClick={openInNewTab}
+                  >
+                    {domain}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary hover:shadow-sm cursor-pointer"
-                  onClick={openInNewTab}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-foreground text-background font-medium">
-                Open
-              </TooltipContent>
-            </Tooltip>
+          {/* Actions / Date Container */}
+          <div className="relative flex shrink-0 items-center min-w-0 md:min-w-25 justify-end">
+            {/* Desktop Date: Fades out on hover if not mobile */}
+            {status === "pending" ? (
+              <TextShimmer
+                as="span"
+                className="text-sm font-medium tabular-nums"
+                duration={2.5}
+                delay={0.4}
+              >
+                Enriching...
+              </TextShimmer>
+            ) : (
+              <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
+                {rowContent === "group"
+                  ? (() => {
+                      if (groupId === "all" || !groupsMap || !groupId)
+                        return "No Group";
+                      const group = groupsMap.get(groupId);
+                      return group?.name || "No Group";
+                    })()
+                  : createdAt}
+              </span>
+            )}
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive hover:shadow-sm cursor-pointer"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg bg-destructive text-destructive-foreground font-medium [&_svg]:fill-destructive [&_svg]:bg-destructive">
-                Delete
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-
-        {/* Mobile Action Menu */}
-        <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl hover:bg-muted/50 cursor-pointer"
+            {/* Desktop Action Buttons: Visible only on hover and on desktop */}
+            {status !== "pending" && !selectionMode ? (
+              <div
+                className="absolute right-0 flex items-center gap-1 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 ease-out cursor-default"
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
               >
-                <MoreVertical className="h-4 w-4 text-muted-foreground/60" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-40 rounded-2xl p-2 shadow-2xl ring-1 ring-black/5"
-            >
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                <Pencil className="h-4 w-4" /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5">
-                <Copy className="h-4 w-4" /> Copy Link
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-                onClick={openInNewTab}
-              >
-                <ExternalLink className="h-4 w-4" /> Open
-              </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive font-medium">
-                <Trash2 className="h-4 w-4" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={handleEdit}
+                  aria-label="Edit bookmark"
+                >
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={handleCopyLink}
+                  aria-label={isCopied ? "URL copied" : "Copy link"}
+                >
+                  <div
+                    className="transition-transform duration-200 ease-in-out"
+                    key={isCopied ? "tick" : "copy"}
+                  >
+                    <HugeiconsIcon
+                      icon={isCopied ? Tick01Icon : Copy01Icon}
+                      size={16}
+                      className={isCopied ? "text-green-500" : ""}
+                    />
+                  </div>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={openInNewTab}
+                  aria-label="Open link in new tab"
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-9 w-9 rounded-xl transition-all duration-200 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
+                    isDeleteConfirm
+                      ? "bg-destructive/10 hover:bg-destructive/20"
+                      : "hover:bg-destructive/10"
+                  }`}
+                  onClick={handleDelete}
+                  aria-label={
+                    isDeleteConfirm
+                      ? "Click again to confirm delete"
+                      : "Delete bookmark"
+                  }
+                >
+                  <div
+                    className="transition-transform duration-200 ease-in-out"
+                    key={isDeleteConfirm ? "alert" : "delete"}
+                  >
+                    <HugeiconsIcon
+                      icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                      size={16}
+                    />
+                  </div>
+                </Button>
+              </div>
+            ) : null}
+
+            {/* Mobile Action Menu */}
+            {status !== "pending" ? (
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 -mr-3 rounded-xl hover:bg-muted/50 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <HugeiconsIcon
+                        icon={MoreVerticalIcon}
+                        size={16}
+                        className="text-muted-foreground/60"
+                      />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-40 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
+                  >
+                    <DropdownMenuItem
+                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                      onClick={handleEdit}
+                    >
+                      <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                      onClick={handleCopyLink}
+                    >
+                      <HugeiconsIcon
+                        icon={isCopied ? Tick01Icon : Copy01Icon}
+                        size={16}
+                        className={isCopied ? "text-green-500" : ""}
+                      />
+                      {isCopied ? "Copied!" : "Copy Link"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+                      onClick={openInNewTab}
+                    >
+                      <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className={`rounded-xl flex items-center gap-2 cursor-pointer font-medium ${
+                        isDeleteConfirm
+                          ? "text-destructive bg-destructive/5 focus:bg-destructive/10 focus:text-destructive"
+                          : "text-destructive focus:bg-destructive/5 focus:text-destructive"
+                      }`}
+                      onClick={handleDelete}
+                    >
+                      <HugeiconsIcon
+                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                        size={16}
+                      />
+                      {isDeleteConfirm ? "Click to Confirm" : "Delete"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : null}
+          </div>
         </div>
-      </div>
-    </div>
+      </ContextMenuTrigger>
+
+      <ContextMenuContent className="w-56 rounded-2xl p-1.5">
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onClick={openInNewTab}
+        >
+          <HugeiconsIcon
+            icon={ArrowUpRight03Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Open in New Tab</span>
+          <ContextMenuShortcut>⏎</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onClick={() => onPreview?.(id)}
+        >
+          <HugeiconsIcon
+            icon={ViewIcon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Quick Glance</span>
+          <ContextMenuShortcut>Space</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onSelect={(e) => {
+            e.preventDefault();
+            handleCopyLink(e as unknown as React.MouseEvent);
+          }}
+        >
+          <HugeiconsIcon
+            icon={Copy01Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Copy Link</span>
+          <ContextMenuShortcut>C</ContextMenuShortcut>
+        </ContextMenuItem>
+
+        <ContextMenuSeparator />
+
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onSelect={(e) => {
+            e.preventDefault();
+            handleEdit(e as unknown as React.MouseEvent);
+          }}
+        >
+          <HugeiconsIcon
+            icon={PencilEdit01Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Edit Bookmark</span>
+          <ContextMenuShortcut>E</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem
+          variant="destructive"
+          className="rounded-xl flex items-center gap-2.5 py-2"
+          onSelect={(e) => {
+            e.preventDefault();
+            handleDelete(e as unknown as React.MouseEvent);
+          }}
+        >
+          <HugeiconsIcon icon={Delete02Icon} size={16} />
+          <span>{isDeleteConfirm ? "Click again to delete" : "Delete"}</span>
+          <ContextMenuShortcut>⌫</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
-}
+});

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reway</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="shell" style="opacity: 0; transition: opacity 0.15s">
+      <header class="header">
+        <div class="logo">
+          <img src="icons/icon48.png" alt="Reway" />
+        </div>
+        <div>
+          <h1>Save to Reway</h1>
+          <p>Capture this page instantly</p>
+        </div>
+      </header>
+
+      <section id="auth-section" class="card settings" style="display: none">
+        <div class="settings-header">
+          <div>
+            <h2>Connect to Reway</h2>
+            <p>Enter your access token to get started.</p>
+          </div>
+          <a id="dashboard-link" href="#" class="link">Open dashboard</a>
+        </div>
+
+        <label class="field">
+          <span>Base URL</span>
+          <input
+            id="base-url"
+            type="text"
+            placeholder="http://localhost:3000"
+          />
+        </label>
+
+        <label class="field">
+          <span>Access token</span>
+          <input id="token" type="password" placeholder="Paste token" />
+        </label>
+
+        <button id="save-settings" class="secondary">Connect</button>
+        <p class="hint">
+          Generate tokens from your dashboard: Avatar menu → Manage Access
+          Tokens.
+        </p>
+      </section>
+
+      <section id="main-section" class="card" style="display: none">
+        <div class="page-meta">
+          <img id="favicon" class="favicon" alt="" />
+          <div>
+            <div class="label">Current page</div>
+            <div id="page-url" class="url"></div>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Title</span>
+          <input id="title" type="text" placeholder="Page title" />
+        </label>
+
+        <label class="field">
+          <span>Description</span>
+          <textarea
+            id="description"
+            rows="4"
+            placeholder="Short summary"
+          ></textarea>
+        </label>
+
+        <label class="field">
+          <span>Group</span>
+          <div class="select" id="group-select">
+            <button id="group-trigger" class="select-trigger" type="button">
+              <span id="group-label">No group</span>
+              <span class="select-chevron" aria-hidden="true"></span>
+            </button>
+            <div id="group-menu" class="select-menu" role="listbox"></div>
+          </div>
+        </label>
+
+        <div class="actions">
+          <button id="save" class="primary">Save bookmark</button>
+        </div>
+
+        <div id="status" class="status"></div>
+      </section>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

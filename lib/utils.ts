@@ -8,3 +8,11 @@ export function cn(...inputs: ClassValue[]) {
 export const hasEnvVars =
   process.env.NEXT_PUBLIC_SUPABASE_URL !== undefined &&
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY !== undefined;
+
+export function getDomain(url: string) {
+  try {
+    return new URL(url).hostname.replace("www.", "");
+  } catch {
+    return "link";
+  }
+}

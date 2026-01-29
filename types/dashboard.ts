@@ -1,8 +1,14 @@
 export interface Bookmark {
   id: string;
   title: string;
+  url: string;
   domain: string;
   favicon?: string;
+  image_url?: string;
+  og_image_url?: string;
+  status: string;
+  error_reason?: string;
+  description?: string;
   createdAt: string;
   groupId: string;
 }
