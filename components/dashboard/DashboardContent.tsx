@@ -8,6 +8,12 @@ import { DashboardNav, type User } from "@/components/dashboard/DashboardNav";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { useIsMac } from "@/hooks/useIsMac";
 import { toast } from "sonner";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowUpRight03Icon, GridIcon } from "@hugeicons/core-free-icons";
+import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
+import { createClient } from "@/lib/supabase/client";
+
+const EXTENSION_STORE_URL = "https://example.com/reway-extension";
 
 interface DashboardContentProps {
   user: User;
@@ -18,6 +24,7 @@ interface DashboardContentProps {
 import {
   updateBookmarksOrder,
   deleteBookmark as deleteAction,
+  restoreBookmark as restoreAction,
   updateBookmark as updateBookmarkAction,
   updateGroup as updateGroupAction,
   deleteGroup as deleteGroupAction,
@@ -35,21 +42,123 @@ export function DashboardContent({
   const [viewMode, setViewMode] = useState<"list" | "card" | "icon">("list");
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [commandMode, setCommandMode] = useState<"add" | "search">("add");
   const isMac = useIsMac();
+  const deferredSearchQuery = React.useDeferredValue(searchQuery);
   const letterCycleRef = React.useRef<Record<string, number>>({});
+  const lastDeletedRef = React.useRef<{
+    bookmark: BookmarkRow;
+    index: number;
+  } | null>(null);
+  const lastBulkDeletedRef = React.useRef<
+    { bookmark: BookmarkRow; index: number }[]
+  >([]);
 
-  // Sync state with server props when they change (e.g. after revalidatePath)
-  // Use useCallback to prevent unnecessary re-renders
-  const syncBookmarks = React.useCallback(() => {
-    setBookmarks(initialBookmarks);
-  }, [initialBookmarks]);
+  const sortBookmarks = useCallback((items: BookmarkRow[]) => {
+    return [...items].sort((a, b) => {
+      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
+      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+  }, []);
 
-  const syncGroups = React.useCallback(() => {
-    setGroups(initialGroups);
-  }, [initialGroups]);
+  const sortGroups = useCallback((items: GroupRow[]) => {
+    return [...items].sort((a, b) => {
+      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
+      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
+      return aOrder - bOrder;
+    });
+  }, []);
 
-  React.useEffect(syncBookmarks, [syncBookmarks]);
-  React.useEffect(syncGroups, [syncGroups]);
+  // Sync state with server props on mount only
+  // Store initial data in ref to avoid re-renders on prop changes
+  const hasInitialized = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!hasInitialized.current) {
+      setBookmarks(initialBookmarks);
+      setGroups(initialGroups);
+      hasInitialized.current = true;
+    }
+  }, [initialBookmarks, initialGroups]);
+
+  React.useEffect(() => {
+    const supabase = createClient();
+    supabase.realtime.setAuth();
+
+    const bookmarksChannel = supabase
+      .channel(`user:${user.id}:bookmarks`, { config: { private: true } })
+      .on("broadcast", { event: "INSERT" }, (payload) => {
+        const nextRow = payload.payload as BookmarkRow | undefined;
+        if (!nextRow) return;
+        setBookmarks((prev) => sortBookmarks([nextRow, ...prev]));
+      })
+      .on("broadcast", { event: "UPDATE" }, (payload) => {
+        const nextRow = payload.payload as BookmarkRow | undefined;
+        if (!nextRow) return;
+        setBookmarks((prev) =>
+          sortBookmarks(
+            prev.map((item) => (item.id === nextRow.id ? nextRow : item)),
+          ),
+        );
+      })
+      .on("broadcast", { event: "DELETE" }, (payload) => {
+        const oldRow = payload.payload as BookmarkRow | undefined;
+        if (!oldRow) return;
+        setBookmarks((prev) => prev.filter((item) => item.id !== oldRow.id));
+      })
+      .subscribe();
+
+    const groupsChannel = supabase
+      .channel(`user:${user.id}:groups`, { config: { private: true } })
+      .on("broadcast", { event: "INSERT" }, (payload) => {
+        const nextRow = payload.payload as GroupRow | undefined;
+        if (!nextRow) return;
+        setGroups((prev) => sortGroups([nextRow, ...prev]));
+      })
+      .on("broadcast", { event: "UPDATE" }, (payload) => {
+        const nextRow = payload.payload as GroupRow | undefined;
+        if (!nextRow) return;
+        setGroups((prev) =>
+          sortGroups(
+            prev.map((item) => (item.id === nextRow.id ? nextRow : item)),
+          ),
+        );
+      })
+      .on("broadcast", { event: "DELETE" }, (payload) => {
+        const oldRow = payload.payload as GroupRow | undefined;
+        if (!oldRow) return;
+        setGroups((prev) => prev.filter((item) => item.id !== oldRow.id));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(bookmarksChannel);
+      supabase.removeChannel(groupsChannel);
+    };
+  }, [sortBookmarks, sortGroups, user.id]);
+
+  React.useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event?.data?.type !== "reway_broadcast_bookmark") return;
+      const bookmark = event.data.bookmark as BookmarkRow | undefined;
+      if (!bookmark?.id) return;
+      setBookmarks((prev) => {
+        if (prev.some((item) => item.id === bookmark.id)) {
+          return prev.map((item) => (item.id === bookmark.id ? bookmark : item));
+        }
+        return sortBookmarks([bookmark, ...prev]);
+      });
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [sortBookmarks]);
 
   const addOptimisticBookmark = useCallback(
     (bookmark: BookmarkRow) => {
@@ -64,18 +173,59 @@ export function DashboardContent({
   );
 
   const handleDeleteBookmark = useCallback(async (id: string) => {
-    // Optimistic delete
-    setBookmarks((prev) => prev.filter((b) => b.id !== id));
+    let deletedBookmark: BookmarkRow | undefined;
+    let deletedIndex = -1;
+
+    setBookmarks((prev) => {
+      deletedIndex = prev.findIndex((b) => b.id === id);
+      deletedBookmark = prev[deletedIndex];
+      if (deletedBookmark) {
+        lastDeletedRef.current = {
+          bookmark: deletedBookmark,
+          index: deletedIndex,
+        };
+      }
+      return prev.filter((b) => b.id !== id);
+    });
+
+    if (deletedBookmark) {
+      toast.error("Bookmark deleted", {
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            const lastDeleted = lastDeletedRef.current;
+            if (!lastDeleted) return;
+            setBookmarks((prev) => {
+              if (prev.some((b) => b.id === lastDeleted.bookmark.id)) {
+                return prev;
+              }
+              const next = [...prev];
+              next.splice(
+                Math.min(lastDeleted.index, next.length),
+                0,
+                lastDeleted.bookmark,
+              );
+              return next;
+            });
+            try {
+              await restoreAction(lastDeleted.bookmark);
+            } catch (error) {
+              console.error("Restore failed:", error);
+              toast.error("Failed to restore bookmark");
+            }
+          },
+        },
+      });
+    }
+
     try {
       await deleteAction(id);
     } catch (error) {
       console.error("Delete failed:", error);
-      // Restore bookmark if delete failed
       setBookmarks((prev) => {
-        const deletedBookmark = initialBookmarks.find((b) => b.id === id);
-        return deletedBookmark ? [...prev, deletedBookmark] : prev;
+        const deletedFromInitial = initialBookmarks.find((b) => b.id === id);
+        return deletedFromInitial ? [...prev, deletedFromInitial] : prev;
       });
-      // Show error to user
       toast.error("Failed to delete bookmark");
     }
   }, []);
@@ -111,10 +261,19 @@ export function DashboardContent({
 
   // Filter bookmarks based on active group - memoized to prevent unnecessary re-renders
   const filteredBookmarks = useMemo(() => {
-    return bookmarks.filter((b) =>
-      activeGroupId === "all" ? true : b.group_id === activeGroupId,
-    );
-  }, [bookmarks, activeGroupId]);
+    const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
+    return bookmarks.filter((b) => {
+      const matchesGroup =
+        activeGroupId === "all" ? true : b.group_id === activeGroupId;
+      if (!matchesGroup) return false;
+      if (!normalizedQuery) return true;
+      const haystack = [b.title, b.url, b.description]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [bookmarks, activeGroupId, deferredSearchQuery]);
 
   const groupsByFirstLetter = useMemo(() => {
     const map: Record<string, string[]> = {};
@@ -157,14 +316,14 @@ export function DashboardContent({
   }, [groups]);
 
   const handleGroupCreated = useCallback(
-    (id: string, name: string, icon: string) => {
+    (id: string, name: string, icon: string, color?: string | null) => {
       const newGroup: GroupRow = {
         id,
         name,
         icon,
         user_id: user.id,
         created_at: new Date().toISOString(),
-        color: null,
+        color: color ?? null,
         order_index: null,
       };
       setGroups((prev) => [...prev, newGroup]);
@@ -174,13 +333,15 @@ export function DashboardContent({
   );
 
   const handleUpdateGroup = useCallback(
-    async (id: string, name: string, icon: string) => {
+    async (id: string, name: string, icon: string, color?: string | null) => {
       // Optimistic update
       setGroups((prev) =>
-        prev.map((g) => (g.id === id ? { ...g, name, icon } : g)),
+        prev.map((g) =>
+          g.id === id ? { ...g, name, icon, color: color ?? null } : g,
+        ),
       );
       try {
-        await updateGroupAction(id, { name, icon });
+        await updateGroupAction(id, { name, icon, color: color ?? null });
       } catch (error) {
         console.error("Update group failed:", error);
         toast.error("Failed to update group");
@@ -285,31 +446,166 @@ export function DashboardContent({
     });
   }, []);
 
+  React.useEffect(() => {
+    if (!bulkDeleteConfirm) return;
+    const timeout = window.setTimeout(() => {
+      setBulkDeleteConfirm(false);
+    }, 3000);
+    return () => window.clearTimeout(timeout);
+  }, [bulkDeleteConfirm]);
+
+  const handleOpenSelected = useCallback(() => {
+    if (selectedIds.size === 0) return;
+    const selectedBookmarks = bookmarks.filter((b) => selectedIds.has(b.id));
+    selectedBookmarks.forEach((bookmark) => {
+      window.open(bookmark.url, "_blank", "noopener,noreferrer");
+    });
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  }, [bookmarks, selectedIds]);
+
+  const handleOpenGroup = useCallback(
+    async (groupId: string) => {
+      const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
+      const targetBookmarks = bookmarks.filter((bookmark) => {
+        const matchesGroup =
+          groupId === "all" ? true : bookmark.group_id === groupId;
+        if (!matchesGroup) return false;
+        if (!normalizedQuery) return true;
+        const haystack = [bookmark.title, bookmark.url, bookmark.description]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return haystack.includes(normalizedQuery);
+      });
+
+      if (targetBookmarks.length === 0) return;
+      const urls = targetBookmarks.map((bookmark) => bookmark.url).filter(Boolean);
+
+      const requestId = crypto.randomUUID();
+      const response = await new Promise<{
+        ok: boolean;
+        count?: number;
+        error?: string;
+      } | null>((resolve) => {
+        const timer = window.setTimeout(() => {
+          window.removeEventListener("message", onMessage);
+          resolve(null);
+        }, 250);
+
+        const onMessage = (event: MessageEvent) => {
+          if (event?.data?.type !== "reway_open_group_response") return;
+          if (event.data.requestId !== requestId) return;
+          window.clearTimeout(timer);
+          window.removeEventListener("message", onMessage);
+          resolve(event.data.response ?? null);
+        };
+
+        window.addEventListener("message", onMessage);
+        window.postMessage(
+          { type: "reway_open_group", requestId, groupId, urls },
+          "*",
+        );
+      });
+
+      if (response?.ok) {
+        toast.success(
+          `Opened ${response.count ?? targetBookmarks.length} tabs via extension`,
+        );
+        return;
+      }
+
+      if (targetBookmarks.length > 1) {
+        targetBookmarks.forEach((bookmark, index) => {
+          if (index === 0) {
+            window.open(bookmark.url, "_blank", "noopener,noreferrer");
+          } else {
+            setTimeout(() => {
+              window.open(bookmark.url, "_blank", "noopener,noreferrer");
+            }, index * 100);
+          }
+        });
+      } else {
+        window.open(targetBookmarks[0].url, "_blank", "noopener,noreferrer");
+      }
+
+      toast.error("Install the Reway extension for instant open-all", {
+        action: {
+          label: "Get extension",
+          onClick: () => window.open(EXTENSION_STORE_URL, "_blank"),
+        },
+      });
+    },
+    [bookmarks, deferredSearchQuery],
+  );
+
   const handleBulkDelete = useCallback(async () => {
+    if (!bulkDeleteConfirm) {
+      setBulkDeleteConfirm(true);
+      return;
+    }
+
     const idsToDelete = Array.from(selectedIds);
     if (idsToDelete.length === 0) return;
+
+    const deletedBookmarks = bookmarks
+      .map((bookmark, index) => ({ bookmark, index }))
+      .filter(({ bookmark }) => selectedIds.has(bookmark.id));
+
+    lastBulkDeletedRef.current = deletedBookmarks;
 
     // Optimistic delete
     setBookmarks((prev) => prev.filter((b) => !selectedIds.has(b.id)));
     setSelectionMode(false);
     setSelectedIds(new Set());
+    setBulkDeleteConfirm(false);
 
     try {
       await Promise.all(idsToDelete.map((id) => deleteAction(id)));
-      toast.success(
-        `Deleted ${idsToDelete.length} bookmark${idsToDelete.length > 1 ? "s" : ""}`,
-      );
+      toast.error(`Bookmark${idsToDelete.length > 1 ? "s" : ""} deleted`, {
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            const toRestore = lastBulkDeletedRef.current;
+            if (toRestore.length === 0) return;
+            setBookmarks((prev) => {
+              const next = [...prev];
+              const sorted = [...toRestore].sort((a, b) => a.index - b.index);
+              sorted.forEach(({ bookmark, index }) => {
+                if (next.some((b) => b.id === bookmark.id)) return;
+                next.splice(Math.min(index, next.length), 0, bookmark);
+              });
+              return next;
+            });
+            try {
+              await Promise.all(
+                toRestore.map(({ bookmark }) => restoreAction(bookmark)),
+              );
+            } catch (error) {
+              console.error("Restore failed:", error);
+              toast.error("Failed to restore bookmarks");
+            }
+          },
+        },
+      });
     } catch (error) {
       console.error("Bulk delete failed:", error);
       toast.error("Failed to delete some bookmarks");
       // Restore bookmarks
       setBookmarks(initialBookmarks);
     }
-  }, [selectedIds, initialBookmarks]);
+  }, [bulkDeleteConfirm, selectedIds, bookmarks, initialBookmarks]);
 
   const handleCancelSelection = useCallback(() => {
     setSelectionMode(false);
     setSelectedIds(new Set());
+  }, []);
+
+  const handleCommandModeChange = useCallback((mode: "add" | "search") => {
+    setCommandMode(mode);
+    if (mode === "add") {
+      setSearchQuery("");
+    }
   }, []);
 
   // Calculate bookmark counts per group (O(N) single-pass)
@@ -323,13 +619,13 @@ export function DashboardContent({
     return counts;
   }, [bookmarks]);
 
-  // Keyboard shortcut: Ctrl/Cmd + Letter to quickly navigate to groups
+  // Keyboard shortcut: Shift + Letter to quickly navigate to groups
   // Pressing the same letter multiple times cycles through groups starting with that letter
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Only trigger with Ctrl/Cmd + single letter (no Alt or Shift modifiers)
-      if (!event.ctrlKey && !event.metaKey) return;
-      if (event.altKey || event.shiftKey) return;
+      // Only trigger with Shift + single letter (no Ctrl/Cmd/Alt modifiers)
+      if (!event.shiftKey) return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key.length !== 1) return;
 
       // Don't interfere when user is typing in input fields
@@ -365,51 +661,94 @@ export function DashboardContent({
           <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
             <KbdGroup className="gap-0.5">
               <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
-                {isMac ? "⌘" : "Ctrl"}
+                Shift
               </Kbd>
               <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">A–Z</Kbd>
             </KbdGroup>
             <span>Switch Group</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setActiveGroupId("all")}
+          <div
             className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
               activeGroupId === "all"
                 ? "text-foreground font-semibold"
                 : "hover:text-foreground/80"
             }`}
           >
-            <span
-              className={`h-px transition-all duration-300 ease-out ${
-                activeGroupId === "all"
-                  ? "w-12 opacity-80"
-                  : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-              } bg-current`}
-            />
-            <span>All Bookmarks</span>
-          </button>
-          {groups.map((group) => (
             <button
-              key={group.id}
               type="button"
-              onClick={() => setActiveGroupId(group.id)}
-              className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
-                activeGroupId === group.id
-                  ? "text-foreground font-semibold"
-                  : "hover:text-foreground/80"
-              }`}
+              onClick={() => setActiveGroupId("all")}
+              className="flex items-center gap-3 min-w-0 flex-1 text-left"
             >
               <span
                 className={`h-px transition-all duration-300 ease-out ${
-                  activeGroupId === group.id
+                  activeGroupId === "all"
                     ? "w-12 opacity-80"
                     : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
                 } bg-current`}
               />
-              <span className="truncate max-w-40">{group.name}</span>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <HugeiconsIcon
+                  icon={GridIcon}
+                  size={16}
+                  strokeWidth={2}
+                  className="text-muted-foreground/70"
+                />
+                <span className="truncate">All Bookmarks</span>
+              </div>
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => handleOpenGroup("all")}
+              className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-opacity"
+              aria-label="Open all bookmarks"
+            >
+              <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+            </button>
+          </div>
+          {groups.map((group) => {
+            const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
+            return (
+              <div
+                key={group.id}
+                className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
+                  activeGroupId === group.id
+                    ? "text-foreground font-semibold"
+                    : "hover:text-foreground/80"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveGroupId(group.id)}
+                  className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                >
+                  <span
+                    className={`h-px transition-all duration-300 ease-out ${
+                      activeGroupId === group.id
+                        ? "w-12 opacity-80"
+                        : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                    } bg-current`}
+                  />
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <HugeiconsIcon
+                      icon={GroupIcon}
+                      size={16}
+                      strokeWidth={2}
+                      style={{ color: group.color || undefined }}
+                    />
+                    <span className="truncate max-w-36">{group.name}</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenGroup(group.id)}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-opacity"
+                  aria-label={`Open ${group.name}`}
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                </button>
+              </div>
+            );
+          })}
         </aside>
         {/* Fixed Header Section */}
         <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
@@ -422,13 +761,20 @@ export function DashboardContent({
             onGroupCreated={handleGroupCreated}
             onGroupUpdate={handleUpdateGroup}
             onGroupDelete={handleDeleteGroup}
+            onGroupOpen={handleOpenGroup}
             rowContent={rowContent}
             setRowContent={setRowContent}
             viewMode={viewMode}
             setViewMode={setViewMode}
           />
           <div className="pt-4 md:pt-6">
-            <CommandBar onAddBookmark={addOptimisticBookmark} />
+            <CommandBar
+              onAddBookmark={addOptimisticBookmark}
+              mode={commandMode}
+              searchQuery={searchQuery}
+              onModeChange={handleCommandModeChange}
+              onSearchChange={setSearchQuery}
+            />
           </div>
 
           {/* Table Header - Fixed (List view only) */}
@@ -493,7 +839,7 @@ export function DashboardContent({
                   Click
                 </Kbd>
               </KbdGroup>
-              <span>bulk delete</span>
+              <span>bulk select</span>
             </div>
           </div>
         </div>
@@ -529,10 +875,21 @@ export function DashboardContent({
               <div className="h-4 w-px bg-border/50" />
               <button
                 type="button"
-                onClick={handleBulkDelete}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 font-medium text-sm transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+                onClick={handleOpenSelected}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-medium text-sm transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
               >
-                Delete
+                Open
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-medium text-sm transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none ${
+                  bulkDeleteConfirm
+                    ? "bg-destructive/15 text-destructive hover:bg-destructive/25"
+                    : "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                }`}
+              >
+                {bulkDeleteConfirm ? "Sure?" : "Delete"}
               </button>
               <button
                 type="button"
