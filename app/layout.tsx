@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://reway.vercel.app"),
   title: {
     default: "Reway — A Calm Home for Everything You Save",
-    template: "%s · Reway",
+    template: "%s | Reway",
   },
   description:
     "Reway turns messy links into a structured, searchable library with AI extraction, groups, keyboard navigation, and flexible views.",

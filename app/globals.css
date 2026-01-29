@@ -244,3 +244,29 @@ body,
 [data-sonner-toast][data-type="error"] [data-icon] {
   color: var(--destructive) !important;
 }
+
+[data-sonner-toast] [data-button] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  height: 1.75rem !important;
+  padding: 0 0.625rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 2rem !important;
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+[data-sonner-toast] [data-button]:hover {
+  opacity: 0.9 !important;
+  transform: scale(0.97) !important;
+}
+
+[data-sonner-toast] [data-button]:active {
+  transform: scale(0.95) !important;
+}
