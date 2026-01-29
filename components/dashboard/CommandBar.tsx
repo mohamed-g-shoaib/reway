@@ -1,6 +1,10 @@
 "use client";
 
-import { Add01Icon } from "@hugeicons/core-free-icons";
+import {
+  AttachmentIcon,
+  BookmarkAdd02Icon,
+  Search02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,9 +25,19 @@ import { useIsMac } from "@/hooks/useIsMac";
 
 interface CommandBarProps {
   onAddBookmark: (bookmark: BookmarkRow) => void;
+  mode?: "add" | "search";
+  searchQuery?: string;
+  onModeChange?: (mode: "add" | "search") => void;
+  onSearchChange?: (query: string) => void;
 }
 
-export function CommandBar({ onAddBookmark }: CommandBarProps) {
+export function CommandBar({
+  onAddBookmark,
+  mode = "add",
+  searchQuery = "",
+  onModeChange,
+  onSearchChange,
+}: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -116,8 +130,14 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "f") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
         e.preventDefault();
+        onModeChange?.("search");
+        inputRef.current?.focus();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        onModeChange?.("add");
         inputRef.current?.focus();
       }
       if (e.key === "Escape") {
@@ -157,9 +177,15 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+    const value = mode === "search" ? searchQuery.trim() : inputValue.trim();
+    if (!value) return;
 
-    const value = inputValue.trim();
+    if (mode === "search") {
+      onSearchChange?.(value);
+      inputRef.current?.blur();
+      return;
+    }
+
     setInputValue("");
     inputRef.current?.blur();
 
@@ -214,7 +240,7 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
                 className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-all duration-200 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
                 aria-label="Add image or file"
               >
-                <HugeiconsIcon icon={Add01Icon} size={16} />
+                <HugeiconsIcon icon={AttachmentIcon} size={16} />
               </Button>
             </TooltipTrigger>
             <TooltipContent className="rounded-lg font-medium">
@@ -226,29 +252,78 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
         <input
           ref={inputRef}
           type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Insert a link, image, or just search..."
+          value={mode === "search" ? searchQuery : inputValue}
+          onChange={(e) => {
+            if (mode === "search") {
+              onSearchChange?.(e.target.value);
+            } else {
+              setInputValue(e.target.value);
+            }
+          }}
+          placeholder={
+            mode === "search"
+              ? "Search bookmarks..."
+              : "Insert a link, image, or just search..."
+          }
           className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           aria-label="Search or add bookmarks"
         />
 
-        <div className="hidden items-center gap-2 px-1 md:flex">
-          <KbdGroup>
-            {isMac ? (
-              <>
-                <Kbd>⌘</Kbd>
-                <Kbd>F</Kbd>
-              </>
-            ) : (
-              <>
-                <Kbd>Ctrl</Kbd>
-                <Kbd>F</Kbd>
-              </>
-            )}
-          </KbdGroup>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => onModeChange?.("add")}
+            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg transition-colors ${
+              mode === "add"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+            }`}
+            aria-pressed={mode === "add" ? "true" : "false"}
+            aria-label="Add bookmarks"
+          >
+            <HugeiconsIcon icon={BookmarkAdd02Icon} size={14} />
+            <KbdGroup className="hidden md:inline-flex">
+              {isMac ? (
+                <>
+                  <Kbd>⌘</Kbd>
+                  <Kbd>K</Kbd>
+                </>
+              ) : (
+                <>
+                  <Kbd>Ctrl</Kbd>
+                  <Kbd>K</Kbd>
+                </>
+              )}
+            </KbdGroup>
+          </button>
+          <button
+            type="button"
+            onClick={() => onModeChange?.("search")}
+            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg transition-colors ${
+              mode === "search"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+            }`}
+            aria-pressed={mode === "search" ? "true" : "false"}
+            aria-label="Search bookmarks"
+          >
+            <HugeiconsIcon icon={Search02Icon} size={14} />
+            <KbdGroup className="hidden md:inline-flex">
+              {isMac ? (
+                <>
+                  <Kbd>⌘</Kbd>
+                  <Kbd>F</Kbd>
+                </>
+              ) : (
+                <>
+                  <Kbd>Ctrl</Kbd>
+                  <Kbd>F</Kbd>
+                </>
+              )}
+            </KbdGroup>
+          </button>
         </div>
       </form>
 
@@ -260,7 +335,11 @@ export function CommandBar({ onAddBookmark }: CommandBarProps) {
             <span className="text-muted-foreground/50">
               {isMac ? "⌘ F" : "Ctrl F"}
             </span>{" "}
-            to start typing
+            to search ·{" "}
+            <span className="text-muted-foreground/50">
+              {isMac ? "⌘ K" : "Ctrl K"}
+            </span>{" "}
+            to add
           </p>
         </div>
       ) : null}
