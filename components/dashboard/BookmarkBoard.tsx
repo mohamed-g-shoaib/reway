@@ -270,15 +270,17 @@ export function BookmarkBoard({
   if (bookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
-        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-muted/30 mb-6">
+        <div className="flex size-20 items-center justify-center rounded-3xl bg-muted/30 mb-6">
           <HugeiconsIcon
             icon={Bookmark01Icon}
             size={40}
             className="text-muted-foreground/40"
           />
         </div>
-        <h3 className="text-xl font-bold text-foreground">No bookmarks yet</h3>
-        <div className="flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground mt-2 max-w-70">
+        <h3 className="text-xl font-bold text-foreground text-balance">
+          No bookmarks yet
+        </h3>
+        <div className="flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground mt-2 max-w-70 text-pretty">
           <span className="hidden md:inline">Press</span>
           <KbdGroup className="hidden md:inline-flex">
             <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
@@ -440,7 +442,7 @@ export function BookmarkBoard({
                               url={activeBookmark.favicon_url || ""}
                               domain={domain}
                               title={activeBookmark.title || ""}
-                              className="h-9 w-9"
+                              className="size-9"
                             />
                             <div className="min-w-0 flex flex-col">
                               <p className="truncate text-sm font-bold text-foreground">
@@ -470,7 +472,7 @@ export function BookmarkBoard({
                             url={activeBookmark.favicon_url || ""}
                             domain={domain}
                             title={activeBookmark.title || ""}
-                            className="h-12 w-12"
+                            className="size-12"
                           />
                           <p className="truncate text-xs font-semibold text-foreground w-full">
                             {activeBookmark.title}
