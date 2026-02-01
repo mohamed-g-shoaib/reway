@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { CommandBar } from "@/components/dashboard/CommandBar";
 import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
+import { FolderBoard } from "@/components/dashboard/FolderBoard";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { DashboardNav, type User } from "@/components/dashboard/DashboardNav";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -23,6 +24,7 @@ interface DashboardContentProps {
 
 import {
   updateBookmarksOrder,
+  updateFolderBookmarksOrder,
   deleteBookmark as deleteAction,
   restoreBookmark as restoreAction,
   updateBookmark as updateBookmarkAction,
@@ -39,7 +41,12 @@ export function DashboardContent({
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
-  const [viewMode, setViewMode] = useState<"list" | "card" | "icon">("list");
+  const [viewMode, setViewMode] = useState<
+    "list" | "card" | "icon" | "folders"
+  >("list");
+  const [keyboardContext, setKeyboardContext] = useState<
+    "folder" | "bookmark"
+  >("bookmark");
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
@@ -48,6 +55,7 @@ export function DashboardContent({
   const isMac = useIsMac();
   const deferredSearchQuery = React.useDeferredValue(searchQuery);
   const letterCycleRef = React.useRef<Record<string, number>>({});
+  const nonFolderViewMode = viewMode === "folders" ? "list" : viewMode;
   const lastDeletedRef = React.useRef<{
     bookmark: BookmarkRow;
     index: number;
@@ -55,6 +63,7 @@ export function DashboardContent({
   const lastBulkDeletedRef = React.useRef<
     { bookmark: BookmarkRow; index: number }[]
   >([]);
+  const viewModeStorageKey = "reway.dashboard.viewMode";
 
   const sortBookmarks = useCallback((items: BookmarkRow[]) => {
     return [...items].sort((a, b) => {
@@ -68,11 +77,9 @@ export function DashboardContent({
   }, []);
 
   const sortGroups = useCallback((items: GroupRow[]) => {
-    return [...items].sort((a, b) => {
-      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
-      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
-      return aOrder - bOrder;
-    });
+    return [...items].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+    );
   }, []);
 
   // Sync state with server props on mount only
@@ -82,10 +89,40 @@ export function DashboardContent({
   React.useEffect(() => {
     if (!hasInitialized.current) {
       setBookmarks(initialBookmarks);
-      setGroups(initialGroups);
+      setGroups(sortGroups(initialGroups));
       hasInitialized.current = true;
     }
-  }, [initialBookmarks, initialGroups]);
+  }, [initialBookmarks, initialGroups, sortGroups]);
+
+  React.useEffect(() => {
+    try {
+      const storedView = window.localStorage.getItem(viewModeStorageKey);
+      if (
+        storedView === "list" ||
+        storedView === "card" ||
+        storedView === "icon" ||
+        storedView === "folders"
+      ) {
+        setViewMode(storedView);
+      }
+    } catch (error) {
+      console.warn("Failed to load view mode:", error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(viewModeStorageKey, viewMode);
+    } catch (error) {
+      console.warn("Failed to persist view mode:", error);
+    }
+  }, [viewMode]);
+
+  React.useEffect(() => {
+    if (viewMode !== "folders") {
+      setKeyboardContext("bookmark");
+    }
+  }, [viewMode]);
 
   React.useEffect(() => {
     const supabase = createClient();
@@ -172,6 +209,36 @@ export function DashboardContent({
     [activeGroupId],
   );
 
+  const handleFolderReorder = useCallback(
+    async (groupId: string, newOrder: BookmarkRow[]) => {
+      setBookmarks((prev) => {
+        const updatedOrder = newOrder.map((bookmark, index) => ({
+          ...bookmark,
+          folder_order_index: index,
+        }));
+        const otherBookmarks = prev.filter((bookmark) => {
+          const bookmarkGroup = bookmark.group_id ?? "no-group";
+          return bookmarkGroup !== groupId;
+        });
+        return [...updatedOrder, ...otherBookmarks];
+      });
+
+      const updates = newOrder.map((bookmark, index) => ({
+        id: bookmark.id,
+        folder_order_index: index,
+      }));
+
+      try {
+        await updateFolderBookmarksOrder(updates);
+      } catch (error) {
+        console.error("Reorder failed:", error);
+        toast.error("Failed to reorder bookmarks");
+        setBookmarks(initialBookmarks);
+      }
+    },
+    [initialBookmarks],
+  );
+
   const handleDeleteBookmark = useCallback(async (id: string) => {
     let deletedBookmark: BookmarkRow | undefined;
     let deletedIndex = -1;
@@ -235,10 +302,14 @@ export function DashboardContent({
       // When reordering, we need to merge the new order back into the global bookmarks list
       // while maintaining bookmarks that aren't currently visible (if filtering)
       setBookmarks((prev) => {
+        const updatedOrder = newOrder.map((bookmark, index) => ({
+          ...bookmark,
+          order_index: index,
+        }));
         const otherBookmarks = prev.filter((b) =>
           activeGroupId === "all" ? false : b.group_id !== activeGroupId,
         );
-        return [...newOrder, ...otherBookmarks];
+        return [...updatedOrder, ...otherBookmarks];
       });
 
       // Prepare updates for the DB (only for those in the current view)
@@ -326,10 +397,10 @@ export function DashboardContent({
         color: color ?? null,
         order_index: null,
       };
-      setGroups((prev) => [...prev, newGroup]);
+      setGroups((prev) => sortGroups([...prev, newGroup]));
       setActiveGroupId(id);
     },
-    [user.id],
+    [sortGroups, user.id],
   );
 
   const handleUpdateGroup = useCallback(
@@ -824,7 +895,13 @@ export function DashboardContent({
                   ⏎
                 </Kbd>
               </KbdGroup>
-              <span>open</span>
+              <span>
+                {viewMode === "folders"
+                  ? keyboardContext === "folder"
+                    ? "open folder"
+                    : "open"
+                  : "open"}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Kbd className="h-[18px] min-w-[18px] text-[10px] px-0.5">⏎</Kbd>
@@ -846,21 +923,37 @@ export function DashboardContent({
 
         {/* Scrollable Bookmarks Section */}
         <div className="flex-1 min-h-0">
-          <div className="h-full overflow-y-auto min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
+          <div className="h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
             <div>
-              <BookmarkBoard
-                bookmarks={filteredBookmarks}
-                initialGroups={groups}
-                onReorder={handleReorder}
-                onDeleteBookmark={handleDeleteBookmark}
-                onEditBookmark={handleEditBookmark}
-                rowContent={rowContent}
-                viewMode={viewMode}
-                selectionMode={selectionMode}
-                selectedIds={selectedIds}
-                onToggleSelection={handleToggleSelection}
-                onEnterSelectionMode={() => setSelectionMode(true)}
-              />
+              {viewMode === "folders" ? (
+                <FolderBoard
+                  bookmarks={filteredBookmarks}
+                  groups={groups}
+                  activeGroupId={activeGroupId}
+                  onReorder={handleFolderReorder}
+                  onDeleteBookmark={handleDeleteBookmark}
+                  onEditBookmark={handleEditBookmark}
+                  selectionMode={selectionMode}
+                  selectedIds={selectedIds}
+                  onToggleSelection={handleToggleSelection}
+                  onEnterSelectionMode={() => setSelectionMode(true)}
+                  onKeyboardContextChange={setKeyboardContext}
+                />
+              ) : (
+                <BookmarkBoard
+                  bookmarks={filteredBookmarks}
+                  initialGroups={groups}
+                  onReorder={handleReorder}
+                  onDeleteBookmark={handleDeleteBookmark}
+                  onEditBookmark={handleEditBookmark}
+                  rowContent={rowContent}
+                  viewMode={nonFolderViewMode}
+                  selectionMode={selectionMode}
+                  selectedIds={selectedIds}
+                  onToggleSelection={handleToggleSelection}
+                  onEnterSelectionMode={() => setSelectionMode(true)}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -869,7 +962,7 @@ export function DashboardContent({
         {selectionMode && selectedIds.size > 0 && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200">
             <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-background border border-border/50 shadow-lg ring-1 ring-foreground/5">
-              <span className="text-sm font-medium text-foreground">
+              <span className="text-sm font-medium text-foreground tabular-nums">
                 {selectedIds.size} selected
               </span>
               <div className="h-4 w-px bg-border/50" />
