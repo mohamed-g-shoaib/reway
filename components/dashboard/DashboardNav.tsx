@@ -11,6 +11,7 @@ import {
   SquareIcon,
   CircleIcon,
   Key02Icon,
+  Folder01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -84,8 +85,8 @@ interface DashboardNavProps {
   onGroupOpen?: (id: string) => void;
   rowContent: "date" | "group";
   setRowContent: (value: "date" | "group") => void;
-  viewMode: "list" | "card" | "icon";
-  setViewMode: (value: "list" | "card" | "icon") => void;
+  viewMode: "list" | "card" | "icon" | "folders";
+  setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
 }
 
 export function DashboardNav({
@@ -647,7 +648,9 @@ export function DashboardNav({
                         ? Menu01Icon
                         : viewMode === "card"
                           ? SquareIcon
-                          : CircleIcon
+                          : viewMode === "icon"
+                            ? CircleIcon
+                            : Folder01Icon
                     }
                     size={18}
                     strokeWidth={2}
@@ -678,6 +681,13 @@ export function DashboardNav({
                 >
                   <HugeiconsIcon icon={CircleIcon} size={16} />
                   Icon
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${viewMode === "folders" ? "bg-primary/5 text-primary font-medium" : ""}`}
+                  onClick={() => setViewMode("folders")}
+                >
+                  <HugeiconsIcon icon={Folder01Icon} size={16} />
+                  Folders
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -710,6 +720,15 @@ export function DashboardNav({
                 aria-label="Icon view"
               >
                 <HugeiconsIcon icon={CircleIcon} size={16} strokeWidth={2} />
+              </UIButton>
+              <UIButton
+                size="icon"
+                variant={viewMode === "folders" ? "default" : "ghost"}
+                className="size-8 rounded-lg transition-all duration-150 active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => setViewMode("folders")}
+                aria-label="Folder view"
+              >
+                <HugeiconsIcon icon={Folder01Icon} size={16} strokeWidth={2} />
               </UIButton>
             </div>
 
