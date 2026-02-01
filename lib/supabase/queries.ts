@@ -27,7 +27,7 @@ export async function getGroups() {
   const { data, error } = await supabase
     .from("groups")
     .select("*")
-    .order("order_index", { ascending: true });
+    .order("name", { ascending: true });
 
   if (error) {
     console.error("Error fetching groups:", error);
