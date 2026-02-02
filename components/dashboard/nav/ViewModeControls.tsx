@@ -7,6 +7,7 @@ import {
   SquareIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +25,23 @@ export function ViewModeControls({
   viewMode,
   setViewMode,
 }: ViewModeControlsProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const activeIcon =
+    viewMode === "list"
+      ? Menu01Icon
+      : viewMode === "card"
+        ? SquareIcon
+        : viewMode === "icon"
+          ? CircleIcon
+          : Folder01Icon;
+
+  const viewOptions = [
+    { value: "list", label: "List", icon: Menu01Icon },
+    { value: "card", label: "Card", icon: SquareIcon },
+    { value: "icon", label: "Icon", icon: CircleIcon },
+    { value: "folders", label: "Folders", icon: Folder01Icon },
+  ] as const;
+
   return (
     <>
       <DropdownMenu>
@@ -31,7 +49,7 @@ export function ViewModeControls({
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden size-9 rounded-xl hover:bg-muted/50 transition-transform duration-150 active:scale-95"
+            className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95"
             aria-label="Change view mode"
           >
             <HugeiconsIcon
@@ -94,43 +112,38 @@ export function ViewModeControls({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="hidden md:flex items-center gap-1 px-1 py-1 rounded-xl bg-muted/30">
-        <Button
-          size="icon"
-          variant={viewMode === "list" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
-          onClick={() => setViewMode("list")}
-          aria-label="List view"
-        >
-          <HugeiconsIcon icon={Menu01Icon} size={16} strokeWidth={2} />
-        </Button>
-        <Button
-          size="icon"
-          variant={viewMode === "card" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
-          onClick={() => setViewMode("card")}
-          aria-label="Card view"
-        >
-          <HugeiconsIcon icon={SquareIcon} size={16} strokeWidth={2} />
-        </Button>
-        <Button
-          size="icon"
-          variant={viewMode === "icon" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
-          onClick={() => setViewMode("icon")}
-          aria-label="Icon view"
-        >
-          <HugeiconsIcon icon={CircleIcon} size={16} strokeWidth={2} />
-        </Button>
-        <Button
-          size="icon"
-          variant={viewMode === "folders" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
-          onClick={() => setViewMode("folders")}
-          aria-label="Folder view"
-        >
-          <HugeiconsIcon icon={Folder01Icon} size={16} strokeWidth={2} />
-        </Button>
+      <div className="hidden md:flex items-center">
+        <div className="relative flex items-center">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-8 rounded-full transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
+            onClick={() => setIsOpen((prev) => !prev)}
+            aria-label="Toggle view modes"
+            aria-expanded={isOpen}
+          >
+            <HugeiconsIcon icon={activeIcon} size={16} strokeWidth={2} />
+          </Button>
+          {isOpen ? (
+            <div className="absolute right-full mr-2 flex items-center gap-1 rounded-xl bg-muted/30 p-1">
+              {viewOptions.map((option) => (
+                <Button
+                  key={option.value}
+                  size="icon"
+                  variant={viewMode === option.value ? "default" : "ghost"}
+                  className="size-7 rounded-lg hover:bg-muted/50"
+                  onClick={() => {
+                    setViewMode(option.value);
+                    setIsOpen(false);
+                  }}
+                  aria-label={`${option.label} view`}
+                >
+                  <HugeiconsIcon icon={option.icon} size={14} strokeWidth={2} />
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
     </>
   );

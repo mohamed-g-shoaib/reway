@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  AiMagicIcon,
-  FileExportIcon,
-  FileImportIcon,
-  Key02Icon,
   Logout01Icon,
+  Settings01Icon,
+  FileImportIcon,
+  FileExportIcon,
+  Key02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,17 +14,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ApiTokenDialog } from "../ApiTokenDialog";
+import { SettingsDialog } from "../SettingsDialog";
 import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
+import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
+import { ApiTokenDialog } from "../ApiTokenDialog";
 
 interface UserMenuProps {
   user: User;
   initials: string;
+  rowContent: "date" | "group";
+  onRowContentChange: (value: "date" | "group") => void;
   onOpenImportDialog: () => void;
   onOpenExportDialog: () => void;
 }
@@ -32,6 +35,8 @@ interface UserMenuProps {
 export function UserMenu({
   user,
   initials,
+  rowContent,
+  onRowContentChange,
   onOpenImportDialog,
   onOpenExportDialog,
 }: UserMenuProps) {
@@ -54,53 +59,114 @@ export function UserMenu({
         align="end"
         className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 animate-in slide-in-from-top-2 duration-200 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
       >
-        <DropdownMenuLabel className="px-2 py-1.5 font-normal">
+        <div className="px-2 py-1.5 font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
           </div>
-        </DropdownMenuLabel>
+        </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-          onSelect={(event) => {
-            event.preventDefault();
-            onOpenImportDialog();
-          }}
-        >
-          <HugeiconsIcon icon={FileImportIcon} size={16} />
-          Import Bookmarks
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-          onSelect={(event) => {
-            event.preventDefault();
-            onOpenExportDialog();
-          }}
-        >
-          <HugeiconsIcon icon={FileExportIcon} size={16} />
-          Export Bookmarks
-        </DropdownMenuItem>
+        <div className="px-2 pb-2 space-y-3">
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium text-muted-foreground">
+              Data & access
+            </p>
+            <div className="relative isolate inline-flex h-8 items-center rounded-full border border-dotted px-1">
+              <button
+                type="button"
+                onClick={() => onOpenImportDialog()}
+                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out"
+                aria-label="Import bookmarks"
+              >
+                <HugeiconsIcon
+                  icon={FileImportIcon}
+                  className="relative size-3.5 text-secondary-foreground transition duration-200 ease-out group-hover:text-foreground"
+                />
+                <span className="text-secondary-foreground group-hover:text-foreground">
+                  Import
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenExportDialog()}
+                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out"
+                aria-label="Export bookmarks"
+              >
+                <HugeiconsIcon
+                  icon={FileExportIcon}
+                  className="relative size-3.5 text-secondary-foreground transition duration-200 ease-out group-hover:text-foreground"
+                />
+                <span className="text-secondary-foreground group-hover:text-foreground">
+                  Export
+                </span>
+              </button>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium text-muted-foreground">
+              Row content
+            </p>
+            <div className="relative isolate inline-flex h-8 items-center rounded-full border border-dotted px-1">
+              {([
+                { value: "date", label: "Date" },
+                { value: "group", label: "Group" },
+              ] as const).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => onRowContentChange(option.value)}
+                  className="group relative h-6 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out"
+                >
+                  {rowContent === option.value ? (
+                    <span className="absolute inset-0 rounded-full bg-muted" />
+                  ) : null}
+                  <span
+                    className={`relative transition duration-200 ease-out ${
+                      rowContent === option.value
+                        ? "text-foreground"
+                        : "text-secondary-foreground group-hover:text-foreground"
+                    }`}
+                  >
+                    {option.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-medium text-muted-foreground">
+              Appearance
+            </p>
+            <ThemeSwitcher />
+          </div>
+        </div>
         <DropdownMenuSeparator />
         <ApiTokenDialog>
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 text-primary cursor-pointer focus:bg-primary/5 font-medium py-2"
-            onSelect={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+            onSelect={(event) => event.preventDefault()}
           >
             <HugeiconsIcon icon={Key02Icon} size={16} />
-            Manage Access Tokens
+            API keys
           </DropdownMenuItem>
         </ApiTokenDialog>
-        <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer focus:bg-primary/5 font-medium py-2">
-          <HugeiconsIcon icon={AiMagicIcon} size={16} />
-          Upgrade to Pro
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        <SettingsDialog
+          rowContent={rowContent}
+          onRowContentChange={onRowContentChange}
+          userName={user.name}
+          onOpenImportDialog={onOpenImportDialog}
+          onOpenExportDialog={onOpenExportDialog}
+        >
+          <DropdownMenuItem
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+            onSelect={(event) => event.preventDefault()}
+          >
+            <HugeiconsIcon icon={Settings01Icon} size={16} />
+            Settings
+          </DropdownMenuItem>
+        </SettingsDialog>
         <form action={signOut}>
           <DropdownMenuItem
             asChild

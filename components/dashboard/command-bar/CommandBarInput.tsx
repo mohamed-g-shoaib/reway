@@ -113,7 +113,7 @@ export function CommandBarInput({
           <button
             type="button"
             onClick={() => onModeChange?.("add")}
-            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg ${
+            className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md ${
               mode === "add"
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
@@ -121,44 +121,28 @@ export function CommandBarInput({
             aria-pressed
             aria-label="Add bookmarks"
           >
-            <HugeiconsIcon icon={BookmarkAdd02Icon} size={14} />
+            <HugeiconsIcon icon={BookmarkAdd02Icon} size={13} />
             <KbdGroup className="hidden md:inline-flex">
-              {isMac ? (
-                <>
-                  <Kbd>⌘</Kbd>
-                  <Kbd>K</Kbd>
-                </>
-              ) : (
-                <>
-                  <Kbd>Ctrl</Kbd>
-                  <Kbd>K</Kbd>
-                </>
-              )}
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                {isMac ? "⌘K" : "CtrlK"}
+              </Kbd>
             </KbdGroup>
           </button>
           <button
             type="button"
             onClick={() => onModeChange?.("search")}
-            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg ${
+            className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md ${
               mode === "search"
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
             }`}
             aria-label="Search bookmarks"
           >
-            <HugeiconsIcon icon={Search02Icon} size={14} />
+            <HugeiconsIcon icon={Search02Icon} size={13} />
             <KbdGroup className="hidden md:inline-flex">
-              {isMac ? (
-                <>
-                  <Kbd>⌘</Kbd>
-                  <Kbd>F</Kbd>
-                </>
-              ) : (
-                <>
-                  <Kbd>Ctrl</Kbd>
-                  <Kbd>F</Kbd>
-                </>
-              )}
+              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                {isMac ? "⌘F" : "CtrlF"}
+              </Kbd>
             </KbdGroup>
           </button>
         </div>
@@ -169,11 +153,11 @@ export function CommandBarInput({
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
             Press{" "}
             <span className="text-muted-foreground/50">
-              {isMac ? "⌘ F" : "Ctrl F"}
+              {isMac ? "⌘F" : "CtrlF"}
             </span>{" "}
             to search ·{" "}
             <span className="text-muted-foreground/50">
-              {isMac ? "⌘ K" : "Ctrl K"}
+              {isMac ? "⌘K" : "CtrlK"}
             </span>{" "}
             to add
           </p>

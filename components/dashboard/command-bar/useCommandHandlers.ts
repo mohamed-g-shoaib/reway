@@ -20,6 +20,7 @@ interface UseCommandHandlersOptions {
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
   onDuplicatesDetected?: (duplicates: { url: string; title: string }[]) => void;
+  activeGroupId: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
 }
 
@@ -30,6 +31,7 @@ export function useCommandHandlers({
   onModeChange,
   onSearchChange,
   onDuplicatesDetected,
+  activeGroupId,
   inputRef,
 }: UseCommandHandlersOptions) {
   const processUrls = useCallback(
@@ -38,15 +40,17 @@ export function useCommandHandlers({
         string,
         { id: string; title: string; url: string }
       > = {};
-      try {
-        const checkUrls = [...urls];
-        urls.forEach((u) => {
-          if (!u.startsWith("http")) checkUrls.push(`https://${u}`);
-        });
-        const result = await checkDuplicateBookmarks(checkUrls);
-        duplicateMap = result.duplicates;
-      } catch (error) {
-        console.error("Failed to check for duplicates:", error);
+      if (activeGroupId === "all") {
+        try {
+          const checkUrls = [...urls];
+          urls.forEach((u) => {
+            if (!u.startsWith("http")) checkUrls.push(`https://${u}`);
+          });
+          const result = await checkDuplicateBookmarks(checkUrls);
+          duplicateMap = result.duplicates;
+        } catch (error) {
+          console.error("Failed to check for duplicates:", error);
+        }
       }
 
       const uniqueUrls: string[] = [];
@@ -77,7 +81,7 @@ export function useCommandHandlers({
           title: url,
           favicon_url: null,
           description: null,
-          group_id: null,
+          group_id: activeGroupId !== "all" ? activeGroupId : null,
           user_id: "",
           created_at: new Date().toISOString(),
           order_index: Number.MIN_SAFE_INTEGER,
@@ -87,7 +91,11 @@ export function useCommandHandlers({
         onAddBookmark(optimistic);
 
         try {
-          const bookmarkId = await addBookmark({ url, id: stableId });
+          const bookmarkId = await addBookmark({
+            url,
+            id: stableId,
+            group_id: activeGroupId !== "all" ? activeGroupId : undefined,
+          });
           if (bookmarkId) {
             onReplaceBookmarkId?.(stableId, bookmarkId);
           }
@@ -103,7 +111,7 @@ export function useCommandHandlers({
 
       await Promise.all(uniqueUrls.map(executeAdd));
 
-      if (duplicateEntries.length > 0) {
+      if (duplicateEntries.length > 0 && activeGroupId === "all") {
         if (onDuplicatesDetected) {
           onDuplicatesDetected(
             duplicateEntries.map((entry) => ({
@@ -125,7 +133,7 @@ export function useCommandHandlers({
         }
       }
     },
-    [onAddBookmark, onDuplicatesDetected],
+    [activeGroupId, onAddBookmark, onDuplicatesDetected],
   );
 
   const handlePaste = useCallback(

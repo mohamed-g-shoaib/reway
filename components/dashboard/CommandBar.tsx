@@ -11,6 +11,7 @@ interface CommandBarProps {
   onAddBookmark: (bookmark: BookmarkRow) => void;
   onApplyEnrichment?: (id: string, enrichment?: EnrichmentResult) => void;
   onReplaceBookmarkId?: (stableId: string, actualId: string) => void;
+  activeGroupId: string;
   mode?: "add" | "search";
   searchQuery?: string;
   onModeChange?: (mode: "add" | "search") => void;
@@ -22,6 +23,7 @@ export function CommandBar({
   onAddBookmark,
   onApplyEnrichment,
   onReplaceBookmarkId,
+  activeGroupId,
   mode = "add",
   searchQuery = "",
   onModeChange,
@@ -43,6 +45,7 @@ export function CommandBar({
     onModeChange,
     onSearchChange,
     onDuplicatesDetected,
+    activeGroupId,
     inputRef,
   });
 
