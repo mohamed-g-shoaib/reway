@@ -23,10 +23,7 @@ export function EmptyState({ isMac }: EmptyStateProps) {
       </h3>
       <div className="flex flex-wrap items-center justify-center gap-1.5 text-muted-foreground mt-2 max-w-70 text-pretty">
         <span className="hidden md:inline">Press</span>
-        <KbdGroup className="hidden md:inline-flex">
-          <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
-          <Kbd>F</Kbd>
-        </KbdGroup>
+        <Kbd className="hidden md:inline-flex">{isMac ? "⌘K" : "Ctrl K"}</Kbd>
         <span className="hidden md:inline">to add your first link.</span>
         <span className="md:hidden">Add your first links to get started.</span>
       </div>

@@ -462,6 +462,7 @@ export function DashboardContent({
               onAddBookmark={addOptimisticBookmark}
               onApplyEnrichment={applyEnrichment}
               onReplaceBookmarkId={replaceBookmarkId}
+              activeGroupId={activeGroupId}
               mode={commandMode}
               searchQuery={searchQuery}
               onModeChange={handleCommandModeChange}
