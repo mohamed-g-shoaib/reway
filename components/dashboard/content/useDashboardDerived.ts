@@ -49,7 +49,7 @@ export function useDashboardDerived({
         names.add(group.name);
       }
     });
-    return Array.from(names).sort((a, b) =>
+    return Array.from(names).toSorted((a, b) =>
       a.localeCompare(b, undefined, { sensitivity: "base" }),
     );
   }, [groups]);

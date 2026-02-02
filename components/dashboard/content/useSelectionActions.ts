@@ -99,7 +99,7 @@ export function useSelectionActions({
             if (toRestore.length === 0) return;
             setBookmarks((prev) => {
               const next = [...prev];
-              const sorted = [...toRestore].sort((a, b) => a.index - b.index);
+              const sorted = toRestore.toSorted((a, b) => a.index - b.index);
               sorted.forEach(({ bookmark, index }) => {
                 if (next.some((b) => b.id === bookmark.id)) return;
                 next.splice(Math.min(index, next.length), 0, bookmark);
