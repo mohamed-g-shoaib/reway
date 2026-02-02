@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Kbd } from "@/components/ui/kbd";
 import TextShimmer from "@/components/ui/text-shimmer";
 import { demoLinks } from "./demo-data";
 
@@ -75,11 +75,8 @@ export function ExtractDemo() {
               {typingText.slice(0, typedIndex)}
             </span>
           </span>
-          <div className="ml-auto hidden shrink-0 items-center gap-1 text-[10px] text-muted-foreground/70 sm:flex">
-            <KbdGroup>
-              <Kbd>{"⌘"}</Kbd>
-              <Kbd>F</Kbd>
-            </KbdGroup>
+          <div className="ml-auto hidden shrink-0 items-center text-[10px] text-muted-foreground/70 sm:flex">
+            <Kbd className="h-[18px] min-w-[18px] px-1.5 text-[9px]">CtrlK</Kbd>
           </div>
         </div>
         <div className="relative h-[108px]">

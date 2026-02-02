@@ -89,10 +89,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
     }
   };
 
-  const handleOpen = (
-    event: React.MouseEvent,
-    bookmarkUrl: string,
-  ) => {
+  const handleOpen = (event: React.MouseEvent, bookmarkUrl: string) => {
     event.preventDefault();
     event.stopPropagation();
     window.open(bookmarkUrl, "_blank", "noopener,noreferrer");
@@ -118,8 +115,8 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
             A Calm Home For Everything You Save.
           </h1>
           <p className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-            Reway turns noisy links into a structured library. Capture anything in
-            seconds, let AI extract what matters, and move fast with search,
+            Reway turns noisy links into a structured library. Capture anything
+            in seconds, let AI extract what matters, and move fast with search,
             groups, and view modes that match the way you think.
           </p>
           <Button
@@ -179,7 +176,9 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                 >
                   <span
                     className={`h-0.5 ${
-                      item.active ? "w-10 bg-foreground" : "w-6 bg-muted-foreground/40"
+                      item.active
+                        ? "w-10 bg-foreground"
+                        : "w-6 bg-muted-foreground/40"
                     }`}
                   />
                   {item.label}
@@ -193,14 +192,13 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                     <HugeiconsIcon icon={Add01Icon} size={14} />
                   </span>
                   Insert a link, image, or just search...
-                  <div className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground/70">
-                    <KbdGroup>
-                      <Kbd>{"⌘"}</Kbd>
-                      <Kbd>F</Kbd>
-                    </KbdGroup>
+                  <div className="ml-auto hidden items-center text-[10px] text-muted-foreground/70 sm:flex">
+                    <Kbd className="h-[18px] min-w-[18px] px-1.5 text-[9px]">
+                      CtrlK
+                    </Kbd>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-4 text-[10px] text-muted-foreground/70">
+                <div className="hidden flex-wrap items-center gap-4 text-[10px] text-muted-foreground/70 sm:flex">
                   <div className="flex items-center gap-1.5">
                     <KbdGroup className="gap-0.5">
                       <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
@@ -310,7 +308,10 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                             className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97]"
                             aria-label="Open link"
                           >
-                            <HugeiconsIcon icon={ArrowUpRight03Icon} size={12} />
+                            <HugeiconsIcon
+                              icon={ArrowUpRight03Icon}
+                              size={12}
+                            />
                           </button>
                           <button
                             type="button"
@@ -320,7 +321,9 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                           >
                             <HugeiconsIcon
                               icon={
-                                deleteIndex === index ? Alert02Icon : Delete02Icon
+                                deleteIndex === index
+                                  ? Alert02Icon
+                                  : Delete02Icon
                               }
                               size={12}
                             />
