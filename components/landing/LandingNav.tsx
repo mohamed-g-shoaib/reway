@@ -12,7 +12,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
   return (
     <header className="sticky top-4 z-40">
       <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
-        <div className="inline-flex w-full max-w-[460px] items-center gap-3 sm:gap-6 rounded-full border border-border/80 bg-background/80 px-2.5 py-2.5 shadow-sm backdrop-blur-xl">
+        <div className="inline-flex w-full max-w-[460px] items-center gap-3 sm:gap-6 rounded-full border border-border/80 bg-background/80 px-3 sm:px-4 py-2.5 shadow-sm backdrop-blur-xl">
           <Link
             href="/"
             className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97]"
@@ -20,8 +20,8 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
           >
             <Image
               src="/logo.svg"
-              width={22}
-              height={22}
+              width={28}
+              height={28}
               alt="Reway Logo"
               className="dark:invert"
             />
