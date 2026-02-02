@@ -57,13 +57,20 @@ export function SortableBookmarkIcon({
   const [isCopied, setIsCopied] = useState(false);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0 : 1,
+    touchAction: selectionMode ? "auto" : "none",
   };
 
   const handleOpen = (e?: React.MouseEvent) => {
@@ -78,7 +85,7 @@ export function SortableBookmarkIcon({
       setIsCopied(true);
       toast.success("URL copied to clipboard");
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy URL");
     }
   };

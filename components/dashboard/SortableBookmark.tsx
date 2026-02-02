@@ -130,6 +130,7 @@ export const SortableBookmark = memo(function SortableBookmark({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0 : 1,
+    touchAction: selectionMode ? "auto" : "none",
   };
 
   const dragStyle = isDragging
@@ -400,10 +401,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 ? "hover:bg-muted/50 cursor-pointer"
                 : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
           } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
-          style={{
-            transform: CSS.Transform.toString(transform),
-            transition,
-          }}
+          style={style}
           {...attributes}
           {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
