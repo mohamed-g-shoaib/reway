@@ -5,9 +5,12 @@ import { BookmarkRow } from "@/lib/supabase/queries";
 import { useIsMac } from "@/hooks/useIsMac";
 import { CommandBarInput } from "./command-bar/CommandBarInput";
 import { useCommandHandlers } from "./command-bar/useCommandHandlers";
+import type { EnrichmentResult } from "./content/dashboard-types";
 
 interface CommandBarProps {
   onAddBookmark: (bookmark: BookmarkRow) => void;
+  onApplyEnrichment?: (id: string, enrichment?: EnrichmentResult) => void;
+  onReplaceBookmarkId?: (stableId: string, actualId: string) => void;
   mode?: "add" | "search";
   searchQuery?: string;
   onModeChange?: (mode: "add" | "search") => void;
@@ -17,6 +20,8 @@ interface CommandBarProps {
 
 export function CommandBar({
   onAddBookmark,
+  onApplyEnrichment,
+  onReplaceBookmarkId,
   mode = "add",
   searchQuery = "",
   onModeChange,
@@ -33,6 +38,8 @@ export function CommandBar({
 
   const { handleFileChange, handleSubmit } = useCommandHandlers({
     onAddBookmark,
+    onApplyEnrichment,
+    onReplaceBookmarkId,
     onModeChange,
     onSearchChange,
     onDuplicatesDetected,
