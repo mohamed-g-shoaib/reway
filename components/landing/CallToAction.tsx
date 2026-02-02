@@ -25,7 +25,7 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
         <Button
           asChild
           size="lg"
-          className="h-11 rounded-3xl px-6 text-sm font-semibold active:scale-[0.97] transition-all duration-200 ease-out"
+          className="h-11 rounded-3xl px-6 text-sm font-semibold active:scale-[0.97] transition-[color,background-color,transform] duration-200 ease-out"
         >
           <Link href={dashboardHref}>
             {ctaLabel}

@@ -16,21 +16,21 @@ export function LandingFooter() {
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
             <Link
               href="https://x.com"
-              className="inline-flex items-center transition-all duration-200 ease-out hover:text-foreground active:scale-[0.97]"
+              className="inline-flex items-center transition-[color,transform] duration-200 ease-out hover:text-foreground active:scale-[0.97]"
               aria-label="Reway on X"
             >
               <HugeiconsIcon icon={NewTwitterIcon} size={16} />
             </Link>
             <Link
               href="https://linkedin.com"
-              className="inline-flex items-center transition-all duration-200 ease-out hover:text-foreground active:scale-[0.97]"
+              className="inline-flex items-center transition-[color,transform] duration-200 ease-out hover:text-foreground active:scale-[0.97]"
               aria-label="Reway on LinkedIn"
             >
               <HugeiconsIcon icon={Linkedin02Icon} size={16} />
             </Link>
             <Link
               href="https://github.com"
-              className="inline-flex items-center transition-all duration-200 ease-out hover:text-foreground active:scale-[0.97]"
+              className="inline-flex items-center transition-[color,transform] duration-200 ease-out hover:text-foreground active:scale-[0.97]"
               aria-label="Reway on GitHub"
             >
               <HugeiconsIcon icon={GithubIcon} size={16} />
@@ -45,7 +45,7 @@ export function LandingFooter() {
           © 2026 by{" "}
           <Link
             href="https://devloop.software/"
-            className="font-semibold text-foreground transition-all duration-200 ease-out hover:text-foreground/80 active:scale-[0.97]"
+            className="font-semibold text-foreground transition-[color,transform] duration-200 ease-out hover:text-foreground/80 active:scale-[0.97]"
           >
             Devloop
           </Link>
