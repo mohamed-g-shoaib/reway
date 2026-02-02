@@ -24,7 +24,7 @@ export function ConflictBar({
     importPreview?.entries.filter((e) => e.isDuplicate).length ?? 0;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-300">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200">
       <div className="flex items-center gap-4 px-4 py-2.5 rounded-2xl bg-background border border-border/50 shadow-lg ring-1 ring-foreground/5">
         <div className="flex items-center gap-2 pr-1 text-foreground">
           <HugeiconsIcon
@@ -45,14 +45,14 @@ export function ConflictBar({
           <button
             type="button"
             onClick={() => onResolve("override")}
-            className="px-3.5 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-semibold text-[11px] uppercase tracking-wider transition-colors active:scale-[0.97]"
+            className="px-3.5 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-semibold text-[11px] uppercase tracking-wider transition-transform duration-150 active:scale-[0.97]"
           >
             Add anyway
           </button>
           <button
             type="button"
             onClick={() => onResolve("skip")}
-            className="px-3.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-semibold text-[11px] uppercase tracking-wider transition-colors active:scale-[0.97]"
+            className="px-3.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-semibold text-[11px] uppercase tracking-wider transition-transform duration-150 active:scale-[0.97]"
           >
             Skip
           </button>

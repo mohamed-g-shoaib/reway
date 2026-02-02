@@ -97,7 +97,7 @@ export function DashboardSidebar({
         <span>Switch Group</span>
       </div>
       <div
-        className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
+        className={`group flex items-center gap-3 px-2 py-1.5 ${
           activeGroupId === "all"
             ? "text-foreground font-semibold"
             : "hover:text-foreground/80"
@@ -109,7 +109,7 @@ export function DashboardSidebar({
           className="flex items-center gap-3 min-w-0 flex-1 text-left"
         >
           <span
-            className={`h-px transition-[width,opacity] duration-300 ease-out ${
+            className={`h-px transition-opacity duration-150 ease-out ${
               activeGroupId === "all"
                 ? "w-12 opacity-80"
                 : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
@@ -128,7 +128,7 @@ export function DashboardSidebar({
         <button
           type="button"
           onClick={() => handleOpenGroup("all")}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-opacity"
+          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-opacity duration-150"
           aria-label="Open all bookmarks"
         >
           <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -154,13 +154,12 @@ export function DashboardSidebar({
                 >
                   <button
                     type="button"
-                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
                     aria-label="Select group icon"
                   >
                     <HugeiconsIcon
                       icon={
-                        ALL_ICONS_MAP[editGroupIcon] ||
-                        ALL_ICONS_MAP["folder"]
+                        ALL_ICONS_MAP[editGroupIcon] || ALL_ICONS_MAP["folder"]
                       }
                       size={16}
                       strokeWidth={2}
@@ -208,7 +207,7 @@ export function DashboardSidebar({
         return (
           <div
             key={group.id}
-            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors ${
+            className={`group flex items-center gap-3 px-2 py-1.5 ${
               activeGroupId === group.id
                 ? "text-foreground font-semibold"
                 : "hover:text-foreground/80"
@@ -220,7 +219,7 @@ export function DashboardSidebar({
               className="flex items-center gap-3 min-w-0 flex-1 text-left"
             >
               <span
-                className={`h-px transition-[width,opacity] duration-300 ease-out ${
+                className={`h-px transition-opacity duration-150 ease-out ${
                   activeGroupId === group.id
                     ? "w-12 opacity-80"
                     : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
@@ -240,7 +239,7 @@ export function DashboardSidebar({
               <button
                 type="button"
                 onClick={() => handleOpenGroup(group.id)}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors"
+                className="text-muted-foreground/50 hover:text-foreground"
                 aria-label={`Open ${group.name}`}
               >
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -253,7 +252,7 @@ export function DashboardSidebar({
                   setEditGroupIcon(group.icon || "folder");
                   setEditGroupColor(group.color || "#6366f1");
                 }}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors"
+                className="text-muted-foreground/50 hover:text-foreground"
                 aria-label={`Edit ${group.name}`}
               >
                 <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
@@ -261,7 +260,7 @@ export function DashboardSidebar({
               <button
                 type="button"
                 onClick={() => handleDeleteGroupClick(group.id)}
-                className={`transition-colors ${
+                className={`${
                   isDeleteConfirm
                     ? "text-destructive"
                     : "text-muted-foreground/50 hover:text-destructive"
@@ -294,11 +293,13 @@ export function DashboardSidebar({
               >
                 <button
                   type="button"
-                  className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                  className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
                   aria-label="Select group icon"
                 >
                   <HugeiconsIcon
-                    icon={ALL_ICONS_MAP[newGroupIcon] || ALL_ICONS_MAP["folder"]}
+                    icon={
+                      ALL_ICONS_MAP[newGroupIcon] || ALL_ICONS_MAP["folder"]
+                    }
                     size={16}
                     strokeWidth={2}
                     style={{ color: newGroupColor || "#6366f1" }}
@@ -351,7 +352,7 @@ export function DashboardSidebar({
           <button
             type="button"
             onClick={() => setIsInlineCreating(true)}
-            className="flex items-center gap-2 text-xs text-muted-foreground/70 hover:text-foreground transition-colors"
+            className="flex items-center gap-2 text-xs text-muted-foreground/70 hover:text-foreground"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} />
             Create group

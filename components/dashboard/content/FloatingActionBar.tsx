@@ -25,14 +25,14 @@ export function FloatingActionBar({
         <button
           type="button"
           onClick={onOpenSelected}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-medium text-sm transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
         >
           Open
         </button>
         <button
           type="button"
           onClick={onBulkDelete}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-medium text-sm transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none ${
             bulkDeleteConfirm
               ? "bg-destructive/15 text-destructive hover:bg-destructive/25"
               : "bg-destructive/10 text-destructive hover:bg-destructive/20"
@@ -43,7 +43,7 @@ export function FloatingActionBar({
         <button
           type="button"
           onClick={onCancelSelection}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-medium text-sm transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
         >
           Cancel
         </button>
