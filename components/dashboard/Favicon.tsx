@@ -15,6 +15,20 @@ interface FaviconProps {
   className?: string;
 }
 
+// Validate if a URL is safe to use with NextImage
+const isValidImageUrl = (src: string | null | undefined): boolean => {
+  if (!src || typeof src !== "string") return false;
+  const trimmed = src.trim();
+  if (trimmed.length === 0) return false;
+  // Reject malformed data URLs (e.g., "data:;base64,=" or empty data)
+  if (trimmed.startsWith("data:")) {
+    // Valid data URLs should have format: data:[<mediatype>][;base64],<data>
+    const dataMatch = trimmed.match(/^data:([^;,]*)(;base64)?,(.+)$/);
+    if (!dataMatch || !dataMatch[3] || dataMatch[3].length < 4) return false;
+  }
+  return true;
+};
+
 export function Favicon({
   url,
   domain,
@@ -24,6 +38,9 @@ export function Favicon({
 }: FaviconProps) {
   const [imageError, setImageError] = useState(false);
   const [useGoogleFallback, setUseGoogleFallback] = useState(false);
+
+  // Determine if we have a valid primary URL
+  const hasValidUrl = isValidImageUrl(url);
 
   // Helper to get initials and colors
   const getInitial = () => {
@@ -45,7 +62,9 @@ export function Favicon({
   };
 
   const initials = getInitial();
-  const googleFallbackUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+  const googleFallbackUrl = domain
+    ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`
+    : null;
 
   return (
     <div
@@ -65,16 +84,16 @@ export function Favicon({
           size={20}
           className="text-muted-foreground/20"
         />
-      ) : !imageError ? (
+      ) : !imageError && (hasValidUrl || googleFallbackUrl) ? (
         <NextImage
-          src={useGoogleFallback ? googleFallbackUrl : url || googleFallbackUrl}
+          src={useGoogleFallback || !hasValidUrl ? googleFallbackUrl! : url}
           alt=""
           width={24}
           height={24}
           unoptimized
           className="h-6 w-6 rounded-sm object-contain"
           onError={() => {
-            if (!useGoogleFallback) {
+            if (!useGoogleFallback && googleFallbackUrl) {
               setUseGoogleFallback(true);
             } else {
               setImageError(true);

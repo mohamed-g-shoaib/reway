@@ -72,6 +72,7 @@ export function SettingsDialog({
                 Group
               </Button>
             </div>
+
             <p className="text-xs text-muted-foreground px-1">
               Choose what to display in the right column of your bookmarks.
             </p>
