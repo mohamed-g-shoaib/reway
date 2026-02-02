@@ -19,12 +19,12 @@ export function ModeToggle() {
       <HugeiconsIcon
         icon={Sun01Icon}
         size={18}
-        className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90"
+        className="scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90"
       />
       <HugeiconsIcon
         icon={Moon02Icon}
         size={18}
-        className="absolute scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
+        className="absolute scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0"
       />
       <span className="sr-only">Toggle theme</span>
     </Button>
