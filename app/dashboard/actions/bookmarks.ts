@@ -1,0 +1,353 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+import { fetchMetadata, normalizeUrl } from "@/lib/metadata";
+
+export async function checkDuplicateBookmark(url: string): Promise<{
+  exists: boolean;
+  bookmark?: { id: string; title: string; url: string };
+}> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const normalizedUrl = normalizeUrl(url);
+
+  const { data } = await supabase
+    .from("bookmarks")
+    .select("id, title, url")
+    .eq("user_id", userData.user.id)
+    .eq("normalized_url", normalizedUrl)
+    .limit(1)
+    .maybeSingle();
+
+  if (data) {
+    return { exists: true, bookmark: data };
+  }
+  return { exists: false };
+}
+
+export async function checkDuplicateBookmarks(urls: string[]): Promise<{
+  duplicates: Record<string, { id: string; title: string; url: string }>;
+}> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const normalizedUrls = urls.map((url) => normalizeUrl(url));
+
+  const { data } = await supabase
+    .from("bookmarks")
+    .select("id, title, url, normalized_url")
+    .eq("user_id", userData.user.id)
+    .in("normalized_url", normalizedUrls);
+
+  const duplicates: Record<string, { id: string; title: string; url: string }> =
+    {};
+  if (data) {
+    for (const bookmark of data) {
+      if (bookmark.normalized_url) {
+        duplicates[bookmark.normalized_url] = {
+          id: bookmark.id,
+          title: bookmark.title,
+          url: bookmark.url,
+        };
+      }
+    }
+  }
+
+  return { duplicates };
+}
+
+export async function addBookmark(formData: {
+  url: string;
+  id?: string;
+  title?: string;
+  favicon_url?: string;
+  og_image_url?: string;
+  description?: string;
+  group_id?: string;
+}) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { data: minOrderData } = await supabase
+    .from("bookmarks")
+    .select("order_index")
+    .order("order_index", { ascending: true })
+    .limit(1)
+    .single();
+
+  const nextOrderIndex = minOrderData ? (minOrderData.order_index ?? 0) - 1 : 0;
+
+  const normalizedUrl = normalizeUrl(formData.url);
+  const title = formData.title || normalizedUrl;
+
+  const { data, error } = await supabase
+    .from("bookmarks")
+    .insert({
+      id: formData.id,
+      url: normalizedUrl,
+      normalized_url: normalizedUrl,
+      title: title,
+      favicon_url: formData.favicon_url,
+      og_image_url: formData.og_image_url,
+      image_url: formData.og_image_url,
+      description: formData.description,
+      group_id: formData.group_id,
+      user_id: userData.user.id,
+      status: "pending",
+      order_index: nextOrderIndex,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("Error adding bookmark:", error);
+    throw new Error("Failed to add bookmark");
+  }
+
+  revalidatePath("/dashboard");
+  return data.id;
+}
+
+export async function enrichCreatedBookmark(id: string, url: string) {
+  try {
+    const metadata = await fetchMetadata(url);
+    const supabase = await createClient();
+
+    await supabase
+      .from("bookmarks")
+      .update({
+        title: metadata.title,
+        description: metadata.description,
+        favicon_url: metadata.favicon,
+        og_image_url: metadata.ogImage,
+        image_url: metadata.ogImage,
+        status: "ready",
+        last_fetched_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    revalidatePath("/dashboard");
+    return {
+      status: "ready" as const,
+      title: metadata.title,
+      description: metadata.description,
+      favicon_url: metadata.favicon,
+      og_image_url: metadata.ogImage,
+      image_url: metadata.ogImage,
+      last_fetched_at: new Date().toISOString(),
+      error_reason: null,
+    };
+  } catch (error) {
+    console.error("Enrichment failed for", url, error);
+    const supabase = await createClient();
+    await supabase
+      .from("bookmarks")
+      .update({
+        status: "failed",
+        error_reason: error instanceof Error ? error.message : "Unknown error",
+      })
+      .eq("id", id);
+    revalidatePath("/dashboard");
+    return {
+      status: "failed" as const,
+      error_reason: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
+export async function updateBookmarksOrder(
+  updates: { id: string; order_index: number }[],
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const updatePromises = updates.map((update) =>
+    supabase
+      .from("bookmarks")
+      .update({ order_index: update.order_index })
+      .eq("id", update.id)
+      .eq("user_id", userData.user.id),
+  );
+
+  const results = await Promise.all(updatePromises);
+
+  const firstError = results.find((result) => result.error)?.error;
+  if (firstError) {
+    console.error("Error updating order:", firstError);
+    throw new Error(`Failed to update order: ${firstError.message}`);
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function updateFolderBookmarksOrder(
+  updates: { id: string; folder_order_index: number }[],
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const updatePromises = updates.map((update) =>
+    supabase
+      .from("bookmarks")
+      .update({ folder_order_index: update.folder_order_index })
+      .eq("id", update.id)
+      .eq("user_id", userData.user.id),
+  );
+
+  const results = await Promise.all(updatePromises);
+
+  const firstError = results.find((result) => result.error)?.error;
+  if (firstError) {
+    console.error("Error updating folder order:", firstError);
+    throw new Error(`Failed to update folder order: ${firstError.message}`);
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function restoreBookmark(bookmark: {
+  id: string;
+  url: string;
+  title: string;
+  description?: string | null;
+  group_id?: string | null;
+  favicon_url?: string | null;
+  og_image_url?: string | null;
+  image_url?: string | null;
+  order_index?: number | null;
+  created_at?: string | null;
+  status?: string | null;
+}) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const normalizedUrl = normalizeUrl(bookmark.url);
+
+  const { error } = await supabase.from("bookmarks").upsert(
+    {
+      id: bookmark.id,
+      url: normalizedUrl,
+      normalized_url: normalizedUrl,
+      title: bookmark.title,
+      description: bookmark.description ?? null,
+      group_id: bookmark.group_id ?? null,
+      favicon_url: bookmark.favicon_url ?? null,
+      og_image_url: bookmark.og_image_url ?? null,
+      image_url: bookmark.image_url ?? null,
+      order_index: bookmark.order_index ?? null,
+      created_at: bookmark.created_at ?? new Date().toISOString(),
+      status: bookmark.status ?? "ready",
+      user_id: userData.user.id,
+    },
+    { onConflict: "id" },
+  );
+
+  if (error) {
+    console.error("Error restoring bookmark:", error);
+    throw new Error("Failed to restore bookmark");
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function deleteBookmark(id: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("bookmarks").delete().eq("id", id);
+
+  if (error) {
+    console.error("Error deleting bookmark:", error);
+    throw new Error("Failed to delete bookmark");
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function enrichBookmark(
+  id: string,
+  metadata: {
+    title?: string;
+    favicon_url?: string;
+    og_image_url?: string;
+    description?: string;
+    image_url?: string;
+    status?: "pending" | "ready" | "failed";
+  },
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("bookmarks")
+    .update({
+      ...metadata,
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error enriching bookmark:", error);
+    return;
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function updateBookmark(
+  id: string,
+  formData: {
+    title: string;
+    url: string;
+    description?: string;
+    group_id?: string | null;
+  },
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("bookmarks")
+    .update({
+      title: formData.title,
+      url: formData.url,
+      description: formData.description,
+      group_id: formData.group_id,
+    })
+    .eq("id", id)
+    .eq("user_id", userData.user.id);
+
+  if (error) {
+    console.error("Error updating bookmark:", error);
+    throw new Error("Failed to update bookmark");
+  }
+
+  revalidatePath("/dashboard");
+}
