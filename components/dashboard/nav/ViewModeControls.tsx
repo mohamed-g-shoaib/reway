@@ -31,7 +31,7 @@ export function ViewModeControls({
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden size-9 rounded-xl hover:bg-muted/50 transition-colors active:scale-95"
+            className="md:hidden size-9 rounded-xl hover:bg-muted/50 transition-transform duration-150 active:scale-95"
             aria-label="Change view mode"
           >
             <HugeiconsIcon
@@ -82,7 +82,9 @@ export function ViewModeControls({
           </DropdownMenuItem>
           <DropdownMenuItem
             className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "folders" ? "bg-primary/5 text-primary font-medium" : ""
+              viewMode === "folders"
+                ? "bg-primary/5 text-primary font-medium"
+                : ""
             }`}
             onClick={() => setViewMode("folders")}
           >
@@ -96,7 +98,7 @@ export function ViewModeControls({
         <Button
           size="icon"
           variant={viewMode === "list" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none"
+          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
           onClick={() => setViewMode("list")}
           aria-label="List view"
         >
@@ -105,7 +107,7 @@ export function ViewModeControls({
         <Button
           size="icon"
           variant={viewMode === "card" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none"
+          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
           onClick={() => setViewMode("card")}
           aria-label="Card view"
         >
@@ -114,7 +116,7 @@ export function ViewModeControls({
         <Button
           size="icon"
           variant={viewMode === "icon" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none"
+          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
           onClick={() => setViewMode("icon")}
           aria-label="Icon view"
         >
@@ -123,7 +125,7 @@ export function ViewModeControls({
         <Button
           size="icon"
           variant={viewMode === "folders" ? "default" : "ghost"}
-          className="size-8 rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] motion-reduce:transition-none"
+          className="size-8 rounded-lg transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
           onClick={() => setViewMode("folders")}
           aria-label="Folder view"
         >

@@ -23,7 +23,7 @@ export function FolderHeader({
 
   return (
     <AccordionTrigger
-      className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left border-b border-border/30 bg-muted/15 transition-colors hover:bg-muted/20 hover:no-underline ${
+      className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left border-b border-border/30 bg-muted/15 hover:bg-muted/20 hover:no-underline ${
         isSelected ? "ring-1 ring-primary/20 bg-muted/20" : ""
       }`}
       onClick={onSelect}

@@ -120,7 +120,7 @@ export function GroupMenu({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-colors active:scale-[0.98]"
+            className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-transform duration-150 active:scale-[0.98]"
           >
             <div className="flex items-center justify-center h-8 w-8">
               {ActiveIcon ? (
@@ -163,7 +163,7 @@ export function GroupMenu({
                 event.stopPropagation();
                 onGroupOpen?.("all");
               }}
-              className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-foreground transition-opacity"
+              className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-foreground transition-opacity duration-150"
               aria-label="Open all bookmarks"
             >
               <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -173,13 +173,13 @@ export function GroupMenu({
           {groups.length > 0 ? (
             <div
               className={`max-h-75 overflow-y-auto ${
-                groups.length > 1 ? "border-t border-border/50 my-1 pt-1" : "mt-1"
+                groups.length > 1
+                  ? "border-t border-border/50 my-1 pt-1"
+                  : "mt-1"
               }`}
             >
               {groups.map((group) => {
-                const GroupIcon = group.icon
-                  ? ALL_ICONS_MAP[group.icon]
-                  : null;
+                const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : null;
                 const isEditing = editingGroupId === group.id;
 
                 if (isEditing) {
@@ -198,7 +198,7 @@ export function GroupMenu({
                         >
                           <button
                             type="button"
-                            className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                            className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
                             aria-label="Select group icon"
                           >
                             <HugeiconsIcon
@@ -265,7 +265,7 @@ export function GroupMenu({
                   >
                     <DropdownMenuItem
                       asChild
-                      className={`group flex-1 cursor-pointer py-2 pr-20 transition-colors ${
+                      className={`group flex-1 cursor-pointer py-2 pr-20 ${
                         activeGroupId === group.id
                           ? "bg-primary/5 text-primary font-bold"
                           : "text-muted-foreground"
@@ -293,18 +293,21 @@ export function GroupMenu({
                         <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
                           <button
                             type="button"
-                            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                             onClick={(e) => {
                               e.stopPropagation();
                               onGroupOpen?.(group.id);
                             }}
                             aria-label={`Open ${group.name}`}
                           >
-                            <HugeiconsIcon icon={ArrowUpRight03Icon} size={13} />
+                            <HugeiconsIcon
+                              icon={ArrowUpRight03Icon}
+                              size={13}
+                            />
                           </button>
                           <button
                             type="button"
-                            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditingGroupId(group.id);
@@ -318,7 +321,7 @@ export function GroupMenu({
                           </button>
                           <button
                             type="button"
-                            className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
+                            className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none ${
                               isDeleteConfirm
                                 ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                                 : "text-destructive hover:bg-destructive/10 hover:text-destructive"
@@ -334,7 +337,9 @@ export function GroupMenu({
                             }
                           >
                             <HugeiconsIcon
-                              icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                              icon={
+                                isDeleteConfirm ? Alert02Icon : Delete02Icon
+                              }
                               size={13}
                             />
                           </button>
@@ -353,18 +358,21 @@ export function GroupMenu({
                           <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
                             <button
                               type="button"
-                              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onGroupOpen?.(group.id);
                               }}
                               aria-label={`Open ${group.name}`}
                             >
-                              <HugeiconsIcon icon={ArrowUpRight03Icon} size={13} />
+                              <HugeiconsIcon
+                                icon={ArrowUpRight03Icon}
+                                size={13}
+                              />
                             </button>
                             <button
                               type="button"
-                              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingGroupId(group.id);
@@ -374,11 +382,14 @@ export function GroupMenu({
                               }}
                               aria-label={`Edit ${group.name}`}
                             >
-                              <HugeiconsIcon icon={PencilEdit01Icon} size={13} />
+                              <HugeiconsIcon
+                                icon={PencilEdit01Icon}
+                                size={13}
+                              />
                             </button>
                             <button
                               type="button"
-                              className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
+                              className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none ${
                                 isDeleteConfirm
                                   ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
                                   : "text-destructive hover:bg-destructive/10 hover:text-destructive"
@@ -394,7 +405,9 @@ export function GroupMenu({
                               }
                             >
                               <HugeiconsIcon
-                                icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                                icon={
+                                  isDeleteConfirm ? Alert02Icon : Delete02Icon
+                                }
                                 size={13}
                               />
                             </button>
@@ -424,7 +437,7 @@ export function GroupMenu({
                 >
                   <button
                     type="button"
-                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
                     aria-label="Select group icon"
                   >
                     <HugeiconsIcon
@@ -480,7 +493,12 @@ export function GroupMenu({
               }}
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <HugeiconsIcon icon={Add01Icon} size={16} strokeWidth={2} className="shrink-0" />
+                <HugeiconsIcon
+                  icon={Add01Icon}
+                  size={16}
+                  strokeWidth={2}
+                  className="shrink-0"
+                />
                 <span>New Group</span>
               </div>
             </DropdownMenuItem>

@@ -1,6 +1,10 @@
 "use client";
 
-import { AttachmentIcon, BookmarkAdd02Icon, Search02Icon } from "@hugeicons/core-free-icons";
+import {
+  AttachmentIcon,
+  BookmarkAdd02Icon,
+  Search02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -48,11 +52,11 @@ export function CommandBarInput({
     <div className="relative w-full">
       <form
         onSubmit={onSubmit}
-        className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-shadow duration-200 ease-out ${
+        className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
             : "ring-1 ring-foreground/5 after:ring-white/5"
-        } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] after:transition-shadow after:duration-200 motion-reduce:transition-none shadow-none isolate`}
+        } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate`}
       >
         <input
           type="file"
@@ -71,7 +75,7 @@ export function CommandBarInput({
                 variant="ghost"
                 size="icon"
                 onClick={onPlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-[color,background-color,transform] duration-200 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
                 aria-label="Add image or file"
               >
                 <HugeiconsIcon icon={AttachmentIcon} size={16} />
@@ -109,7 +113,7 @@ export function CommandBarInput({
           <button
             type="button"
             onClick={() => onModeChange?.("add")}
-            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg transition-colors ${
+            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg ${
               mode === "add"
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
@@ -135,7 +139,7 @@ export function CommandBarInput({
           <button
             type="button"
             onClick={() => onModeChange?.("search")}
-            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg transition-colors ${
+            className={`h-7 w-7 md:w-auto md:px-2 flex items-center justify-center md:gap-1.5 rounded-lg ${
               mode === "search"
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"

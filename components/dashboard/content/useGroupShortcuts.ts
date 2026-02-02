@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useCallback } from "react";
 import type { GroupRow } from "@/lib/supabase/queries";
+import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
 
 interface UseGroupShortcutsOptions {
   groups: GroupRow[];
@@ -50,8 +51,8 @@ export function useGroupShortcuts({
     letterCycleRef.current = {};
   }, [groups]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
       if (!event.shiftKey) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key.length !== 1) return;
@@ -75,9 +76,9 @@ export function useGroupShortcuts({
       const nextIndex = (currentIndex + 1) % groupIds.length;
       letterCycleRef.current[letter] = nextIndex;
       setActiveGroupId(groupIds[nextIndex]);
-    };
+    },
+    [groupsByFirstLetter, setActiveGroupId],
+  );
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [groupsByFirstLetter, setActiveGroupId]);
+  useGlobalKeydown(handleKeyDown);
 }

@@ -4,7 +4,13 @@ import type { RefCallback } from "react";
 import { CSS, type Transform } from "@dnd-kit/utilities";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { File02Icon, GridIcon, Link01Icon } from "@hugeicons/core-free-icons";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -69,7 +75,7 @@ export function InlineEditForm({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
               >
                 {editGroupId === "no-group" ? (
                   <HugeiconsIcon
@@ -101,7 +107,9 @@ export function InlineEditForm({
             >
               <DropdownMenuItem
                 className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-                  editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""
+                  editGroupId === "no-group"
+                    ? "bg-primary/5 text-primary font-bold"
+                    : ""
                 }`}
                 onClick={() => setEditGroupId("no-group")}
               >
@@ -121,7 +129,9 @@ export function InlineEditForm({
                         <DropdownMenuItem
                           key={group.id}
                           className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-                            editGroupId === group.id ? "bg-primary/5 text-primary font-bold" : ""
+                            editGroupId === group.id
+                              ? "bg-primary/5 text-primary font-bold"
+                              : ""
                           }`}
                           onClick={() => setEditGroupId(group.id)}
                         >

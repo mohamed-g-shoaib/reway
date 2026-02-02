@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
+import type { EnrichmentResult } from "./dashboard-types";
 
 interface UseBookmarkActionsOptions {
   activeGroupId: string;
@@ -43,13 +44,67 @@ export function useBookmarkActions({
 }: UseBookmarkActionsOptions) {
   const addOptimisticBookmark = useCallback(
     (bookmark: BookmarkRow) => {
-      const newBookmark = {
-        ...bookmark,
-        group_id: activeGroupId !== "all" ? activeGroupId : bookmark.group_id,
-      };
-      setBookmarks((prev) => [newBookmark, ...prev]);
+      setBookmarks((prev) => {
+        const minOrder = prev.reduce((min, item) => {
+          const order = item.order_index ?? Number.POSITIVE_INFINITY;
+          return order < min ? order : min;
+        }, Number.POSITIVE_INFINITY);
+        const nextOrder =
+          minOrder === Number.POSITIVE_INFINITY ? 0 : minOrder - 1;
+        const newBookmark = {
+          ...bookmark,
+          created_at: bookmark.created_at ?? new Date().toISOString(),
+          order_index: bookmark.order_index ?? nextOrder,
+          group_id: activeGroupId !== "all" ? activeGroupId : bookmark.group_id,
+        };
+        return sortBookmarks([newBookmark, ...prev]);
+      });
     },
-    [activeGroupId, setBookmarks],
+    [activeGroupId, setBookmarks, sortBookmarks],
+  );
+
+  const applyEnrichment = useCallback(
+    (id: string, enrichment?: EnrichmentResult) => {
+      if (!enrichment) return;
+      setBookmarks((prev) =>
+        prev.map((item) => {
+          if (item.id !== id) return item;
+          if (enrichment.status === "failed") {
+            return {
+              ...item,
+              status: "failed",
+              is_enriching: false,
+              error_reason: enrichment.error_reason ?? "Enrichment failed",
+            };
+          }
+          return {
+            ...item,
+            title: enrichment.title ?? item.title,
+            description: enrichment.description ?? item.description,
+            favicon_url: enrichment.favicon_url ?? item.favicon_url,
+            og_image_url: enrichment.og_image_url ?? item.og_image_url,
+            image_url: enrichment.image_url ?? item.image_url,
+            status: "ready",
+            is_enriching: false,
+            error_reason: null,
+            last_fetched_at: enrichment.last_fetched_at ?? item.last_fetched_at,
+          };
+        }),
+      );
+    },
+    [setBookmarks],
+  );
+
+  const replaceBookmarkId = useCallback(
+    (stableId: string, actualId: string) => {
+      if (!actualId || stableId === actualId) return;
+      setBookmarks((prev) =>
+        prev.map((item) =>
+          item.id === stableId ? { ...item, id: actualId } : item,
+        ),
+      );
+    },
+    [setBookmarks],
   );
 
   const handleFolderReorder = useCallback(
@@ -230,6 +285,8 @@ export function useBookmarkActions({
 
   return {
     addOptimisticBookmark,
+    applyEnrichment,
+    replaceBookmarkId,
     handleFolderReorder,
     handleDeleteBookmark,
     handleReorder,
