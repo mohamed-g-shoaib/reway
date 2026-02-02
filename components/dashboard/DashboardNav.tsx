@@ -8,7 +8,7 @@ import { GroupRow } from "@/lib/supabase/queries";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import Link from "next/link";
-import { createGroup } from "@/app/dashboard/actions";
+import { createGroup } from "@/app/dashboard/actions/groups";
 import { ImportDialog } from "./nav/ImportDialog";
 import { ExportDialog } from "./nav/ExportDialog";
 import { ViewModeControls } from "./nav/ViewModeControls";
@@ -236,7 +236,7 @@ export function DashboardNav({
         onExportBookmarks={onExportBookmarks}
       />
 
-      <nav className="z-40 mx-auto max-w-3xl transition-transform duration-300 group-data-[scrolled=true]/body:top-2">
+      <nav className="z-40 mx-auto max-w-3xl transition-transform duration-200 group-data-[scrolled=true]/body:top-2">
         <div className="flex h-14 w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Link
@@ -295,7 +295,7 @@ export function DashboardNav({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-9 rounded-xl hover:bg-muted/50 transition-colors active:scale-95"
+                className="size-9 rounded-xl hover:bg-muted/50 transition-transform duration-150 active:scale-95"
                 aria-label="Settings"
               >
                 <HugeiconsIcon

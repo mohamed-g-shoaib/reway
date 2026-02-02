@@ -1,6 +1,12 @@
 "use client";
 
-import { AiMagicIcon, FileExportIcon, FileImportIcon, Key02Icon, Logout01Icon } from "@hugeicons/core-free-icons";
+import {
+  AiMagicIcon,
+  FileExportIcon,
+  FileImportIcon,
+  Key02Icon,
+  Logout01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ApiTokenDialog } from "../ApiTokenDialog";
-import { signOut } from "@/app/dashboard/actions";
+import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
 
 interface UserMenuProps {
@@ -34,7 +40,7 @@ export function UserMenu({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <Avatar className="h-8 w-8 transition-transform active:scale-95">
             <AvatarImage src={user.avatar_url} alt={user.name} />
@@ -58,7 +64,7 @@ export function UserMenu({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2"
+          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
           onSelect={(event) => {
             event.preventDefault();
             onOpenImportDialog();
@@ -68,7 +74,7 @@ export function UserMenu({
           Import Bookmarks
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2"
+          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
           onSelect={(event) => {
             event.preventDefault();
             onOpenExportDialog();
@@ -80,7 +86,7 @@ export function UserMenu({
         <DropdownMenuSeparator />
         <ApiTokenDialog>
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2"
+            className="rounded-xl flex items-center gap-2 text-primary cursor-pointer focus:bg-primary/5 font-medium py-2"
             onSelect={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -90,7 +96,7 @@ export function UserMenu({
             Manage Access Tokens
           </DropdownMenuItem>
         </ApiTokenDialog>
-        <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer transition-colors focus:bg-primary/5 font-medium py-2">
+        <DropdownMenuItem className="rounded-xl flex items-center gap-2 text-primary cursor-pointer focus:bg-primary/5 font-medium py-2">
           <HugeiconsIcon icon={AiMagicIcon} size={16} />
           Upgrade to Pro
         </DropdownMenuItem>
@@ -98,7 +104,7 @@ export function UserMenu({
         <form action={signOut}>
           <DropdownMenuItem
             asChild
-            className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer transition-colors focus:bg-destructive/5 focus:text-destructive w-full py-2"
+            className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive w-full py-2"
           >
             <button type="submit" className="w-full flex items-center gap-2">
               <HugeiconsIcon icon={Logout01Icon} size={16} />

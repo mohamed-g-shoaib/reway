@@ -3,16 +3,20 @@
 import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
+import type { EnrichmentResult } from "../content/dashboard-types";
 import {
   addBookmark,
   checkDuplicateBookmarks,
   enrichCreatedBookmark,
-  extractLinks,
-} from "@/app/dashboard/actions";
+} from "@/app/dashboard/actions/bookmarks";
+import { extractLinks } from "@/app/dashboard/actions/extract";
 import { isUrl, normalizeUrl } from "./helpers";
+import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
 
 interface UseCommandHandlersOptions {
   onAddBookmark: (bookmark: BookmarkRow) => void;
+  onApplyEnrichment?: (id: string, enrichment?: EnrichmentResult) => void;
+  onReplaceBookmarkId?: (stableId: string, actualId: string) => void;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
   onDuplicatesDetected?: (duplicates: { url: string; title: string }[]) => void;
@@ -21,6 +25,8 @@ interface UseCommandHandlersOptions {
 
 export function useCommandHandlers({
   onAddBookmark,
+  onApplyEnrichment,
+  onReplaceBookmarkId,
   onModeChange,
   onSearchChange,
   onDuplicatesDetected,
@@ -74,7 +80,7 @@ export function useCommandHandlers({
           group_id: null,
           user_id: "",
           created_at: new Date().toISOString(),
-          order_index: null,
+          order_index: Number.MIN_SAFE_INTEGER,
           status: "pending",
         } as BookmarkRow;
 
@@ -82,7 +88,13 @@ export function useCommandHandlers({
 
         try {
           const bookmarkId = await addBookmark({ url, id: stableId });
-          await enrichCreatedBookmark(bookmarkId, url);
+          if (bookmarkId) {
+            onReplaceBookmarkId?.(stableId, bookmarkId);
+          }
+          const enrichment = (await enrichCreatedBookmark(bookmarkId, url)) as
+            | EnrichmentResult
+            | undefined;
+          onApplyEnrichment?.(bookmarkId ?? stableId, enrichment);
         } catch (error) {
           console.error("Failed to add bookmark:", error);
           toast.error(`Failed to add ${url}`);
@@ -165,12 +177,12 @@ export function useCommandHandlers({
 
   useEffect(() => {
     window.addEventListener("paste", handlePaste);
-    window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("paste", handlePaste);
-      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handlePaste, handleKeyDown]);
+  }, [handlePaste]);
+
+  useGlobalKeydown(handleKeyDown);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
