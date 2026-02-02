@@ -1,0 +1,167 @@
+"use client";
+
+import { useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import type { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
+import { useGlobalEvent } from "@/hooks/useGlobalEvent";
+
+function isValidBookmarkUrl(url?: string | null) {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function normalizeBookmark(
+  incoming: BookmarkRow,
+  fallback?: BookmarkRow,
+): BookmarkRow | null {
+  const merged = fallback ? { ...fallback, ...incoming } : incoming;
+  if (!merged.id || !isValidBookmarkUrl(merged.url)) return null;
+  const url = merged.url.trim();
+  return {
+    ...merged,
+    url,
+    normalized_url: merged.normalized_url ?? url,
+    title: merged.title?.trim() || url,
+    created_at: merged.created_at ?? new Date().toISOString(),
+  };
+}
+
+interface UseDashboardRealtimeOptions {
+  userId: string;
+  sortBookmarks: (items: BookmarkRow[]) => BookmarkRow[];
+  sortGroups: (items: GroupRow[]) => GroupRow[];
+  setBookmarks: React.Dispatch<React.SetStateAction<BookmarkRow[]>>;
+  setGroups: React.Dispatch<React.SetStateAction<GroupRow[]>>;
+}
+
+export function useDashboardRealtime({
+  userId,
+  sortBookmarks,
+  sortGroups,
+  setBookmarks,
+  setGroups,
+}: UseDashboardRealtimeOptions) {
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.realtime.setAuth();
+
+    const bookmarksChannel = supabase
+      .channel(`user:${userId}:bookmarks`, { config: { private: true } })
+      .on("broadcast", { event: "INSERT" }, (payload) => {
+        const nextRow = payload.payload as BookmarkRow | undefined;
+        if (!nextRow) return;
+        setBookmarks((prev) => {
+          const cleanedPrev = prev.filter(
+            (bookmark) => bookmark?.id && isValidBookmarkUrl(bookmark.url),
+          );
+          const existingIndex = cleanedPrev.findIndex(
+            (b) => b.id === nextRow.id,
+          );
+          if (existingIndex !== -1) {
+            // Update existing optimistic bookmark with server data (correct order_index)
+            const normalized = normalizeBookmark(
+              nextRow,
+              cleanedPrev[existingIndex],
+            );
+            if (!normalized) return cleanedPrev;
+            const updated = [...cleanedPrev];
+            updated[existingIndex] = normalized;
+            return sortBookmarks(updated);
+          }
+          const normalized = normalizeBookmark(nextRow);
+          if (!normalized) return cleanedPrev;
+          return sortBookmarks([normalized, ...cleanedPrev]);
+        });
+      })
+      .on("broadcast", { event: "UPDATE" }, (payload) => {
+        const nextRow = payload.payload as BookmarkRow | undefined;
+        if (!nextRow) return;
+        setBookmarks((prev) => {
+          const cleanedPrev = prev.filter(
+            (bookmark) => bookmark?.id && isValidBookmarkUrl(bookmark.url),
+          );
+          const existingIndex = cleanedPrev.findIndex(
+            (b) => b.id === nextRow.id,
+          );
+          if (existingIndex === -1) return cleanedPrev;
+          const normalized = normalizeBookmark(
+            nextRow,
+            cleanedPrev[existingIndex],
+          );
+          if (!normalized) return cleanedPrev;
+          const updated = [...cleanedPrev];
+          updated[existingIndex] = normalized;
+          return sortBookmarks(updated);
+        });
+      })
+      .on("broadcast", { event: "DELETE" }, (payload) => {
+        const oldRow = payload.payload as BookmarkRow | undefined;
+        if (!oldRow) return;
+        setBookmarks((prev) => prev.filter((item) => item.id !== oldRow.id));
+      })
+      .subscribe();
+
+    const groupsChannel = supabase
+      .channel(`user:${userId}:groups`, { config: { private: true } })
+      .on("broadcast", { event: "INSERT" }, (payload) => {
+        const nextRow = payload.payload as GroupRow | undefined;
+        if (!nextRow?.name?.trim()) return;
+        setGroups((prev) => {
+          if (prev.some((g) => g.id === nextRow.id)) return prev;
+          return sortGroups([nextRow, ...prev]);
+        });
+      })
+      .on("broadcast", { event: "UPDATE" }, (payload) => {
+        const nextRow = payload.payload as GroupRow | undefined;
+        if (!nextRow) return;
+        setGroups((prev) =>
+          sortGroups(
+            prev.map((item) => (item.id === nextRow.id ? nextRow : item)),
+          ),
+        );
+      })
+      .on("broadcast", { event: "DELETE" }, (payload) => {
+        const oldRow = payload.payload as GroupRow | undefined;
+        if (!oldRow) return;
+        setGroups((prev) => prev.filter((item) => item.id !== oldRow.id));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(bookmarksChannel);
+      supabase.removeChannel(groupsChannel);
+    };
+  }, [setBookmarks, setGroups, sortBookmarks, sortGroups, userId]);
+
+  useGlobalEvent("message", (event) => {
+    if (event?.data?.type !== "reway_broadcast_bookmark") return;
+    const bookmark = event.data.bookmark as BookmarkRow | undefined;
+    if (!bookmark?.id) return;
+    setBookmarks((prev) => {
+      const cleanedPrev = prev.filter(
+        (item) => item?.id && isValidBookmarkUrl(item.url),
+      );
+      const existingIndex = cleanedPrev.findIndex(
+        (item) => item.id === bookmark.id,
+      );
+      if (existingIndex !== -1) {
+        const normalized = normalizeBookmark(
+          bookmark,
+          cleanedPrev[existingIndex],
+        );
+        if (!normalized) return cleanedPrev;
+        const updated = [...cleanedPrev];
+        updated[existingIndex] = normalized;
+        return sortBookmarks(updated);
+      }
+      const normalized = normalizeBookmark(bookmark);
+      if (!normalized) return cleanedPrev;
+      return sortBookmarks([normalized, ...cleanedPrev]);
+    });
+  });
+}

@@ -19,7 +19,7 @@ export default async function DashboardPage() {
 
     return (
       <ErrorBoundary>
-        <div className="h-screen overflow-hidden bg-background text-foreground">
+        <div className="h-dvh overflow-hidden bg-background text-foreground">
           <main className="mx-auto w-full max-w-3xl px-4 py-6">
             <DashboardContent
               user={user}

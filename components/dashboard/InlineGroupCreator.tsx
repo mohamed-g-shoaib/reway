@@ -39,7 +39,7 @@ export function InlineGroupCreator({
         >
           <button
             type="button"
-            className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+            className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
             aria-label="Select group icon"
           >
             <HugeiconsIcon

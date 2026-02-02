@@ -63,14 +63,11 @@ export function GroupListItem({
           >
             <button
               type="button"
-              className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors"
+              className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
               aria-label="Select group icon"
             >
               <HugeiconsIcon
-                icon={
-                  ALL_ICONS_MAP[editGroupIcon] ||
-                  ALL_ICONS_MAP["folder"]
-                }
+                icon={ALL_ICONS_MAP[editGroupIcon] || ALL_ICONS_MAP["folder"]}
                 size={16}
                 strokeWidth={2}
                 className="text-primary"
@@ -116,8 +113,10 @@ export function GroupListItem({
 
   return (
     <DropdownMenuItem
-      className={`rounded-xl cursor-pointer flex items-center justify-between gap-3 py-2 group/menu-item transition-colors ${
-        isActive ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground"
+      className={`rounded-xl cursor-pointer flex items-center justify-between gap-3 py-2 group/menu-item ${
+        isActive
+          ? "bg-primary/5 text-primary font-bold"
+          : "text-muted-foreground"
       } ${isDeleteConfirm ? "bg-muted/50" : ""}`}
       onSelect={(e) => {
         const isButton = (e.target as HTMLElement).closest("button");

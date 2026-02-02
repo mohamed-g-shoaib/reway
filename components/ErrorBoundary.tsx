@@ -65,7 +65,7 @@ function DefaultErrorFallback({ error, reset }: { error?: Error; reset: () => vo
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+    <div className="min-h-dvh flex items-center justify-center p-4 bg-background">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="flex justify-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">

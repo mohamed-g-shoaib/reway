@@ -44,6 +44,7 @@ next-env.d.ts
 .agent
 .windsurf
 .cursor
+.vscode
 
 # examples
 /examples

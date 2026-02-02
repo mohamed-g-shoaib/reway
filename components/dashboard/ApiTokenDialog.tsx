@@ -24,7 +24,7 @@ import {
   deleteApiToken,
   listApiTokens,
   revealApiToken,
-} from "@/app/dashboard/actions";
+} from "@/app/dashboard/actions/tokens";
 import { toast } from "sonner";
 
 interface ApiTokenDialogProps {
@@ -50,8 +50,9 @@ export function ApiTokenDialog({ children }: ApiTokenDialogProps) {
 
   const sortedTokens = useMemo(
     () =>
-      [...tokens].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      tokens.toSorted(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       ),
     [tokens],
   );
@@ -239,7 +240,9 @@ export function ApiTokenDialog({ children }: ApiTokenDialogProps) {
                             size="sm"
                             variant="outline"
                             className="rounded-2xl"
-                            onClick={() => handleCopy(activeToken, "Token copied")}
+                            onClick={() =>
+                              handleCopy(activeToken, "Token copied")
+                            }
                           >
                             <HugeiconsIcon icon={Copy01Icon} size={14} />
                             Copy

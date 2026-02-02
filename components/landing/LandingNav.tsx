@@ -15,7 +15,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
         <div className="inline-flex w-full max-w-[460px] items-center gap-3 sm:gap-6 rounded-full border border-border/80 bg-background/80 px-2.5 py-2.5 shadow-sm backdrop-blur-xl">
           <Link
             href="/"
-            className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-all duration-200 ease-out active:scale-[0.97]"
+            className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97]"
             aria-label="Reway Home"
           >
             <Image
@@ -34,14 +34,14 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
               asChild
               variant="outline"
               size="sm"
-              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-all duration-200 ease-out active:scale-[0.97]"
+              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97]"
             >
               <Link href="#features">Features</Link>
             </Button>
             <Button
               asChild
               size="sm"
-              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-all duration-200 ease-out active:scale-[0.97]"
+              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97]"
             >
               <Link href={dashboardHref}>{ctaLabel}</Link>
             </Button>
