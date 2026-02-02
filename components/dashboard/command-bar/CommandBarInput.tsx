@@ -118,7 +118,7 @@ export function CommandBarInput({
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
             }`}
-            aria-pressed={mode === "add" ? "true" : "false"}
+            aria-pressed
             aria-label="Add bookmarks"
           >
             <HugeiconsIcon icon={BookmarkAdd02Icon} size={14} />
@@ -144,7 +144,6 @@ export function CommandBarInput({
                 ? "bg-primary/10 text-primary"
                 : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
             }`}
-            aria-pressed={mode === "search" ? "true" : "false"}
             aria-label="Search bookmarks"
           >
             <HugeiconsIcon icon={Search02Icon} size={14} />
