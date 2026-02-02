@@ -12,6 +12,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
@@ -84,16 +85,16 @@ export function DashboardSidebar({
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
   return (
-    <aside className="hidden lg:flex fixed left-6 top-28 z-30 flex-col gap-2 text-sm text-muted-foreground/70">
+    <aside className="hidden lg:flex fixed left-6 top-36 z-30 flex-col gap-2 text-sm text-muted-foreground/70">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
-        <div className="flex items-center gap-1.5">
-          <div className="h-[18px] min-w-[18px] rounded-md border border-border/60 px-1 text-[10px] flex items-center justify-center">
+        <KbdGroup className="gap-0.5">
+          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
             Shift
-          </div>
-          <div className="h-[18px] min-w-[18px] rounded-md border border-border/60 px-1 text-[10px] flex items-center justify-center">
+          </Kbd>
+          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
             A–Z
-          </div>
-        </div>
+          </Kbd>
+        </KbdGroup>
         <span>Switch Group</span>
       </div>
       <div
@@ -128,7 +129,7 @@ export function DashboardSidebar({
         <button
           type="button"
           onClick={() => handleOpenGroup("all")}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200"
+          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
           aria-label="Open all bookmarks"
         >
           <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -239,7 +240,7 @@ export function DashboardSidebar({
               <button
                 type="button"
                 onClick={() => handleOpenGroup(group.id)}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200"
+                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
                 aria-label={`Open ${group.name}`}
               >
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -252,7 +253,7 @@ export function DashboardSidebar({
                   setEditGroupIcon(group.icon || "folder");
                   setEditGroupColor(group.color || "#6366f1");
                 }}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200"
+                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
                 aria-label={`Edit ${group.name}`}
               >
                 <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
@@ -260,10 +261,10 @@ export function DashboardSidebar({
               <button
                 type="button"
                 onClick={() => handleDeleteGroupClick(group.id)}
-                className={`transition-colors duration-200 ${
+                className={`transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center ${
                   isDeleteConfirm
                     ? "text-destructive"
-                    : "text-muted-foreground/50 hover:text-destructive"
+                    : "text-destructive/80 hover:text-destructive"
                 }`}
                 aria-label={
                   isDeleteConfirm
