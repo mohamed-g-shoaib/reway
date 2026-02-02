@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
+import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
+import { useGlobalEvent } from "@/hooks/useGlobalEvent";
 
 interface UseFolderKeyboardNavOptions {
   bookmarkBuckets: Record<string, BookmarkRow[]>;
@@ -33,14 +35,55 @@ export function useFolderKeyboardNav({
   onPreview,
   onToggleCollapse,
 }: UseFolderKeyboardNavOptions) {
+  const bookmarkBucketsRef = useRef(bookmarkBuckets);
+  const collapsedGroupsRef = useRef(collapsedGroups);
+  const gridColumnsRef = useRef(gridColumns);
+  const visibleGroupsRef = useRef(visibleGroups);
+  const selectedFolderIdRef = useRef(selectedFolderId);
+  const selectedBookmarkIndexRef = useRef(selectedBookmarkIndex);
+  const onPreviewRef = useRef(onPreview);
+  const onToggleCollapseRef = useRef(onToggleCollapse);
+
+  useEffect(() => {
+    bookmarkBucketsRef.current = bookmarkBuckets;
+  }, [bookmarkBuckets]);
+
+  useEffect(() => {
+    collapsedGroupsRef.current = collapsedGroups;
+  }, [collapsedGroups]);
+
+  useEffect(() => {
+    gridColumnsRef.current = gridColumns;
+  }, [gridColumns]);
+
+  useEffect(() => {
+    visibleGroupsRef.current = visibleGroups;
+  }, [visibleGroups]);
+
+  useEffect(() => {
+    selectedFolderIdRef.current = selectedFolderId;
+  }, [selectedFolderId]);
+
+  useEffect(() => {
+    selectedBookmarkIndexRef.current = selectedBookmarkIndex;
+  }, [selectedBookmarkIndex]);
+
+  useEffect(() => {
+    onPreviewRef.current = onPreview;
+  }, [onPreview]);
+
+  useEffect(() => {
+    onToggleCollapseRef.current = onToggleCollapse;
+  }, [onToggleCollapse]);
+
   useEffect(() => {
     onKeyboardContextChange?.(
       selectedBookmarkIndex >= 0 ? "bookmark" : "folder",
     );
   }, [onKeyboardContextChange, selectedBookmarkIndex]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
       if (
         e.target instanceof HTMLInputElement ||
         e.target instanceof HTMLTextAreaElement ||
@@ -50,13 +93,22 @@ export function useFolderKeyboardNav({
         return;
       }
 
-      const folderIndex = selectedFolderId
-        ? visibleGroups.findIndex((group) => group.id === selectedFolderId)
+      const visibleGroupsValue = visibleGroupsRef.current;
+      const selectedFolderValue = selectedFolderIdRef.current;
+      const selectedBookmarkValue = selectedBookmarkIndexRef.current;
+      const bucketsValue = bookmarkBucketsRef.current;
+      const collapsedValue = collapsedGroupsRef.current;
+      const columns = gridColumnsRef.current;
+
+      const folderIndex = selectedFolderValue
+        ? visibleGroupsValue.findIndex(
+            (group) => group.id === selectedFolderValue,
+          )
         : -1;
       const activeGroup =
-        folderIndex >= 0 ? visibleGroups[folderIndex] : undefined;
+        folderIndex >= 0 ? visibleGroupsValue[folderIndex] : undefined;
       const activeBookmarks = activeGroup
-        ? bookmarkBuckets[activeGroup.id] ?? []
+        ? (bucketsValue[activeGroup.id] ?? [])
         : [];
 
       if (
@@ -72,14 +124,17 @@ export function useFolderKeyboardNav({
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        if (selectedBookmarkIndex >= 0) {
+        if (selectedBookmarkValue >= 0) {
           setSelectedBookmarkIndex((prev) => {
-            const nextIndex = prev + gridColumns;
+            const nextIndex = prev + columns;
             if (nextIndex < activeBookmarks.length) {
               return nextIndex;
             }
-            if (folderIndex >= 0 && folderIndex < visibleGroups.length - 1) {
-              setSelectedFolderId(visibleGroups[folderIndex + 1].id);
+            if (
+              folderIndex >= 0 &&
+              folderIndex < visibleGroupsValue.length - 1
+            ) {
+              setSelectedFolderId(visibleGroupsValue[folderIndex + 1].id);
               return -1;
             }
             return prev;
@@ -88,26 +143,29 @@ export function useFolderKeyboardNav({
         }
 
         if (folderIndex < 0) {
-          setSelectedFolderId(visibleGroups[0]?.id ?? null);
+          setSelectedFolderId(visibleGroupsValue[0]?.id ?? null);
           return;
         }
 
-        if (!collapsedGroups[activeGroup?.id ?? ""] && activeBookmarks.length > 0) {
+        if (
+          !collapsedValue[activeGroup?.id ?? ""] &&
+          activeBookmarks.length > 0
+        ) {
           setSelectedBookmarkIndex(0);
           return;
         }
 
-        const next = Math.min(visibleGroups.length - 1, folderIndex + 1);
-        setSelectedFolderId(visibleGroups[next].id);
+        const next = Math.min(visibleGroupsValue.length - 1, folderIndex + 1);
+        setSelectedFolderId(visibleGroupsValue[next].id);
         setSelectedBookmarkIndex(-1);
         return;
       }
 
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        if (selectedBookmarkIndex >= 0) {
+        if (selectedBookmarkValue >= 0) {
           setSelectedBookmarkIndex((prev) => {
-            const nextIndex = prev - gridColumns;
+            const nextIndex = prev - columns;
             if (nextIndex >= 0) {
               return nextIndex;
             }
@@ -117,17 +175,17 @@ export function useFolderKeyboardNav({
         }
 
         if (folderIndex < 0) {
-          setSelectedFolderId(visibleGroups[0]?.id ?? null);
+          setSelectedFolderId(visibleGroupsValue[0]?.id ?? null);
           return;
         }
 
         const next = Math.max(0, folderIndex - 1);
-        setSelectedFolderId(visibleGroups[next].id);
+        setSelectedFolderId(visibleGroupsValue[next].id);
         setSelectedBookmarkIndex(-1);
         return;
       }
 
-      if (selectedBookmarkIndex >= 0 && e.key === "ArrowRight") {
+      if (selectedBookmarkValue >= 0 && e.key === "ArrowRight") {
         e.preventDefault();
         setSelectedBookmarkIndex((prev) => {
           const nextIndex = prev + 1;
@@ -136,7 +194,7 @@ export function useFolderKeyboardNav({
         return;
       }
 
-      if (selectedBookmarkIndex >= 0 && e.key === "ArrowLeft") {
+      if (selectedBookmarkValue >= 0 && e.key === "ArrowLeft") {
         e.preventDefault();
         setSelectedBookmarkIndex((prev) => {
           const nextIndex = prev - 1;
@@ -146,11 +204,11 @@ export function useFolderKeyboardNav({
       }
 
       if (e.key === " ") {
-        if (selectedBookmarkIndex >= 0) {
-          const bookmark = activeBookmarks[selectedBookmarkIndex];
+        if (selectedBookmarkValue >= 0) {
+          const bookmark = activeBookmarks[selectedBookmarkValue];
           if (!bookmark) return;
           e.preventDefault();
-          onPreview(bookmark);
+          onPreviewRef.current(bookmark);
         }
         return;
       }
@@ -159,8 +217,8 @@ export function useFolderKeyboardNav({
         if (!activeGroup) return;
         e.preventDefault();
 
-        if (selectedBookmarkIndex >= 0) {
-          const bookmark = activeBookmarks[selectedBookmarkIndex];
+        if (selectedBookmarkValue >= 0) {
+          const bookmark = activeBookmarks[selectedBookmarkValue];
           if (!bookmark) return;
           if (e.metaKey || e.ctrlKey) {
             window.open(bookmark.url, "_blank", "noopener,noreferrer");
@@ -171,7 +229,7 @@ export function useFolderKeyboardNav({
           return;
         }
 
-        onToggleCollapse(activeGroup.id);
+        onToggleCollapseRef.current(activeGroup.id);
         return;
       }
 
@@ -180,34 +238,18 @@ export function useFolderKeyboardNav({
         setSelectedFolderId(null);
         setHasKeyboardFocus(false);
       }
-    };
+    },
+    [setHasKeyboardFocus, setSelectedBookmarkIndex, setSelectedFolderId],
+  );
 
-    const handleGlobalClick = (event: MouseEvent) => {
-      setHasKeyboardFocus(false);
-      const target = event.target as HTMLElement | null;
-      if (!target?.closest('[data-slot="folder-board"]')) {
-        setSelectedBookmarkIndex(-1);
-        setSelectedFolderId(null);
-      }
-    };
+  useGlobalKeydown(handleKeyDown, { capture: true });
 
-    window.addEventListener("keydown", handleKeyDown, { capture: true });
-    window.addEventListener("mousedown", handleGlobalClick);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown, { capture: true });
-      window.removeEventListener("mousedown", handleGlobalClick);
-    };
-  }, [
-    bookmarkBuckets,
-    collapsedGroups,
-    gridColumns,
-    selectedBookmarkIndex,
-    selectedFolderId,
-    visibleGroups,
-    onPreview,
-    onToggleCollapse,
-    setHasKeyboardFocus,
-    setSelectedBookmarkIndex,
-    setSelectedFolderId,
-  ]);
+  useGlobalEvent("mousedown", (event) => {
+    setHasKeyboardFocus(false);
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest('[data-slot="folder-board"]')) {
+      setSelectedBookmarkIndex(-1);
+      setSelectedFolderId(null);
+    }
+  });
 }

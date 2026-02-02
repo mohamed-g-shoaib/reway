@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
+import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
+import { useGlobalEvent } from "@/hooks/useGlobalEvent";
 
 interface UseBookmarkKeyboardNavOptions {
   bookmarks: BookmarkRow[];
@@ -18,83 +20,108 @@ export function useBookmarkKeyboardNav({
   onPreview,
 }: UseBookmarkKeyboardNavOptions) {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const bookmarksRef = useRef(bookmarks);
+  const isGridViewRef = useRef(isGridView);
+  const gridColumnsRef = useRef(gridColumns);
+  const onPreviewRef = useRef(onPreview);
+  const selectedIndexRef = useRef(selectedIndex);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      ) {
-        return;
-      }
+    bookmarksRef.current = bookmarks;
+  }, [bookmarks]);
 
-      if (e.key === "ArrowDown") {
+  useEffect(() => {
+    isGridViewRef.current = isGridView;
+  }, [isGridView]);
+
+  useEffect(() => {
+    gridColumnsRef.current = gridColumns;
+  }, [gridColumns]);
+
+  useEffect(() => {
+    onPreviewRef.current = onPreview;
+  }, [onPreview]);
+
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (
+      e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLTextAreaElement ||
+      e.target instanceof HTMLSelectElement ||
+      (e.target instanceof HTMLElement && e.target.isContentEditable)
+    ) {
+      return;
+    }
+
+    const bookmarks = bookmarksRef.current;
+    const isGrid = isGridViewRef.current;
+    const columns = gridColumnsRef.current;
+    const currentIndex = selectedIndexRef.current;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => {
+        if (prev < 0) return 0;
+        const nextIndex = prev + (isGrid ? columns : 1);
+        return nextIndex < bookmarks.length ? nextIndex : prev;
+      });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => {
+        if (prev <= 0) return 0;
+        const nextIndex = prev - (isGrid ? columns : 1);
+        return nextIndex >= 0 ? nextIndex : prev;
+      });
+    } else if (isGrid && e.key === "ArrowRight") {
+      e.preventDefault();
+      setSelectedIndex((prev) => {
+        if (prev < 0) return 0;
+        const nextIndex = prev + 1;
+        return nextIndex < bookmarks.length ? nextIndex : prev;
+      });
+    } else if (isGrid && e.key === "ArrowLeft") {
+      e.preventDefault();
+      setSelectedIndex((prev) => {
+        if (prev <= 0) return 0;
+        const nextIndex = prev - 1;
+        return nextIndex >= 0 ? nextIndex : prev;
+      });
+    } else if (e.key === " ") {
+      if (currentIndex >= 0) {
         e.preventDefault();
-        setSelectedIndex((prev) => {
-          if (prev < 0) return 0;
-          const nextIndex = prev + (isGridView ? gridColumns : 1);
-          return nextIndex < bookmarks.length ? nextIndex : prev;
-        });
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((prev) => {
-          if (prev <= 0) return 0;
-          const nextIndex = prev - (isGridView ? gridColumns : 1);
-          return nextIndex >= 0 ? nextIndex : prev;
-        });
-      } else if (isGridView && e.key === "ArrowRight") {
-        e.preventDefault();
-        setSelectedIndex((prev) => {
-          if (prev < 0) return 0;
-          const nextIndex = prev + 1;
-          return nextIndex < bookmarks.length ? nextIndex : prev;
-        });
-      } else if (isGridView && e.key === "ArrowLeft") {
-        e.preventDefault();
-        setSelectedIndex((prev) => {
-          if (prev <= 0) return 0;
-          const nextIndex = prev - 1;
-          return nextIndex >= 0 ? nextIndex : prev;
-        });
-      } else if (e.key === " ") {
-        if (selectedIndex >= 0) {
-          e.preventDefault();
-          const bookmark = bookmarks[selectedIndex];
-          if (bookmark) {
-            onPreview(bookmark);
-          }
+        const bookmark = bookmarks[currentIndex];
+        if (bookmark) {
+          onPreviewRef.current(bookmark);
         }
-      } else if (e.key === "Enter") {
-        if (selectedIndex >= 0) {
-          e.preventDefault();
-          const bookmark = bookmarks[selectedIndex];
-          if (!bookmark) return;
-          if (e.metaKey || e.ctrlKey) {
-            window.open(bookmark.url, "_blank", "noopener,noreferrer");
-          } else {
-            navigator.clipboard.writeText(bookmark.url);
-            toast.success("URL copied to clipboard");
-          }
+      }
+    } else if (e.key === "Enter") {
+      if (currentIndex >= 0) {
+        e.preventDefault();
+        const bookmark = bookmarks[currentIndex];
+        if (!bookmark) return;
+        if (e.metaKey || e.ctrlKey) {
+          window.open(bookmark.url, "_blank", "noopener,noreferrer");
+        } else {
+          navigator.clipboard.writeText(bookmark.url);
+          toast.success("URL copied to clipboard");
         }
-      } else if (e.key === "Escape") {
-        setSelectedIndex(-1);
       }
-    };
+    } else if (e.key === "Escape") {
+      setSelectedIndex(-1);
+    }
+  }, []);
 
-    const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('[data-slot="bookmark-card"]')) {
-        setSelectedIndex(-1);
-      }
-    };
+  useGlobalKeydown(handleKeyDown);
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("mousedown", handleGlobalClick);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("mousedown", handleGlobalClick);
-    };
-  }, [bookmarks, selectedIndex, isGridView, gridColumns, onPreview]);
+  useGlobalEvent("mousedown", (e) => {
+    const target = e.target as HTMLElement;
+    if (!target.closest('[data-slot="bookmark-card"]')) {
+      setSelectedIndex(-1);
+    }
+  });
 
   const clampedSelectedIndex =
     selectedIndex >= bookmarks.length ? -1 : selectedIndex;
