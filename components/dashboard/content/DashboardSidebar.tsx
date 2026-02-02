@@ -97,7 +97,7 @@ export function DashboardSidebar({
         <span>Switch Group</span>
       </div>
       <div
-        className={`group flex items-center gap-3 px-2 py-1.5 ${
+        className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
           activeGroupId === "all"
             ? "text-foreground font-semibold"
             : "hover:text-foreground/80"
@@ -109,7 +109,7 @@ export function DashboardSidebar({
           className="flex items-center gap-3 min-w-0 flex-1 text-left"
         >
           <span
-            className={`h-px transition-opacity duration-150 ease-out ${
+            className={`h-px transition-[width,opacity] duration-200 ease-out ${
               activeGroupId === "all"
                 ? "w-12 opacity-80"
                 : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
@@ -128,7 +128,7 @@ export function DashboardSidebar({
         <button
           type="button"
           onClick={() => handleOpenGroup("all")}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-opacity duration-150"
+          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200"
           aria-label="Open all bookmarks"
         >
           <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -207,7 +207,7 @@ export function DashboardSidebar({
         return (
           <div
             key={group.id}
-            className={`group flex items-center gap-3 px-2 py-1.5 ${
+            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
               activeGroupId === group.id
                 ? "text-foreground font-semibold"
                 : "hover:text-foreground/80"
@@ -219,7 +219,7 @@ export function DashboardSidebar({
               className="flex items-center gap-3 min-w-0 flex-1 text-left"
             >
               <span
-                className={`h-px transition-opacity duration-150 ease-out ${
+                className={`h-px transition-[width,opacity] duration-200 ease-out ${
                   activeGroupId === group.id
                     ? "w-12 opacity-80"
                     : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
@@ -235,11 +235,11 @@ export function DashboardSidebar({
                 <span className="truncate max-w-32">{group.name}</span>
               </div>
             </button>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button
                 type="button"
                 onClick={() => handleOpenGroup(group.id)}
-                className="text-muted-foreground/50 hover:text-foreground"
+                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200"
                 aria-label={`Open ${group.name}`}
               >
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -252,7 +252,7 @@ export function DashboardSidebar({
                   setEditGroupIcon(group.icon || "folder");
                   setEditGroupColor(group.color || "#6366f1");
                 }}
-                className="text-muted-foreground/50 hover:text-foreground"
+                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200"
                 aria-label={`Edit ${group.name}`}
               >
                 <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
@@ -260,7 +260,7 @@ export function DashboardSidebar({
               <button
                 type="button"
                 onClick={() => handleDeleteGroupClick(group.id)}
-                className={`${
+                className={`transition-colors duration-200 ${
                   isDeleteConfirm
                     ? "text-destructive"
                     : "text-muted-foreground/50 hover:text-destructive"
