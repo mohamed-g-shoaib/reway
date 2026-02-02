@@ -132,11 +132,11 @@ export function SortableBookmarkCard({
       <ContextMenuTrigger asChild>
         <div
           ref={setNodeRef}
-          style={style}
+          style={{ ...style, contentVisibility: "auto" }}
           {...attributes}
           {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
-          className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate transition-colors hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
+          className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
             isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
           } ${isDragging ? "opacity-0" : ""}`}
         >
@@ -148,13 +148,13 @@ export function SortableBookmarkCard({
                   event.stopPropagation();
                   onToggleSelection?.(id);
                 }}
-                className="size-9 shrink-0 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                className="size-9 shrink-0 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
                 aria-label={
                   isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
                 }
               >
                 <div
-                  className={`size-4 rounded border-2 flex items-center justify-center transition-colors ${
+                  className={`size-4 rounded border-2 flex items-center justify-center ${
                     isSelectionChecked
                       ? "bg-primary border-primary"
                       : "border-muted-foreground/30"
@@ -225,7 +225,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={handleEdit}
                 aria-label="Edit bookmark"
               >
@@ -234,7 +234,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={handleCopy}
                 aria-label={isCopied ? "URL copied" : "Copy link"}
               >
@@ -252,7 +252,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
                 onClick={handleOpen}
                 aria-label="Open link"
               >
@@ -261,7 +261,7 @@ export function SortableBookmarkCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className={`h-7 w-7 rounded-lg transition-[color,background-color,transform] duration-200 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
+                className={`h-7 w-7 rounded-lg transition-transform duration-150 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
                   isDeleteConfirm
                     ? "bg-destructive/10 hover:bg-destructive/20"
                     : "hover:bg-destructive/10"

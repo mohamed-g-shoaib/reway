@@ -212,14 +212,14 @@ export const SortableBookmark = memo(function SortableBookmark({
       <ContextMenuTrigger asChild>
         <div
           ref={setNodeRef}
-          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-[background-color,transform,box-shadow,color,opacity] duration-200 ease-out ${
+          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 ${
             status === "pending"
               ? "opacity-60"
               : selectionMode
                 ? "hover:bg-muted/50 cursor-pointer"
                 : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
           } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
-          style={style}
+          style={{ ...style, contentVisibility: "auto" }}
           {...attributes}
           {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
@@ -236,13 +236,13 @@ export const SortableBookmark = memo(function SortableBookmark({
                   e.stopPropagation();
                   onToggleSelection?.(id);
                 }}
-                className="size-9 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
+                className="size-9 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
                 aria-label={
                   isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
                 }
               >
                 <div
-                  className={`size-4 rounded border-2 flex items-center justify-center transition-colors ${
+                  className={`size-4 rounded border-2 flex items-center justify-center ${
                     isSelectionChecked
                       ? "bg-primary border-primary"
                       : "border-muted-foreground/30"
@@ -303,7 +303,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </TextShimmer>
                 ) : (
                   <span
-                    className="block truncate text-sm font-semibold transition-colors cursor-pointer text-foreground group-hover:text-primary"
+                    className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
                     onClick={openInNewTab}
                   >
                     {title}
@@ -322,7 +322,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </TextShimmer>
                 ) : (
                   <span
-                    className="block truncate text-xs font-medium cursor-pointer transition-colors text-muted-foreground/70 group-hover:text-muted-foreground"
+                    className="block truncate text-xs font-medium cursor-pointer text-muted-foreground/70 group-hover:text-muted-foreground"
                     onClick={openInNewTab}
                   >
                     {domain}
