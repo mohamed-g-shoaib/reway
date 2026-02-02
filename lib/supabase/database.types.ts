@@ -59,6 +59,7 @@ export type Database = {
           description: string | null;
           error_reason: string | null;
           favicon_url: string | null;
+          folder_order_index: number | null;
           group_id: string | null;
           id: string;
           image_url: string | null;
@@ -78,6 +79,7 @@ export type Database = {
           description?: string | null;
           error_reason?: string | null;
           favicon_url?: string | null;
+          folder_order_index?: number | null;
           group_id?: string | null;
           id?: string;
           image_url?: string | null;
@@ -97,6 +99,7 @@ export type Database = {
           description?: string | null;
           error_reason?: string | null;
           favicon_url?: string | null;
+          folder_order_index?: number | null;
           group_id?: string | null;
           id?: string;
           image_url?: string | null;

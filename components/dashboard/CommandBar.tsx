@@ -6,8 +6,9 @@ import {
   Search02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   addBookmark,
+  checkDuplicateBookmarks,
   enrichCreatedBookmark,
   extractLinks,
 } from "@/app/dashboard/actions";
@@ -29,6 +31,7 @@ interface CommandBarProps {
   searchQuery?: string;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
+  onDuplicatesDetected?: (duplicates: { url: string; title: string }[]) => void;
 }
 
 export function CommandBar({
@@ -37,6 +40,7 @@ export function CommandBar({
   searchQuery = "",
   onModeChange,
   onSearchChange,
+  onDuplicatesDetected,
 }: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -50,6 +54,22 @@ export function CommandBar({
     fileInputRef.current?.click();
   };
 
+  const normalizeUrl = (url: string) => {
+    let normalized = url.trim();
+    if (!normalized.startsWith("http")) {
+      normalized = `https://${normalized}`;
+    }
+    try {
+      const parsed = new URL(normalized);
+      if (parsed.pathname === "/") {
+        return parsed.origin;
+      }
+      return parsed.href.replace(/\/$/, "");
+    } catch {
+      return normalized;
+    }
+  };
+
   const isUrl = (string: string) => {
     try {
       new URL(string.startsWith("http") ? string : `https://${string}`);
@@ -61,45 +81,98 @@ export function CommandBar({
 
   const processUrls = useCallback(
     async (urls: string[]) => {
-      // 1. Create all optimistic bookmarks at once
-      const optimisticMap = urls.map((rawUrl) => {
-        const url = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
-        const stableId = crypto.randomUUID();
-        return {
-          url,
-          stableId,
-          optimistic: {
-            id: stableId,
-            url: url,
-            title: url,
-            favicon_url: null,
-            description: null,
-            group_id: null,
-            user_id: "",
-            created_at: new Date().toISOString(),
-            order_index: null,
-            status: "pending",
-          } as BookmarkRow,
-        };
+      // Check for duplicates first
+      let duplicateMap: Record<
+        string,
+        { id: string; title: string; url: string }
+      > = {};
+      try {
+        const checkUrls = [...urls];
+        urls.forEach((u) => {
+          if (!u.startsWith("http")) checkUrls.push(`https://${u}`);
+        });
+        const result = await checkDuplicateBookmarks(checkUrls);
+        duplicateMap = result.duplicates;
+      } catch (error) {
+        console.error("Failed to check for duplicates:", error);
+      }
+
+      // Separate duplicates and unique URLs
+      const uniqueUrls: string[] = [];
+      const duplicateEntries: {
+        url: string;
+        existing: { id: string; title: string; url: string };
+      }[] = [];
+
+      urls.forEach((u) => {
+        const fullUrl = u.startsWith("http") ? u : `https://${u}`;
+        const normalizedFullUrl = normalizeUrl(fullUrl);
+        const existing = duplicateMap[normalizedFullUrl];
+        if (existing) {
+          duplicateEntries.push({
+            url: fullUrl,
+            existing,
+          });
+        } else {
+          uniqueUrls.push(fullUrl);
+        }
       });
 
-      // Add all to UI immediately
-      optimisticMap.forEach((item) => onAddBookmark(item.optimistic));
+      // Helper to add a bookmark (optimistic + server)
+      const executeAdd = async (url: string) => {
+        const stableId = crypto.randomUUID();
+        const optimistic = {
+          id: stableId,
+          url,
+          title: url,
+          favicon_url: null,
+          description: null,
+          group_id: null,
+          user_id: "",
+          created_at: new Date().toISOString(),
+          order_index: null,
+          status: "pending",
+        } as BookmarkRow;
 
-      // 2. Process all server actions in parallel
-      await Promise.all(
-        optimisticMap.map(async ({ url, stableId }) => {
-          try {
-            const bookmarkId = await addBookmark({ url, id: stableId });
-            // Chain enrichment immediately
-            await enrichCreatedBookmark(bookmarkId, url);
-          } catch (error) {
-            console.error("Failed to add extracted bookmark:", error);
-          }
-        }),
-      );
+        onAddBookmark(optimistic);
+
+        try {
+          const bookmarkId = await addBookmark({ url, id: stableId });
+          await enrichCreatedBookmark(bookmarkId, url);
+        } catch (error) {
+          console.error("Failed to add bookmark:", error);
+          toast.error(`Failed to add ${url}`);
+        }
+      };
+
+      // 1. Add unique URLs immediately
+      await Promise.all(uniqueUrls.map(executeAdd));
+
+      // 2. Handle duplicates
+      if (duplicateEntries.length > 0) {
+        if (onDuplicatesDetected) {
+          onDuplicatesDetected(
+            duplicateEntries.map((e) => ({
+              url: e.url,
+              title: e.existing.title,
+            })),
+          );
+        } else {
+          // Fallback to toast if no handler provided (legacy behavior)
+          duplicateEntries.forEach(({ url, existing }) => {
+            toast.info(`Already bookmarked: ${existing.title}`, {
+              description: "This URL already exists in your bookmarks.",
+              action: {
+                label: "Add Anyway",
+                onClick: () => executeAdd(url),
+              },
+              duration: 10000,
+            });
+          });
+        }
+      }
     },
-    [onAddBookmark],
+    [onAddBookmark, onDuplicatesDetected],
   );
 
   useEffect(() => {
@@ -151,7 +224,7 @@ export function CommandBar({
       window.removeEventListener("paste", handlePaste);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [processUrls]);
+  }, [processUrls, onModeChange]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -227,7 +300,6 @@ export function CommandBar({
           aria-label="Upload image file"
           title="Upload image file to extract bookmarks"
         />
-
         {/* Action Icon (Plus or Loading) */}
         <TooltipProvider>
           <Tooltip>

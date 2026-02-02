@@ -81,6 +81,7 @@ export function SortableBookmarkCard({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0 : 1,
+    touchAction: selectionMode ? "auto" : "none",
   };
 
   const metaLabel =
@@ -100,7 +101,7 @@ export function SortableBookmarkCard({
       setIsCopied(true);
       toast.success("URL copied to clipboard");
       setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy URL");
     }
   };

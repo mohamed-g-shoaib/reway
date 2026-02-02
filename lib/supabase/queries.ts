@@ -14,7 +14,7 @@ export async function getBookmarks() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching bookmarks:", error);
+    console.error("Error fetching bookmarks:", error.message || error);
     return [];
   }
 
@@ -27,10 +27,10 @@ export async function getGroups() {
   const { data, error } = await supabase
     .from("groups")
     .select("*")
-    .order("order_index", { ascending: true });
+    .order("name", { ascending: true });
 
   if (error) {
-    console.error("Error fetching groups:", error);
+    console.error("Error fetching groups:", error.message || error);
     return [];
   }
 

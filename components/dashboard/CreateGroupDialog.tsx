@@ -11,10 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createGroup } from "@/app/dashboard/actions";
+import { createGroup, checkDuplicateGroup } from "@/app/dashboard/actions";
 import { ICON_CATEGORIES } from "@/lib/hugeicons-list";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 interface CreateGroupDialogProps {
   open: boolean;
@@ -33,20 +34,32 @@ export function CreateGroupDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || isLoading) return;
+    const cleanName = name.trim();
+    if (!cleanName || isLoading) return;
 
     setIsLoading(true);
     try {
+      // Check for duplicate name
+      const { exists } = await checkDuplicateGroup(cleanName);
+      if (exists) {
+        toast.error(`A group named "${cleanName}" already exists`, {
+          description: "Please choose a different name for your group.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const groupId = await createGroup({
-        name: name.trim(),
+        name: cleanName,
         icon: selectedIcon,
       });
-      onSuccess?.(groupId, name.trim(), selectedIcon);
+      onSuccess?.(groupId, cleanName, selectedIcon);
       onOpenChange(false);
       setName("");
       setSelectedIcon("folder");
     } catch (error) {
       console.error("Failed to create group:", error);
+      toast.error("Failed to create group. Please try again.");
     } finally {
       setIsLoading(false);
     }

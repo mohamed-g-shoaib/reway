@@ -61,6 +61,97 @@ export async function extractLinks(content: string, isImage = false) {
   }
 }
 
+export async function checkDuplicateBookmark(url: string): Promise<{
+  exists: boolean;
+  bookmark?: { id: string; title: string; url: string };
+}> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const normalizedUrl = normalizeUrl(url);
+
+  const { data } = await supabase
+    .from("bookmarks")
+    .select("id, title, url")
+    .eq("user_id", userData.user.id)
+    .eq("normalized_url", normalizedUrl)
+    .limit(1)
+    .maybeSingle();
+
+  if (data) {
+    return { exists: true, bookmark: data };
+  }
+  return { exists: false };
+}
+
+export async function checkDuplicateBookmarks(urls: string[]): Promise<{
+  duplicates: Record<string, { id: string; title: string; url: string }>;
+}> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const normalizedUrls = urls.map((url) => normalizeUrl(url));
+
+  const { data } = await supabase
+    .from("bookmarks")
+    .select("id, title, url, normalized_url")
+    .eq("user_id", userData.user.id)
+    .in("normalized_url", normalizedUrls);
+
+  const duplicates: Record<string, { id: string; title: string; url: string }> =
+    {};
+  if (data) {
+    for (const bookmark of data) {
+      if (bookmark.normalized_url) {
+        duplicates[bookmark.normalized_url] = {
+          id: bookmark.id,
+          title: bookmark.title,
+          url: bookmark.url,
+        };
+      }
+    }
+  }
+
+  return { duplicates };
+}
+
+export async function checkDuplicateGroup(name: string): Promise<{
+  exists: boolean;
+  group?: { id: string; name: string };
+}> {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const normalizedName = name.trim().toLowerCase();
+
+  const { data } = await supabase
+    .from("groups")
+    .select("id, name")
+    .eq("user_id", userData.user.id);
+
+  // Case-insensitive matching
+  const existingGroup = data?.find(
+    (g) => g.name?.trim().toLowerCase() === normalizedName,
+  );
+
+  if (existingGroup) {
+    return { exists: true, group: existingGroup };
+  }
+  return { exists: false };
+}
+
 export async function addBookmark(formData: {
   url: string;
   id?: string;
@@ -140,6 +231,16 @@ export async function enrichCreatedBookmark(id: string, url: string) {
       .eq("id", id);
 
     revalidatePath("/dashboard");
+    return {
+      status: "ready" as const,
+      title: metadata.title,
+      description: metadata.description,
+      favicon_url: metadata.favicon,
+      og_image_url: metadata.ogImage,
+      image_url: metadata.ogImage,
+      last_fetched_at: new Date().toISOString(),
+      error_reason: null,
+    };
   } catch (error) {
     console.error("Enrichment failed for", url, error);
     const supabase = await createClient();
@@ -151,6 +252,10 @@ export async function enrichCreatedBookmark(id: string, url: string) {
       })
       .eq("id", id);
     revalidatePath("/dashboard");
+    return {
+      status: "failed" as const,
+      error_reason: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 
@@ -181,6 +286,67 @@ export async function updateBookmarksOrder(
   if (firstError) {
     console.error("Error updating order:", firstError);
     throw new Error(`Failed to update order: ${firstError.message}`);
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function restoreGroup(group: {
+  id: string;
+  name: string;
+  icon: string;
+  color?: string | null;
+}) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("groups")
+    .upsert({
+      id: group.id,
+      name: group.name,
+      icon: group.icon,
+      color: group.color ?? null,
+      user_id: userData.user.id,
+    })
+    .eq("user_id", userData.user.id);
+
+  if (error) {
+    console.error("Error restoring group:", error);
+    throw new Error("Failed to restore group");
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function updateFolderBookmarksOrder(
+  updates: { id: string; folder_order_index: number }[],
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const updatePromises = updates.map((update) =>
+    supabase
+      .from("bookmarks")
+      .update({ folder_order_index: update.folder_order_index })
+      .eq("id", update.id)
+      .eq("user_id", userData.user.id),
+  );
+
+  const results = await Promise.all(updatePromises);
+
+  const firstError = results.find((r) => r.error)?.error;
+  if (firstError) {
+    console.error("Error updating folder order:", firstError);
+    throw new Error(`Failed to update folder order: ${firstError.message}`);
   }
 
   revalidatePath("/dashboard");
@@ -315,26 +481,24 @@ export async function restoreBookmark(bookmark: {
 
   const normalizedUrl = normalizeUrl(bookmark.url);
 
-  const { error } = await supabase
-    .from("bookmarks")
-    .upsert(
-      {
-        id: bookmark.id,
-        url: normalizedUrl,
-        normalized_url: normalizedUrl,
-        title: bookmark.title,
-        description: bookmark.description ?? null,
-        group_id: bookmark.group_id ?? null,
-        favicon_url: bookmark.favicon_url ?? null,
-        og_image_url: bookmark.og_image_url ?? null,
-        image_url: bookmark.image_url ?? null,
-        order_index: bookmark.order_index ?? null,
-        created_at: bookmark.created_at ?? new Date().toISOString(),
-        status: bookmark.status ?? "ready",
-        user_id: userData.user.id,
-      },
-      { onConflict: "id" },
-    );
+  const { error } = await supabase.from("bookmarks").upsert(
+    {
+      id: bookmark.id,
+      url: normalizedUrl,
+      normalized_url: normalizedUrl,
+      title: bookmark.title,
+      description: bookmark.description ?? null,
+      group_id: bookmark.group_id ?? null,
+      favicon_url: bookmark.favicon_url ?? null,
+      og_image_url: bookmark.og_image_url ?? null,
+      image_url: bookmark.image_url ?? null,
+      order_index: bookmark.order_index ?? null,
+      created_at: bookmark.created_at ?? new Date().toISOString(),
+      status: bookmark.status ?? "ready",
+      user_id: userData.user.id,
+    },
+    { onConflict: "id" },
+  );
 
   if (error) {
     console.error("Error restoring bookmark:", error);
@@ -405,7 +569,7 @@ export async function createGroup(formData: {
       color: formData.color ?? null,
       user_id: userData.user.id,
     })
-    .select("id")
+    .select("*")
     .single();
 
   if (error) {
