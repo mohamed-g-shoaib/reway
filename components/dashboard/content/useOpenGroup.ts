@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
+import { useGlobalEvent } from "@/hooks/useGlobalEvent";
 
 interface UseOpenGroupOptions {
   bookmarks: BookmarkRow[];
@@ -15,6 +16,23 @@ export function useOpenGroup({
   deferredSearchQuery,
   extensionStoreUrl,
 }: UseOpenGroupOptions) {
+  const pendingRequestsRef = useRef(
+    new Map<
+      string,
+      (response: { ok: boolean; count?: number; error?: string } | null) => void
+    >(),
+  );
+
+  useGlobalEvent("message", (event) => {
+    if (event?.data?.type !== "reway_open_group_response") return;
+    const requestId = event.data.requestId as string | undefined;
+    if (!requestId) return;
+    const resolver = pendingRequestsRef.current.get(requestId);
+    if (!resolver) return;
+    pendingRequestsRef.current.delete(requestId);
+    resolver(event.data.response ?? null);
+  });
+
   const handleOpenGroup = useCallback(
     async (groupId: string) => {
       const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
@@ -42,19 +60,15 @@ export function useOpenGroup({
         error?: string;
       } | null>((resolve) => {
         const timer = window.setTimeout(() => {
-          window.removeEventListener("message", onMessage);
+          pendingRequestsRef.current.delete(requestId);
           resolve(null);
         }, 250);
 
-        const onMessage = (event: MessageEvent) => {
-          if (event?.data?.type !== "reway_open_group_response") return;
-          if (event.data.requestId !== requestId) return;
+        pendingRequestsRef.current.set(requestId, (payload) => {
           window.clearTimeout(timer);
-          window.removeEventListener("message", onMessage);
-          resolve(event.data.response ?? null);
-        };
+          resolve(payload ?? null);
+        });
 
-        window.addEventListener("message", onMessage);
         window.postMessage(
           { type: "reway_open_group", requestId, groupId, urls },
           "*",
