@@ -1,11 +1,7 @@
 "use client";
 
-import { Settings01Icon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
-import { SettingsDialog } from "./SettingsDialog";
 import { useState } from "react";
 import { GroupRow } from "@/lib/supabase/queries";
-import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { createGroup } from "@/app/dashboard/actions/groups";
@@ -245,8 +241,8 @@ export function DashboardNav({
             >
               <Image
                 src="/logo.svg"
-                width={28}
-                height={28}
+                width={32}
+                height={32}
                 alt="Reway Logo"
                 className="select-none dark:invert"
               />
@@ -286,29 +282,11 @@ export function DashboardNav({
 
           <div className="flex items-center gap-2">
             <ViewModeControls viewMode={viewMode} setViewMode={setViewMode} />
-
-            {/* Settings Button */}
-            <SettingsDialog
-              rowContent={rowContent}
-              onRowContentChange={setRowContent}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-9 rounded-xl hover:bg-muted/50 transition-transform duration-150 active:scale-95"
-                aria-label="Settings"
-              >
-                <HugeiconsIcon
-                  icon={Settings01Icon}
-                  size={18}
-                  strokeWidth={2}
-                />
-              </Button>
-            </SettingsDialog>
-
             <UserMenu
               user={user}
               initials={initials}
+              rowContent={rowContent}
+              onRowContentChange={setRowContent}
               onOpenImportDialog={handleOpenImportDialog}
               onOpenExportDialog={handleOpenExportDialog}
             />
