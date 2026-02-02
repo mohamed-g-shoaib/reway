@@ -5,13 +5,13 @@ import {
   DndContext,
   DragOverlay,
   closestCenter,
-  closestCorners,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   DragStartEvent,
   DragEndEvent,
+  MeasuringStrategy,
   defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import {
@@ -130,7 +130,7 @@ export function BookmarkBoard({
   );
 
   const activeBookmark = activeId
-    ? bookmarks.find((b) => b.id === activeId) ?? null
+    ? (bookmarks.find((b) => b.id === activeId) ?? null)
     : null;
 
   function handleDragStart(event: DragStartEvent) {
@@ -167,9 +167,7 @@ export function BookmarkBoard({
   }, [viewMode]);
 
   if (bookmarks.length === 0) {
-    return (
-      <EmptyState isMac={isMac} />
-    );
+    return <EmptyState isMac={isMac} />;
   }
 
   return (
@@ -180,9 +178,10 @@ export function BookmarkBoard({
       <DndContext
         id={dndContextId}
         sensors={sensors}
-        collisionDetection={isGridView ? closestCenter : closestCorners}
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        measuring={{ droppable: { strategy: MeasuringStrategy.WhileDragging } }}
         modifiers={isGridView ? [] : [restrictToVerticalAxis]}
       >
         <SortableContext
@@ -294,19 +293,7 @@ export function BookmarkBoard({
 
         {typeof document !== "undefined" &&
           createPortal(
-            <DragOverlay
-              dropAnimation={{
-                duration: 350,
-                easing: "cubic-bezier(0.18, 1, 0.32, 1)",
-                sideEffects: defaultDropAnimationSideEffects({
-                  styles: {
-                    active: {
-                      opacity: "0",
-                    },
-                  },
-                }),
-              }}
-            >
+            <DragOverlay dropAnimation={null} adjustScale={false}>
               <BookmarkDragOverlay
                 activeBookmark={activeBookmark}
                 viewMode={viewMode}
