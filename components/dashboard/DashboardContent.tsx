@@ -37,19 +37,21 @@ interface DashboardContentProps {
 }
 
 import {
-  updateBookmarksOrder,
-  updateFolderBookmarksOrder,
-  createGroup,
   addBookmark,
-  enrichCreatedBookmark,
+  checkDuplicateBookmarks,
   deleteBookmark as deleteAction,
+  enrichCreatedBookmark,
   restoreBookmark as restoreAction,
   updateBookmark as updateBookmarkAction,
-  updateGroup as updateGroupAction,
+  updateBookmarksOrder,
+  updateFolderBookmarksOrder,
+} from "@/app/dashboard/actions/bookmarks";
+import {
+  createGroup,
   deleteGroup as deleteGroupAction,
   restoreGroup as restoreGroupAction,
-  checkDuplicateBookmarks,
-} from "@/app/dashboard/actions";
+  updateGroup as updateGroupAction,
+} from "@/app/dashboard/actions/groups";
 
 import type { IconPickerPopoverProps } from "./IconPickerPopover";
 import type {
@@ -134,7 +136,7 @@ export function DashboardContent({
   }, []);
 
   const sortBookmarks = useCallback((items: BookmarkRow[]) => {
-    return [...items].sort((a, b) => {
+    return items.toSorted((a, b) => {
       const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
       const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
       if (aOrder !== bOrder) return aOrder - bOrder;
@@ -145,7 +147,7 @@ export function DashboardContent({
   }, []);
 
   const sortGroups = useCallback((items: GroupRow[]) => {
-    return [...items].sort((a, b) => {
+    return items.toSorted((a, b) => {
       // Handle cases where name might be undefined or null
       const nameA = a.name || "";
       const nameB = b.name || "";
@@ -205,6 +207,8 @@ export function DashboardContent({
 
   const {
     addOptimisticBookmark,
+    applyEnrichment,
+    replaceBookmarkId,
     handleFolderReorder,
     handleDeleteBookmark,
     handleReorder,
@@ -299,7 +303,6 @@ export function DashboardContent({
     groups,
   });
 
-
   const handleResolveConflicts = useCallback(
     async (action: "skip" | "override") => {
       // 1. Handle Add Conflicts (from CommandBar)
@@ -320,7 +323,7 @@ export function DashboardContent({
                 group_id: activeGroupId !== "all" ? activeGroupId : null,
                 user_id: user.id || "",
                 created_at: new Date().toISOString(),
-                order_index: null,
+                order_index: Number.MIN_SAFE_INTEGER,
                 status: "pending",
               } as BookmarkRow;
 
@@ -333,7 +336,14 @@ export function DashboardContent({
                   title: item.title,
                   group_id: activeGroupId !== "all" ? activeGroupId : undefined,
                 });
-                await enrichCreatedBookmark(bookmarkId, item.url);
+                if (bookmarkId) {
+                  replaceBookmarkId(stableId, bookmarkId);
+                }
+                const enrichment = (await enrichCreatedBookmark(
+                  bookmarkId ?? stableId,
+                  item.url,
+                )) as EnrichmentResult | undefined;
+                applyEnrichment(bookmarkId ?? stableId, enrichment);
               } catch (error) {
                 console.error("Failed to add duplicate bookmark:", error);
                 toast.error(`Failed to add ${item.url}`);
@@ -353,12 +363,12 @@ export function DashboardContent({
       importPreview,
       handleUpdateImportAction,
       addOptimisticBookmark,
+      applyEnrichment,
+      replaceBookmarkId,
       user.id,
       activeGroupId,
     ],
   );
-
-
 
   const {
     handleToggleSelection,
@@ -385,14 +395,10 @@ export function DashboardContent({
     extensionStoreUrl: EXTENSION_STORE_URL,
   });
 
-
   const { handleCommandModeChange } = useCommandMode({
     setCommandMode,
     setSearchQuery,
   });
-
-  
-
 
   return (
     <>
@@ -454,6 +460,8 @@ export function DashboardContent({
           <div className="pt-4 md:pt-6">
             <CommandBar
               onAddBookmark={addOptimisticBookmark}
+              onApplyEnrichment={applyEnrichment}
+              onReplaceBookmarkId={replaceBookmarkId}
               mode={commandMode}
               searchQuery={searchQuery}
               onModeChange={handleCommandModeChange}

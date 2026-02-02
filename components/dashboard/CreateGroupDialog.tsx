@@ -11,7 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createGroup, checkDuplicateGroup } from "@/app/dashboard/actions";
+import {
+  createGroup,
+  checkDuplicateGroup,
+} from "@/app/dashboard/actions/groups";
 import { ICON_CATEGORIES } from "@/lib/hugeicons-list";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
