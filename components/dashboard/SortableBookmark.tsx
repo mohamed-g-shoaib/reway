@@ -4,42 +4,15 @@ import { useState, memo, useEffect } from "react";
 import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  PencilEdit01Icon,
-  Copy01Icon,
-  Tick01Icon,
-  ArrowUpRight03Icon,
-  Delete02Icon,
-  Alert02Icon,
-  GridIcon,
-  Link01Icon,
-  File02Icon,
-  MoreVerticalIcon,
-  ViewIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { GridIcon } from "@hugeicons/core-free-icons";
 import { Favicon } from "./Favicon";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { GroupRow } from "@/lib/supabase/queries";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { toast } from "sonner";
+import { InlineEditForm } from "./sortable-bookmark/InlineEditForm";
+import { BookmarkActions } from "./sortable-bookmark/BookmarkActions";
+import { MobileActionMenu } from "./sortable-bookmark/MobileActionMenu";
+import { BookmarkContextMenu } from "./sortable-bookmark/BookmarkContextMenu";
 
 interface SortableBookmarkProps {
   id: string;
@@ -209,182 +182,27 @@ export const SortableBookmark = memo(function SortableBookmark({
     }
   };
 
-  // Inline Edit Mode
   if (isEditing) {
     return (
-      <div
-        ref={setNodeRef}
-        className={`group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3 ${
-          isDragging ? "opacity-0" : "opacity-100"
-        }`}
-        style={{
-          transform: CSS.Transform.toString(transform),
-          transition,
-        }}
-        onClick={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <div className="flex flex-col gap-2.5">
-          {/* Main Info Row: Icon/Group & Title */}
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-colors active:scale-95"
-                >
-                  {editGroupId === "no-group" ? (
-                    <HugeiconsIcon
-                      icon={GridIcon}
-                      size={16}
-                      className="text-muted-foreground/50"
-                    />
-                  ) : (
-                    (() => {
-                      const group = groupsMap?.get(editGroupId);
-                      const Icon =
-                        group?.icon && ALL_ICONS_MAP[group.icon]
-                          ? ALL_ICONS_MAP[group.icon]
-                          : GridIcon;
-                      return (
-                        <HugeiconsIcon
-                          icon={Icon}
-                          size={16}
-                          className="text-primary"
-                        />
-                      );
-                    })()
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
-              >
-                <DropdownMenuItem
-                  className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === "no-group" ? "bg-primary/5 text-primary font-bold" : ""}`}
-                  onClick={() => setEditGroupId("no-group")}
-                >
-                  <HugeiconsIcon icon={GridIcon} size={14} />
-                  No Group
-                </DropdownMenuItem>
-                {groups.length > 0 ? (
-                  <>
-                    <DropdownMenuSeparator className="my-1" />
-                    <div className="max-h-60 overflow-y-auto">
-                      {groups.map((group) => {
-                        const Icon =
-                          group.icon && ALL_ICONS_MAP[group.icon]
-                            ? ALL_ICONS_MAP[group.icon]
-                            : GridIcon;
-                        return (
-                          <DropdownMenuItem
-                            key={group.id}
-                            className={`rounded-lg flex items-center gap-2 cursor-pointer ${editGroupId === group.id ? "bg-primary/5 text-primary font-bold" : ""}`}
-                            onClick={() => setEditGroupId(group.id)}
-                          >
-                            <HugeiconsIcon icon={Icon} size={14} />
-                            <span className="truncate">{group.name}</span>
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </div>
-                  </>
-                ) : null}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Input
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Title"
-              className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-sm font-bold focus-visible:ring-primary/20"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSaveEdit();
-                } else if (e.key === "Escape") {
-                  e.preventDefault();
-                  handleCancelEdit();
-                }
-              }}
-            />
-          </div>
-
-          {/* URL Row */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/30 border border-dashed border-border/50">
-              <HugeiconsIcon
-                icon={Link01Icon}
-                size={14}
-                className="text-muted-foreground/30"
-              />
-            </div>
-            <Input
-              value={editUrl}
-              onChange={(e) => setEditUrl(e.target.value)}
-              placeholder="URL"
-              className="h-9 flex-1 bg-background/50 border-border/50 rounded-xl text-xs font-medium text-muted-foreground focus-visible:ring-primary/20"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSaveEdit();
-                } else if (e.key === "Escape") {
-                  e.preventDefault();
-                  handleCancelEdit();
-                }
-              }}
-            />
-          </div>
-
-          {/* Description Row */}
-          <div className="flex gap-2">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background/30 border border-dashed border-border/50">
-              <HugeiconsIcon
-                icon={File02Icon}
-                size={14}
-                className="text-muted-foreground/30"
-              />
-            </div>
-            <Textarea
-              value={editDescription}
-              onChange={(e) => setEditDescription(e.target.value)}
-              placeholder="Description (Optional)"
-              className="flex-1 bg-background/50 border-border/50 rounded-xl text-xs py-2 min-h-15 resize-none focus-visible:ring-primary/20"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSaveEdit();
-                } else if (e.key === "Escape") {
-                  e.preventDefault();
-                  handleCancelEdit();
-                }
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Actions Row */}
-        <div className="flex justify-end gap-2 pt-1">
-          <Button
-            size="sm"
-            variant="secondary"
-            className="h-8 px-3 text-xs rounded-4xl font-bold"
-            onClick={handleCancelEdit}
-          >
-            Cancel
-          </Button>
-          <Button
-            size="sm"
-            className="h-8 px-4 text-xs font-bold rounded-4xl"
-            onClick={handleSaveEdit}
-            disabled={!editTitle.trim() || !editUrl.trim() || isSaving}
-          >
-            {isSaving ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      </div>
+      <InlineEditForm
+        setNodeRef={setNodeRef}
+        transform={transform}
+        transition={transition}
+        isDragging={isDragging}
+        editGroupId={editGroupId}
+        setEditGroupId={setEditGroupId}
+        groups={groups}
+        groupsMap={groupsMap}
+        editTitle={editTitle}
+        setEditTitle={setEditTitle}
+        editUrl={editUrl}
+        setEditUrl={setEditUrl}
+        editDescription={editDescription}
+        setEditDescription={setEditDescription}
+        onSave={handleSaveEdit}
+        onCancel={handleCancelEdit}
+        isSaving={isSaving}
+      />
     );
   }
 
@@ -394,7 +212,7 @@ export const SortableBookmark = memo(function SortableBookmark({
       <ContextMenuTrigger asChild>
         <div
           ref={setNodeRef}
-          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-all duration-200 ease-out ${
+          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 transition-[background-color,transform,box-shadow,color,opacity] duration-200 ease-out ${
             status === "pending"
               ? "opacity-60"
               : selectionMode
@@ -541,217 +359,39 @@ export const SortableBookmark = memo(function SortableBookmark({
 
             {/* Desktop Action Buttons: Visible only on hover and on desktop */}
             {status !== "pending" && !selectionMode ? (
-              <div
-                className="absolute right-0 flex items-center gap-1 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 ease-out cursor-default"
-                onClick={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                  onClick={handleEdit}
-                  aria-label="Edit bookmark"
-                >
-                  <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                  onClick={handleCopyLink}
-                  aria-label={isCopied ? "URL copied" : "Copy link"}
-                >
-                  <div
-                    className="transition-transform duration-200 ease-in-out"
-                    key={isCopied ? "tick" : "copy"}
-                  >
-                    <HugeiconsIcon
-                      icon={isCopied ? Tick01Icon : Copy01Icon}
-                      size={16}
-                      className={isCopied ? "text-green-500" : ""}
-                    />
-                  </div>
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 rounded-xl hover:bg-background hover:text-primary cursor-pointer transition-all duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                  onClick={openInNewTab}
-                  aria-label="Open link in new tab"
-                >
-                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} />
-                </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`h-9 w-9 rounded-xl transition-all duration-200 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
-                    isDeleteConfirm
-                      ? "bg-destructive/10 hover:bg-destructive/20"
-                      : "hover:bg-destructive/10"
-                  }`}
-                  onClick={handleDelete}
-                  aria-label={
-                    isDeleteConfirm
-                      ? "Click again to confirm delete"
-                      : "Delete bookmark"
-                  }
-                >
-                  <div
-                    className="transition-transform duration-200 ease-in-out"
-                    key={isDeleteConfirm ? "alert" : "delete"}
-                  >
-                    <HugeiconsIcon
-                      icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                      size={16}
-                    />
-                  </div>
-                </Button>
-              </div>
+              <BookmarkActions
+                isCopied={isCopied}
+                isDeleteConfirm={isDeleteConfirm}
+                onEdit={handleEdit}
+                onCopyLink={handleCopyLink}
+                onOpen={openInNewTab}
+                onDelete={handleDelete}
+              />
             ) : null}
 
             {/* Mobile Action Menu */}
             {status !== "pending" ? (
-              <div className="md:hidden">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 -mr-3 rounded-xl hover:bg-muted/50 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
-                    >
-                      <HugeiconsIcon
-                        icon={MoreVerticalIcon}
-                        size={16}
-                        className="text-muted-foreground/60"
-                      />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className="w-40 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
-                  >
-                    <DropdownMenuItem
-                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-                      onClick={handleEdit}
-                    >
-                      <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-                      onClick={handleCopyLink}
-                    >
-                      <HugeiconsIcon
-                        icon={isCopied ? Tick01Icon : Copy01Icon}
-                        size={16}
-                        className={isCopied ? "text-green-500" : ""}
-                      />
-                      {isCopied ? "Copied!" : "Copy Link"}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-                      onClick={openInNewTab}
-                    >
-                      <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className={`rounded-xl flex items-center gap-2 cursor-pointer font-medium ${
-                        isDeleteConfirm
-                          ? "text-destructive bg-destructive/5 focus:bg-destructive/10 focus:text-destructive"
-                          : "text-destructive focus:bg-destructive/5 focus:text-destructive"
-                      }`}
-                      onClick={handleDelete}
-                    >
-                      <HugeiconsIcon
-                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                        size={16}
-                      />
-                      {isDeleteConfirm ? "Click to Confirm" : "Delete"}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <MobileActionMenu
+                isCopied={isCopied}
+                isDeleteConfirm={isDeleteConfirm}
+                onEdit={handleEdit}
+                onCopyLink={handleCopyLink}
+                onOpen={openInNewTab}
+                onDelete={handleDelete}
+              />
             ) : null}
           </div>
         </div>
       </ContextMenuTrigger>
 
-      <ContextMenuContent className="w-56 rounded-2xl p-1.5">
-        <ContextMenuItem
-          className="rounded-xl flex items-center gap-2.5 py-2"
-          onClick={openInNewTab}
-        >
-          <HugeiconsIcon
-            icon={ArrowUpRight03Icon}
-            size={16}
-            className="text-muted-foreground"
-          />
-          <span>Open in New Tab</span>
-          <ContextMenuShortcut>⏎</ContextMenuShortcut>
-        </ContextMenuItem>
-        <ContextMenuItem
-          className="rounded-xl flex items-center gap-2.5 py-2"
-          onClick={() => onPreview?.(id)}
-        >
-          <HugeiconsIcon
-            icon={ViewIcon}
-            size={16}
-            className="text-muted-foreground"
-          />
-          <span>Quick Glance</span>
-          <ContextMenuShortcut>Space</ContextMenuShortcut>
-        </ContextMenuItem>
-        <ContextMenuItem
-          className="rounded-xl flex items-center gap-2.5 py-2"
-          onSelect={(e) => {
-            e.preventDefault();
-            handleCopyLink(e as unknown as React.MouseEvent);
-          }}
-        >
-          <HugeiconsIcon
-            icon={Copy01Icon}
-            size={16}
-            className="text-muted-foreground"
-          />
-          <span>Copy Link</span>
-          <ContextMenuShortcut>C</ContextMenuShortcut>
-        </ContextMenuItem>
-
-        <ContextMenuSeparator />
-
-        <ContextMenuItem
-          className="rounded-xl flex items-center gap-2.5 py-2"
-          onSelect={(e) => {
-            e.preventDefault();
-            handleEdit(e as unknown as React.MouseEvent);
-          }}
-        >
-          <HugeiconsIcon
-            icon={PencilEdit01Icon}
-            size={16}
-            className="text-muted-foreground"
-          />
-          <span>Edit Bookmark</span>
-          <ContextMenuShortcut>E</ContextMenuShortcut>
-        </ContextMenuItem>
-        <ContextMenuItem
-          variant="destructive"
-          className="rounded-xl flex items-center gap-2.5 py-2"
-          onSelect={(e) => {
-            e.preventDefault();
-            handleDelete(e as unknown as React.MouseEvent);
-          }}
-        >
-          <HugeiconsIcon icon={Delete02Icon} size={16} />
-          <span>{isDeleteConfirm ? "Click again to delete" : "Delete"}</span>
-          <ContextMenuShortcut>⌫</ContextMenuShortcut>
-        </ContextMenuItem>
-      </ContextMenuContent>
+      <BookmarkContextMenu
+        isDeleteConfirm={isDeleteConfirm}
+        onOpen={openInNewTab}
+        onPreview={() => onPreview?.(id)}
+        onCopyLink={handleCopyLink}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </ContextMenu>
   );
 });

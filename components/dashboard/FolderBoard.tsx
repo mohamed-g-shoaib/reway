@@ -20,7 +20,6 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { Folder01Icon, GridIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { SortableBookmarkIcon } from "./SortableBookmarkIcon";
@@ -28,7 +27,11 @@ import { getDomain } from "@/lib/utils";
 import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { BookmarkEditSheet } from "./BookmarkEditSheet";
 import { Favicon } from "./Favicon";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
+import { FolderHeader } from "./folder-board/FolderHeader";
+import { EmptyFolder } from "./folder-board/EmptyFolder";
+import { FolderDragOverlay } from "./folder-board/FolderDragOverlay";
+import { useBookmarkBuckets } from "./folder-board/useBookmarkBuckets";
+import { useFolderKeyboardNav } from "./folder-board/useFolderKeyboardNav";
 import {
   Accordion,
   AccordionContent,
@@ -129,7 +132,7 @@ export function FolderBoard({
   );
 
   const activeBookmark = activeId
-    ? bookmarks.find((bookmark) => bookmark.id === activeId)
+    ? bookmarks.find((bookmark) => bookmark.id === activeId) ?? null
     : null;
 
   const visibleGroups = useMemo(() => {
@@ -154,35 +157,7 @@ export function FolderBoard({
     ];
   }, [activeGroupId, bookmarks, groups]);
 
-  const bookmarkBuckets = useMemo(() => {
-    const buckets: Record<string, BookmarkRow[]> = {};
-    for (const group of visibleGroups) {
-      buckets[group.id] = [];
-    }
-
-    for (const bookmark of bookmarks) {
-      const groupId = bookmark.group_id ?? "no-group";
-      if (!buckets[groupId]) {
-        buckets[groupId] = [];
-      }
-      buckets[groupId].push(bookmark);
-    }
-
-    Object.keys(buckets).forEach((groupId) => {
-      buckets[groupId] = [...buckets[groupId]].sort((a, b) => {
-        const aOrder =
-          a.folder_order_index ?? a.order_index ?? Number.POSITIVE_INFINITY;
-        const bOrder =
-          b.folder_order_index ?? b.order_index ?? Number.POSITIVE_INFINITY;
-        if (aOrder !== bOrder) return aOrder - bOrder;
-        return (
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-      });
-    });
-
-    return buckets;
-  }, [bookmarks, visibleGroups]);
+  const bookmarkBuckets = useBookmarkBuckets({ bookmarks, visibleGroups });
 
   const openFolders = useMemo(
     () =>
@@ -297,232 +272,23 @@ export function FolderBoard({
     }
   }, [hasKeyboardFocus, selectedFolderId, visibleGroups]);
 
-  useEffect(() => {
-    onKeyboardContextChange?.(
-      selectedBookmarkIndex >= 0 ? "bookmark" : "folder",
-    );
-  }, [onKeyboardContextChange, selectedBookmarkIndex]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        e.target instanceof HTMLSelectElement ||
-        (e.target instanceof HTMLElement && e.target.isContentEditable)
-      ) {
-        return;
-      }
-
-      const folderIndex = selectedFolderId
-        ? visibleGroups.findIndex((group) => group.id === selectedFolderId)
-        : -1;
-      const activeGroup =
-        folderIndex >= 0 ? visibleGroups[folderIndex] : undefined;
-      const activeBookmarks = activeGroup
-        ? bookmarkBuckets[activeGroup.id] ?? []
-        : [];
-
-      if (
-        e.key === "ArrowDown" ||
-        e.key === "ArrowUp" ||
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowRight" ||
-        e.key === " " ||
-        e.key === "Enter"
-      ) {
-        if (!hasKeyboardFocus) {
-          setHasKeyboardFocus(true);
-        }
-      }
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (selectedBookmarkIndex >= 0) {
-          setSelectedBookmarkIndex((prev) => {
-            const nextIndex = prev + gridColumns;
-            if (nextIndex < activeBookmarks.length) {
-              return nextIndex;
-            }
-            if (folderIndex >= 0 && folderIndex < visibleGroups.length - 1) {
-              setSelectedFolderId(visibleGroups[folderIndex + 1].id);
-              return -1;
-            }
-            return prev;
-          });
-          return;
-        }
-
-        if (folderIndex < 0) {
-          setSelectedFolderId(visibleGroups[0]?.id ?? null);
-          return;
-        }
-
-        if (!collapsedGroups[activeGroup?.id ?? ""] && activeBookmarks.length > 0) {
-          setSelectedBookmarkIndex(0);
-          return;
-        }
-
-        const next = Math.min(visibleGroups.length - 1, folderIndex + 1);
-        setSelectedFolderId(visibleGroups[next].id);
-        setSelectedBookmarkIndex(-1);
-        return;
-      }
-
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (selectedBookmarkIndex >= 0) {
-          setSelectedBookmarkIndex((prev) => {
-            const nextIndex = prev - gridColumns;
-            if (nextIndex >= 0) {
-              return nextIndex;
-            }
-            return -1;
-          });
-          return;
-        }
-
-        if (folderIndex < 0) {
-          setSelectedFolderId(visibleGroups[0]?.id ?? null);
-          return;
-        }
-
-        const next = Math.max(0, folderIndex - 1);
-        setSelectedFolderId(visibleGroups[next].id);
-        setSelectedBookmarkIndex(-1);
-        return;
-      }
-
-      if (selectedBookmarkIndex >= 0 && e.key === "ArrowRight") {
-        e.preventDefault();
-        setSelectedBookmarkIndex((prev) => {
-          const nextIndex = prev + 1;
-          return nextIndex < activeBookmarks.length ? nextIndex : prev;
-        });
-        return;
-      }
-
-      if (selectedBookmarkIndex >= 0 && e.key === "ArrowLeft") {
-        e.preventDefault();
-        setSelectedBookmarkIndex((prev) => {
-          const nextIndex = prev - 1;
-          return nextIndex >= 0 ? nextIndex : prev;
-        });
-        return;
-      }
-
-      if (e.key === " ") {
-        if (selectedBookmarkIndex >= 0) {
-          const bookmark = activeBookmarks[selectedBookmarkIndex];
-          if (!bookmark) return;
-          e.preventDefault();
-          setPreviewBookmark(bookmark);
-          setIsPreviewOpen(true);
-        }
-        return;
-      }
-
-      if (e.key === "Enter") {
-        if (!activeGroup) return;
-        e.preventDefault();
-
-        if (selectedBookmarkIndex >= 0) {
-          const bookmark = activeBookmarks[selectedBookmarkIndex];
-          if (!bookmark) return;
-          if (e.metaKey || e.ctrlKey) {
-            window.open(bookmark.url, "_blank", "noopener,noreferrer");
-          } else {
-            navigator.clipboard.writeText(bookmark.url);
-            toast.success("URL copied to clipboard");
-          }
-          return;
-        }
-
-        if (e.metaKey || e.ctrlKey) {
-          toggleCollapse(activeGroup.id);
-        } else {
-          toggleCollapse(activeGroup.id);
-        }
-        return;
-      }
-
-      if (e.key === "Escape") {
-        setSelectedBookmarkIndex(-1);
-        setSelectedFolderId(null);
-        setHasKeyboardFocus(false);
-      }
-    };
-
-    const handleGlobalClick = (event: MouseEvent) => {
-      setHasKeyboardFocus(false);
-      const target = event.target as HTMLElement | null;
-      if (!target?.closest('[data-slot="folder-board"]')) {
-        setSelectedBookmarkIndex(-1);
-        setSelectedFolderId(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown, { capture: true });
-    window.addEventListener("mousedown", handleGlobalClick);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown, { capture: true });
-      window.removeEventListener("mousedown", handleGlobalClick);
-    };
-  }, [
+  useFolderKeyboardNav({
     bookmarkBuckets,
     collapsedGroups,
     gridColumns,
-    hasKeyboardFocus,
-    selectedBookmarkIndex,
-    selectedFolderId,
     visibleGroups,
-  ]);
-
-  const renderFolderHeader = (group: GroupRow, count: number) => {
-    const Icon = group.icon ? ALL_ICONS_MAP[group.icon] : Folder01Icon;
-    const isSelected =
-      hasKeyboardFocus &&
-      group.id === selectedFolderId &&
-      selectedBookmarkIndex < 0;
-    return (
-      <AccordionTrigger
-        className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left border-b border-border/30 bg-muted/15 transition-colors hover:bg-muted/20 hover:no-underline ${
-          isSelected ? "ring-1 ring-primary/20 bg-muted/20" : ""
-        }`}
-        onClick={() => setSelectedFolderId(group.id)}
-        aria-label={`Toggle ${group.name}`}
-        data-slot="folder-header"
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <HugeiconsIcon
-              icon={Icon}
-              size={18}
-              strokeWidth={1.8}
-              style={{ color: group.color || undefined }}
-            />
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-sm font-semibold text-foreground truncate">
-                  {group.name}
-                </span>
-                <span className="text-xs text-muted-foreground/70 tabular-nums">
-                  {count}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AccordionTrigger>
-    );
-  };
-
-  const renderEmptyFolder = () => (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground/70 py-3">
-      <HugeiconsIcon icon={GridIcon} size={14} />
-      <span>No bookmarks yet</span>
-    </div>
-  );
+    selectedFolderId,
+    setSelectedFolderId,
+    selectedBookmarkIndex,
+    setSelectedBookmarkIndex,
+    setHasKeyboardFocus,
+    onKeyboardContextChange,
+    onPreview: (bookmark) => {
+      setPreviewBookmark(bookmark);
+      setIsPreviewOpen(true);
+    },
+    onToggleCollapse: toggleCollapse,
+  });
 
   return (
     <>
@@ -557,12 +323,21 @@ export function FolderBoard({
                 }`}
                 data-slot="folder-section"
               >
-                {renderFolderHeader(group, groupBookmarks.length)}
+                <FolderHeader
+                  group={group}
+                  count={groupBookmarks.length}
+                  isSelected={
+                    hasKeyboardFocus &&
+                    group.id === selectedFolderId &&
+                    selectedBookmarkIndex < 0
+                  }
+                  onSelect={() => setSelectedFolderId(group.id)}
+                />
 
                 <AccordionContent className="px-0">
                   <div className="px-4 pb-4 pt-4 md:px-5 bg-background/60">
                     {groupBookmarks.length === 0 ? (
-                      renderEmptyFolder()
+                      <EmptyFolder />
                     ) : (
                       <SortableContext
                         id={group.id}
@@ -626,19 +401,7 @@ export function FolderBoard({
                 }),
               }}
             >
-              {activeBookmark ? (
-                <div className="relative flex flex-col items-center gap-3 rounded-2xl bg-background/80 ring-1 ring-foreground/5 p-4 text-center backdrop-blur-xl after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate overflow-hidden">
-                  <Favicon
-                    url={activeBookmark.favicon_url || ""}
-                    domain={getDomain(activeBookmark.url)}
-                    title={activeBookmark.title || ""}
-                    className="size-12"
-                  />
-                  <p className="truncate text-xs font-semibold text-foreground w-full">
-                    {activeBookmark.title}
-                  </p>
-                </div>
-              ) : null}
+              <FolderDragOverlay activeBookmark={activeBookmark} />
             </DragOverlay>,
             document.body,
           )}
