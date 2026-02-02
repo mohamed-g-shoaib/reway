@@ -39,10 +39,8 @@ export function useBookmarkGrid({
     updateColumns();
     const observer = new ResizeObserver(updateColumns);
     observer.observe(boardRef.current);
-    window.addEventListener("resize", updateColumns);
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", updateColumns);
     };
   }, [viewMode, isGridView, boardRef]);
 

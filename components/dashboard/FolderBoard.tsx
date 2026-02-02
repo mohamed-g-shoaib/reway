@@ -78,11 +78,12 @@ export function FolderBoard({
   onKeyboardContextChange,
 }: FolderBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [collapsedGroups, setCollapsedGroups] = useState<
+    Record<string, boolean>
+  >({});
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
-  const [selectedBookmarkIndex, setSelectedBookmarkIndex] = useState<number>(-1);
+  const [selectedBookmarkIndex, setSelectedBookmarkIndex] =
+    useState<number>(-1);
   const [gridColumns, setGridColumns] = useState(1);
   const activeGridRef = useRef<HTMLDivElement | null>(null);
   const [hasKeyboardFocus, setHasKeyboardFocus] = useState(false);
@@ -93,9 +94,8 @@ export function FolderBoard({
     null,
   );
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
-  const [editSheetBookmark, setEditSheetBookmark] = useState<BookmarkRow | null>(
-    null,
-  );
+  const [editSheetBookmark, setEditSheetBookmark] =
+    useState<BookmarkRow | null>(null);
 
   useEffect(() => {
     try {
@@ -132,7 +132,7 @@ export function FolderBoard({
   );
 
   const activeBookmark = activeId
-    ? bookmarks.find((bookmark) => bookmark.id === activeId) ?? null
+    ? (bookmarks.find((bookmark) => bookmark.id === activeId) ?? null)
     : null;
 
   const visibleGroups = useMemo(() => {
@@ -243,10 +243,8 @@ export function FolderBoard({
     updateColumns();
     const observer = new ResizeObserver(updateColumns);
     observer.observe(target);
-    window.addEventListener("resize", updateColumns);
     return () => {
       observer.disconnect();
-      window.removeEventListener("resize", updateColumns);
     };
   }, [selectedFolderId]);
 
@@ -259,7 +257,10 @@ export function FolderBoard({
       return;
     }
 
-    if (selectedFolderId && visibleGroups.some((g) => g.id === selectedFolderId)) {
+    if (
+      selectedFolderId &&
+      visibleGroups.some((g) => g.id === selectedFolderId)
+    ) {
       return;
     }
 
@@ -357,7 +358,8 @@ export function FolderBoard({
                               domain={getDomain(bookmark.url)}
                               favicon={bookmark.favicon_url || ""}
                               isSelected={
-                                isSelectedFolder && selectedBookmarkIndex === index
+                                isSelectedFolder &&
+                                selectedBookmarkIndex === index
                               }
                               selectionMode={selectionMode}
                               isSelectionChecked={selectedIds.has(bookmark.id)}
@@ -365,14 +367,18 @@ export function FolderBoard({
                               onEnterSelectionMode={onEnterSelectionMode}
                               onDelete={onDeleteBookmark}
                               onEdit={(id) => {
-                                const target = bookmarks.find((b) => b.id === id);
+                                const target = bookmarks.find(
+                                  (b) => b.id === id,
+                                );
                                 if (target) {
                                   setEditSheetBookmark(target);
                                   setIsEditSheetOpen(true);
                                 }
                               }}
                               onPreview={(id) => {
-                                const target = bookmarks.find((b) => b.id === id);
+                                const target = bookmarks.find(
+                                  (b) => b.id === id,
+                                );
                                 if (target) {
                                   setPreviewBookmark(target);
                                   setIsPreviewOpen(true);
