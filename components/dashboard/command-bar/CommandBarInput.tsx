@@ -110,41 +110,55 @@ export function CommandBarInput({
         />
 
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onModeChange?.("add")}
-            className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md ${
-              mode === "add"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
-            }`}
-            aria-pressed
-            aria-label="Add bookmarks"
-          >
-            <HugeiconsIcon icon={BookmarkAdd02Icon} size={13} />
-            <KbdGroup className="hidden md:inline-flex">
-              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
-                {isMac ? "⌘K" : "CtrlK"}
-              </Kbd>
-            </KbdGroup>
-          </button>
-          <button
-            type="button"
-            onClick={() => onModeChange?.("search")}
-            className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md ${
-              mode === "search"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
-            }`}
-            aria-label="Search bookmarks"
-          >
-            <HugeiconsIcon icon={Search02Icon} size={13} />
-            <KbdGroup className="hidden md:inline-flex">
-              <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
-                {isMac ? "⌘F" : "CtrlF"}
-              </Kbd>
-            </KbdGroup>
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => onModeChange?.("add")}
+                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out ${
+                  mode === "add"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                }`}
+                aria-pressed
+                aria-label="Add bookmarks"
+              >
+                <HugeiconsIcon icon={BookmarkAdd02Icon} size={13} />
+                <KbdGroup className="hidden md:inline-flex">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                    {isMac ? "⌘K" : "CtrlK"}
+                  </Kbd>
+                </KbdGroup>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="rounded-lg font-medium" side="bottom">
+              Add bookmarks
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={() => onModeChange?.("search")}
+                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out ${
+                  mode === "search"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                }`}
+                aria-label="Search bookmarks"
+              >
+                <HugeiconsIcon icon={Search02Icon} size={13} />
+                <KbdGroup className="hidden md:inline-flex">
+                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                    {isMac ? "⌘F" : "CtrlF"}
+                  </Kbd>
+                </KbdGroup>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="rounded-lg font-medium" side="bottom">
+              Search bookmarks
+            </TooltipContent>
+          </Tooltip>
         </div>
       </form>
 
