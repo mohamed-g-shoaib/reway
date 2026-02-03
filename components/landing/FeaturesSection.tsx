@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { features } from "./features/demo-data";
 import { ExtractDemo } from "./features/ExtractDemo";
 import { GroupsDemo } from "./features/GroupsDemo";
@@ -9,7 +10,13 @@ import { ViewModesDemo } from "./features/ViewModesDemo";
 export function FeaturesSection() {
   return (
     <section id="features" className="border-b border-border/60 bg-muted/20">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20">
+      <motion.div
+        className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-120px" }}
+        transition={{ duration: 0.28, ease: "easeOut" }}
+      >
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
             Core Features
@@ -48,7 +55,7 @@ export function FeaturesSection() {
             </article>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
