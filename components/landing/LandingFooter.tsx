@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { motion } from "motion/react";
 import {
   GithubIcon,
   Linkedin02Icon,
@@ -10,7 +13,13 @@ import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/60 bg-background">
+    <motion.footer
+      className="border-t border-border/60 bg-background"
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-120px" }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+    >
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-4 py-10 text-sm text-muted-foreground sm:px-6">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
@@ -38,9 +47,15 @@ export function LandingFooter() {
           </div>
           <ThemeSwitcher />
         </div>
-        <div className="mt-4 w-full text-muted-foreground/15">
+        <motion.div
+          className="mt-4 w-full text-muted-foreground/15"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-120px" }}
+          transition={{ duration: 0.26, ease: "easeOut" }}
+        >
           <BrandWord className="h-auto w-full" />
-        </div>
+        </motion.div>
         <div className="text-xs">
           © 2026 by{" "}
           <Link
@@ -51,6 +66,6 @@ export function LandingFooter() {
           </Link>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 }
