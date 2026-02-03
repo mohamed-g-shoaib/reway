@@ -14,6 +14,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 
 interface ViewModeControlsProps {
@@ -112,39 +118,62 @@ export function ViewModeControls({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="hidden md:flex items-center">
+      <TooltipProvider>
+        <div className="hidden md:flex items-center">
         <div className="relative flex items-center">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-8 rounded-full transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
-            onClick={() => setIsOpen((prev) => !prev)}
-            aria-label="Toggle view modes"
-            aria-expanded={isOpen}
-          >
-            <HugeiconsIcon icon={activeIcon} size={16} strokeWidth={2} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none"
+                onClick={() => setIsOpen((prev) => !prev)}
+                aria-label="Toggle view modes"
+                aria-expanded={isOpen}
+              >
+                <HugeiconsIcon icon={activeIcon} size={16} strokeWidth={2} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="rounded-lg font-medium" side="bottom">
+              View modes
+            </TooltipContent>
+          </Tooltip>
           {isOpen ? (
             <div className="absolute right-full mr-2 flex items-center gap-1 rounded-xl bg-muted/30 p-1">
               {viewOptions.map((option) => (
-                <Button
-                  key={option.value}
-                  size="icon"
-                  variant={viewMode === option.value ? "default" : "ghost"}
-                  className="size-7 rounded-lg hover:bg-muted/50"
-                  onClick={() => {
-                    setViewMode(option.value);
-                    setIsOpen(false);
-                  }}
-                  aria-label={`${option.label} view`}
-                >
-                  <HugeiconsIcon icon={option.icon} size={14} strokeWidth={2} />
-                </Button>
+                <Tooltip key={option.value}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant={viewMode === option.value ? "default" : "ghost"}
+                      className={`size-7 rounded-lg transition-colors duration-150 ease-out ${
+                        viewMode === option.value
+                          ? ""
+                          : "hover:bg-muted/50"
+                      }`}
+                      onClick={() => {
+                        setViewMode(option.value);
+                        setIsOpen(false);
+                      }}
+                      aria-label={`${option.label} view`}
+                    >
+                      <HugeiconsIcon
+                        icon={option.icon}
+                        size={14}
+                        strokeWidth={2}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="rounded-lg font-medium" side="bottom">
+                    {option.label} view
+                  </TooltipContent>
+                </Tooltip>
               ))}
             </div>
           ) : null}
         </div>
       </div>
+      </TooltipProvider>
     </>
   );
 }
