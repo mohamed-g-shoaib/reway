@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { motion } from "motion/react";
 import {
   ArrowRight01Icon,
   Add01Icon,
@@ -110,7 +111,13 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
   return (
     <section className="border-b border-border/60 bg-background">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
-        <div className="space-y-6 text-center">
+        <motion.div
+          className="space-y-6 text-center"
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-120px" }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+        >
           <h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
             A Calm Home For Everything You Save.
           </h1>
@@ -119,25 +126,35 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
             in seconds, let AI extract what matters, and move fast with search,
             groups, and view modes that match the way you think.
           </p>
-          <Button
-            asChild
-            size="lg"
-            className="h-12 rounded-3xl px-6 text-sm font-semibold active:scale-[0.97] transition-[color,background-color,transform] duration-200 ease-out"
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
           >
-            <Link href={dashboardHref}>
-              {ctaLabel}
-              <HugeiconsIcon
-                icon={ArrowRight01Icon}
-                size={18}
-                className="ml-2"
-              />
-            </Link>
-          </Button>
-        </div>
+            <Button
+              asChild
+              size="lg"
+              className="h-12 rounded-3xl px-6 text-sm font-semibold transition-[color,background-color] duration-200 ease-out"
+            >
+              <Link href={dashboardHref}>
+                {ctaLabel}
+                <HugeiconsIcon
+                  icon={ArrowRight01Icon}
+                  size={18}
+                  className="ml-2"
+                />
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
 
-        <div
+        <motion.div
           id="how-it-works"
           className="overflow-hidden rounded-4xl border border-border bg-card"
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-120px" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
             <div className="flex items-center gap-3 text-foreground">
@@ -242,11 +259,19 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {previewBookmarks.map((bookmark, index) => (
-                    <div
+                    <motion.div
                       key={bookmark.title}
                       className={`rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/5 transition-colors hover:bg-muted/30 ${
                         index >= 3 ? "hidden lg:block" : ""
                       }`}
+                      initial={{ opacity: 0, y: 8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{
+                        duration: 0.22,
+                        ease: "easeOut",
+                        delay: index * 0.04,
+                      }}
                     >
                       <a
                         href={bookmark.url}
@@ -330,13 +355,13 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                           </button>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

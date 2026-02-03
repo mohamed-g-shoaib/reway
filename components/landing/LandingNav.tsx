@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { DashboardHref } from "@/components/landing/types";
 
@@ -9,10 +13,30 @@ interface LandingNavProps {
 }
 
 export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setHasScrolled(window.scrollY > 8);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="sticky top-4 z-40">
+    <motion.header
+      className="sticky top-4 z-40"
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
       <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
-        <div className="inline-flex w-full max-w-[460px] items-center gap-3 sm:gap-6 rounded-full border border-border/80 bg-background/80 px-3 sm:px-4 py-2.5 shadow-sm backdrop-blur-xl">
+        <div
+          className={`inline-flex w-full max-w-[460px] items-center gap-3 sm:gap-6 rounded-full border px-3 sm:px-4 py-2.5 transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
+            hasScrolled
+              ? "border-border/80 bg-background/80 shadow-sm backdrop-blur-xl"
+              : "border-transparent bg-transparent shadow-none"
+          }`}
+        >
           <Link
             href="/"
             className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97]"
@@ -48,6 +72,6 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
           </div>
         </div>
       </div>
-    </header>
+    </motion.header>
   );
 }
