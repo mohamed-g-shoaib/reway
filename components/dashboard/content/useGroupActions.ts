@@ -2,13 +2,16 @@
 
 import { useCallback } from "react";
 import { toast } from "sonner";
-import type { GroupRow } from "@/lib/supabase/queries";
+import type { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 
 interface UseGroupActionsOptions {
   userId: string;
   activeGroupId: string;
   groups: GroupRow[];
+  bookmarks: BookmarkRow[];
   setGroups: React.Dispatch<React.SetStateAction<GroupRow[]>>;
+  setBookmarks: React.Dispatch<React.SetStateAction<BookmarkRow[]>>;
+  sortBookmarks: (items: BookmarkRow[]) => BookmarkRow[];
   sortGroups: (items: GroupRow[]) => GroupRow[];
   setActiveGroupId: (id: string) => void;
   editGroupName: string;
@@ -36,6 +39,8 @@ interface UseGroupActionsOptions {
     icon: string;
     color?: string | null;
   }) => Promise<void>;
+  restoreBookmark: (bookmark: BookmarkRow) => Promise<void>;
+  lastDeletedGroupBookmarksRef: React.MutableRefObject<BookmarkRow[]>;
   initialGroups: GroupRow[];
   newGroupName: string;
   newGroupIcon: string;
@@ -52,7 +57,10 @@ export function useGroupActions({
   userId,
   activeGroupId,
   groups,
+  bookmarks,
   setGroups,
+  setBookmarks,
+  sortBookmarks,
   sortGroups,
   setActiveGroupId,
   editGroupName,
@@ -68,6 +76,8 @@ export function useGroupActions({
   updateGroup,
   deleteGroup,
   restoreGroup,
+  restoreBookmark,
+  lastDeletedGroupBookmarksRef,
   initialGroups,
   newGroupName,
   newGroupIcon,
@@ -150,6 +160,7 @@ export function useGroupActions({
   const handleDeleteGroup = useCallback(
     async (id: string) => {
       let deletedGroup: GroupRow | undefined;
+      let deletedBookmarks: BookmarkRow[] = [];
 
       setGroups((prev) => {
         deletedGroup = prev.find((g) => g.id === id);
@@ -163,6 +174,16 @@ export function useGroupActions({
         setActiveGroupId("all");
       }
 
+      deletedBookmarks = bookmarks.filter(
+        (bookmark) => bookmark.group_id === id,
+      );
+      lastDeletedGroupBookmarksRef.current = deletedBookmarks;
+      if (deletedBookmarks.length > 0) {
+        setBookmarks((prev) =>
+          prev.filter((bookmark) => bookmark.group_id !== id),
+        );
+      }
+
       if (deletedGroup) {
         toast.error("Group deleted", {
           action: {
@@ -174,6 +195,17 @@ export function useGroupActions({
                 if (prev.some((g) => g.id === lastDeleted.id)) return prev;
                 return sortGroups([...prev, lastDeleted]);
               });
+              const restoreBookmarks = lastDeletedGroupBookmarksRef.current;
+              if (restoreBookmarks.length > 0) {
+                setBookmarks((prev) => {
+                  const existingIds = new Set(prev.map((item) => item.id));
+                  const missing = restoreBookmarks.filter(
+                    (bookmark) => !existingIds.has(bookmark.id),
+                  );
+                  if (missing.length === 0) return prev;
+                  return sortBookmarks([...prev, ...missing]);
+                });
+              }
               try {
                 await restoreGroup({
                   id: lastDeleted.id,
@@ -181,6 +213,13 @@ export function useGroupActions({
                   icon: lastDeleted.icon || "folder",
                   color: lastDeleted.color,
                 });
+                if (restoreBookmarks.length > 0) {
+                  await Promise.allSettled(
+                    restoreBookmarks.map((bookmark) =>
+                      restoreBookmark(bookmark),
+                    ),
+                  );
+                }
               } catch (error) {
                 console.error("Restore group failed:", error);
                 toast.error("Failed to restore group");
@@ -201,16 +240,31 @@ export function useGroupActions({
             ? sortGroups([...prev, deletedFromInitial])
             : prev;
         });
+        if (deletedBookmarks.length > 0) {
+          setBookmarks((prev) => {
+            const existingIds = new Set(prev.map((item) => item.id));
+            const missing = deletedBookmarks.filter(
+              (bookmark) => !existingIds.has(bookmark.id),
+            );
+            if (missing.length === 0) return prev;
+            return sortBookmarks([...prev, ...missing]);
+          });
+        }
       }
     },
     [
       activeGroupId,
+      bookmarks,
       deleteGroup,
       initialGroups,
       lastDeletedGroupRef,
+      lastDeletedGroupBookmarksRef,
       restoreGroup,
+      restoreBookmark,
       setActiveGroupId,
+      setBookmarks,
       setGroups,
+      sortBookmarks,
       sortGroups,
     ],
   );
