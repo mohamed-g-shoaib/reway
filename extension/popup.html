@@ -49,44 +49,135 @@
       </section>
 
       <section id="main-section" class="card" style="display: none">
-        <div class="page-meta">
-          <img id="favicon" class="favicon" alt="" />
-          <div>
-            <div class="label">Current page</div>
-            <div id="page-url" class="url"></div>
-          </div>
+        <!-- Tab Navigation -->
+        <div class="tabs">
+          <button class="tab-button active" data-tab="save">Save Page</button>
+          <button class="tab-button" data-tab="links">Save Links</button>
+          <button class="tab-button" data-tab="session">Tab Session</button>
         </div>
 
-        <label class="field">
-          <span>Title</span>
-          <input id="title" type="text" placeholder="Page title" />
-        </label>
-
-        <label class="field">
-          <span>Description</span>
-          <textarea
-            id="description"
-            rows="4"
-            placeholder="Short summary"
-          ></textarea>
-        </label>
-
-        <label class="field">
-          <span>Group</span>
-          <div class="select" id="group-select">
-            <button id="group-trigger" class="select-trigger" type="button">
-              <span id="group-label">No group</span>
-              <span class="select-chevron" aria-hidden="true"></span>
-            </button>
-            <div id="group-menu" class="select-menu" role="listbox"></div>
+        <!-- Tab Content: Save Bookmark (existing) -->
+        <div id="tab-save" class="tab-content active">
+          <div class="page-meta">
+            <img id="favicon" class="favicon" alt="" />
+            <div class="page-meta-content">
+              <div class="label">Current page</div>
+              <div id="page-url" class="url"></div>
+            </div>
           </div>
-        </label>
 
-        <div class="actions">
-          <button id="save" class="primary">Save bookmark</button>
+          <label class="field">
+            <span>Title</span>
+            <input id="title" type="text" placeholder="Page title" />
+          </label>
+
+          <label class="field">
+            <span>Description</span>
+            <textarea
+              id="description"
+              rows="4"
+              placeholder="Short summary"
+            ></textarea>
+          </label>
+
+          <label class="field">
+            <span>Group</span>
+            <div class="select" id="group-select">
+              <button id="group-trigger" class="select-trigger" type="button">
+                <span id="group-label">No group</span>
+                <span class="select-chevron" aria-hidden="true"></span>
+              </button>
+              <div id="group-menu" class="select-menu" role="listbox"></div>
+            </div>
+          </label>
+
+          <div class="actions">
+            <button id="save" class="primary">Save bookmark</button>
+          </div>
+
+          <div id="status" class="status"></div>
         </div>
 
-        <div id="status" class="status"></div>
+        <!-- Tab Content: Save Links -->
+        <div id="tab-links" class="tab-content">
+          <label class="field">
+            <span>Add a link</span>
+            <div class="inline-input">
+              <input
+                id="links-manual-url"
+                type="text"
+                placeholder="https://example.com"
+              />
+              <button
+                id="add-manual-link"
+                class="secondary link-action-button icon-button"
+                type="button"
+                aria-label="Add link"
+                title="Add link"
+              >
+                +
+              </button>
+            </div>
+          </label>
+          <div class="session-header">
+            <span id="links-count" class="session-count">Loading...</span>
+          </div>
+          <div id="grabbed-links-list" class="session-preview">
+            <!-- Empty state -->
+            <div id="links-empty" class="empty-state">
+              <p>No links saved yet</p>
+              <p class="hint">Paste links to build a group</p>
+            </div>
+          </div>
+
+          <div id="links-actions" class="link-grab-actions">
+            <label class="field">
+              <span>Group Name</span>
+              <input
+                id="links-group-name"
+                type="text"
+                placeholder="My Research Links"
+              />
+            </label>
+            <div class="actions">
+              <button id="create-group-from-links" class="primary">
+                Save as Group
+              </button>
+            </div>
+          </div>
+
+          <div id="links-status" class="status"></div>
+        </div>
+
+        <!-- Tab Content: Tab Session -->
+        <div id="tab-session" class="tab-content">
+          <div class="session-header">
+            <span id="tab-count" class="session-count">Loading...</span>
+          </div>
+
+          <div id="session-preview" class="session-preview">
+            <!-- Tab preview will be inserted here -->
+            <div id="session-empty" class="empty-state" style="display: none">
+              <p>No tabs to save</p>
+              <p class="hint">Open some tabs to create a session</p>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Session Name</span>
+            <input
+              id="session-name"
+              type="text"
+              placeholder="My Work Session"
+            />
+          </label>
+
+          <div class="actions">
+            <button id="save-session" class="primary">Save Session</button>
+          </div>
+
+          <div id="session-status" class="status"></div>
+        </div>
       </section>
     </div>
 

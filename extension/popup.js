@@ -212,7 +212,13 @@ async function saveBookmark() {
   const tab = await getActiveTab();
   if (!tab?.url) return;
 
-  setStatus("Saving...");
+  const saveBtn = document.getElementById("save");
+  const statusEl = document.getElementById("status");
+
+  // Show loading state
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Saving...";
+  statusEl.textContent = "";
 
   const payload = {
     url: tab.url,
@@ -235,6 +241,8 @@ async function saveBookmark() {
     );
 
     if (!response.ok) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save bookmark";
       setStatus("Failed to save. Check your token.", "error");
       return;
     }
@@ -260,12 +268,18 @@ async function saveBookmark() {
       }
     }
 
-    setStatus("Saved to Reway!");
-    // Close extension popup after save
+    // Show success state on button
+    saveBtn.classList.add("success");
+    saveBtn.textContent = "✓ Saved!";
+    statusEl.textContent = "";
+
+    // Close extension popup after brief success display
     setTimeout(() => {
       window.close();
-    }, 1000);
+    }, 800);
   } catch (error) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save bookmark";
     setStatus("Network error. Check connection.", "error");
   }
 }
@@ -328,6 +342,512 @@ if (elements.token) {
       saveSettings();
     }
   });
+}
+
+// ============================================
+// Tab Navigation
+// ============================================
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const targetTab = button.dataset.tab;
+
+    // Update active states
+    tabButtons.forEach((btn) => btn.classList.remove("active"));
+    tabContents.forEach((content) => content.classList.remove("active"));
+
+    button.classList.add("active");
+    document.getElementById(`tab-${targetTab}`).classList.add("active");
+
+    // Initialize tab-specific content
+    if (targetTab === "links") {
+      loadGrabbedLinks();
+    } else if (targetTab === "session") {
+      loadTabSession();
+    }
+  });
+});
+
+// ============================================
+// Save Links Tab
+// ============================================
+const createGroupFromLinksBtn = document.getElementById(
+  "create-group-from-links",
+);
+const addManualLinkBtn = document.getElementById("add-manual-link");
+const manualLinkInput = document.getElementById("links-manual-url");
+
+if (createGroupFromLinksBtn) {
+  createGroupFromLinksBtn.addEventListener("click", createGroupFromLinks);
+}
+
+if (addManualLinkBtn && manualLinkInput) {
+  addManualLinkBtn.addEventListener("click", async () => {
+    const value = manualLinkInput.value.trim();
+    if (!value) return;
+
+    // Clear previous error state
+    manualLinkInput.classList.remove("error");
+    manualLinkInput.placeholder = "https://example.com";
+
+    let parsedUrl = value;
+    if (!/^https?:\/\//i.test(parsedUrl)) {
+      parsedUrl = `https://${parsedUrl}`;
+    }
+
+    try {
+      const url = new URL(parsedUrl);
+
+      // Show loading state
+      addManualLinkBtn.disabled = true;
+      manualLinkInput.disabled = true;
+
+      const response = await chrome.runtime.sendMessage({
+        type: "addGrabbedLink",
+        url: url.toString(),
+        title: null, // Let background fetch metadata
+        source: "manual",
+      });
+
+      // Re-enable inputs
+      addManualLinkBtn.disabled = false;
+      manualLinkInput.disabled = false;
+
+      if (
+        response &&
+        response.success === false &&
+        response.reason === "duplicate"
+      ) {
+        // Show duplicate error
+        manualLinkInput.classList.add("error");
+        manualLinkInput.placeholder = "⚠️ Link already added";
+        manualLinkInput.value = "";
+
+        // Clear error after 3 seconds
+        setTimeout(() => {
+          manualLinkInput.classList.remove("error");
+          manualLinkInput.placeholder = "https://example.com";
+        }, 3000);
+        return;
+      }
+
+      manualLinkInput.value = "";
+      loadGrabbedLinks();
+    } catch (error) {
+      // Re-enable inputs
+      addManualLinkBtn.disabled = false;
+      manualLinkInput.disabled = false;
+
+      // Show invalid URL error
+      manualLinkInput.classList.add("error");
+      manualLinkInput.placeholder = "⚠️ Please enter a valid URL";
+      manualLinkInput.value = "";
+
+      // Clear error after 3 seconds
+      setTimeout(() => {
+        manualLinkInput.classList.remove("error");
+        manualLinkInput.placeholder = "https://example.com";
+      }, 3000);
+    }
+  });
+
+  manualLinkInput.addEventListener("keypress", (event) => {
+    if (event.key === "Enter") {
+      addManualLinkBtn.click();
+    }
+  });
+}
+
+async function loadGrabbedLinks() {
+  const listContainer = document.getElementById("grabbed-links-list");
+  const emptyState = document.getElementById("links-empty");
+  const countEl = document.getElementById("links-count");
+
+  const response = await chrome.runtime.sendMessage({
+    type: "getGrabbedLinks",
+  });
+
+  const links = response?.links || [];
+
+  if (countEl) {
+    countEl.textContent = `${links.length} links`;
+  }
+
+  const groupNameInput = document.getElementById("links-group-name");
+  const createBtn = document.getElementById("create-group-from-links");
+
+  if (links.length === 0) {
+    emptyState.style.display = "block";
+    // Disable input and button in empty state
+    if (groupNameInput) groupNameInput.disabled = true;
+    if (createBtn) createBtn.disabled = true;
+    // Remove only link items, not empty state
+    const items = listContainer.querySelectorAll(".session-tab-item");
+    items.forEach((item) => item.remove());
+    return;
+  }
+
+  emptyState.style.display = "none";
+  // Enable input and button when links exist
+  if (groupNameInput) groupNameInput.disabled = false;
+  if (createBtn) createBtn.disabled = false;
+
+  // Remove only link items, not empty state
+  const items = listContainer.querySelectorAll(".session-tab-item");
+  items.forEach((item) => item.remove());
+
+  links.forEach((link) => {
+    const item = document.createElement("div");
+    item.className = "session-tab-item";
+    item.dataset.url = link.url;
+
+    const favicon = document.createElement("img");
+    favicon.className = "session-tab-favicon";
+    favicon.src = link.favIconUrl || "icons/icon16.png";
+    favicon.onerror = () => {
+      favicon.src = "icons/icon16.png";
+    };
+
+    const title = document.createElement("div");
+    title.className = "session-tab-title";
+    title.textContent = link.url;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "session-tab-remove";
+    removeBtn.type = "button";
+    removeBtn.setAttribute("aria-label", "Remove link");
+    removeBtn.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    removeBtn.addEventListener("click", async () => {
+      await chrome.runtime.sendMessage({
+        type: "removeGrabbedLink",
+        url: link.url,
+      });
+      loadGrabbedLinks();
+    });
+
+    item.appendChild(favicon);
+    item.appendChild(title);
+    item.appendChild(removeBtn);
+    listContainer.appendChild(item);
+  });
+}
+
+async function createGroupFromLinks() {
+  const nameInput = document.getElementById("links-group-name");
+  const createBtn = document.getElementById("create-group-from-links");
+  const statusEl = document.getElementById("links-status");
+  const groupName = nameInput.value.trim();
+
+  // Clear previous status
+  if (statusEl) {
+    statusEl.textContent = "";
+    statusEl.dataset.tone = "";
+  }
+
+  // Check authentication
+  const settings = await getSettings();
+  if (!settings.token) {
+    if (statusEl) {
+      statusEl.textContent = "Add an access token first.";
+      statusEl.dataset.tone = "error";
+    }
+    return;
+  }
+
+  if (!groupName) {
+    if (statusEl) {
+      statusEl.textContent = "Please enter a group name";
+      statusEl.dataset.tone = "error";
+    }
+    return;
+  }
+
+  const response = await chrome.runtime.sendMessage({
+    type: "getGrabbedLinks",
+  });
+
+  const links = response?.links || [];
+
+  if (links.length === 0) {
+    if (statusEl) {
+      statusEl.textContent = "No links to create group from";
+      statusEl.dataset.tone = "error";
+    }
+    return;
+  }
+
+  const selectedLinks = links.map((link) => ({
+    url: link.url,
+    title: link.title || link.url,
+  }));
+
+  // Show loading state
+  createBtn.disabled = true;
+  createBtn.textContent = "Saving...";
+  if (statusEl) statusEl.textContent = "";
+
+  try {
+    // Create group
+    const groupResponse = await fetch(
+      `${settings.baseUrl}/api/extension/groups`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${settings.token}`,
+        },
+        body: JSON.stringify({ name: groupName }),
+      },
+    );
+
+    if (!groupResponse.ok) {
+      throw new Error("Failed to create group");
+    }
+
+    const groupData = await groupResponse.json();
+    const groupId = groupData.group.id;
+
+    // Create bookmarks in batch
+    const bookmarkPromises = selectedLinks.map((link) =>
+      fetch(`${settings.baseUrl}/api/extension/bookmarks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${settings.token}`,
+        },
+        body: JSON.stringify({
+          url: link.url,
+          title: link.title,
+          groupId,
+        }),
+      }),
+    );
+
+    await Promise.all(bookmarkPromises);
+
+    // Clear saved links
+    await chrome.runtime.sendMessage({ type: "clearGrabbedLinks" });
+
+    // Show success state on button
+    createBtn.classList.add("success");
+    createBtn.textContent = "✓ Saved!";
+    if (statusEl) statusEl.textContent = "";
+
+    // Clear input
+    nameInput.value = "";
+    loadGrabbedLinks();
+
+    // Close popup after brief success display
+    setTimeout(() => {
+      window.close();
+    }, 800);
+  } catch (error) {
+    createBtn.disabled = false;
+    createBtn.textContent = "Save as Group";
+    console.error("Failed to create group:", error);
+    if (statusEl) {
+      statusEl.textContent = "Failed to create group. Check your connection.";
+      statusEl.dataset.tone = "error";
+    }
+  }
+}
+
+// ============================================
+// Tab Session Tab
+// ============================================
+const saveSessionBtn = document.getElementById("save-session");
+
+if (saveSessionBtn) {
+  saveSessionBtn.addEventListener("click", saveTabSession);
+}
+
+async function loadTabSession() {
+  const tabCountEl = document.getElementById("tab-count");
+  const sessionPreview = document.getElementById("session-preview");
+  const emptyState = document.getElementById("session-empty");
+
+  try {
+    // Get tabs only from the window that owns the popup
+    const currentWindow = await chrome.windows.getCurrent({ populate: true });
+    const tabs = currentWindow?.tabs || [];
+
+    // Filter out extension and system tabs
+    const validTabs = tabs.filter(
+      (tab) =>
+        tab.url &&
+        !tab.url.startsWith("chrome://") &&
+        !tab.url.startsWith("chrome-extension://") &&
+        !tab.url.startsWith("edge://") &&
+        !tab.url.startsWith("about:"),
+    );
+
+    tabCountEl.textContent = `${validTabs.length} tabs`;
+
+    // Remove existing tab items
+    const items = sessionPreview.querySelectorAll(".session-tab-item");
+    items.forEach((item) => item.remove());
+
+    const sessionNameInput = document.getElementById("session-name");
+    const saveBtn = document.getElementById("save-session");
+
+    if (validTabs.length === 0) {
+      emptyState.style.display = "block";
+      // Disable input and button in empty state
+      if (sessionNameInput) sessionNameInput.disabled = true;
+      if (saveBtn) saveBtn.disabled = true;
+      return;
+    }
+
+    emptyState.style.display = "none";
+    // Enable input and button when tabs exist
+    if (sessionNameInput) sessionNameInput.disabled = false;
+    if (saveBtn) saveBtn.disabled = false;
+
+    validTabs.forEach((tab) => {
+      const item = document.createElement("div");
+      item.className = "session-tab-item";
+      item.dataset.tabId = tab.id;
+      item.dataset.url = tab.url;
+      item.dataset.title = tab.title || tab.url;
+
+      const favicon = document.createElement("img");
+      favicon.className = "session-tab-favicon";
+      favicon.src = tab.favIconUrl || "icons/icon16.png";
+      favicon.onerror = () => {
+        favicon.src = "icons/icon16.png";
+      };
+
+      const title = document.createElement("div");
+      title.className = "session-tab-title";
+      title.textContent = tab.title || tab.url;
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "session-tab-checkbox";
+      checkbox.checked = true; // All selected by default
+
+      item.appendChild(favicon);
+      item.appendChild(title);
+      item.appendChild(checkbox);
+      sessionPreview.appendChild(item);
+    });
+  } catch (error) {
+    console.error("Failed to load tabs:", error);
+    tabCountEl.textContent = "Error loading tabs";
+  }
+}
+
+async function saveTabSession() {
+  const sessionNameInput = document.getElementById("session-name");
+  const saveSessionBtn = document.getElementById("save-session");
+  const statusEl = document.getElementById("session-status");
+  const sessionPreview = document.getElementById("session-preview");
+
+  // Clear previous status
+  if (statusEl) {
+    statusEl.textContent = "";
+    statusEl.dataset.tone = "";
+  }
+
+  // Check authentication
+  const settings = await getSettings();
+  if (!settings.token) {
+    statusEl.textContent = "Add an access token first.";
+    statusEl.dataset.tone = "error";
+    return;
+  }
+
+  const sessionName = sessionNameInput.value.trim();
+
+  if (!sessionName) {
+    statusEl.textContent = "Please enter a session name";
+    statusEl.dataset.tone = "error";
+    return;
+  }
+
+  // Get selected tabs
+  const tabItems = sessionPreview.querySelectorAll(".session-tab-item");
+  const selectedTabs = Array.from(tabItems)
+    .filter((item) => item.querySelector(".session-tab-checkbox").checked)
+    .map((item) => ({
+      url: item.dataset.url,
+      title: item.dataset.title,
+    }));
+
+  if (selectedTabs.length === 0) {
+    statusEl.textContent = "Please select at least one tab";
+    statusEl.dataset.tone = "error";
+    return;
+  }
+
+  // Show loading state
+  saveSessionBtn.disabled = true;
+  saveSessionBtn.textContent = "Saving...";
+  statusEl.textContent = "";
+
+  try {
+    // Create group
+    const groupResponse = await fetch(
+      `${settings.baseUrl}/api/extension/groups`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${settings.token}`,
+        },
+        body: JSON.stringify({ name: sessionName }),
+      },
+    );
+
+    if (!groupResponse.ok) {
+      throw new Error("Failed to create group");
+    }
+
+    const groupData = await groupResponse.json();
+    const groupId = groupData.group.id;
+
+    // Create bookmarks in batch
+    const bookmarkPromises = selectedTabs.map((tab) =>
+      fetch(`${settings.baseUrl}/api/extension/bookmarks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${settings.token}`,
+        },
+        body: JSON.stringify({
+          url: tab.url,
+          title: tab.title,
+          groupId,
+        }),
+      }),
+    );
+
+    await Promise.all(bookmarkPromises);
+
+    // Show success state on button
+    saveSessionBtn.classList.add("success");
+    saveSessionBtn.textContent = "✓ Saved!";
+    statusEl.textContent = "";
+
+    // Clear input
+    sessionNameInput.value = "";
+
+    // Close popup after brief success display
+    setTimeout(() => {
+      window.close();
+    }, 800);
+  } catch (error) {
+    console.error("Failed to save session:", error);
+    statusEl.textContent = "Failed to save session. Check your connection.";
+    statusEl.dataset.tone = "error";
+
+    // Reset button state on error
+    saveSessionBtn.disabled = false;
+    saveSessionBtn.textContent = "Save Session";
+  }
 }
 
 init();
