@@ -111,6 +111,7 @@ export function DashboardContent({
     index: number;
   } | null>(null);
   const lastDeletedGroupRef = React.useRef<GroupRow | null>(null);
+  const lastDeletedGroupBookmarksRef = React.useRef<BookmarkRow[]>([]);
   const lastBulkDeletedRef = React.useRef<
     { bookmark: BookmarkRow; index: number }[]
   >([]);
@@ -247,7 +248,10 @@ export function DashboardContent({
     userId: user.id,
     activeGroupId,
     groups,
+    bookmarks,
     setGroups,
+    setBookmarks,
+    sortBookmarks,
     sortGroups,
     setActiveGroupId,
     editGroupName,
@@ -259,10 +263,12 @@ export function DashboardContent({
     deleteConfirmGroupId,
     setDeleteConfirmGroupId,
     lastDeletedGroupRef,
+    lastDeletedGroupBookmarksRef,
     createGroup,
     updateGroup: updateGroupAction,
     deleteGroup: deleteGroupAction,
     restoreGroup: restoreGroupAction,
+    restoreBookmark: restoreAction,
     initialGroups,
     newGroupName,
     newGroupIcon,
@@ -501,6 +507,7 @@ export function DashboardContent({
                 <BookmarkBoard
                   bookmarks={filteredBookmarks}
                   initialGroups={groups}
+                  activeGroupId={activeGroupId}
                   onReorder={handleReorder}
                   onDeleteBookmark={handleDeleteBookmark}
                   onEditBookmark={handleEditBookmark}

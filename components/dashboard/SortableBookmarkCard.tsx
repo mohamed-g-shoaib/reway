@@ -36,6 +36,7 @@ interface SortableBookmarkCardProps {
   groupId: string;
   rowContent?: "date" | "group";
   groupsMap?: Map<string, GroupRow>;
+  activeGroupId?: string;
   isSelected?: boolean;
   selectionMode?: boolean;
   isSelectionChecked?: boolean;
@@ -56,6 +57,7 @@ export function SortableBookmarkCard({
   groupId,
   rowContent = "date",
   groupsMap,
+  activeGroupId,
   isSelected,
   selectionMode = false,
   isSelectionChecked = false,
@@ -85,9 +87,13 @@ export function SortableBookmarkCard({
   };
 
   const metaLabel =
-    rowContent === "group"
-      ? groupsMap?.get(groupId)?.name || "No Group"
-      : createdAt;
+    rowContent === "group" &&
+    activeGroupId !== "all" &&
+    activeGroupId === groupId
+      ? createdAt
+      : rowContent === "group"
+        ? groupsMap?.get(groupId)?.name || "No Group"
+        : createdAt;
 
   const handleOpen = (e?: React.MouseEvent) => {
     e?.stopPropagation();

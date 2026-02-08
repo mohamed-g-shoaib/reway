@@ -39,6 +39,7 @@ import { useIsMac } from "@/hooks/useIsMac";
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
+  activeGroupId: string;
   onReorder: (newOrder: BookmarkRow[]) => void;
   onDeleteBookmark: (id: string) => void;
   onEditBookmark: (
@@ -61,6 +62,7 @@ interface BookmarkBoardProps {
 export function BookmarkBoard({
   bookmarks,
   initialGroups,
+  activeGroupId,
   onReorder,
   onDeleteBookmark,
   onEditBookmark,
@@ -212,6 +214,7 @@ export function BookmarkBoard({
                     onToggleSelection={onToggleSelection}
                     onEnterSelectionMode={onEnterSelectionMode}
                     groupsMap={groupsMap}
+                    activeGroupId={activeGroupId}
                     onDelete={onDeleteBookmark}
                     onEdit={(id: string) => {
                       const target = bookmarks.find((bm) => bm.id === id);
@@ -270,6 +273,7 @@ export function BookmarkBoard({
                   isSelected={clampedSelectedIndex === index}
                   groups={initialGroups}
                   groupsMap={groupsMap}
+                  activeGroupId={activeGroupId}
                   isEditing={editingId === bookmark.id}
                   onEditDone={() => setEditingId(null)}
                   onPreview={(id) => {

@@ -27,6 +27,7 @@ interface SortableBookmarkProps {
   onDelete?: (id: string) => void;
   groups?: GroupRow[];
   groupsMap?: Map<string, GroupRow>;
+  activeGroupId?: string;
   isSelected?: boolean;
   onEdit?: (
     id: string,
@@ -59,6 +60,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   groupId,
   onDelete,
   groupsMap,
+  activeGroupId,
   isSelected,
   onEdit,
   groups = [],
@@ -348,6 +350,15 @@ export const SortableBookmark = memo(function SortableBookmark({
               <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
                 {rowContent === "group"
                   ? (() => {
+                      // If viewing a specific group and bookmark belongs to that group, show date instead
+                      if (
+                        activeGroupId &&
+                        activeGroupId !== "all" &&
+                        groupId === activeGroupId
+                      ) {
+                        return createdAt;
+                      }
+                      // Otherwise show group name
                       if (groupId === "all" || !groupsMap || !groupId)
                         return "No Group";
                       const group = groupsMap.get(groupId);
