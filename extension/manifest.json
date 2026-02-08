@@ -28,6 +28,11 @@
       "matches": ["<all_urls>"],
       "js": ["content-script.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["twitter-content-script.js"],
+      "run_at": "document_idle"
     }
   ]
 }
