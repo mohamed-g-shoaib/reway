@@ -11,7 +11,7 @@ export function FeaturesSection() {
   return (
     <section id="features" className="border-b border-border/60 bg-muted/20">
       <motion.div
-        className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
+        className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-120px" }}
@@ -46,7 +46,7 @@ export function FeaturesSection() {
                   </p>
                 </div>
               </div>
-              <div className="flex h-[184px] items-center overflow-visible">
+              <div className="flex h-46 items-center overflow-visible">
                 {feature.demo === "extract" ? <ExtractDemo /> : null}
                 {feature.demo === "groups" ? <GroupsDemo /> : null}
                 {feature.demo === "navigate" ? <NavigationDemo /> : null}

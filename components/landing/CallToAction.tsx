@@ -16,7 +16,7 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
   return (
     <section className="bg-background">
       <motion.div
-        className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-4 py-16 text-center sm:px-6"
+        className="mx-auto flex w-full max-w-[1400px] flex-col items-center gap-6 px-4 py-16 text-center sm:px-6"
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-120px" }}
@@ -28,7 +28,8 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
           </h2>
           <p className="mx-auto max-w-xl text-pretty text-sm text-muted-foreground sm:text-base">
             Move from scattered links to a curated, searchable library in one
-            session. Reway keeps your knowledge readable and always within reach.
+            session. Reway keeps your knowledge readable and always within
+            reach.
           </p>
         </div>
         <motion.div
@@ -43,7 +44,11 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
           >
             <Link href={dashboardHref}>
               {ctaLabel}
-              <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="ml-2" />
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                size={18}
+                className="ml-2"
+              />
             </Link>
           </Button>
         </motion.div>

@@ -29,7 +29,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
     >
-      <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
+      <div className="mx-auto flex max-w-[1400px] justify-center px-4 sm:px-6">
         <div
           className={`inline-flex w-full max-w-[460px] items-center gap-3 sm:gap-6 rounded-full border px-3 sm:px-4 py-2.5 transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
             hasScrolled

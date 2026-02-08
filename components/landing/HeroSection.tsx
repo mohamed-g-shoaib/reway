@@ -110,7 +110,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
 
   return (
     <section className="border-b border-border/60 bg-background">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
+      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
         <motion.div
           className="space-y-6 text-center"
           initial={{ opacity: 0, y: 10 }}

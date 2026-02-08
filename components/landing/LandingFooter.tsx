@@ -20,7 +20,7 @@ export function LandingFooter() {
       viewport={{ once: true, margin: "-120px" }}
       transition={{ duration: 0.28, ease: "easeOut" }}
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-4 py-10 text-sm text-muted-foreground sm:px-6">
+      <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center gap-6 px-4 py-10 text-sm text-muted-foreground sm:px-6">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
             <Link
