@@ -8,6 +8,7 @@ import {
   Delete02Icon,
   GridIcon,
   PencilEdit01Icon,
+  MoreHorizontalIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,7 @@ export function GroupMenu({
                 />
               ) : null}
             </div>
-            <span className="truncate max-w-30">{activeGroup.name}</span>
+            <span className="truncate max-w-48">{activeGroup.name}</span>
             <HugeiconsIcon
               icon={ArrowDown01Icon}
               size={14}
@@ -143,7 +144,7 @@ export function GroupMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="w-56 rounded-2xl p-2 animate-in slide-in-from-top-2 duration-200 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
+          className="w-56 p-2 animate-in slide-in-from-top-2 duration-200 shadow-none"
         >
           <DropdownMenuItem
             className={`group rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${
@@ -290,131 +291,69 @@ export function GroupMenu({
                     </DropdownMenuItem>
 
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                      <div className="flex items-center gap-1 md:hidden">
-                        <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onGroupOpen?.(group.id);
-                            }}
-                            aria-label={`Open ${group.name}`}
+                            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/50 hover:text-foreground transition-all duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`${group.name} options`}
+                          >
+                            <HugeiconsIcon
+                              icon={MoreHorizontalIcon}
+                              size={14}
+                            />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="center" className="w-40">
+                          <DropdownMenuItem
+                            onClick={() => onGroupOpen?.(group.id)}
+                            className="gap-2 text-xs rounded-xl cursor-pointer"
                           >
                             <HugeiconsIcon
                               icon={ArrowUpRight03Icon}
-                              size={13}
+                              size={14}
                             />
-                          </button>
-                          <button
-                            type="button"
-                            className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            Open group
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
                               setEditingGroupId(group.id);
                               setEditGroupName(group.name);
                               setEditGroupIcon(group.icon || "folder");
                               setEditGroupColor(group.color || "#6366f1");
                             }}
-                            aria-label={`Edit ${group.name}`}
+                            className="gap-2 text-xs rounded-xl cursor-pointer"
                           >
-                            <HugeiconsIcon icon={PencilEdit01Icon} size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none ${
-                              isDeleteConfirm
-                                ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                : "text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                            Edit group
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={(e) => {
+                              e.preventDefault();
                               onDeleteGroupClick(group.id);
                             }}
-                            aria-label={
+                            className={`gap-2 text-xs rounded-xl cursor-pointer ${
                               isDeleteConfirm
-                                ? `Confirm delete ${group.name}`
-                                : `Delete ${group.name}`
-                            }
+                                ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                                : "text-destructive/80 focus:text-destructive"
+                            }`}
                           >
                             <HugeiconsIcon
                               icon={
                                 isDeleteConfirm ? Alert02Icon : Delete02Icon
                               }
-                              size={13}
+                              size={14}
                             />
-                          </button>
-                        </div>
-                        <span className="text-xs text-muted-foreground/50">
-                          {getBookmarkCount(group.id)}
-                        </span>
-                      </div>
-
-                      <div className="hidden md:block relative h-7 w-24">
-                        <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/50 opacity-100 group-hover/menu-row:opacity-0 transition-opacity">
-                          {getBookmarkCount(group.id)}
-                        </span>
-
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover/menu-row:opacity-100 focus-within:opacity-100 transition-opacity pointer-events-none group-hover/menu-row:pointer-events-auto">
-                          <div className="flex items-center gap-0.5 rounded-full bg-muted/40 p-0.5">
-                            <button
-                              type="button"
-                              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onGroupOpen?.(group.id);
-                              }}
-                              aria-label={`Open ${group.name}`}
-                            >
-                              <HugeiconsIcon
-                                icon={ArrowUpRight03Icon}
-                                size={13}
-                              />
-                            </button>
-                            <button
-                              type="button"
-                              className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-muted/60 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingGroupId(group.id);
-                                setEditGroupName(group.name);
-                                setEditGroupIcon(group.icon || "folder");
-                                setEditGroupColor(group.color || "#6366f1");
-                              }}
-                              aria-label={`Edit ${group.name}`}
-                            >
-                              <HugeiconsIcon
-                                icon={PencilEdit01Icon}
-                                size={13}
-                              />
-                            </button>
-                            <button
-                              type="button"
-                              className={`h-6 w-6 flex items-center justify-center rounded-full cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none ${
-                                isDeleteConfirm
-                                  ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                                  : "text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDeleteGroupClick(group.id);
-                              }}
-                              aria-label={
-                                isDeleteConfirm
-                                  ? `Confirm delete ${group.name}`
-                                  : `Delete ${group.name}`
-                              }
-                            >
-                              <HugeiconsIcon
-                                icon={
-                                  isDeleteConfirm ? Alert02Icon : Delete02Icon
-                                }
-                                size={13}
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                            {isDeleteConfirm
+                              ? "Click to confirm"
+                              : "Delete group"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <span className="text-[10px] font-medium tabular-nums text-muted-foreground/40 min-w-4">
+                        {getBookmarkCount(group.id)}
+                      </span>
                     </div>
                   </div>
                 );
@@ -442,7 +381,9 @@ export function GroupMenu({
                     aria-label="Select group icon"
                   >
                     <HugeiconsIcon
-                      icon={ALL_ICONS_MAP[newGroupIcon]}
+                      icon={
+                        ALL_ICONS_MAP[newGroupIcon] || ALL_ICONS_MAP["folder"]
+                      }
                       size={16}
                       strokeWidth={2}
                       style={{ color: newGroupColor || "#6366f1" }}
