@@ -8,6 +8,7 @@ interface BookmarkPayload {
   title?: string;
   description?: string;
   groupId?: string | null;
+  faviconUrl?: string | null;
 }
 
 export async function OPTIONS() {
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
     const normalizedUrl = normalizeUrl(payload.url);
     const title = payload.title?.trim() || normalizedUrl;
     const description = payload.description?.trim() || null;
+    const faviconUrl = payload.faviconUrl?.trim() || null;
 
     const { data: minOrderData, error: orderError } = await supabaseAdmin
       .from("bookmarks")
@@ -50,6 +52,7 @@ export async function POST(request: Request) {
         normalized_url: normalizedUrl,
         title,
         description,
+        favicon_url: faviconUrl,
         group_id: payload.groupId ?? null,
         user_id: userId,
         status: "ready",
@@ -63,7 +66,24 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Failed to create bookmark:", error);
-      return jsonResponse({ error: "Failed to create bookmark" }, { status: 500 });
+      return jsonResponse(
+        { error: "Failed to create bookmark" },
+        { status: 500 },
+      );
+    }
+
+    try {
+      const channel = supabaseAdmin.channel(`user:${userId}:bookmarks`, {
+        config: { private: true },
+      });
+      await channel.send({
+        type: "broadcast",
+        event: "INSERT",
+        payload: data,
+      });
+      supabaseAdmin.removeChannel(channel);
+    } catch (broadcastError) {
+      console.warn("Realtime broadcast failed (bookmarks):", broadcastError);
     }
 
     return jsonResponse({ id: data.id, bookmark: data });
@@ -94,7 +114,10 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("Failed to fetch bookmarks:", error);
-      return jsonResponse({ error: "Failed to fetch bookmarks" }, { status: 500 });
+      return jsonResponse(
+        { error: "Failed to fetch bookmarks" },
+        { status: 500 },
+      );
     }
 
     return jsonResponse({ bookmarks: data ?? [] });
