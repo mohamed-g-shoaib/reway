@@ -162,11 +162,33 @@ body {
   margin-bottom: 12px;
 }
 
+.field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .field span {
   font-size: 12px;
   font-weight: 600;
   color: var(--foreground);
   letter-spacing: 0.01em;
+}
+
+.char-count {
+  font-size: 9px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklab, var(--muted-foreground), transparent 50%);
+  transition: color 0.2s ease;
+}
+
+.char-count.warning {
+  color: #f59e0b; /* amber-500 */
+}
+
+.char-count.error {
+  color: #ef4444; /* red-500 */
 }
 
 .field input,

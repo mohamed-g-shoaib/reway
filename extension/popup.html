@@ -132,11 +132,15 @@
 
           <div id="links-actions" class="link-grab-actions">
             <label class="field">
-              <span>Group Name</span>
+              <div class="field-header">
+                <span>Group Name</span>
+                <span id="links-group-char-count" class="char-count">0/18</span>
+              </div>
               <input
                 id="links-group-name"
                 type="text"
                 placeholder="My Research Links"
+                maxlength="18"
               />
             </label>
             <div class="actions">
@@ -164,11 +168,15 @@
           </div>
 
           <label class="field">
-            <span>Session Name</span>
+            <div class="field-header">
+              <span>Session Name</span>
+              <span id="session-char-count" class="char-count">0/18</span>
+            </div>
             <input
               id="session-name"
               type="text"
               placeholder="My Work Session"
+              maxlength="18"
             />
           </label>
 

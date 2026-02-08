@@ -18,6 +18,10 @@ const selectors = {
   settingsToggle: "#settings-toggle",
   authSection: "#auth-section",
   mainSection: "#main-section",
+  linksGroupName: "#links-group-name",
+  linksGroupCharCount: "#links-group-char-count",
+  sessionName: "#session-name",
+  sessionCharCount: "#session-char-count",
 };
 
 const elements = Object.fromEntries(
@@ -68,6 +72,21 @@ function setStatus(text, tone = "") {
   if (!elements.status) return;
   elements.status.textContent = text;
   elements.status.dataset.tone = tone;
+}
+
+const MAX_NAME_LENGTH = 18;
+
+function updateCharCount(input, counter) {
+  if (!input || !counter) return;
+  const length = input.value.length;
+  counter.textContent = `${length}/${MAX_NAME_LENGTH}`;
+
+  counter.classList.remove("warning", "error");
+  if (length >= MAX_NAME_LENGTH) {
+    counter.classList.add("error");
+  } else if (length >= MAX_NAME_LENGTH - 5) {
+    counter.classList.add("warning");
+  }
 }
 
 async function getActiveTab() {
@@ -179,7 +198,7 @@ async function loadGroups() {
     renderGroups(groups);
     await chrome.storage.local.set({ rewayGroups: groups });
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -197,7 +216,7 @@ async function fetchMeta() {
     if (response?.description) {
       elements.description.value = response.description;
     }
-  } catch (error) {
+  } catch {
     // Content script may not be loaded, that's OK
   }
 }
@@ -263,8 +282,8 @@ async function saveBookmark() {
               : Promise.resolve(),
           ),
         );
-      } catch (error) {
-        console.warn("Dashboard broadcast skipped:", error);
+      } catch {
+        console.warn("Dashboard broadcast skipped:");
       }
     }
 
@@ -341,6 +360,18 @@ if (elements.token) {
     if (e.key === "Enter") {
       saveSettings();
     }
+  });
+}
+
+if (elements.linksGroupName && elements.linksGroupCharCount) {
+  elements.linksGroupName.addEventListener("input", () => {
+    updateCharCount(elements.linksGroupName, elements.linksGroupCharCount);
+  });
+}
+
+if (elements.sessionName && elements.sessionCharCount) {
+  elements.sessionName.addEventListener("input", () => {
+    updateCharCount(elements.sessionName, elements.sessionCharCount);
   });
 }
 
@@ -435,7 +466,7 @@ if (addManualLinkBtn && manualLinkInput) {
 
       manualLinkInput.value = "";
       loadGrabbedLinks();
-    } catch (error) {
+    } catch {
       // Re-enable inputs
       addManualLinkBtn.disabled = false;
       manualLinkInput.disabled = false;
@@ -638,6 +669,7 @@ async function createGroupFromLinks() {
 
     // Clear input
     nameInput.value = "";
+    updateCharCount(elements.linksGroupName, elements.linksGroupCharCount);
     loadGrabbedLinks();
 
     // Close popup after brief success display
@@ -860,6 +892,7 @@ async function saveTabSession() {
 
     // Clear input
     sessionNameInput.value = "";
+    updateCharCount(elements.sessionName, elements.sessionCharCount);
 
     // Close popup after brief success display
     setTimeout(() => {
