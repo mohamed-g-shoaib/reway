@@ -9,10 +9,17 @@ import {
   Delete02Icon,
   PencilEdit01Icon,
   GridIcon,
+  MoreHorizontalIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
@@ -26,6 +33,27 @@ const IconPickerPopover = dynamic<IconPickerPopoverProps>(
     ssr: false,
   },
 );
+
+const MAX_GROUP_NAME_LENGTH = 18;
+
+function CharacterCount({ current, max }: { current: number; max: number }) {
+  const isNearLimit = current > max - 5;
+  const isAtLimit = current >= max;
+
+  return (
+    <span
+      className={`text-[9px] font-medium tabular-nums transition-colors duration-200 ${
+        isAtLimit
+          ? "text-red-500"
+          : isNearLimit
+            ? "text-amber-500"
+            : "text-muted-foreground/40"
+      }`}
+    >
+      {current}/{max}
+    </span>
+  );
+}
 
 interface DashboardSidebarProps {
   groups: GroupRow[];
@@ -85,11 +113,11 @@ export function DashboardSidebar({
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
   return (
-    <aside className="hidden lg:flex fixed left-6 top-[10.75rem] z-30 flex-col gap-2 text-sm text-muted-foreground/70">
+    <aside className="hidden min-[1200px]:flex fixed left-6 top-[10.75rem] z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
         <KbdGroup className="gap-0.5">
-          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">Shift</Kbd>
-          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">A–Z</Kbd>
+          <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
+          <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">A–Z</Kbd>
         </KbdGroup>
         <span>Switch Group</span>
       </div>
@@ -122,14 +150,26 @@ export function DashboardSidebar({
             <span className="truncate">All Bookmarks</span>
           </div>
         </button>
-        <button
-          type="button"
-          onClick={() => handleOpenGroup("all")}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
-          aria-label="Open all bookmarks"
-        >
-          <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+              aria-label="Group options"
+            >
+              <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-40 rounded-xl">
+            <DropdownMenuItem
+              onClick={() => handleOpenGroup("all")}
+              className="gap-2 text-xs rounded-lg cursor-pointer"
+            >
+              <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+              Open bookmarks
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       {groups.map((group) => {
         const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
@@ -140,7 +180,7 @@ export function DashboardSidebar({
           return (
             <div
               key={group.id}
-              className="relative mx-1 my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
+              className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
             >
               <div className="flex items-center gap-2">
                 <IconPickerPopover
@@ -166,10 +206,15 @@ export function DashboardSidebar({
                 </IconPickerPopover>
                 <Input
                   value={editGroupName}
-                  onChange={(e) => setEditGroupName(e.target.value)}
+                  onChange={(e) =>
+                    setEditGroupName(
+                      e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                    )
+                  }
                   placeholder="Group name"
                   className="h-8 flex-1 text-sm rounded-xl"
                   autoFocus
+                  maxLength={MAX_GROUP_NAME_LENGTH}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleSidebarGroupUpdate(group.id);
@@ -188,14 +233,20 @@ export function DashboardSidebar({
                 >
                   Cancel
                 </Button>
-                <Button
-                  size="sm"
-                  className="h-7 px-3 text-xs rounded-4xl"
-                  onClick={() => handleSidebarGroupUpdate(group.id)}
-                  disabled={!editGroupName.trim() || isUpdatingGroup}
-                >
-                  {isUpdatingGroup ? "Saving..." : "Save"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <CharacterCount
+                    current={editGroupName.length}
+                    max={MAX_GROUP_NAME_LENGTH}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-7 px-3 text-xs rounded-4xl"
+                    onClick={() => handleSidebarGroupUpdate(group.id)}
+                    disabled={!editGroupName.trim() || isUpdatingGroup}
+                  >
+                    {isUpdatingGroup ? "Saving..." : "Save"}
+                  </Button>
+                </div>
               </div>
             </div>
           );
@@ -233,55 +284,59 @@ export function DashboardSidebar({
                 <span className="truncate max-w-32">{group.name}</span>
               </div>
             </button>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button
-                type="button"
-                onClick={() => handleOpenGroup(group.id)}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
-                aria-label={`Open ${group.name}`}
-              >
-                <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingGroupId(group.id);
-                  setEditGroupName(group.name);
-                  setEditGroupIcon(group.icon || "folder");
-                  setEditGroupColor(group.color || "#6366f1");
-                }}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
-                aria-label={`Edit ${group.name}`}
-              >
-                <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteGroupClick(group.id)}
-                className={`transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center ${
-                  isDeleteConfirm
-                    ? "text-destructive"
-                    : "text-destructive/80 hover:text-destructive"
-                }`}
-                aria-label={
-                  isDeleteConfirm
-                    ? `Confirm delete ${group.name}`
-                    : `Delete ${group.name}`
-                }
-              >
-                <HugeiconsIcon
-                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                  size={14}
-                />
-              </button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+                  aria-label={`${group.name} options`}
+                >
+                  <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-40 rounded-xl">
+                <DropdownMenuItem
+                  onClick={() => handleOpenGroup(group.id)}
+                  className="gap-2 text-xs rounded-lg cursor-pointer"
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                  Open group
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setEditingGroupId(group.id);
+                    setEditGroupName(group.name);
+                    setEditGroupIcon(group.icon || "folder");
+                    setEditGroupColor(group.color || "#6366f1");
+                  }}
+                  className="gap-2 text-xs rounded-lg cursor-pointer"
+                >
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                  Edit group
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleDeleteGroupClick(group.id)}
+                  className={`gap-2 text-xs rounded-lg cursor-pointer ${
+                    isDeleteConfirm
+                      ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                      : "text-destructive/80 focus:text-destructive"
+                  }`}
+                >
+                  <HugeiconsIcon
+                    icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                    size={14}
+                  />
+                  {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         );
       })}
 
       <div className="pt-3 mt-2 border-t border-border/40">
         {isInlineCreating ? (
-          <div className="relative mx-1 mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5">
+          <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5">
             <div className="flex items-center gap-2">
               <IconPickerPopover
                 selectedIcon={newGroupIcon}
@@ -306,10 +361,15 @@ export function DashboardSidebar({
               </IconPickerPopover>
               <Input
                 value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
+                onChange={(e) =>
+                  setNewGroupName(
+                    e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                  )
+                }
                 placeholder="New group"
                 className="h-8 flex-1 text-sm rounded-xl"
                 autoFocus
+                maxLength={MAX_GROUP_NAME_LENGTH}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleInlineCreateGroup();
@@ -336,14 +396,20 @@ export function DashboardSidebar({
               >
                 Cancel
               </Button>
-              <Button
-                size="sm"
-                className="h-7 px-3 text-xs rounded-4xl"
-                onClick={handleInlineCreateGroup}
-                disabled={!newGroupName.trim() || isCreatingGroup}
-              >
-                {isCreatingGroup ? "Creating..." : "Create"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <CharacterCount
+                  current={newGroupName.length}
+                  max={MAX_GROUP_NAME_LENGTH}
+                />
+                <Button
+                  size="sm"
+                  className="h-7 px-3 text-xs rounded-4xl"
+                  onClick={handleInlineCreateGroup}
+                  disabled={!newGroupName.trim() || isCreatingGroup}
+                >
+                  {isCreatingGroup ? "Creating..." : "Create"}
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
