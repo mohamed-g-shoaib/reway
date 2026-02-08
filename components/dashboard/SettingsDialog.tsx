@@ -90,7 +90,7 @@ export function SettingsDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-2xl">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <HugeiconsIcon icon={Settings01Icon} size={20} strokeWidth={2} />
@@ -221,7 +221,9 @@ export function SettingsDialog({
                 </AlertDialogTrigger>
                 <AlertDialogContent className="sm:max-w-md">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete account permanently?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      Delete account permanently?
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
                       This will delete all bookmarks, groups, tokens, and your
                       account. This action cannot be undone.

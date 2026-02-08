@@ -160,10 +160,10 @@ export function DashboardSidebar({
               <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-40 rounded-xl">
+          <DropdownMenuContent align="start" className="w-40">
             <DropdownMenuItem
               onClick={() => handleOpenGroup("all")}
-              className="gap-2 text-xs rounded-lg cursor-pointer"
+              className="gap-2 text-xs cursor-pointer"
             >
               <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
               Open bookmarks
@@ -294,10 +294,10 @@ export function DashboardSidebar({
                   <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-40 rounded-xl">
+              <DropdownMenuContent align="start" className="w-40">
                 <DropdownMenuItem
                   onClick={() => handleOpenGroup(group.id)}
-                  className="gap-2 text-xs rounded-lg cursor-pointer"
+                  className="gap-2 text-xs cursor-pointer"
                 >
                   <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
                   Open group
@@ -309,14 +309,14 @@ export function DashboardSidebar({
                     setEditGroupIcon(group.icon || "folder");
                     setEditGroupColor(group.color || "#6366f1");
                   }}
-                  className="gap-2 text-xs rounded-lg cursor-pointer"
+                  className="gap-2 text-xs cursor-pointer"
                 >
                   <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
                   Edit group
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleDeleteGroupClick(group.id)}
-                  className={`gap-2 text-xs rounded-lg cursor-pointer ${
+                  className={`gap-2 text-xs cursor-pointer ${
                     isDeleteConfirm
                       ? "text-destructive focus:text-destructive focus:bg-destructive/10"
                       : "text-destructive/80 focus:text-destructive"

@@ -36,7 +36,7 @@ export function ExportDialog({
 }: ExportDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-2xl">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <HugeiconsIcon icon={FileExportIcon} size={18} />

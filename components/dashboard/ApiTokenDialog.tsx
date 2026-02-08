@@ -136,7 +136,7 @@ export function ApiTokenDialog({ children }: ApiTokenDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-xl rounded-3xl p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/50">
+      <DialogContent className="sm:max-w-xl p-0 bg-background/95 backdrop-blur-xl border-border/50">
         <DialogHeader className="p-6 pb-3">
           <DialogTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
             <HugeiconsIcon icon={Key02Icon} size={20} strokeWidth={1.8} />

@@ -70,7 +70,7 @@ export function CreateGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-150 rounded-3xl p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-border/50">
+      <DialogContent className="sm:max-w-150 p-0 bg-background/95 backdrop-blur-xl border-border/50">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-bold tracking-tight">
             Create Group
