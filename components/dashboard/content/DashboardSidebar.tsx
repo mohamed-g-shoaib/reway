@@ -15,6 +15,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -121,56 +127,69 @@ export function DashboardSidebar({
         </KbdGroup>
         <span>Switch Group</span>
       </div>
-      <div
-        className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
-          activeGroupId === "all"
-            ? "text-foreground font-semibold"
-            : "hover:text-foreground/80"
-        }`}
-      >
-        <button
-          type="button"
-          onClick={() => setActiveGroupId("all")}
-          className="flex items-center gap-3 min-w-0 flex-1 text-left"
-        >
-          <span
-            className={`h-px transition-[width,opacity] duration-200 ease-out ${
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div
+            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
               activeGroupId === "all"
-                ? "w-12 opacity-80"
-                : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-            } bg-current`}
-          />
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <HugeiconsIcon
-              icon={GridIcon}
-              size={16}
-              strokeWidth={2}
-              className="text-muted-foreground/70"
-            />
-            <span className="truncate">All Bookmarks</span>
-          </div>
-        </button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+                ? "text-foreground font-semibold"
+                : "hover:text-foreground/80"
+            }`}
+          >
             <button
               type="button"
-              className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
-              aria-label="Group options"
+              onClick={() => setActiveGroupId("all")}
+              className="flex items-center gap-3 min-w-0 flex-1 text-left"
             >
-              <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+              <span
+                className={`h-px transition-[width,opacity] duration-200 ease-out ${
+                  activeGroupId === "all"
+                    ? "w-12 opacity-80"
+                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                } bg-current`}
+              />
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <HugeiconsIcon
+                  icon={GridIcon}
+                  size={16}
+                  strokeWidth={2}
+                  className="text-muted-foreground/70"
+                />
+                <span className="truncate">All Bookmarks</span>
+              </div>
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="center" className="w-40">
-            <DropdownMenuItem
-              onClick={() => handleOpenGroup("all")}
-              className="gap-2 text-xs cursor-pointer"
-            >
-              <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-              Open bookmarks
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+                  aria-label="Group options"
+                >
+                  <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-40">
+                <DropdownMenuItem
+                  onClick={() => handleOpenGroup("all")}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                  Open bookmarks
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-44">
+          <ContextMenuItem
+            onClick={() => handleOpenGroup("all")}
+            className="gap-2 text-xs cursor-pointer"
+          >
+            <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+            Open bookmarks
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
       {groups.map((group) => {
         const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
         const isEditing = editingGroupId === group.id;
@@ -253,84 +272,128 @@ export function DashboardSidebar({
         }
 
         return (
-          <div
-            key={group.id}
-            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
-              activeGroupId === group.id
-                ? "text-foreground font-semibold"
-                : "hover:text-foreground/80"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={() => setActiveGroupId(group.id)}
-              className="flex items-center gap-3 min-w-0 flex-1 text-left"
-            >
-              <span
-                className={`h-px transition-[width,opacity] duration-200 ease-out ${
+          <ContextMenu key={group.id}>
+            <ContextMenuTrigger asChild>
+              <div
+                className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
                   activeGroupId === group.id
-                    ? "w-12 opacity-80"
-                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                } bg-current`}
-              />
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <HugeiconsIcon
-                  icon={GroupIcon}
-                  size={16}
-                  strokeWidth={2}
-                  style={{ color: group.color || undefined }}
-                  className={group.color ? "" : "text-foreground/80"}
-                />
-                <span className="truncate max-w-32">{group.name}</span>
-              </div>
-            </button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+                    ? "text-foreground font-semibold"
+                    : "hover:text-foreground/80"
+                }`}
+              >
                 <button
                   type="button"
-                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
-                  aria-label={`${group.name} options`}
+                  onClick={() => setActiveGroupId(group.id)}
+                  className="flex items-center gap-3 min-w-0 flex-1 text-left"
                 >
-                  <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-40">
-                <DropdownMenuItem
-                  onClick={() => handleOpenGroup(group.id)}
-                  className="gap-2 text-xs cursor-pointer"
-                >
-                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-                  Open group
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setEditingGroupId(group.id);
-                    setEditGroupName(group.name);
-                    setEditGroupIcon(group.icon || "folder");
-                    setEditGroupColor(group.color || "#6366f1");
-                  }}
-                  className="gap-2 text-xs cursor-pointer"
-                >
-                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-                  Edit group
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleDeleteGroupClick(group.id)}
-                  className={`gap-2 text-xs cursor-pointer ${
-                    isDeleteConfirm
-                      ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                      : "text-destructive/80 focus:text-destructive"
-                  }`}
-                >
-                  <HugeiconsIcon
-                    icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                    size={14}
+                  <span
+                    className={`h-px transition-[width,opacity] duration-200 ease-out ${
+                      activeGroupId === group.id
+                        ? "w-12 opacity-80"
+                        : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                    } bg-current`}
                   />
-                  {isDeleteConfirm ? "Click to confirm" : "Delete group"}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <HugeiconsIcon
+                      icon={GroupIcon || GridIcon}
+                      size={16}
+                      strokeWidth={2}
+                      style={{ color: group.color || undefined }}
+                      className={group.color ? "" : "text-foreground/80"}
+                    />
+                    <span className="truncate max-w-32">{group.name}</span>
+                  </div>
+                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+                      aria-label={`${group.name} options`}
+                    >
+                      <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-40">
+                    <DropdownMenuItem
+                      onClick={() => handleOpenGroup(group.id)}
+                      className="gap-2 text-xs cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                      Open group
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditingGroupId(group.id);
+                        setEditGroupName(group.name);
+                        setEditGroupIcon(group.icon || "folder");
+                        setEditGroupColor(group.color || "#6366f1");
+                      }}
+                      className="gap-2 text-xs cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                      Edit group
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDeleteGroupClick(group.id);
+                      }}
+                      className={`gap-2 text-xs cursor-pointer ${
+                        isDeleteConfirm
+                          ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                          : "text-destructive/80 focus:text-destructive"
+                      }`}
+                    >
+                      <HugeiconsIcon
+                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                        size={14}
+                      />
+                      {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent className="w-44">
+              <ContextMenuItem
+                onClick={() => handleOpenGroup(group.id)}
+                className="gap-2 text-xs cursor-pointer"
+              >
+                <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                Open group
+              </ContextMenuItem>
+              <ContextMenuItem
+                onClick={() => {
+                  setEditingGroupId(group.id);
+                  setEditGroupName(group.name);
+                  setEditGroupIcon(group.icon || "folder");
+                  setEditGroupColor(group.color || "#6366f1");
+                }}
+                className="gap-2 text-xs cursor-pointer"
+              >
+                <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                Edit group
+              </ContextMenuItem>
+              <ContextMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  handleDeleteGroupClick(group.id);
+                }}
+                className={`gap-2 text-xs cursor-pointer ${
+                  isDeleteConfirm
+                    ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                    : "text-destructive/80 focus:text-destructive"
+                }`}
+              >
+                <HugeiconsIcon
+                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                  size={14}
+                />
+                {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         );
       })}
 
