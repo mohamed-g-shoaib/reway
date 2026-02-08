@@ -129,7 +129,7 @@ export function GroupMenu({
                   size={18}
                   strokeWidth={2}
                   style={{ color: activeGroup.color || undefined }}
-                  className="text-foreground/80"
+                  className={activeGroup.color ? "" : "text-foreground/80"}
                 />
               ) : null}
             </div>
@@ -282,6 +282,7 @@ export function GroupMenu({
                             size={16}
                             strokeWidth={2}
                             style={{ color: group.color || undefined }}
+                            className={group.color ? "" : "text-foreground/80"}
                           />
                         ) : null}
                         <span className="truncate">{group.name}</span>

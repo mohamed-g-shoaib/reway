@@ -88,12 +88,8 @@ export function DashboardSidebar({
     <aside className="hidden lg:flex fixed left-6 top-36 z-30 flex-col gap-2 text-sm text-muted-foreground/70">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
         <KbdGroup className="gap-0.5">
-          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
-            Shift
-          </Kbd>
-          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
-            A–Z
-          </Kbd>
+          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">Shift</Kbd>
+          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">A–Z</Kbd>
         </KbdGroup>
         <span>Switch Group</span>
       </div>
@@ -232,6 +228,7 @@ export function DashboardSidebar({
                   size={16}
                   strokeWidth={2}
                   style={{ color: group.color || undefined }}
+                  className={group.color ? "" : "text-foreground/80"}
                 />
                 <span className="truncate max-w-32">{group.name}</span>
               </div>
