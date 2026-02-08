@@ -674,14 +674,15 @@ async function loadTabSession() {
     const currentWindow = await chrome.windows.getCurrent({ populate: true });
     const tabs = currentWindow?.tabs || [];
 
-    // Filter out extension and system tabs
+    // Filter out extension, system tabs, and dashboard URLs
     const validTabs = tabs.filter(
       (tab) =>
         tab.url &&
         !tab.url.startsWith("chrome://") &&
         !tab.url.startsWith("chrome-extension://") &&
         !tab.url.startsWith("edge://") &&
-        !tab.url.startsWith("about:"),
+        !tab.url.startsWith("about:") &&
+        !isDashboardUrl(tab.url),
     );
 
     tabCountEl.textContent = `${validTabs.length} tabs`;
@@ -737,6 +738,31 @@ async function loadTabSession() {
   } catch (error) {
     console.error("Failed to load tabs:", error);
     tabCountEl.textContent = "Error loading tabs";
+  }
+}
+
+function isDashboardUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+    const pathname = urlObj.pathname;
+
+    // Check for reway.vercel.app/dashboard
+    if (hostname === "reway.vercel.app" && pathname.startsWith("/dashboard")) {
+      return true;
+    }
+
+    // Check for localhost:*/dashboard (any port)
+    if (
+      (hostname === "localhost" || hostname === "127.0.0.1") &&
+      pathname.startsWith("/dashboard")
+    ) {
+      return true;
+    }
+
+    return false;
+  } catch {
+    return false;
   }
 }
 
