@@ -160,7 +160,7 @@ export function DashboardSidebar({
               <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-40">
+          <DropdownMenuContent align="center" className="w-40">
             <DropdownMenuItem
               onClick={() => handleOpenGroup("all")}
               className="gap-2 text-xs cursor-pointer"
@@ -294,7 +294,7 @@ export function DashboardSidebar({
                   <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-40">
+              <DropdownMenuContent align="center" className="w-40">
                 <DropdownMenuItem
                   onClick={() => handleOpenGroup(group.id)}
                   className="gap-2 text-xs cursor-pointer"
