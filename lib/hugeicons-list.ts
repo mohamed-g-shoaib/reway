@@ -25,6 +25,18 @@ import {
   // Communication
   Message02Icon,
   Mail01Icon,
+  // Social Platforms
+  Facebook02Icon,
+  MessengerIcon,
+  InstagramIcon,
+  ThreadsIcon,
+  RedditIcon,
+  NewTwitterIcon,
+  TiktokIcon,
+  BlueskyIcon,
+  SnapchatIcon,
+  TelegramIcon,
+  SignalIcon,
   // AI & Technology
   ArtificialIntelligence02Icon,
   ArtificialIntelligence04Icon,
@@ -175,6 +187,22 @@ export const ICON_CATEGORIES: IconCategory[] = [
     icons: [
       { name: "message", icon: Message02Icon },
       { name: "mail", icon: Mail01Icon },
+    ],
+  },
+  {
+    name: "Social Platforms",
+    icons: [
+      { name: "facebook", icon: Facebook02Icon },
+      { name: "messenger", icon: MessengerIcon },
+      { name: "instagram", icon: InstagramIcon },
+      { name: "threads", icon: ThreadsIcon },
+      { name: "reddit", icon: RedditIcon },
+      { name: "twitter", icon: NewTwitterIcon },
+      { name: "tiktok", icon: TiktokIcon },
+      { name: "bluesky", icon: BlueskyIcon },
+      { name: "snapchat", icon: SnapchatIcon },
+      { name: "telegram", icon: TelegramIcon },
+      { name: "signal", icon: SignalIcon },
     ],
   },
   {
