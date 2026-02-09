@@ -70,9 +70,9 @@ export function CreateGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-150 p-0 bg-background/95 backdrop-blur-xl border-border/50">
+      <DialogContent className="sm:max-w-150 p-0 bg-background/98 border-border/50">
         <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-bold tracking-tight">
+          <DialogTitle className="text-xl font-bold">
             Create Group
           </DialogTitle>
         </DialogHeader>
@@ -106,7 +106,7 @@ export function CreateGroupDialog({
                 <div className="space-y-6">
                   {ICON_CATEGORIES.map((category) => (
                     <div key={category.name} className="space-y-3">
-                      <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/50 ml-1">
+                      <h4 className="text-[11px] font-bold uppercase text-muted-foreground/50 ml-1">
                         {category.name}
                       </h4>
                       <div className="grid grid-cols-6 sm:grid-cols-9 gap-2">
@@ -117,10 +117,10 @@ export function CreateGroupDialog({
                               type="button"
                               onClick={() => setSelectedIcon(iconName)}
                               title={iconName}
-                              className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform duration-200 ${
+                              className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform transition-colors duration-150 ${
                                 selectedIcon === iconName
                                   ? "bg-primary text-primary-foreground scale-105"
-                                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:scale-105"
                               }`}
                             >
                               <HugeiconsIcon
