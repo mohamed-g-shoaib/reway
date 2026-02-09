@@ -25,7 +25,7 @@ export default async function TermsPage() {
       <main className="mx-auto max-w-350 px-4 pt-32 pb-20 sm:px-6">
         <div className="mx-auto max-w-3xl">
           <div className="space-y-4 text-center mb-16">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
               Terms of Service
             </h1>
             <p className="text-muted-foreground">
