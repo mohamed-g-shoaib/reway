@@ -315,7 +315,7 @@ export function FolderBoard({
               <AccordionItem
                 key={group.id}
                 value={group.id}
-                className={`rounded-3xl border border-border/40 bg-background/30 [content-visibility:auto] ${
+                className={`rounded-3xl border-0 ring-1 ring-foreground/8 bg-background/30 [content-visibility:auto] ${
                   hasKeyboardFocus &&
                   isSelectedFolder &&
                   selectedBookmarkIndex < 0
