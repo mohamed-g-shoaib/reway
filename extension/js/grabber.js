@@ -56,8 +56,31 @@ export async function loadGrabbedLinks() {
 
     const removeBtn = document.createElement("button");
     removeBtn.className = "session-tab-remove";
-    removeBtn.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>';
+    removeBtn.type = "button";
+    removeBtn.setAttribute("aria-label", "Remove link");
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "16");
+    svg.setAttribute("height", "16");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+
+    const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path1.setAttribute("d", "M3 6h18");
+    const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path2.setAttribute("d", "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6");
+    const path3 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path3.setAttribute("d", "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2");
+
+    svg.appendChild(path1);
+    svg.appendChild(path2);
+    svg.appendChild(path3);
+    removeBtn.appendChild(svg);
     removeBtn.addEventListener("click", async () => {
       await chrome.runtime.sendMessage({
         type: "removeGrabbedLink",
@@ -112,11 +135,31 @@ export async function createGroupFromLinks() {
       }),
     );
 
-    await Promise.all(promises);
+    const results = await Promise.allSettled(promises);
+    const rejected = results.filter((r) => r.status === "rejected");
+    const duplicates = rejected.filter((r) => {
+      const err = r.reason;
+      if (err?.status === 409) return true;
+      const code = err?.data?.code;
+      if (code === "23505") return true;
+      const msg = String(err?.message || "").toLowerCase();
+      return msg.includes("already exists") || msg.includes("duplicate");
+    });
+    const nonDuplicateFailures = rejected.filter((r) => !duplicates.includes(r));
+    if (nonDuplicateFailures.length > 0) {
+      throw nonDuplicateFailures[0].reason;
+    }
     await chrome.runtime.sendMessage({ type: "clearGrabbedLinks" });
 
     createBtn.classList.add("success");
     setLoading(createBtn, false, "✓ Saved!");
+    if (duplicates.length > 0) {
+      setStatus(
+        `Saved group. Skipped ${duplicates.length} duplicate bookmark(s).`,
+        "success",
+        document.getElementById("links-status"),
+      );
+    }
     setTimeout(() => window.close(), 800);
   } catch (err) {
     setLoading(createBtn, false, "Save as Group");

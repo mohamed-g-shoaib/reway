@@ -41,11 +41,27 @@ export async function loadTabSession() {
     validTabs.forEach((tab) => {
       const item = document.createElement("div");
       item.className = "session-tab-item";
-      item.innerHTML = `
-        <input type="checkbox" class="session-tab-checkbox" data-id="${tab.id}" checked>
-        <img class="session-tab-favicon" src="${tab.favIconUrl || "icons/icon16.png"}" onerror="this.src='icons/icon16.png'">
-        <div class="session-tab-title">${tab.title || tab.url}</div>
-      `;
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "session-tab-checkbox";
+      checkbox.dataset.id = String(tab.id);
+      checkbox.checked = true;
+
+      const favicon = document.createElement("img");
+      favicon.className = "session-tab-favicon";
+      favicon.src = tab.favIconUrl || "icons/icon16.png";
+      favicon.onerror = () => {
+        favicon.src = "icons/icon16.png";
+      };
+
+      const title = document.createElement("div");
+      title.className = "session-tab-title";
+      title.textContent = tab.title || tab.url;
+
+      item.appendChild(checkbox);
+      item.appendChild(favicon);
+      item.appendChild(title);
       sessionPreview.appendChild(item);
     });
   } catch (error) {
@@ -87,10 +103,29 @@ export async function saveTabSession() {
       checkedTabIds.includes(tab.id),
     );
 
+    const selectedHttpTabs = selectedTabs.filter((tab) => {
+      try {
+        const parsed = new URL(tab.url);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
+      } catch {
+        return false;
+      }
+    });
+
     if (selectedTabs.length === 0) {
       setLoading(saveBtn, false, "Save Session");
       setStatus(
         "No tabs selected",
+        "error",
+        document.getElementById("session-status"),
+      );
+      return;
+    }
+
+    if (selectedHttpTabs.length === 0) {
+      setLoading(saveBtn, false, "Save Session");
+      setStatus(
+        "No supported tabs selected",
         "error",
         document.getElementById("session-status"),
       );
@@ -103,8 +138,8 @@ export async function saveTabSession() {
     });
 
     const groupId = groupData.group.id;
-    await Promise.all(
-      selectedTabs.map((tab) =>
+    const results = await Promise.allSettled(
+      selectedHttpTabs.map((tab) =>
         apiFetch("/api/extension/bookmarks", {
           method: "POST",
           body: JSON.stringify({
@@ -115,6 +150,33 @@ export async function saveTabSession() {
         }),
       ),
     );
+
+    const isDuplicate = (err) => {
+      const code = err?.data?.code;
+      if (code === "23505") return true;
+      const msg = String(err?.message || "").toLowerCase();
+      return msg.includes("duplicate") || msg.includes("unique constraint");
+    };
+
+    const rejected = results.filter((r) => r.status === "rejected");
+    const duplicates = rejected.filter((r) => isDuplicate(r.reason));
+    const nonDuplicateFailures = rejected.filter((r) => !isDuplicate(r.reason));
+
+    if (nonDuplicateFailures.length > 0) {
+      throw nonDuplicateFailures[0].reason;
+    }
+
+    if (duplicates.length > 0) {
+      saveBtn.classList.add("success");
+      setLoading(saveBtn, false, "✓ Saved!");
+      setStatus(
+        `Saved session. Skipped ${duplicates.length} duplicate bookmark(s).`,
+        "success",
+        document.getElementById("session-status"),
+      );
+      setTimeout(() => window.close(), 900);
+      return;
+    }
 
     saveBtn.classList.add("success");
     setLoading(saveBtn, false, "✓ Saved!");
