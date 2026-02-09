@@ -6,11 +6,12 @@ import {
   ArrowDown01Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
+  Folder01Icon,
   GridIcon,
   PencilEdit01Icon,
   MoreHorizontalIcon,
 } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,10 +22,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button as UIButton } from "@/components/ui/button";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 const IconPickerPopover = dynamic<IconPickerPopoverProps>(
   () => import("../IconPickerPopover").then((mod) => mod.IconPickerPopover),
@@ -118,6 +119,26 @@ export function GroupMenu({
   onInlineCreateCancel,
   setEditingGroupId,
 }: GroupMenuProps) {
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const activeGroup =
     activeGroupId === "all"
       ? { name: "All Bookmarks", icon: "all", color: null }
@@ -131,8 +152,8 @@ export function GroupMenu({
     activeGroup.icon === "all"
       ? GridIcon
       : activeGroup.icon
-        ? ALL_ICONS_MAP[activeGroup.icon]
-        : GridIcon;
+        ? (iconsMap?.[activeGroup.icon] ?? Folder01Icon)
+        : Folder01Icon;
 
   const getBookmarkCount = (groupId: string) => groupCounts[groupId] || 0;
 
@@ -201,7 +222,9 @@ export function GroupMenu({
               }`}
             >
               {groups.map((group) => {
-                const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : null;
+                const GroupIcon = group.icon
+                  ? (iconsMap?.[group.icon] ?? Folder01Icon)
+                  : Folder01Icon;
                 const isEditing = editingGroupId === group.id;
 
                 if (isEditing) {
@@ -225,8 +248,9 @@ export function GroupMenu({
                           >
                             <HugeiconsIcon
                               icon={
-                                ALL_ICONS_MAP[editGroupIcon] ||
-                                ALL_ICONS_MAP["folder"]
+                                iconsMap?.[editGroupIcon] ??
+                                iconsMap?.["folder"] ??
+                                Folder01Icon
                               }
                               size={16}
                               strokeWidth={2}
@@ -309,15 +333,13 @@ export function GroupMenu({
                         type="button"
                         className="flex w-full items-center gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
                       >
-                        {GroupIcon ? (
-                          <HugeiconsIcon
-                            icon={GroupIcon}
-                            size={16}
-                            strokeWidth={2}
-                            style={{ color: group.color || undefined }}
-                            className={group.color ? "" : "text-foreground/80"}
-                          />
-                        ) : null}
+                        <HugeiconsIcon
+                          icon={GroupIcon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: group.color || undefined }}
+                          className={group.color ? "" : "text-foreground/80"}
+                        />
                         <span className="truncate">{group.name}</span>
                       </button>
                     </DropdownMenuItem>
@@ -414,7 +436,9 @@ export function GroupMenu({
                   >
                     <HugeiconsIcon
                       icon={
-                        ALL_ICONS_MAP[newGroupIcon] || ALL_ICONS_MAP["folder"]
+                        iconsMap?.[newGroupIcon] ??
+                        iconsMap?.["folder"] ??
+                        Folder01Icon
                       }
                       size={16}
                       strokeWidth={2}

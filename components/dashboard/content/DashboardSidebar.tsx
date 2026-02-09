@@ -1,17 +1,18 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Add01Icon,
   Alert02Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
+  Folder01Icon,
   PencilEdit01Icon,
   GridIcon,
   MoreHorizontalIcon,
 } from "@hugeicons/core-free-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -27,7 +28,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
 
@@ -122,6 +122,26 @@ export function DashboardSidebar({
   isCreatingGroup,
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const [hasEditError, setHasEditError] = useState(false);
   const [hasCreateError, setHasCreateError] = useState(false);
 
@@ -202,7 +222,9 @@ export function DashboardSidebar({
         </ContextMenuContent>
       </ContextMenu>
       {groups.map((group) => {
-        const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
+        const GroupIcon = group.icon
+          ? (iconsMap?.[group.icon] ?? Folder01Icon)
+          : Folder01Icon;
         const isEditing = editingGroupId === group.id;
         const isDeleteConfirm = deleteConfirmGroupId === group.id;
 
@@ -226,7 +248,9 @@ export function DashboardSidebar({
                   >
                     <HugeiconsIcon
                       icon={
-                        ALL_ICONS_MAP[editGroupIcon] || ALL_ICONS_MAP["folder"]
+                        iconsMap?.[editGroupIcon] ??
+                        iconsMap?.["folder"] ??
+                        Folder01Icon
                       }
                       size={16}
                       strokeWidth={2}
@@ -319,7 +343,7 @@ export function DashboardSidebar({
                   />
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <HugeiconsIcon
-                      icon={GroupIcon || GridIcon}
+                      icon={GroupIcon}
                       size={16}
                       strokeWidth={2}
                       style={{ color: group.color || undefined }}
@@ -442,11 +466,14 @@ export function DashboardSidebar({
                 >
                   <HugeiconsIcon
                     icon={
-                      ALL_ICONS_MAP[newGroupIcon] || ALL_ICONS_MAP["folder"]
+                      iconsMap?.[newGroupIcon] ??
+                      iconsMap?.["folder"] ??
+                      Folder01Icon
                     }
                     size={16}
                     strokeWidth={2}
                     style={{ color: newGroupColor || "#6366f1" }}
+                    className="text-primary"
                   />
                 </button>
               </IconPickerPopover>
