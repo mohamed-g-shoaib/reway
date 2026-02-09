@@ -10,7 +10,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ isMac }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-500">
+    <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in zoom-in duration-200 motion-reduce:animate-none">
       <div className="flex size-20 items-center justify-center rounded-3xl bg-muted/30 mb-6">
         <HugeiconsIcon
           icon={Bookmark01Icon}

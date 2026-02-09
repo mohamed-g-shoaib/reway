@@ -170,8 +170,8 @@ export function CommandBarInput({
       </form>
 
       {!isFocused && !inputValue ? (
-        <div className="absolute -bottom-6 left-1/2 hidden -translate-x-1/2 opacity-0 transition-opacity duration-500 group-hover:opacity-100 md:block">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
+        <div className="absolute -bottom-6 left-1/2 hidden -translate-x-1/2 opacity-0 transition-opacity duration-200 motion-reduce:transition-none group-hover:opacity-100 md:block">
+          <p className="text-[10px] font-bold uppercase text-muted-foreground/30">
             Press{" "}
             <span className="text-muted-foreground/50">
               {isMac ? "⌘F" : "CtrlF"}

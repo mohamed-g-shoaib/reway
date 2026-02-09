@@ -99,7 +99,7 @@ export function Favicon({
           }}
         />
       ) : (
-        <span className="text-sm font-bold tracking-tighter">
+        <span className="text-sm font-bold">
           {initials.char}
         </span>
       )}

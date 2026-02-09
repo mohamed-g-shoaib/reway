@@ -17,7 +17,7 @@ export function ConflictBar({
   }
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200 motion-reduce:animate-none">
       <p className="sr-only" aria-live="polite">
         {`${addConflicts.length} duplicate${addConflicts.length > 1 ? "s" : ""} found.`}
       </p>
@@ -37,14 +37,14 @@ export function ConflictBar({
           <button
             type="button"
             onClick={() => onResolve("override")}
-            className="px-3.5 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-semibold text-[11px] uppercase tracking-wider transition-transform duration-150 active:scale-[0.97]"
+            className="px-3.5 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-semibold text-[11px] uppercase transition-transform duration-150 active:scale-[0.97]"
           >
             Add anyway
           </button>
           <button
             type="button"
             onClick={() => onResolve("skip")}
-            className="px-3.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-semibold text-[11px] uppercase tracking-wider transition-transform duration-150 active:scale-[0.97]"
+            className="px-3.5 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-semibold text-[11px] uppercase transition-transform duration-150 active:scale-[0.97]"
           >
             Skip
           </button>

@@ -402,7 +402,7 @@ export function FolderBoard({
           createPortal(
             <DragOverlay
               dropAnimation={{
-                duration: 350,
+                duration: 220,
                 easing: "cubic-bezier(0.18, 1, 0.32, 1)",
                 sideEffects: defaultDropAnimationSideEffects({
                   styles: { active: { opacity: "0" } },
