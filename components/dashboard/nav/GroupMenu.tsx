@@ -74,7 +74,6 @@ interface GroupMenuProps {
   setEditGroupColor: (value: string | null) => void;
   isUpdating: boolean;
   onUpdateGroup: (id: string) => void;
-  deleteConfirmGroupId: string | null;
   isInlineCreating: boolean;
   setIsInlineCreating: (value: boolean) => void;
   newGroupName: string;
@@ -105,7 +104,6 @@ export function GroupMenu({
   setEditGroupColor,
   isUpdating,
   onUpdateGroup,
-  deleteConfirmGroupId,
   isInlineCreating,
   setIsInlineCreating,
   newGroupName,
@@ -119,9 +117,10 @@ export function GroupMenu({
   onInlineCreateCancel,
   setEditingGroupId,
 }: GroupMenuProps) {
-  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
-    null,
-  );
+  const [iconsMap, setIconsMap] = useState<Record<
+    string,
+    IconSvgElement
+  > | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,7 +185,7 @@ export function GroupMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
-          className="w-56 p-2 animate-in slide-in-from-top-2 duration-200 shadow-none"
+          className="w-56 p-2 animate-in slide-in-from-top-2 duration-200 motion-reduce:animate-none shadow-none"
         >
           <DropdownMenuItem
             className={`group rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${
@@ -311,14 +310,10 @@ export function GroupMenu({
                   );
                 }
 
-                const isDeleteConfirm = deleteConfirmGroupId === group.id;
-
                 return (
                   <div
                     key={group.id}
-                    className={`group/menu-row relative flex items-center gap-3 rounded-xl ${
-                      isDeleteConfirm ? "bg-muted/50" : ""
-                    }`}
+                    className="group/menu-row relative flex items-center gap-3 rounded-xl"
                   >
                     <DropdownMenuItem
                       asChild
@@ -349,7 +344,7 @@ export function GroupMenu({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-foreground transition-all duration-200"
+                            className="h-11 w-11 md:h-7 md:w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-foreground transition-colors duration-200"
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`${group.name} options`}
                           >
@@ -387,27 +382,16 @@ export function GroupMenu({
                               e.preventDefault();
                               onDeleteGroupClick(group.id);
                             }}
-                            className={`gap-2 text-xs rounded-xl cursor-pointer ${
-                              isDeleteConfirm
-                                ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                                : "text-destructive/80 focus:text-destructive"
-                            }`}
+                            className="gap-2 text-xs rounded-xl cursor-pointer text-destructive/80 focus:text-destructive"
                           >
                             <HugeiconsIcon
-                              icon={
-                                isDeleteConfirm ? Alert02Icon : Delete02Icon
-                              }
+                              icon={Delete02Icon}
                               size={14}
                             />
-                            {isDeleteConfirm
-                              ? "Click to confirm"
-                              : "Delete group"}
+                            Delete group
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <span className="text-[10px] font-bold tabular-nums text-muted-foreground/90 min-w-4">
-                        {getBookmarkCount(group.id)}
-                      </span>
                     </div>
                   </div>
                 );
