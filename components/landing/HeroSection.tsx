@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import {
   ArrowRight01Icon,
   Add01Icon,
@@ -85,7 +85,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
       await navigator.clipboard.writeText(bookmarkUrl);
       setCopiedIndex(index);
       setTimeout(() => setCopiedIndex(null), 2000);
-    } catch (error) {
+    } catch {
       setCopiedIndex(null);
     }
   };
@@ -108,15 +108,33 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
     setTimeout(() => setDeleteIndex(null), 2000);
   };
 
+  const sectionVariants: Variants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.28, ease: "easeOut" },
+    },
+  };
+
+  const showcaseVariants: Variants = {
+    hidden: { opacity: 0, y: 14 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" },
+    },
+  };
+
   return (
     <section className="border-b border-border/60 bg-background">
-      <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
+      <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
         <motion.div
           className="space-y-6 text-center"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-120px" }}
-          transition={{ duration: 0.28, ease: "easeOut" }}
+          variants={sectionVariants}
         >
           <h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
             A Calm Home For Everything You Save.
@@ -151,10 +169,10 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
         <motion.div
           id="how-it-works"
           className="overflow-hidden rounded-4xl border border-border bg-card"
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-120px" }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          variants={showcaseVariants}
         >
           <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
             <div className="flex items-center gap-3 text-foreground">
@@ -210,7 +228,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                   </span>
                   Insert a link, image, or just search...
                   <div className="ml-auto hidden items-center text-[10px] text-muted-foreground/70 sm:flex">
-                    <Kbd className="h-[18px] min-w-[18px] px-1.5 text-[9px]">
+                    <Kbd className="h-4.5 min-w-4.5 px-1.5 text-[9px]">
                       CtrlK
                     </Kbd>
                   </div>
@@ -218,42 +236,26 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                 <div className="hidden flex-wrap items-center gap-4 text-[10px] text-muted-foreground/70 sm:flex">
                   <div className="flex items-center gap-1.5">
                     <KbdGroup className="gap-0.5">
-                      <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                        ↑
-                      </Kbd>
-                      <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                        ↓
-                      </Kbd>
-                      <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                        ←
-                      </Kbd>
-                      <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                        →
-                      </Kbd>
+                      <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">↑</Kbd>
+                      <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">↓</Kbd>
+                      <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">←</Kbd>
+                      <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">→</Kbd>
                     </KbdGroup>
                     navigate
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Kbd className="h-[18px] min-w-[18px] px-1 text-[9px]">
-                      Space
-                    </Kbd>
+                    <Kbd className="h-4.5 min-w-4.5 px-1 text-[9px]">Space</Kbd>
                     preview
                   </div>
                   <div className="flex items-center gap-1.5">
                     <KbdGroup className="gap-0.5">
-                      <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                        ⌘
-                      </Kbd>
-                      <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                        ⏎
-                      </Kbd>
+                      <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">⌘</Kbd>
+                      <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">⏎</Kbd>
                     </KbdGroup>
                     open
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Kbd className="h-[18px] min-w-[18px] px-0.5 text-[9px]">
-                      ⏎
-                    </Kbd>
+                    <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">⏎</Kbd>
                     copy
                   </div>
                 </div>
@@ -281,12 +283,13 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                         aria-label={`Open ${bookmark.title}`}
                       >
                         <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-background">
-                          <img
+                          <Image
                             src={bookmark.favicon}
                             alt={`${bookmark.title} favicon`}
+                            width={16}
+                            height={16}
                             className="h-4 w-4"
-                            loading="lazy"
-                            referrerPolicy="no-referrer"
+                            unoptimized
                           />
                         </div>
                         <div className="min-w-0">

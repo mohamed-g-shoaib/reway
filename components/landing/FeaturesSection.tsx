@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { features } from "./features/demo-data";
 import { ExtractDemo } from "./features/ExtractDemo";
 import { GroupsDemo } from "./features/GroupsDemo";
@@ -8,14 +8,23 @@ import { NavigationDemo } from "./features/NavigationDemo";
 import { ViewModesDemo } from "./features/ViewModesDemo";
 
 export function FeaturesSection() {
+  const containerVariants: Variants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.28, ease: "easeOut" },
+    },
+  };
+
   return (
     <section id="features" className="border-b border-border/60 bg-muted/20">
       <motion.div
-        className="mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true, margin: "-120px" }}
-        transition={{ duration: 0.28, ease: "easeOut" }}
+        variants={containerVariants}
       >
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
