@@ -9,7 +9,9 @@ export async function getBookmarks() {
 
   const { data, error } = await supabase
     .from("bookmarks")
-    .select("*")
+    .select(
+      "id,url,normalized_url,title,description,favicon_url,og_image_url,image_url,screenshot_url,group_id,user_id,created_at,order_index,folder_order_index,status,is_enriching,last_fetched_at,error_reason",
+    )
     .order("order_index", { ascending: true })
     .order("created_at", { ascending: false });
 
@@ -26,7 +28,7 @@ export async function getGroups() {
 
   const { data, error } = await supabase
     .from("groups")
-    .select("*")
+    .select("id,name,icon,color,user_id,created_at,order_index")
     .order("name", { ascending: true });
 
   if (error) {

@@ -127,6 +127,11 @@ export async function enrichCreatedBookmark(id: string, url: string) {
     const metadata = await fetchMetadata(url);
     const supabase = await createClient();
 
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      throw new Error("Unauthorized");
+    }
+
     await supabase
       .from("bookmarks")
       .update({
@@ -138,7 +143,8 @@ export async function enrichCreatedBookmark(id: string, url: string) {
         status: "ready",
         last_fetched_at: new Date().toISOString(),
       })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", userData.user.id);
 
     revalidatePath("/dashboard");
     return {
@@ -154,13 +160,19 @@ export async function enrichCreatedBookmark(id: string, url: string) {
   } catch (error) {
     console.error("Enrichment failed for", url, error);
     const supabase = await createClient();
+
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      throw new Error("Unauthorized");
+    }
     await supabase
       .from("bookmarks")
       .update({
         status: "failed",
         error_reason: error instanceof Error ? error.message : "Unknown error",
       })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", userData.user.id);
     revalidatePath("/dashboard");
     return {
       status: "failed" as const,
@@ -279,7 +291,16 @@ export async function restoreBookmark(bookmark: {
 export async function deleteBookmark(id: string) {
   const supabase = await createClient();
 
-  const { error } = await supabase.from("bookmarks").delete().eq("id", id);
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase
+    .from("bookmarks")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userData.user.id);
 
   if (error) {
     console.error("Error deleting bookmark:", error);
@@ -302,12 +323,18 @@ export async function enrichBookmark(
 ) {
   const supabase = await createClient();
 
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
   const { error } = await supabase
     .from("bookmarks")
     .update({
       ...metadata,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", userData.user.id);
 
   if (error) {
     console.error("Error enriching bookmark:", error);

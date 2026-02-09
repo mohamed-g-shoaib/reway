@@ -38,6 +38,24 @@ export async function POST(request: Request) {
     const description = payload.description?.trim() || null;
     const faviconUrl = payload.faviconUrl?.trim() || null;
 
+    if (payload.groupId) {
+      const { data: group, error: groupError } = await supabaseAdmin
+        .from("groups")
+        .select("id")
+        .eq("id", payload.groupId)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (groupError) {
+        console.error("Failed to validate groupId:", groupError);
+        return jsonResponse({ error: "Invalid group" }, { status: 400 });
+      }
+
+      if (!group) {
+        return jsonResponse({ error: "Invalid group" }, { status: 400 });
+      }
+    }
+
     const { data: minOrderData, error: orderError } = await supabaseAdmin
       .from("bookmarks")
       .select("order_index")
