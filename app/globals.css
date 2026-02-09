@@ -72,7 +72,7 @@
   --accent-foreground: oklch(0.21 0 0);
   --destructive: oklch(0.6 0.18 28);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.92 0 0);
+  --border: oklch(0.96 0 0);
   --input: oklch(1 0 0);
   --ring: oklch(0.21 0 0);
   --chart-1: oklch(0.48 0 0);
@@ -114,7 +114,7 @@
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.55 0.22 28);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.28 0 0);
+  --border: oklch(0.24 0 0);
   --input: oklch(0.25 0 0);
   --ring: oklch(0.98 0 0);
   --chart-1: oklch(0.98 0 0);
@@ -258,7 +258,7 @@ body,
   animation-duration: 180ms !important;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
   /* 'Gold Standard' border: Theme-aware foreground/5 */
-  border: 1px solid color-mix(in oklab, var(--foreground), transparent 95%) !important;
+  border: 1px solid color-mix(in oklab, var(--foreground), transparent 97%) !important;
   /* 'Gold Standard' rim: 1px white/5 for physical MacOS edge */
   box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.05) !important;
 }
