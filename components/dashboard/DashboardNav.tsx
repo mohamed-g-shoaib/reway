@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { GroupRow } from "@/lib/supabase/queries";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,6 +62,7 @@ interface DashboardNavProps {
   onConfirmImport: (groups: string[]) => void;
   onClearImport: () => void;
   onExportBookmarks: (groups: string[]) => void;
+  onResetExport?: () => void;
 }
 
 export function DashboardNav({
@@ -83,9 +84,11 @@ export function DashboardNav({
   importProgress,
   exportProgress,
   onImportFileSelected,
+  onUpdateImportAction,
   onConfirmImport,
   onClearImport,
   onExportBookmarks,
+  onResetExport,
 }: DashboardNavProps) {
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -108,6 +111,7 @@ export function DashboardNav({
   const [selectedExportGroups, setSelectedExportGroups] = useState<string[]>(
     [],
   );
+  const hasInitializedExportSelection = useRef(false);
 
   const initials = user.name
     .split(" ")
@@ -204,8 +208,20 @@ export function DashboardNav({
   };
 
   const handleOpenExportDialog = () => {
-    setSelectedExportGroups(exportGroupOptions);
+    if (!hasInitializedExportSelection.current) {
+      setSelectedExportGroups(exportGroupOptions);
+      hasInitializedExportSelection.current = true;
+    }
+    onResetExport?.();
     setExportDialogOpen(true);
+  };
+
+  const handleExportOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedExportGroups([]);
+      onResetExport?.();
+    }
+    setExportDialogOpen(open);
   };
 
   return (
@@ -218,13 +234,14 @@ export function DashboardNav({
         selectedImportGroups={selectedImportGroups}
         onToggleImportGroup={handleToggleImportGroup}
         onImportFileSelected={onImportFileSelected}
+        onUpdateImportAction={onUpdateImportAction}
         onConfirmImport={onConfirmImport}
         onClearImport={onClearImport}
       />
 
       <ExportDialog
         open={exportDialogOpen}
-        onOpenChange={setExportDialogOpen}
+        onOpenChange={handleExportOpenChange}
         exportGroupOptions={exportGroupOptions}
         exportProgress={exportProgress}
         selectedExportGroups={selectedExportGroups}

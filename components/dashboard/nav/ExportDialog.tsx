@@ -64,7 +64,14 @@ export function ExportDialog({
           </ul>
           {exportProgress.status !== "idle" ? (
             <div className="space-y-1">
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-2 w-full overflow-hidden rounded-full bg-muted"
+                role="progressbar"
+                aria-label="Export progress"
+                aria-valuemin={0}
+                aria-valuemax={exportProgress.total}
+                aria-valuenow={exportProgress.processed}
+              >
                 <div
                   className="h-2 w-full origin-left rounded-full bg-primary transition-transform"
                   style={{
@@ -72,6 +79,10 @@ export function ExportDialog({
                   }}
                 />
               </div>
+              <p className="sr-only" aria-live="polite">
+                Export {exportProgress.status}. {exportProgress.processed} of{" "}
+                {exportProgress.total}.
+              </p>
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{exportProgress.status}</span>
                 <span>
@@ -85,7 +96,10 @@ export function ExportDialog({
               size="sm"
               className="rounded-4xl"
               onClick={() => onExportBookmarks(selectedExportGroups)}
-              disabled={selectedExportGroups.length === 0}
+              disabled={
+                selectedExportGroups.length === 0 ||
+                exportProgress.status === "exporting"
+              }
             >
               Export selected
             </Button>

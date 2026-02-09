@@ -15,13 +15,21 @@ export function useExportHandlers({ bookmarks, groups }: UseExportHandlersOption
     status: "idle" as "idle" | "exporting" | "done" | "error",
   });
 
+  const resetExportProgress = useCallback(() => {
+    setExportProgress({ processed: 0, total: 0, status: "idle" });
+  }, []);
+
   const handleExportBookmarks = useCallback(
     (selectedGroups: string[]) => {
       const allowed = new Set(selectedGroups);
+      const groupNameById = new Map<string, string>();
+      groups.forEach((g) => {
+        groupNameById.set(g.id, g.name);
+      });
       const grouped = new Map<string, BookmarkRow[]>();
       bookmarks.forEach((bookmark) => {
         const groupName = bookmark.group_id
-          ? groups.find((g) => g.id === bookmark.group_id)?.name || "Ungrouped"
+          ? groupNameById.get(bookmark.group_id) || "Ungrouped"
           : "Ungrouped";
         if (!allowed.has(groupName)) return;
         if (!grouped.has(groupName)) grouped.set(groupName, []);
@@ -62,11 +70,13 @@ export function useExportHandlers({ bookmarks, groups }: UseExportHandlersOption
           html += `      <DT><A HREF=\"${escapeHtml(bookmark.url)}\">${escapeHtml(bookmark.title || bookmark.url)}</A>\n`;
         });
         html += "    </DL><p>\n";
-        setExportProgress({
-          processed: index + 1,
-          total: groupNames.length,
-          status: "exporting",
-        });
+        if ((index + 1) % 10 === 0 || index + 1 === groupNames.length) {
+          setExportProgress({
+            processed: index + 1,
+            total: groupNames.length,
+            status: "exporting",
+          });
+        }
       });
 
       html += "  </DL><p>\n</DL><p>\n";
@@ -89,5 +99,5 @@ export function useExportHandlers({ bookmarks, groups }: UseExportHandlersOption
     [bookmarks, groups],
   );
 
-  return { exportProgress, handleExportBookmarks };
+  return { exportProgress, handleExportBookmarks, resetExportProgress };
 }
