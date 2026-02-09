@@ -1,5 +1,5 @@
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { requireExtensionAuth } from "@/lib/extension-auth";
 import { corsHeaders, jsonResponse } from "../utils";
 
 export async function OPTIONS() {
@@ -8,7 +8,16 @@ export async function OPTIONS() {
 
 export async function GET() {
   try {
-    const { userId } = await requireExtensionAuth();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     const { data, error } = await supabaseAdmin
       .from("groups")
@@ -30,11 +39,36 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await requireExtensionAuth();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
     const body = await request.json();
 
-    if (!body?.name?.trim()) {
+    const name = body.name.trim();
+    if (!name) {
       return jsonResponse({ error: "Group name is required" }, { status: 400 });
+    }
+
+    // Check for duplicates
+    const { data: existingGroup } = await supabaseAdmin
+      .from("groups")
+      .select("id")
+      .eq("user_id", userId)
+      .ilike("name", name)
+      .maybeSingle();
+
+    if (existingGroup) {
+      return jsonResponse(
+        { error: "A group with this name already exists" },
+        { status: 409 },
+      );
     }
 
     // Get the maximum order_index to append new group at the end

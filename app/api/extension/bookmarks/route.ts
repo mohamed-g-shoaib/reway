@@ -1,5 +1,5 @@
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { requireExtensionAuth } from "@/lib/extension-auth";
 import { normalizeUrl } from "@/lib/metadata";
 import { corsHeaders, jsonResponse } from "../utils";
 
@@ -17,7 +17,16 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await requireExtensionAuth();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
     const payload = (await request.json()) as BookmarkPayload;
 
     if (!payload?.url) {
@@ -95,7 +104,16 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await requireExtensionAuth();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get("groupId");
 
