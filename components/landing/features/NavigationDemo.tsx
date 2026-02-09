@@ -7,7 +7,7 @@ export function NavigationDemo() {
     <div className="flex w-full justify-center">
       <div className="grid w-fit grid-cols-3 gap-4 text-[10px] text-muted-foreground/70">
         {[
-          { label: "Switch Group", keys: ["⌘/Ctrl", "A–Z"] },
+          { label: "Switch Group", keys: ["Shift", "A–Z"] },
           { label: "Move", keys: ["↑", "↓", "←", "→"] },
           { label: "Open", keys: ["⌘/Ctrl", "⏎"] },
           { label: "Preview", keys: ["Space"] },
