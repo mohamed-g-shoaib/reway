@@ -3,7 +3,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function checkDuplicateGroup(name: string): Promise<{
+export async function checkDuplicateGroup(
+  name: string,
+  excludeId?: string,
+): Promise<{
   exists: boolean;
   group?: { id: string; name: string };
 }> {
@@ -22,7 +25,9 @@ export async function checkDuplicateGroup(name: string): Promise<{
     .eq("user_id", userData.user.id);
 
   const existingGroup = data?.find(
-    (group) => group.name?.trim().toLowerCase() === normalizedName,
+    (group) =>
+      group.name?.trim().toLowerCase() === normalizedName &&
+      (!excludeId || group.id !== excludeId),
   );
 
   if (existingGroup) {

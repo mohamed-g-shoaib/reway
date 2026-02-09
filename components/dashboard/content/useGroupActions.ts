@@ -134,7 +134,7 @@ export function useGroupActions({
       if (!editGroupName.trim() || isUpdatingGroup) return;
       setIsUpdatingGroup(true);
       try {
-        const { exists } = await checkDuplicateGroup(editGroupName.trim());
+        const { exists } = await checkDuplicateGroup(editGroupName.trim(), id);
         if (exists) {
           toast.error(`A group named "${editGroupName.trim()}" already exists`);
           onError?.();
