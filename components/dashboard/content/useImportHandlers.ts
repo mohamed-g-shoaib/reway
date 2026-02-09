@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
+import { normalizeUrl } from "@/lib/metadata";
 import type {
   EnrichmentResult,
   ImportEntry,
@@ -140,7 +141,16 @@ export function useImportHandlers({
         return;
       }
 
-      const urls = rawEntries.map((entry) => entry.url);
+      const normalizedByUrl = new Map<string, string>();
+      rawEntries.forEach((entry) => {
+        try {
+          normalizedByUrl.set(entry.url, normalizeUrl(entry.url));
+        } catch {
+          normalizedByUrl.set(entry.url, entry.url);
+        }
+      });
+
+      const urls = rawEntries.map((entry) => normalizedByUrl.get(entry.url) || entry.url);
       let duplicateMap: Record<
         string,
         { id: string; title: string; url: string }
@@ -154,7 +164,8 @@ export function useImportHandlers({
       }
 
       const entries: ImportEntry[] = rawEntries.map((entry) => {
-        const existingBookmark = duplicateMap[entry.url];
+        const normalized = normalizedByUrl.get(entry.url) || entry.url;
+        const existingBookmark = duplicateMap[normalized];
         return {
           ...entry,
           isDuplicate: !!existingBookmark,
@@ -185,16 +196,6 @@ export function useImportHandlers({
         }),
       );
 
-      const totalDuplicates = entries.filter((e) => e.isDuplicate).length;
-      if (totalDuplicates > 0) {
-        toast.info(
-          `${totalDuplicates} bookmark${totalDuplicates > 1 ? "s" : ""} already exist and will be skipped`,
-          {
-            description: "You can override duplicates in the import preview",
-          },
-        );
-      }
-
       setImportPreview({ groups: groupSummaries, entries });
     },
     [checkDuplicateBookmarks, normalizeGroupName, parseBookmarkHtml],
@@ -215,7 +216,6 @@ export function useImportHandlers({
           (entry) => allowed.has(entry.groupName) && entry.action !== "skip",
         );
       if (entries.length === 0) {
-        toast.info("No bookmarks to import after filtering duplicates");
         return;
       }
 
@@ -313,70 +313,58 @@ export function useImportHandlers({
       setBookmarks((prev) => sortBookmarks([...optimisticRows, ...prev]));
 
       let processed = 0;
-      const addPromises = pendingEntries.map(
-        async ({ entry, groupId, optimisticId, orderIndex }) => {
-          try {
-            const bookmarkId = await addBookmark({
-              url: entry.url,
-              id: optimisticId,
-              title: entry.title,
-              group_id: groupId ?? undefined,
-            });
-            if (bookmarkId && bookmarkId !== optimisticId) {
-              setBookmarks((prev) =>
-                prev.map((item) =>
-                  item.id === optimisticId
-                    ? {
-                        ...item,
-                        id: bookmarkId,
-                        order_index: orderIndex,
-                      }
-                    : item,
-                ),
-              );
-            }
-            const enrichment = (await enrichCreatedBookmark(
-              bookmarkId ?? optimisticId,
-              entry.url,
-            )) as EnrichmentResult | undefined;
-            if (enrichment?.status === "ready") {
-              setBookmarks((prev) =>
-                prev.map((item) =>
-                  item.id === optimisticId
-                    ? {
-                        ...item,
-                        title: enrichment.title ?? item.title,
-                        description: enrichment.description ?? item.description,
-                        favicon_url: enrichment.favicon_url ?? item.favicon_url,
-                        og_image_url:
-                          enrichment.og_image_url ?? item.og_image_url,
-                        image_url: enrichment.image_url ?? item.image_url,
-                        status: "ready",
-                        is_enriching: false,
-                        error_reason: null,
-                        last_fetched_at:
-                          enrichment.last_fetched_at ?? item.last_fetched_at,
-                      }
-                    : item,
-                ),
-              );
-            } else if (enrichment?.status === "failed") {
-              setBookmarks((prev) =>
-                prev.map((item) =>
-                  item.id === optimisticId
-                    ? {
-                        ...item,
-                        status: "failed",
-                        is_enriching: false,
-                        error_reason:
-                          enrichment.error_reason ?? "Enrichment failed",
-                      }
-                    : item,
-                ),
-              );
-            }
-          } catch (error) {
-            console.error("Import add failed:", error);
+      const handlePendingEntry = async ({
+        entry,
+        groupId,
+        optimisticId,
+        orderIndex,
+      }: (typeof pendingEntries)[number]) => {
+        try {
+          const bookmarkId = await addBookmark({
+            url: entry.url,
+            id: optimisticId,
+            title: entry.title,
+            group_id: groupId ?? undefined,
+          });
+          if (bookmarkId && bookmarkId !== optimisticId) {
+            setBookmarks((prev) =>
+              prev.map((item) =>
+                item.id === optimisticId
+                  ? {
+                      ...item,
+                      id: bookmarkId,
+                      order_index: orderIndex,
+                    }
+                  : item,
+              ),
+            );
+          }
+          const enrichment = (await enrichCreatedBookmark(
+            bookmarkId ?? optimisticId,
+            entry.url,
+          )) as EnrichmentResult | undefined;
+          if (enrichment?.status === "ready") {
+            setBookmarks((prev) =>
+              prev.map((item) =>
+                item.id === optimisticId
+                  ? {
+                      ...item,
+                      title: enrichment.title ?? item.title,
+                      description: enrichment.description ?? item.description,
+                      favicon_url: enrichment.favicon_url ?? item.favicon_url,
+                      og_image_url:
+                        enrichment.og_image_url ?? item.og_image_url,
+                      image_url: enrichment.image_url ?? item.image_url,
+                      status: "ready",
+                      is_enriching: false,
+                      error_reason: null,
+                      last_fetched_at:
+                        enrichment.last_fetched_at ?? item.last_fetched_at,
+                    }
+                  : item,
+              ),
+            );
+          } else if (enrichment?.status === "failed") {
             setBookmarks((prev) =>
               prev.map((item) =>
                 item.id === optimisticId
@@ -384,26 +372,44 @@ export function useImportHandlers({
                       ...item,
                       status: "failed",
                       is_enriching: false,
-                      error_reason: "Import failed",
+                      error_reason:
+                        enrichment.error_reason ?? "Enrichment failed",
                     }
                   : item,
               ),
             );
-          } finally {
-            processed += 1;
-            setImportProgress({
-              processed,
-              total: entries.length,
-              status: "importing",
-            });
           }
-        },
-      );
+        } catch (error) {
+          console.error("Import add failed:", error);
+          setBookmarks((prev) =>
+            prev.map((item) =>
+              item.id === optimisticId
+                ? {
+                    ...item,
+                    status: "failed",
+                    is_enriching: false,
+                    error_reason: "Import failed",
+                  }
+                : item,
+            ),
+          );
+        } finally {
+          processed += 1;
+          setImportProgress({
+            processed,
+            total: entries.length,
+            status: "importing",
+          });
+        }
+      };
 
-      await Promise.all(addPromises);
+      const CONCURRENCY = 5;
+      for (let i = 0; i < pendingEntries.length; i += CONCURRENCY) {
+        const chunk = pendingEntries.slice(i, i + CONCURRENCY);
+        await Promise.all(chunk.map(handlePendingEntry));
+      }
 
       setImportProgress({ processed, total: entries.length, status: "done" });
-      toast.success(`Imported ${entries.length} bookmarks`);
       setImportPreview(null);
     },
     [

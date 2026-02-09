@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 interface ImportDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ interface ImportDialogProps {
   selectedImportGroups: string[];
   onToggleImportGroup: (name: string) => void;
   onImportFileSelected: (file: File) => void;
+  onUpdateImportAction: (action: "skip" | "override") => void;
   onConfirmImport: (groups: string[]) => void;
   onClearImport: () => void;
 }
@@ -45,9 +47,39 @@ export function ImportDialog({
   selectedImportGroups,
   onToggleImportGroup,
   onImportFileSelected,
+  onUpdateImportAction,
   onConfirmImport,
   onClearImport,
 }: ImportDialogProps) {
+  const totalDuplicates =
+    importPreview?.entries.filter((entry) => entry.isDuplicate).length ?? 0;
+
+  const duplicateAction = (() => {
+    if (!importPreview || totalDuplicates === 0) return null;
+    const dupActions = importPreview.entries
+      .filter((e) => e.isDuplicate)
+      .map((e) => e.action)
+      .filter((value): value is "skip" | "override" =>
+        value === "skip" || value === "override",
+      );
+    if (dupActions.length === 0) return null;
+    const first = dupActions[0];
+    return dupActions.every((a) => a === first) ? first : null;
+  })();
+
+  const handleSelectAllGroups = () => {
+    if (!importPreview) return;
+    importPreview.groups.forEach((group) => {
+      if (!selectedImportGroups.includes(group.name)) {
+        onToggleImportGroup(group.name);
+      }
+    });
+  };
+
+  const handleClearAllGroups = () => {
+    selectedImportGroups.forEach((name) => onToggleImportGroup(name));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -61,7 +93,11 @@ export function ImportDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
+          <Label htmlFor="import-bookmarks-file" className="sr-only">
+            Choose bookmarks HTML file
+          </Label>
           <Input
+            id="import-bookmarks-file"
             type="file"
             accept="text/html"
             className="text-sm"
@@ -77,6 +113,67 @@ export function ImportDialog({
               <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
                 <span>Import preview</span>
                 <span>{importPreview.entries.length} bookmarks</span>
+              </div>
+              {totalDuplicates > 0 ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-background/60 px-3 py-2 ring-1 ring-foreground/8">
+                  <span className="text-xs text-muted-foreground">
+                    {totalDuplicates} duplicate{totalDuplicates > 1 ? "s" : ""}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={
+                        duplicateAction === "skip" ? "default" : "secondary"
+                      }
+                      className="rounded-4xl"
+                      aria-pressed={duplicateAction === "skip"}
+                      onClick={() => onUpdateImportAction("skip")}
+                    >
+                      Skip duplicates
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={
+                        duplicateAction === "override"
+                          ? "default"
+                          : "secondary"
+                      }
+                      className="rounded-4xl"
+                      aria-pressed={duplicateAction === "override"}
+                      onClick={() => onUpdateImportAction("override")}
+                    >
+                      Override duplicates
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">
+                  Choose groups to import
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    className="rounded-4xl"
+                    onClick={handleSelectAllGroups}
+                  >
+                    Select all
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    className="rounded-4xl"
+                    onClick={handleClearAllGroups}
+                    disabled={selectedImportGroups.length === 0}
+                  >
+                    Clear
+                  </Button>
+                </div>
               </div>
               <ul className="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {importPreview.groups.map((group) => (
@@ -108,7 +205,14 @@ export function ImportDialog({
               </ul>
               {importProgress.status !== "idle" ? (
                 <div className="space-y-1">
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-2 w-full overflow-hidden rounded-full bg-muted"
+                    role="progressbar"
+                    aria-label="Import progress"
+                    aria-valuemin={0}
+                    aria-valuemax={importProgress.total}
+                    aria-valuenow={importProgress.processed}
+                  >
                     <div
                       className="h-2 w-full origin-left rounded-full bg-primary transition-transform"
                       style={{
@@ -116,6 +220,10 @@ export function ImportDialog({
                       }}
                     />
                   </div>
+                  <p className="sr-only" aria-live="polite">
+                    Import {importProgress.status}. {importProgress.processed} of{" "}
+                    {importProgress.total}.
+                  </p>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{importProgress.status}</span>
                     <span>

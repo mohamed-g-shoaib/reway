@@ -11,7 +11,6 @@ import { useIsMac } from "@/hooks/useIsMac";
 import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { GridIcon, ArrowUpRight03Icon } from "@hugeicons/core-free-icons";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import dynamic from "next/dynamic";
 import { DashboardSidebar } from "./content/DashboardSidebar";
 import { TableHeader } from "./content/TableHeader";
@@ -325,10 +324,11 @@ export function DashboardContent({
     setGroups,
   });
 
-  const { exportProgress, handleExportBookmarks } = useExportHandlers({
-    bookmarks,
-    groups,
-  });
+  const { exportProgress, handleExportBookmarks, resetExportProgress } =
+    useExportHandlers({
+      bookmarks,
+      groups,
+    });
 
   const handleResolveConflicts = useCallback(
     async (action: "skip" | "override") => {
@@ -380,15 +380,9 @@ export function DashboardContent({
         }
       }
 
-      // 2. Handle Import Conflicts
-      if (importPreview) {
-        handleUpdateImportAction(action);
-      }
     },
     [
       addConflicts,
-      importPreview,
-      handleUpdateImportAction,
       addOptimisticBookmark,
       applyEnrichment,
       replaceBookmarkId,
@@ -483,6 +477,7 @@ export function DashboardContent({
             onConfirmImport={handleConfirmImport}
             onClearImport={handleClearImport}
             onExportBookmarks={handleExportBookmarks}
+            onResetExport={resetExportProgress}
           />
           <div className="pt-4 md:pt-6">
             <CommandBar
@@ -556,7 +551,6 @@ export function DashboardContent({
         )}
         <ConflictBar
           addConflicts={addConflicts}
-          importPreview={importPreview}
           onResolve={handleResolveConflicts}
         />
       </div>
