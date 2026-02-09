@@ -47,7 +47,7 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
         viewport={{ once: true, margin: "-100px" }}
         variants={containerVariants}
       >
-        <div className="relative overflow-hidden rounded-[3rem] border border-border bg-muted/20 px-6 py-16 shadow-xs sm:px-12 sm:py-24">
+        <div className="relative overflow-hidden rounded-[3rem] ring-1 ring-foreground/8 bg-muted/20 px-6 py-16 shadow-none isolate sm:px-12 sm:py-24">
           <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
             <motion.div className="space-y-4" variants={itemVariants}>
               <h2 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">

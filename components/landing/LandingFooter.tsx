@@ -39,7 +39,7 @@ export function LandingFooter() {
 
   return (
     <motion.footer
-      className="border-t border-border/60 bg-background pt-16 pb-0"
+      className="border-t border-foreground/8 bg-background pt-16 pb-0"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-120px" }}

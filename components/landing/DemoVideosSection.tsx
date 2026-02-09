@@ -16,7 +16,10 @@ export function DemoVideosSection() {
   };
 
   return (
-    <section id="demo-videos" className="border-b border-border/60 bg-muted/20">
+    <section
+      id="demo-videos"
+      className="border-b border-foreground/8 bg-muted/20"
+    >
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
         initial="hidden"
@@ -41,7 +44,7 @@ export function DemoVideosSection() {
           {demoVideos.map((video, index) => (
             <article
               key={video.title}
-              className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center rounded-4xl border border-border bg-background p-6 shadow-sm"
+              className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center rounded-4xl ring-1 ring-foreground/8 bg-background p-6 shadow-none isolate"
             >
               {/* Video Side - Dominant (8/12 columns) */}
               <div
@@ -50,7 +53,7 @@ export function DemoVideosSection() {
                   index % 2 === 0 ? "lg:order-1" : "lg:order-2",
                 )}
               >
-                <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-border bg-muted/5">
+                <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl ring-1 ring-foreground/8 bg-muted/5">
                   <DemoVideo src={video.src} className="h-full w-full" />
                 </div>
               </div>

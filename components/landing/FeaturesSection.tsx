@@ -18,7 +18,7 @@ export function FeaturesSection() {
   };
 
   return (
-    <section id="features" className="border-b border-border/60 bg-muted/20">
+    <section id="features" className="border-b border-foreground/8 bg-muted/20">
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
         initial="hidden"
@@ -43,7 +43,7 @@ export function FeaturesSection() {
           {features.map((feature) => (
             <article
               key={feature.title}
-              className="flex flex-col gap-4 rounded-4xl border border-border bg-background p-5 shadow-sm"
+              className="flex flex-col gap-4 rounded-4xl ring-1 ring-foreground/8 bg-background p-5 shadow-none isolate"
             >
               <div className="flex min-h-24 items-start">
                 <div className="space-y-2">

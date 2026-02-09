@@ -40,10 +40,10 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
     >
       <div className="mx-auto flex max-w-350 justify-center px-4 sm:px-6">
         <div
-          className={`inline-flex w-full max-w-115 items-center gap-3 sm:gap-6 rounded-full border px-3 sm:px-4 py-2.5 transition-[background-color,border-color,box-shadow] duration-200 ease-out ${
+          className={`inline-flex w-full max-w-115 items-center gap-3 sm:gap-6 rounded-full ring-1 px-3 sm:px-4 py-2.5 transition-[background-color,ring-color] duration-200 ease-out ${
             hasScrolled
-              ? "border-border/80 bg-background/80 shadow-sm backdrop-blur-xl"
-              : "border-transparent bg-transparent shadow-none"
+              ? "ring-foreground/8 bg-background/80 shadow-none backdrop-blur-xl"
+              : "ring-foreground/0 bg-transparent shadow-none"
           }`}
         >
           <Link

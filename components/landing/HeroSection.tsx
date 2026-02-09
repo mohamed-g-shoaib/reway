@@ -127,7 +127,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
   };
 
   return (
-    <section className="border-b border-border/60 bg-background">
+    <section className="border-b border-foreground/8 bg-background">
       <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
         <motion.div
           className="space-y-6 text-center"
@@ -168,13 +168,13 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
 
         <motion.div
           id="how-it-works"
-          className="overflow-hidden rounded-4xl border border-border bg-card"
+          className="overflow-hidden rounded-4xl ring-1 ring-foreground/8 bg-card shadow-none isolate"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-120px" }}
           variants={showcaseVariants}
         >
-          <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
+          <div className="flex items-center justify-between border-b border-foreground/8 bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
             <div className="flex items-center gap-3 text-foreground">
               <Image
                 src="/logo.svg"
@@ -193,7 +193,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
             </Avatar>
           </div>
           <div className="flex bg-background">
-            <aside className="hidden w-44 shrink-0 flex-col gap-2 border-r border-border bg-muted/30 p-4 text-xs text-muted-foreground sm:flex">
+            <aside className="hidden w-44 shrink-0 flex-col gap-2 border-r border-foreground/8 bg-muted/30 p-4 text-xs text-muted-foreground sm:flex">
               {[
                 { label: "All Bookmarks", active: true },
                 { label: "Design" },
@@ -222,8 +222,8 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
             </aside>
             <div className="flex-1 p-4 sm:p-6">
               <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
-                  <span className="flex size-7 items-center justify-center rounded-xl border border-border bg-muted/40 text-foreground">
+                <div className="flex items-center gap-3 rounded-2xl ring-1 ring-foreground/8 bg-background px-3 py-2 text-xs text-muted-foreground">
+                  <span className="flex size-7 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-muted/40 text-foreground">
                     <HugeiconsIcon icon={Add01Icon} size={14} />
                   </span>
                   Insert a link, image, or just search...
@@ -263,7 +263,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                   {previewBookmarks.map((bookmark, index) => (
                     <motion.div
                       key={bookmark.title}
-                      className={`rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/5 transition-colors hover:bg-muted/30 ${
+                      className={`rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 transition-colors hover:bg-muted/30 ${
                         index >= 3 ? "hidden lg:block" : ""
                       }`}
                       initial={{ opacity: 0, y: 8 }}
