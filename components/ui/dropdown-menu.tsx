@@ -185,21 +185,19 @@ function DropdownMenuSeparator({
   );
 }
 
-function DropdownMenuShortcut({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
-  return (
-    <span
-      data-slot="dropdown-menu-shortcut"
-      className={cn(
-        "text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto text-xs tracking-widest",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+const DropdownMenuShortcut = React.forwardRef<
+  React.ElementRef<typeof DropdownMenuPrimitive.ItemIndicator>,
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.ItemIndicator>
+>(({ className, ...props }, ref) => (
+  <span
+    data-slot="dropdown-menu-shortcut"
+    className={cn(
+      "text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto text-xs",
+      className,
+    )}
+    {...props}
+  />
+));
 
 function DropdownMenuSub({
   ...props

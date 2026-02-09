@@ -229,21 +229,20 @@ function ContextMenuSeparator({
   );
 }
 
-function ContextMenuShortcut({
-  className,
-  ...props
-}: React.ComponentProps<"span">) {
-  return (
-    <span
-      data-slot="context-menu-shortcut"
-      className={cn(
-        "text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-xs tracking-widest",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+const ContextMenuShortcut = React.forwardRef<
+  React.ElementRef<"span">,
+  React.ComponentPropsWithoutRef<"span">
+>(({ className, ...props }, ref) => (
+  <span
+    data-slot="context-menu-shortcut"
+    ref={ref}
+    className={cn(
+      "text-muted-foreground group-focus/context-menu-item:text-accent-foreground ml-auto text-xs",
+      className,
+    )}
+    {...props}
+  />
+));
 
 export {
   ContextMenu,
