@@ -55,6 +55,9 @@ export async function createGroup(formData: {
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      throw new Error("A group with this name already exists");
+    }
     console.error("Error creating group:", error);
     throw new Error("Failed to create group");
   }
@@ -85,6 +88,9 @@ export async function updateGroup(
     .eq("user_id", userData.user.id);
 
   if (error) {
+    if (error.code === "23505") {
+      throw new Error("A group with this name already exists");
+    }
     console.error("Error updating group:", error);
     throw new Error("Failed to update group");
   }
