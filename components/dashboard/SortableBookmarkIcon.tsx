@@ -163,7 +163,8 @@ export function SortableBookmarkIcon({
               </div>
             </button>
           ) : (
-            <div
+            <button
+              type="button"
               className="cursor-pointer"
               onClick={(event) => {
                 if (event.shiftKey) {
@@ -175,6 +176,7 @@ export function SortableBookmarkIcon({
                 }
                 handleOpen(event);
               }}
+              aria-label="Open bookmark"
             >
               <Favicon
                 url={favicon || ""}
@@ -182,15 +184,17 @@ export function SortableBookmarkIcon({
                 title={title}
                 className="h-12 w-12"
               />
-            </div>
+            </button>
           )}
           <span className="text-xs font-semibold text-foreground truncate w-full">
-            <span
+            <button
+              type="button"
               className="cursor-pointer hover:text-primary"
               onClick={handleOpen}
+              aria-label="Open bookmark"
             >
               {title}
-            </span>
+            </button>
           </span>
         </div>
       </ContextMenuTrigger>

@@ -62,6 +62,16 @@ export function useSelectionActions({
   const handleOpenSelected = useCallback(() => {
     if (selectedIds.size === 0) return;
     const selectedBookmarks = bookmarks.filter((b) => selectedIds.has(b.id));
+
+    if (
+      selectedBookmarks.length > 5 &&
+      !window.confirm(
+        `Open ${selectedBookmarks.length} tabs? Your browser may block popups.`,
+      )
+    ) {
+      return;
+    }
+
     selectedBookmarks.forEach((bookmark) => {
       window.open(bookmark.url, "_blank", "noopener,noreferrer");
     });

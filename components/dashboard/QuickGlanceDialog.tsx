@@ -151,6 +151,7 @@ export function QuickGlanceDialog({
                   size="icon-sm"
                   className="rounded-lg text-muted-foreground/60 hover:text-foreground"
                   onClick={() => onEdit(bookmark)}
+                  aria-label="Edit bookmark"
                 >
                   <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
                 </Button>
@@ -164,6 +165,11 @@ export function QuickGlanceDialog({
                   }`}
                   onClick={handleDelete}
                   title={isDeleteConfirm ? "Click again to confirm" : "Delete"}
+                  aria-label={
+                    isDeleteConfirm
+                      ? "Confirm delete bookmark"
+                      : "Delete bookmark"
+                  }
                 >
                   <div
                     className="transition-transform duration-200"

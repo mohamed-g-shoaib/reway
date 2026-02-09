@@ -72,11 +72,15 @@ export function FolderBoard({
   onDeleteBookmark,
   onEditBookmark,
   selectionMode = false,
-  selectedIds = new Set(),
+  selectedIds,
   onToggleSelection,
   onEnterSelectionMode,
   onKeyboardContextChange,
 }: FolderBoardProps) {
+  const stableSelectedIds = useMemo(() => selectedIds ?? new Set<string>(), [
+    selectedIds,
+  ]);
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<
     Record<string, boolean>
@@ -362,23 +366,21 @@ export function FolderBoard({
                                 selectedBookmarkIndex === index
                               }
                               selectionMode={selectionMode}
-                              isSelectionChecked={selectedIds.has(bookmark.id)}
+                              isSelectionChecked={stableSelectedIds.has(
+                                bookmark.id,
+                              )}
                               onToggleSelection={onToggleSelection}
                               onEnterSelectionMode={onEnterSelectionMode}
                               onDelete={onDeleteBookmark}
-                              onEdit={(id) => {
-                                const target = bookmarks.find(
-                                  (b) => b.id === id,
-                                );
+                              onEdit={(id: string) => {
+                                const target = bookmarks.find((b) => b.id === id);
                                 if (target) {
                                   setEditSheetBookmark(target);
                                   setIsEditSheetOpen(true);
                                 }
                               }}
-                              onPreview={(id) => {
-                                const target = bookmarks.find(
-                                  (b) => b.id === id,
-                                );
+                              onPreview={(id: string) => {
+                                const target = bookmarks.find((b) => b.id === id);
                                 if (target) {
                                   setPreviewBookmark(target);
                                   setIsPreviewOpen(true);

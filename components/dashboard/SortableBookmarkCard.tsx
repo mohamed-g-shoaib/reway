@@ -186,7 +186,8 @@ export function SortableBookmarkCard({
                 </div>
               </button>
             ) : (
-              <div
+              <button
+                type="button"
                 className="cursor-pointer"
                 onClick={(event) => {
                   if (event.shiftKey) {
@@ -198,6 +199,7 @@ export function SortableBookmarkCard({
                   }
                   handleOpen(event);
                 }}
+                aria-label="Open bookmark"
               >
                 <Favicon
                   url={favicon || ""}
@@ -205,18 +207,28 @@ export function SortableBookmarkCard({
                   title={title}
                   className="h-9 w-9"
                 />
-              </div>
+              </button>
             )}
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-foreground">
-                <span className="cursor-pointer" onClick={handleOpen}>
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={handleOpen}
+                  aria-label="Open bookmark"
+                >
                   {title}
-                </span>
+                </button>
               </p>
               <p className="truncate text-xs text-muted-foreground/70">
-                <span className="cursor-pointer" onClick={handleOpen}>
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={handleOpen}
+                  aria-label="Open bookmark"
+                >
                   {domain}
-                </span>
+                </button>
               </p>
             </div>
           </div>

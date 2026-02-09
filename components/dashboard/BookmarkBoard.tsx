@@ -69,10 +69,14 @@ export function BookmarkBoard({
   rowContent,
   viewMode,
   selectionMode = false,
-  selectedIds = new Set(),
+  selectedIds,
   onToggleSelection,
   onEnterSelectionMode,
 }: BookmarkBoardProps) {
+  const stableSelectedIds = useMemo(() => selectedIds ?? new Set<string>(), [
+    selectedIds,
+  ]);
+
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -210,7 +214,7 @@ export function BookmarkBoard({
                     key={bookmark.id}
                     isSelected={clampedSelectedIndex === index}
                     selectionMode={selectionMode}
-                    isSelectionChecked={selectedIds.has(bookmark.id)}
+                    isSelectionChecked={stableSelectedIds.has(bookmark.id)}
                     onToggleSelection={onToggleSelection}
                     onEnterSelectionMode={onEnterSelectionMode}
                     groupsMap={groupsMap}
@@ -242,7 +246,7 @@ export function BookmarkBoard({
                     key={bookmark.id}
                     isSelected={clampedSelectedIndex === index}
                     selectionMode={selectionMode}
-                    isSelectionChecked={selectedIds.has(bookmark.id)}
+                    isSelectionChecked={stableSelectedIds.has(bookmark.id)}
                     onToggleSelection={onToggleSelection}
                     onEnterSelectionMode={onEnterSelectionMode}
                     onDelete={onDeleteBookmark}
@@ -285,7 +289,7 @@ export function BookmarkBoard({
                   }}
                   rowContent={rowContent}
                   selectionMode={selectionMode}
-                  isSelectionChecked={selectedIds.has(bookmark.id)}
+                  isSelectionChecked={stableSelectedIds.has(bookmark.id)}
                   onToggleSelection={onToggleSelection}
                   onEnterSelectionMode={onEnterSelectionMode}
                   {...bookmark}
