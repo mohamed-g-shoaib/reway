@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
 
@@ -9,12 +9,11 @@ interface UseSelectionActionsOptions {
   selectedIds: Set<string>;
   setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
   setSelectionMode: (value: boolean) => void;
-  bulkDeleteConfirm: boolean;
-  setBulkDeleteConfirm: (value: boolean) => void;
   setBookmarks: React.Dispatch<React.SetStateAction<BookmarkRow[]>>;
   initialBookmarks: BookmarkRow[];
   deleteBookmark: (id: string) => Promise<void>;
   restoreBookmark: (bookmark: BookmarkRow) => Promise<void>;
+  extensionStoreUrl?: string;
   lastBulkDeletedRef: React.MutableRefObject<
     { bookmark: BookmarkRow; index: number }[]
   >;
@@ -25,14 +24,35 @@ export function useSelectionActions({
   selectedIds,
   setSelectedIds,
   setSelectionMode,
-  bulkDeleteConfirm,
-  setBulkDeleteConfirm,
   setBookmarks,
   initialBookmarks,
   deleteBookmark,
   restoreBookmark,
+  extensionStoreUrl,
   lastBulkDeletedRef,
 }: UseSelectionActionsOptions) {
+  const pendingRequestsRef = useRef(
+    new Map<
+      string,
+      (response: { ok: boolean; count?: number; error?: string } | null) => void
+    >(),
+  );
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if ((event as any)?.data?.type !== "reway_open_group_response") return;
+      const requestId = (event as any).data.requestId as string | undefined;
+      if (!requestId) return;
+      const resolver = pendingRequestsRef.current.get(requestId);
+      if (!resolver) return;
+      pendingRequestsRef.current.delete(requestId);
+      resolver((event as any).data.response ?? null);
+    };
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
   const handleToggleSelection = useCallback(
     (id: string) => {
       setSelectedIds((prev) => {
@@ -51,14 +71,6 @@ export function useSelectionActions({
     [setSelectedIds, setSelectionMode],
   );
 
-  useEffect(() => {
-    if (!bulkDeleteConfirm) return;
-    const timeout = window.setTimeout(() => {
-      setBulkDeleteConfirm(false);
-    }, 3000);
-    return () => window.clearTimeout(timeout);
-  }, [bulkDeleteConfirm, setBulkDeleteConfirm]);
-
   const handleOpenSelected = useCallback(() => {
     if (selectedIds.size === 0) return;
     const selectedBookmarks = bookmarks.filter((b) => selectedIds.has(b.id));
@@ -72,19 +84,59 @@ export function useSelectionActions({
       return;
     }
 
-    selectedBookmarks.forEach((bookmark) => {
-      window.open(bookmark.url, "_blank", "noopener,noreferrer");
+    const urls = selectedBookmarks.map((bookmark) => bookmark.url).filter(Boolean);
+    if (urls.length === 0) return;
+
+    const requestId = crypto.randomUUID();
+    const responsePromise = new Promise<{
+      ok: boolean;
+      count?: number;
+      error?: string;
+    } | null>((resolve) => {
+      const timer = window.setTimeout(() => {
+        pendingRequestsRef.current.delete(requestId);
+        resolve(null);
+      }, 250);
+
+      pendingRequestsRef.current.set(requestId, (payload) => {
+        window.clearTimeout(timer);
+        resolve(payload ?? null);
+      });
+
+      window.postMessage(
+        { type: "reway_open_group", requestId, groupId: "selected", urls },
+        "*",
+      );
     });
-    setSelectionMode(false);
-    setSelectedIds(new Set());
-  }, [bookmarks, selectedIds, setSelectedIds, setSelectionMode]);
+
+    (async () => {
+      const response = await responsePromise;
+      if (response?.ok) {
+        toast.success(`Opened ${response.count ?? urls.length} tabs via extension`);
+      } else {
+        // Popup fallback: stagger opens to improve success rate across browsers.
+        urls.forEach((url, index) => {
+          window.setTimeout(() => {
+            window.open(url, "_blank", "noopener,noreferrer");
+          }, index * 100);
+        });
+
+        if (extensionStoreUrl) {
+          toast.error("Install the Reway extension for instant open-all", {
+            action: {
+              label: "Get extension",
+              onClick: () => window.open(extensionStoreUrl, "_blank"),
+            },
+          });
+        }
+      }
+
+      setSelectionMode(false);
+      setSelectedIds(new Set());
+    })();
+  }, [bookmarks, extensionStoreUrl, selectedIds, setSelectedIds, setSelectionMode]);
 
   const handleBulkDelete = useCallback(async () => {
-    if (!bulkDeleteConfirm) {
-      setBulkDeleteConfirm(true);
-      return;
-    }
-
     const idsToDelete = Array.from(selectedIds);
     if (idsToDelete.length === 0) return;
 
@@ -97,7 +149,6 @@ export function useSelectionActions({
     setBookmarks((prev) => prev.filter((b) => !selectedIds.has(b.id)));
     setSelectionMode(false);
     setSelectedIds(new Set());
-    setBulkDeleteConfirm(false);
 
     try {
       await Promise.all(idsToDelete.map((id) => deleteBookmark(id)));
@@ -134,14 +185,12 @@ export function useSelectionActions({
     }
   }, [
     bookmarks,
-    bulkDeleteConfirm,
     deleteBookmark,
     initialBookmarks,
     lastBulkDeletedRef,
     restoreBookmark,
     selectedIds,
     setBookmarks,
-    setBulkDeleteConfirm,
     setSelectedIds,
     setSelectionMode,
   ]);

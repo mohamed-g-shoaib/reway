@@ -12,6 +12,16 @@ import { toast } from "sonner";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { GridIcon, ArrowUpRight03Icon } from "@hugeicons/core-free-icons";
 import dynamic from "next/dynamic";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { DashboardSidebar } from "./content/DashboardSidebar";
 import { TableHeader } from "./content/TableHeader";
 import { FloatingActionBar } from "./content/FloatingActionBar";
@@ -86,7 +96,6 @@ export function DashboardContent({
   );
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [commandMode, setCommandMode] = useState<"add" | "search">("add");
   const isMac = useIsMac();
@@ -97,9 +106,8 @@ export function DashboardContent({
   const [editGroupIcon, setEditGroupIcon] = useState("folder");
   const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
   const [isUpdatingGroup, setIsUpdatingGroup] = useState(false);
-  const [deleteConfirmGroupId, setDeleteConfirmGroupId] = useState<
-    string | null
-  >(null);
+  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
+  const [groupToDeleteId, setGroupToDeleteId] = useState<string | null>(null);
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupIcon, setNewGroupIcon] = useState("folder");
@@ -262,7 +270,6 @@ export function DashboardContent({
     handleUpdateGroup,
     handleSidebarGroupUpdate,
     handleDeleteGroup,
-    handleDeleteGroupClick,
     handleInlineCreateGroup,
   } = useGroupActions({
     userId: user.id,
@@ -280,8 +287,6 @@ export function DashboardContent({
     setEditingGroupId,
     isUpdatingGroup,
     setIsUpdatingGroup,
-    deleteConfirmGroupId,
-    setDeleteConfirmGroupId,
     lastDeletedGroupRef,
     lastDeletedGroupBookmarksRef,
     createGroup,
@@ -300,6 +305,18 @@ export function DashboardContent({
     isCreatingGroup,
     setIsCreatingGroup,
   });
+
+  const handleRequestDeleteGroup = useCallback((id: string) => {
+    setGroupToDeleteId(id);
+    setDeleteGroupDialogOpen(true);
+  }, []);
+
+  const handleConfirmDeleteGroup = useCallback(() => {
+    if (!groupToDeleteId) return;
+    handleDeleteGroup(groupToDeleteId);
+    setDeleteGroupDialogOpen(false);
+    setGroupToDeleteId(null);
+  }, [groupToDeleteId, handleDeleteGroup]);
 
   const {
     importPreview,
@@ -401,12 +418,11 @@ export function DashboardContent({
     selectedIds,
     setSelectedIds,
     setSelectionMode,
-    bulkDeleteConfirm,
-    setBulkDeleteConfirm,
     setBookmarks,
     initialBookmarks,
     deleteBookmark: deleteAction,
     restoreBookmark: restoreAction,
+    extensionStoreUrl: EXTENSION_STORE_URL,
     lastBulkDeletedRef,
   });
 
@@ -422,7 +438,13 @@ export function DashboardContent({
   });
 
   return (
-    <>
+    <AlertDialog
+      open={deleteGroupDialogOpen}
+      onOpenChange={(open) => {
+        setDeleteGroupDialogOpen(open);
+        if (!open) setGroupToDeleteId(null);
+      }}
+    >
       <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
         <DashboardSidebar
           groups={groups}
@@ -439,8 +461,7 @@ export function DashboardContent({
           setEditGroupColor={setEditGroupColor}
           isUpdatingGroup={isUpdatingGroup}
           handleSidebarGroupUpdate={handleSidebarGroupUpdate}
-          deleteConfirmGroupId={deleteConfirmGroupId}
-          handleDeleteGroupClick={handleDeleteGroupClick}
+          onRequestDeleteGroup={handleRequestDeleteGroup}
           isInlineCreating={isInlineCreating}
           setIsInlineCreating={setIsInlineCreating}
           newGroupName={newGroupName}
@@ -453,7 +474,7 @@ export function DashboardContent({
           handleInlineCreateGroup={handleInlineCreateGroup}
         />
         {/* Fixed Header Section */}
-        <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
+        <div className="flex-none z-40 bg-background/95 px-1 border-b border-border/20">
           <DashboardNav
             user={user}
             groups={groups}
@@ -462,7 +483,7 @@ export function DashboardContent({
             onGroupSelect={setActiveGroupId}
             onGroupCreated={handleGroupCreated}
             onGroupUpdate={handleUpdateGroup}
-            onGroupDelete={handleDeleteGroup}
+            onGroupDelete={handleRequestDeleteGroup}
             onGroupOpen={handleOpenGroup}
             rowContent={rowContent}
             setRowContent={setRowContent}
@@ -543,7 +564,6 @@ export function DashboardContent({
         {selectionMode && selectedIds.size > 0 && (
           <FloatingActionBar
             selectedCount={selectedIds.size}
-            bulkDeleteConfirm={bulkDeleteConfirm}
             onOpenSelected={handleOpenSelected}
             onBulkDelete={handleBulkDelete}
             onCancelSelection={handleCancelSelection}
@@ -554,6 +574,25 @@ export function DashboardContent({
           onResolve={handleResolveConflicts}
         />
       </div>
-    </>
+
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete group?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will delete the group and remove its bookmarks from your dashboard.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            className="rounded-4xl"
+            onClick={handleConfirmDeleteGroup}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
