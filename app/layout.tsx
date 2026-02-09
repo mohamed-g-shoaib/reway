@@ -65,7 +65,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider delayDuration={400}>{children}</TooltipProvider>
-          <Toaster position="bottom-right" />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              className:
+                "ring-1 ring-foreground/8 shadow-none isolate rounded-2xl",
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>
