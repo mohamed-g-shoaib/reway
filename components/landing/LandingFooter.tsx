@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import {
   GithubIcon,
   Linkedin02Icon,
@@ -12,59 +13,166 @@ import BrandWord from "@/components/landing/BrandWord";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
 
 export function LandingFooter() {
+  const socialLinks = [
+    { icon: NewTwitterIcon, href: "https://x.com", label: "Twitter" },
+    { icon: Linkedin02Icon, href: "https://linkedin.com", label: "LinkedIn" },
+    { icon: GithubIcon, href: "https://github.com", label: "GitHub" },
+  ] as const;
+
+  const footerVariants: Variants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.28, ease: "easeOut" },
+    },
+  };
+
+  const signatureVariants: Variants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: "easeOut" },
+    },
+  };
+
   return (
     <motion.footer
-      className="border-t border-border/60 bg-background"
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      className="border-t border-border/60 bg-background pt-16 pb-0"
+      initial="hidden"
+      whileInView="visible"
       viewport={{ once: true, margin: "-120px" }}
-      transition={{ duration: 0.28, ease: "easeOut" }}
+      variants={footerVariants}
     >
-      <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center gap-6 px-4 py-10 text-sm text-muted-foreground sm:px-6">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
+      <div className="mx-auto w-full max-w-350 px-4 sm:px-6">
+        <div className="grid grid-cols-1 gap-12 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+          {/* Column 1: Brand Info (Occupying 4/12 columns) */}
+          <div className="space-y-4 lg:col-span-4">
             <Link
-              href="https://x.com"
-              className="inline-flex items-center transition-[color,transform] duration-200 ease-out hover:text-foreground active:scale-[0.97]"
-              aria-label="Reway on X"
+              href="/"
+              className="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
             >
-              <HugeiconsIcon icon={NewTwitterIcon} size={16} />
+              <Image
+                src="/logo.svg"
+                width={24}
+                height={24}
+                alt="Reway Logo"
+                className="dark:invert"
+              />
+              <span className="font-semibold tracking-tight">Reway</span>
             </Link>
-            <Link
-              href="https://linkedin.com"
-              className="inline-flex items-center transition-[color,transform] duration-200 ease-out hover:text-foreground active:scale-[0.97]"
-              aria-label="Reway on LinkedIn"
-            >
-              <HugeiconsIcon icon={Linkedin02Icon} size={16} />
-            </Link>
-            <Link
-              href="https://github.com"
-              className="inline-flex items-center transition-[color,transform] duration-200 ease-out hover:text-foreground active:scale-[0.97]"
-              aria-label="Reway on GitHub"
-            >
-              <HugeiconsIcon icon={GithubIcon} size={16} />
-            </Link>
+            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+              Built for research, inspiration, and building. Reway sits at the
+              intersection of calm organization and powerful AI extraction.
+            </p>
           </div>
-          <ThemeSwitcher />
+
+          {/* Column 2: Product (2/12 columns) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+              Product
+            </h4>
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link
+                  href="#features"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="#demo-videos"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Demos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/dashboard"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Dashboard
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Legal (2/12 columns) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+              Legal
+            </h4>
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link
+                  href={"/terms" as any} // eslint-disable-line @typescript-eslint/no-explicit-any
+                  className="hover:text-foreground transition-colors"
+                >
+                  Terms
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={"/privacy" as any} // eslint-disable-line @typescript-eslint/no-explicit-any
+                  className="hover:text-foreground transition-colors"
+                >
+                  Privacy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: Connect (2/12 columns) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+              Connect
+            </h4>
+            <ul className="mt-4 space-y-3">
+              {socialLinks.map((social) => (
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <span className="flex size-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground transition-all duration-200 group-hover:bg-foreground group-hover:text-background border border-transparent group-hover:border-foreground">
+                      <HugeiconsIcon icon={social.icon} size={14} />
+                    </span>
+                    <span className="font-medium">{social.label}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 5: Appearance (2/12 columns) */}
+          <div className="lg:col-span-2">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+              Appearance
+            </h4>
+            <div className="mt-4">
+              <ThemeSwitcher />
+              <p className="mt-3 text-xs text-muted-foreground/60 leading-relaxed">
+                Toggle between light and dark modes.
+              </p>
+            </div>
+          </div>
         </div>
+
         <motion.div
-          className="mt-4 w-full text-muted-foreground/15"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-120px" }}
-          transition={{ duration: 0.26, ease: "easeOut" }}
+          className="pb-4 w-full text-muted-foreground/6"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={signatureVariants}
         >
-          <BrandWord className="h-auto w-full" />
+          <BrandWord className="h-auto w-full select-none" />
         </motion.div>
-        <div className="text-xs">
-          © 2026 by{" "}
-          <Link
-            href="https://devloop.software/"
-            className="font-semibold text-foreground transition-[color,transform] duration-200 ease-out hover:text-foreground/80 active:scale-[0.97]"
-          >
-            Devloop
-          </Link>
-        </div>
       </div>
     </motion.footer>
   );
