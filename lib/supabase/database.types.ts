@@ -14,45 +14,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      api_tokens: {
-        Row: {
-          created_at: string;
-          id: string;
-          last_used_at: string | null;
-          name: string;
-          token_encrypted: string;
-          token_hash: string;
-          token_iv: string;
-          token_prefix: string;
-          token_tag: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          last_used_at?: string | null;
-          name: string;
-          token_encrypted: string;
-          token_hash: string;
-          token_iv: string;
-          token_prefix: string;
-          token_tag: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          last_used_at?: string | null;
-          name?: string;
-          token_encrypted?: string;
-          token_hash?: string;
-          token_iv?: string;
-          token_prefix?: string;
-          token_tag?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
       bookmarks: {
         Row: {
           created_at: string;

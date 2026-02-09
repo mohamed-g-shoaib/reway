@@ -5,7 +5,6 @@ import {
   Settings01Icon,
   FileImportIcon,
   FileExportIcon,
-  Key02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,7 +20,6 @@ import { SettingsDialog } from "../SettingsDialog";
 import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
-import { ApiTokenDialog } from "../ApiTokenDialog";
 
 interface UserMenuProps {
   user: User;
@@ -145,15 +143,7 @@ export function UserMenu({
           </div>
         </div>
         <DropdownMenuSeparator />
-        <ApiTokenDialog>
-          <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-            onSelect={(event) => event.preventDefault()}
-          >
-            <HugeiconsIcon icon={Key02Icon} size={16} />
-            API keys
-          </DropdownMenuItem>
-        </ApiTokenDialog>
+
         <SettingsDialog
           rowContent={rowContent}
           onRowContentChange={onRowContentChange}
