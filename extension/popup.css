@@ -375,6 +375,14 @@ button.success::after {
   background: var(--card);
 }
 
+.settings-advanced {
+  display: none;
+}
+
+.settings-advanced.open {
+  display: block;
+}
+
 .settings-header {
   display: flex;
   align-items: flex-start;

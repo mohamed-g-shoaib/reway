@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "http://localhost:3000";
+const DEFAULT_BASE_URL = "https://reway.vercel.app";
 
 const selectors = {
   title: "#title",
@@ -22,6 +22,8 @@ const selectors = {
   linksGroupCharCount: "#links-group-char-count",
   sessionName: "#session-name",
   sessionCharCount: "#session-char-count",
+  toggleAdvanced: "#toggle-advanced",
+  advancedSettings: "#advanced-settings",
 };
 
 const elements = Object.fromEntries(
@@ -296,7 +298,7 @@ async function saveBookmark() {
     setTimeout(() => {
       window.close();
     }, 800);
-  } catch (error) {
+  } catch {
     saveBtn.disabled = false;
     saveBtn.textContent = "Save bookmark";
     setStatus("Network error. Check connection.", "error");
@@ -372,6 +374,15 @@ if (elements.linksGroupName && elements.linksGroupCharCount) {
 if (elements.sessionName && elements.sessionCharCount) {
   elements.sessionName.addEventListener("input", () => {
     updateCharCount(elements.sessionName, elements.sessionCharCount);
+  });
+}
+
+if (elements.toggleAdvanced) {
+  elements.toggleAdvanced.addEventListener("click", () => {
+    const isOpen = elements.advancedSettings.classList.toggle("open");
+    elements.toggleAdvanced.textContent = isOpen
+      ? "Hide Advanced Settings"
+      : "Advanced Settings";
   });
 }
 

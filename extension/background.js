@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "http://localhost:3000";
+const DEFAULT_BASE_URL = "https://reway.vercel.app";
 
 async function getSettings() {
   const { rewayToken, rewayBaseUrl } = await chrome.storage.local.get([
@@ -106,7 +106,7 @@ async function captureCurrentTab() {
   );
 }
 
-async function updateGrabbedLinksBadge(count) {
+async function updateGrabbedLinksBadge() {
   // Badge disabled - no visual indicator needed
   // if (count > 0) {
   //   await chrome.action.setBadgeText({ text: String(count) });

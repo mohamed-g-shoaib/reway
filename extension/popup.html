@@ -27,14 +27,16 @@
           <a id="dashboard-link" href="#" class="link">Open dashboard</a>
         </div>
 
-        <label class="field">
-          <span>Base URL</span>
-          <input
-            id="base-url"
-            type="text"
-            placeholder="http://localhost:3000"
-          />
-        </label>
+        <div id="advanced-settings" class="settings-advanced">
+          <label class="field">
+            <span>Base URL</span>
+            <input
+              id="base-url"
+              type="text"
+              placeholder="https://reway.vercel.app"
+            />
+          </label>
+        </div>
 
         <label class="field">
           <span>Access token</span>
@@ -46,6 +48,13 @@
           Generate tokens from your dashboard: Avatar menu → Manage Access
           Tokens.
         </p>
+        <button
+          id="toggle-advanced"
+          class="ghost"
+          style="margin-top: 10px; width: 100%; font-size: 11px"
+        >
+          Advanced Settings
+        </button>
       </section>
 
       <section id="main-section" class="card" style="display: none">

@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "http://localhost:3000";
+const DEFAULT_BASE_URL = "https://reway.vercel.app";
 
 const selectors = {
   title: "#title",
@@ -29,7 +29,10 @@ function setStatus(text, tone = "") {
 }
 
 async function getActiveTab() {
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  });
   return tab;
 }
 
@@ -55,7 +58,7 @@ async function saveSettings() {
 async function loadGroups() {
   const settings = await getSettings();
   if (!settings.token) {
-    elements.group.innerHTML = "<option value=\"\">No token</option>";
+    elements.group.innerHTML = '<option value="">No token</option>';
     return;
   }
 
@@ -64,7 +67,7 @@ async function loadGroups() {
   });
 
   if (!response.ok) {
-    elements.group.innerHTML = "<option value=\"\">Failed to load</option>";
+    elements.group.innerHTML = '<option value="">Failed to load</option>';
     return;
   }
 
@@ -74,8 +77,7 @@ async function loadGroups() {
     '<option value="">No group</option>',
     '<option value="all">All bookmarks</option>',
     ...groups.map(
-      (group) =>
-        `<option value="${group.id}">${group.name}</option>`,
+      (group) => `<option value="${group.id}">${group.name}</option>`,
     ),
   ];
   elements.group.innerHTML = options.join("");
