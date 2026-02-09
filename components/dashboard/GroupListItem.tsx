@@ -1,17 +1,13 @@
 "use client";
 
 import {
-  GridIcon,
   Delete02Icon,
   PencilEdit01Icon,
   Alert02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { GroupRow } from "@/lib/supabase/queries";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { IconPickerPopover } from "./IconPickerPopover";
@@ -53,7 +49,7 @@ export function GroupListItem({
   if (isEditing) {
     return (
       <div
-        className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
+        className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2">
