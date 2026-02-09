@@ -27,7 +27,7 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
     return (
       <div
         className={cn(
-          "relative isolate inline-flex h-8 items-center rounded-full border border-dotted px-1",
+          "relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1",
           className,
         )}
         {...props}
@@ -50,7 +50,7 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
   return (
     <div
       className={cn(
-        "relative isolate inline-flex h-8 items-center rounded-full border border-dotted px-1",
+        "relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1",
         className,
       )}
       {...props}
