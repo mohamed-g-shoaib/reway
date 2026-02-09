@@ -119,6 +119,7 @@ export function DashboardContent({
     { url: string; title: string }[] | null
   >(null);
   const viewModeStorageKey = "reway.dashboard.viewMode";
+  const rowContentStorageKey = "reway.dashboard.rowContent";
 
   const normalizeGroupName = useCallback((value?: string | null) => {
     const name = value?.trim() ?? "";
@@ -186,11 +187,31 @@ export function DashboardContent({
 
   React.useEffect(() => {
     try {
+      const storedRowContent =
+        window.localStorage.getItem(rowContentStorageKey);
+      if (storedRowContent === "date" || storedRowContent === "group") {
+        setRowContent(storedRowContent);
+      }
+    } catch (error) {
+      console.warn("Failed to load row content preference:", error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    try {
       window.localStorage.setItem(viewModeStorageKey, viewMode);
     } catch (error) {
       console.warn("Failed to persist view mode:", error);
     }
   }, [viewMode]);
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(rowContentStorageKey, rowContent);
+    } catch (error) {
+      console.warn("Failed to persist row content preference:", error);
+    }
+  }, [rowContent]);
 
   React.useEffect(() => {
     if (viewMode !== "folders") {

@@ -25,7 +25,7 @@ export function ConflictBar({
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 duration-200">
-      <div className="flex items-center gap-4 px-4 py-2.5 rounded-2xl bg-background border border-border/50 shadow-lg ring-1 ring-foreground/5">
+      <div className="flex items-center gap-4 px-4 py-2.5 rounded-2xl bg-background ring-1 ring-foreground/8 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none">
         <div className="flex items-center gap-2 pr-1 text-foreground">
           <HugeiconsIcon
             icon={Alert02Icon}
