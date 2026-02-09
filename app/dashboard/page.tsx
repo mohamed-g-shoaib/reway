@@ -7,6 +7,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 export const metadata = {
   title: "Dashboard",
   description: "Organize and search your bookmarks with Reway.",
+  robots: { index: false, follow: false },
 };
 
 export default async function DashboardPage() {
