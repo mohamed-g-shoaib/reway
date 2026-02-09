@@ -60,18 +60,14 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider delayDuration={400}>{children}</TooltipProvider>
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              className:
-                "ring-1 ring-foreground/8 shadow-none isolate rounded-2xl",
-            }}
-          />
+          <TooltipProvider delayDuration={300} skipDelayDuration={1000}>
+            {children}
+          </TooltipProvider>
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>
