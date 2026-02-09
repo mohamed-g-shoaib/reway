@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import NextImage from "next/image";
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -85,12 +84,11 @@ export function Favicon({
           className="text-muted-foreground/20"
         />
       ) : !imageError && (hasValidUrl || googleFallbackUrl) ? (
-        <NextImage
+        <img
           src={useGoogleFallback || !hasValidUrl ? googleFallbackUrl! : url}
           alt=""
           width={24}
           height={24}
-          unoptimized
           className="h-6 w-6 rounded-sm object-contain"
           onError={() => {
             if (!useGoogleFallback && googleFallbackUrl) {
