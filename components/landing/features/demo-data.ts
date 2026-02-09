@@ -55,6 +55,7 @@ export const demoVideos = [
     description:
       "Instantly capture links from any website, note, or app with a single click. Reway extracts the core context for you.",
     src: "/assets/videos/save-links.mp4",
+    accentColor: "bg-highlight-links",
     highlights: [
       "Auto-extract titles and metadata",
       "One-click browser extension",
@@ -66,6 +67,7 @@ export const demoVideos = [
     description:
       "Organize entire pages into your library. Keep the context of where your links came from without the noise.",
     src: "/assets/videos/save-page.mp4",
+    accentColor: "bg-highlight-page",
     highlights: [
       "Distraction-free reading view",
       "Preserves original source URL",
@@ -77,6 +79,7 @@ export const demoVideos = [
     description:
       "Turn your open tabs into organized sessions. Clean up your browser without losing your research progress.",
     src: "/assets/videos/tab-sessions.mp4",
+    accentColor: "bg-highlight-sessions",
     highlights: [
       "Bulk save multiple tabs",
       "Restore sessions in one click",
@@ -88,6 +91,7 @@ export const demoVideos = [
     description:
       "Sync your X bookmarks directly into Reway. Search and organize your saved threads and tweets in a calm environment.",
     src: "/assets/videos/x-bookmarks.mp4",
+    accentColor: "bg-highlight-x",
     highlights: [
       "Automatic thread detection",
       "Beautifully formatted tweets",
