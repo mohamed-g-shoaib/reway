@@ -35,18 +35,18 @@ async function addGrabbedLink(
     return { success: false, reason: "duplicate" };
   }
 
-  // Fetch metadata for manual links
+  // Avoid cross-origin HTML fetching in the service worker.
+  // Use a safe fallback title + favicon derivation.
   let fetchedTitle = title;
   let fetchedFavIcon = favIconUrl;
 
   if (source === "manual" && !title) {
     try {
-      const metadata = await fetchPageMetadata(url);
-      fetchedTitle = metadata.title || new URL(url).hostname;
-      fetchedFavIcon = metadata.favicon || null;
+      const urlObj = new URL(url);
+      fetchedTitle = urlObj.hostname;
+      fetchedFavIcon = `${urlObj.origin}/favicon.ico`;
     } catch (error) {
-      console.warn("Failed to fetch metadata:", error);
-      fetchedTitle = new URL(url).hostname;
+      console.warn("Failed to derive metadata:", error);
     }
   }
 
@@ -111,52 +111,6 @@ async function updateGrabbedLinksBadge(count) {
     }
   } else {
     await chrome.action.setBadgeText({ text: "" });
-  }
-}
-
-// Fetch page metadata (title and favicon)
-async function fetchPageMetadata(url) {
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "User-Agent": "Mozilla/5.0" },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch page");
-    }
-
-    const html = await response.text();
-
-    // Extract title
-    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    const title = titleMatch ? titleMatch[1].trim() : null;
-
-    // Extract favicon (try multiple common patterns)
-    let favicon = null;
-    const faviconPatterns = [
-      /<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i,
-      /<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i,
-    ];
-
-    for (const pattern of faviconPatterns) {
-      const match = html.match(pattern);
-      if (match) {
-        favicon = new URL(match[1], url).href;
-        break;
-      }
-    }
-
-    // Fallback to default favicon location
-    if (!favicon) {
-      const urlObj = new URL(url);
-      favicon = `${urlObj.protocol}//${urlObj.host}/favicon.ico`;
-    }
-
-    return { title, favicon };
-  } catch (error) {
-    console.error("Error fetching metadata:", error);
-    return { title: null, favicon: null };
   }
 }
 
@@ -230,6 +184,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("Fetching groups...");
         const groupsResponse = await fetch(
           `${settings.baseUrl}/api/extension/groups`,
+          { credentials: "include" },
         );
 
         if (!groupsResponse.ok) {
@@ -268,6 +223,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             `${settings.baseUrl}/api/extension/groups`,
             {
               method: "POST",
+              credentials: "include",
               headers: {
                 "Content-Type": "application/json",
               },
@@ -307,6 +263,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           `${settings.baseUrl}/api/extension/bookmarks`,
           {
             method: "POST",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
@@ -344,26 +301,51 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "openGroup") {
     (async () => {
       try {
+        const settings = await getSettings();
+
+        if (sender?.url) {
+          const senderUrl = new URL(sender.url);
+          const allowedOrigin = new URL(settings.baseUrl).origin;
+          if (senderUrl.origin !== allowedOrigin) {
+            throw new Error("Invalid sender origin");
+          }
+        }
+
         const directUrls = Array.isArray(message.urls)
           ? message.urls.filter(Boolean)
           : [];
 
-        if (directUrls.length > 0) {
+        const normalizedUrls = directUrls
+          .map((url) => {
+            try {
+              const parsed = new URL(url);
+              if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                return null;
+              }
+              return parsed.toString();
+            } catch {
+              return null;
+            }
+          })
+          .filter(Boolean)
+          .slice(0, 25);
+
+        if (normalizedUrls.length > 0) {
           await Promise.all(
-            directUrls.map((url) => chrome.tabs.create({ url, active: false })),
+            normalizedUrls.map((url) =>
+              chrome.tabs.create({ url, active: false }),
+            ),
           );
-          sendResponse({ ok: true, count: directUrls.length });
+          sendResponse({ ok: true, count: normalizedUrls.length });
           return;
         }
-
-        const settings = await getSettings();
 
         const url = new URL(`${settings.baseUrl}/api/extension/bookmarks`);
         if (message.groupId) {
           url.searchParams.set("groupId", message.groupId);
         }
 
-        const response = await fetch(url.toString());
+        const response = await fetch(url.toString(), { credentials: "include" });
 
         if (!response.ok) {
           throw new Error("Failed to fetch bookmarks");
@@ -372,14 +354,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const data = await response.json();
         const bookmarks = data.bookmarks || [];
 
+        const bookmarkUrls = bookmarks
+          .map((bookmark) => bookmark.url)
+          .filter(Boolean)
+          .map((url) => {
+            try {
+              const parsed = new URL(url);
+              if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                return null;
+              }
+              return parsed.toString();
+            } catch {
+              return null;
+            }
+          })
+          .filter(Boolean)
+          .slice(0, 25);
+
         await Promise.all(
-          bookmarks
-            .map((bookmark) => bookmark.url)
-            .filter(Boolean)
-            .map((url) => chrome.tabs.create({ url, active: false })),
+          bookmarkUrls.map((url) => chrome.tabs.create({ url, active: false })),
         );
 
-        sendResponse({ ok: true, count: bookmarks.length });
+        sendResponse({ ok: true, count: bookmarkUrls.length });
       } catch (error) {
         console.error("Open group failed:", error);
         sendResponse({ ok: false, error: error?.message || "Failed" });
@@ -388,12 +384,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
-
-// Respond to external messages from web pages
-chrome.runtime.onMessageExternal.addListener(
-  (message, sender, sendResponse) => {
-    if (message?.type === "checkExtension") {
-      sendResponse({ installed: true, extensionId: chrome.runtime.id });
-    }
-  },
-);

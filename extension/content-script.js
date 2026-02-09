@@ -29,13 +29,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         type: "reway_broadcast_bookmark",
         bookmark: message.bookmark,
       },
-      "*",
+      window.location.origin,
     );
   }
 });
 
 window.addEventListener("message", (event) => {
   if (event.source !== window) return;
+  if (event.origin !== window.location.origin) return;
   const data = event.data;
 
   // Respond to extension check
@@ -46,13 +47,14 @@ window.addEventListener("message", (event) => {
         requestId: data.requestId,
         installed: true,
       },
-      "*",
+      window.location.origin,
     );
     return;
   }
 
   // Handle open group request
   if (data?.type === "reway_open_group") {
+    if (data.groupId != null && typeof data.groupId !== "string") return;
     chrome.runtime.sendMessage(
       {
         type: "openGroup",
@@ -66,7 +68,7 @@ window.addEventListener("message", (event) => {
             requestId: data.requestId,
             response,
           },
-          "*",
+          window.location.origin,
         );
       },
     );

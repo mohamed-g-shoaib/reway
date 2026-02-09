@@ -64,13 +64,26 @@
     <script>
       function checkExtension() {
         const requestId = crypto.randomUUID();
+        const statusEl = document.getElementById("status");
+
+        const setStatus = ({ title, message, tone }) => {
+          if (!statusEl) return;
+          statusEl.textContent = "";
+          const strong = document.createElement("strong");
+          strong.textContent = title;
+          statusEl.appendChild(strong);
+          statusEl.appendChild(document.createElement("br"));
+          statusEl.appendChild(document.createTextNode(message));
+          statusEl.className = `status ${tone}`;
+        };
 
         const timeout = setTimeout(() => {
-          document.getElementById("status").innerHTML = `
-                    <strong>Extension not detected</strong><br>
-                    Please install the extension following the instructions above.
-                `;
-          document.getElementById("status").className = "status error";
+          setStatus({
+            title: "Extension not detected",
+            message:
+              "Please install the extension following the instructions above.",
+            tone: "error",
+          });
         }, 1000);
 
         const onMessage = (event) => {
@@ -81,17 +94,18 @@
           window.removeEventListener("message", onMessage);
 
           if (event.data.installed) {
-            document.getElementById("status").innerHTML = `
-                        <strong>✓ Extension detected successfully!</strong><br>
-                        The Reway extension is properly installed and responding.
-                    `;
-            document.getElementById("status").className = "status success";
+            setStatus({
+              title: "✓ Extension detected successfully!",
+              message:
+                "The Reway extension is properly installed and responding.",
+              tone: "success",
+            });
           } else {
-            document.getElementById("status").innerHTML = `
-                        <strong>Extension communication failed</strong><br>
-                        Extension may not be properly configured.
-                    `;
-            document.getElementById("status").className = "status error";
+            setStatus({
+              title: "Extension communication failed",
+              message: "Extension may not be properly configured.",
+              tone: "error",
+            });
           }
         };
 
@@ -101,7 +115,7 @@
             type: "reway_extension_check",
             requestId: requestId,
           },
-          "*",
+          window.location.origin,
         );
       }
 

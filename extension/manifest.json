@@ -5,9 +5,9 @@
   "description": "Save pages to Reway and open bookmark groups.",
   "permissions": ["tabs", "activeTab", "scripting", "storage"],
   "host_permissions": [
-    "https://reway.vercel.app/api/*",
-    "http://localhost:3000/api/*",
-    "<all_urls>"
+    "https://reway.vercel.app/*",
+    "http://localhost:3000/*",
+    "http://localhost:3001/*"
   ],
   "action": {
     "default_title": "Save to Reway",

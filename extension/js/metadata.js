@@ -36,6 +36,11 @@ export async function fetchPageMeta(tabId) {
       return results[0].result;
     }
   } catch (error) {
+    const msg = String(error?.message || "");
+    if (msg.includes("must request permission") || msg.includes("Cannot access contents of url")) {
+      console.debug("Metadata extraction skipped:", msg);
+      return null;
+    }
     console.warn("Metadata extraction failed:", error);
   }
   return null;

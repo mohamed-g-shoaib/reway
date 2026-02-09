@@ -111,8 +111,14 @@ async function saveBookmark() {
     elements.saveBookmarkBtn.classList.add("success");
     setLoading(elements.saveBookmarkBtn, false, "✓ Saved!");
     setTimeout(() => window.close(), 800);
-  } catch {
+  } catch (err) {
     setLoading(elements.saveBookmarkBtn, false, "Save Page");
+
+    if (err?.status === 409) {
+      setStatus("This bookmark already exists in this group", "error");
+      return;
+    }
+
     setStatus("Failed to save", "error");
   }
 }
@@ -157,7 +163,7 @@ function handleLogoClick() {
 
 // Group UI helpers
 function renderGroups(groups) {
-  elements.groupMenu.innerHTML = "";
+  elements.groupMenu.replaceChildren();
   const options = [{ id: "", name: "No group" }, ...groups];
 
   options.forEach((group, index) => {
@@ -171,7 +177,9 @@ function renderGroups(groups) {
     btn.addEventListener("click", () => {
       selectedGroupId = group.id;
       elements.groupLabel.textContent = group.name;
-      elements.groupTrigger.parentElement.classList.remove("open");
+      const container = elements.groupTrigger.closest(".select");
+      container?.classList.remove("open");
+      elements.groupTrigger.setAttribute("aria-expanded", "false");
       hasManualGroupSelection = true;
 
       document
@@ -192,7 +200,9 @@ document.addEventListener("DOMContentLoaded", init);
 
 elements.saveBookmarkBtn?.addEventListener("click", saveBookmark);
 elements.groupTrigger?.addEventListener("click", () => {
-  const isOpen = elements.groupTrigger.parentElement.classList.toggle("open");
+  const container = elements.groupTrigger.closest(".select");
+  if (!container) return;
+  const isOpen = container.classList.toggle("open");
   elements.groupTrigger.setAttribute("aria-expanded", isOpen);
   if (isOpen) {
     const activeOpt =
@@ -200,6 +210,15 @@ elements.groupTrigger?.addEventListener("click", () => {
       elements.groupMenu.querySelector(".select-option");
     activeOpt?.focus();
   }
+});
+
+document.addEventListener("click", (e) => {
+  const container = elements.groupTrigger?.closest(".select");
+  if (!container) return;
+  if (!container.classList.contains("open")) return;
+  if (container.contains(e.target)) return;
+  container.classList.remove("open");
+  elements.groupTrigger?.setAttribute("aria-expanded", "false");
 });
 
 elements.groupTrigger?.addEventListener("keydown", (e) => {
@@ -211,7 +230,8 @@ elements.groupTrigger?.addEventListener("keydown", (e) => {
 
 // Keyboard Navigation for Dropdown
 elements.groupTrigger.parentElement?.addEventListener("keydown", (e) => {
-  const container = elements.groupTrigger.parentElement;
+  const container = elements.groupTrigger.closest(".select");
+  if (!container) return;
   const isOpen = container.classList.contains("open");
   const options = Array.from(
     elements.groupMenu.querySelectorAll(".select-option"),
