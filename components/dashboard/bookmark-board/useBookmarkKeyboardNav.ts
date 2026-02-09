@@ -47,6 +47,27 @@ export function useBookmarkKeyboardNav({
   }, [selectedIndex]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const target = e.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.closest('[data-slot="dialog-content"]') ||
+        target.closest('[data-slot="dropdown-menu-content"]') ||
+        target.closest('[data-slot="context-menu-content"]') ||
+        target.closest('[data-slot="popover-content"]'))
+    ) {
+      return;
+    }
+
+    if (
+      target instanceof HTMLElement &&
+      (target.closest("button") ||
+        target.closest('a[href]') ||
+        target.closest('[role="button"]') ||
+        target.closest('[role="link"]'))
+    ) {
+      return;
+    }
+
     if (
       e.target instanceof HTMLInputElement ||
       e.target instanceof HTMLTextAreaElement ||
