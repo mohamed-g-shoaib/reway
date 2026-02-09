@@ -36,6 +36,27 @@ const IconPickerPopover = dynamic<IconPickerPopoverProps>(
   },
 );
 
+const MAX_GROUP_NAME_LENGTH = 18;
+
+function CharacterCount({ current, max }: { current: number; max: number }) {
+  const isNearLimit = current > max - 5;
+  const isAtLimit = current >= max;
+
+  return (
+    <span
+      className={`text-[9px] font-medium tabular-nums transition-colors duration-200 ${
+        isAtLimit
+          ? "text-red-500"
+          : isNearLimit
+            ? "text-amber-500"
+            : "text-muted-foreground/40"
+      }`}
+    >
+      {current}/{max}
+    </span>
+  );
+}
+
 interface GroupMenuProps {
   groups: GroupRow[];
   activeGroupId: string;
@@ -154,7 +175,7 @@ export function GroupMenu({
             }`}
             onClick={() => onGroupSelect("all")}
           >
-            <div className="flex items-center gap-3 flex-1 min-w-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5">
+            <div className="flex items-center gap-3 flex-1 min-w-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5 mt-0.5">
               <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
               <span>All Bookmarks</span>
             </div>
@@ -164,7 +185,7 @@ export function GroupMenu({
                 event.stopPropagation();
                 onGroupOpen?.("all");
               }}
-              className="opacity-0 group-hover:opacity-100 text-muted-foreground/40 hover:text-foreground transition-opacity duration-150"
+              className="opacity-100 text-muted-foreground/90 hover:text-foreground transition-opacity duration-150"
               aria-label="Open all bookmarks"
             >
               <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
@@ -187,7 +208,7 @@ export function GroupMenu({
                   return (
                     <div
                       key={group.id}
-                      className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
+                      className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center gap-2">
@@ -216,9 +237,14 @@ export function GroupMenu({
                         </IconPickerPopover>
                         <Input
                           value={editGroupName}
-                          onChange={(e) => setEditGroupName(e.target.value)}
+                          onChange={(e) =>
+                            setEditGroupName(
+                              e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                            )
+                          }
                           placeholder="Group name"
                           className="h-8 flex-1 text-sm rounded-lg"
+                          maxLength={MAX_GROUP_NAME_LENGTH}
                           autoFocus
                           onKeyDown={(e) => {
                             e.stopPropagation();
@@ -242,14 +268,20 @@ export function GroupMenu({
                         >
                           Cancel
                         </UIButton>
-                        <UIButton
-                          size="sm"
-                          className="h-7 px-3 text-xs rounded-4xl"
-                          onClick={() => onUpdateGroup(group.id)}
-                          disabled={!editGroupName.trim() || isUpdating}
-                        >
-                          {isUpdating ? "Saving..." : "Save"}
-                        </UIButton>
+                        <div className="flex items-center justify-between flex-1">
+                          <CharacterCount
+                            current={editGroupName.length}
+                            max={MAX_GROUP_NAME_LENGTH}
+                          />
+                          <UIButton
+                            size="sm"
+                            className="h-7 px-3 text-xs rounded-4xl"
+                            onClick={() => onUpdateGroup(group.id)}
+                            disabled={!editGroupName.trim() || isUpdating}
+                          >
+                            {isUpdating ? "Saving..." : "Save"}
+                          </UIButton>
+                        </div>
                       </div>
                     </div>
                   );
@@ -295,7 +327,7 @@ export function GroupMenu({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/50 hover:text-foreground transition-all duration-200"
+                            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-foreground transition-all duration-200"
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`${group.name} options`}
                           >
@@ -351,7 +383,7 @@ export function GroupMenu({
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <span className="text-[10px] font-medium tabular-nums text-muted-foreground/40 min-w-4">
+                      <span className="text-[10px] font-bold tabular-nums text-muted-foreground/90 min-w-4">
                         {getBookmarkCount(group.id)}
                       </span>
                     </div>
@@ -365,7 +397,7 @@ export function GroupMenu({
 
           {isInlineCreating ? (
             <div
-              className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
+              className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-2">
@@ -393,9 +425,14 @@ export function GroupMenu({
                 </IconPickerPopover>
                 <Input
                   value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
+                  onChange={(e) =>
+                    setNewGroupName(
+                      e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                    )
+                  }
                   placeholder="Group name"
                   className="h-8 flex-1 text-sm rounded-lg"
+                  maxLength={MAX_GROUP_NAME_LENGTH}
                   autoFocus
                   onKeyDown={(e) => {
                     e.stopPropagation();
@@ -416,14 +453,20 @@ export function GroupMenu({
                 >
                   Cancel
                 </UIButton>
-                <UIButton
-                  size="sm"
-                  className="h-7 px-3 text-xs rounded-4xl"
-                  onClick={onInlineCreate}
-                  disabled={!newGroupName.trim() || isCreating}
-                >
-                  {isCreating ? "Creating..." : "Save"}
-                </UIButton>
+                <div className="flex items-center justify-between flex-1">
+                  <CharacterCount
+                    current={newGroupName.length}
+                    max={MAX_GROUP_NAME_LENGTH}
+                  />
+                  <UIButton
+                    size="sm"
+                    className="h-7 px-3 text-xs rounded-4xl"
+                    onClick={onInlineCreate}
+                    disabled={!newGroupName.trim() || isCreating}
+                  >
+                    {isCreating ? "Creating..." : "Save"}
+                  </UIButton>
+                </div>
               </div>
             </div>
           ) : (
