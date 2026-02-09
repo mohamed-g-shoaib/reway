@@ -4,7 +4,6 @@ import { useState, memo, useEffect } from "react";
 import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GridIcon } from "@hugeicons/core-free-icons";
 import { Favicon } from "./Favicon";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { GroupRow } from "@/lib/supabase/queries";
@@ -111,7 +110,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   const dragStyle = isDragging
     ? "z-50 bg-background ring-1 ring-primary/20"
     : isSelected
-      ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
+      ? "bg-foreground/4 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
       : "";
 
   const openInNewTab = (e: React.MouseEvent) => {
