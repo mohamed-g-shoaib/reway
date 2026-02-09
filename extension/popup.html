@@ -9,7 +9,7 @@
   <body>
     <div class="shell" style="opacity: 0; transition: opacity 0.15s">
       <header class="header">
-        <div class="logo">
+        <div id="extension-logo" class="logo">
           <img src="icons/icon48.png" alt="Reway" />
         </div>
         <div>
@@ -18,78 +18,236 @@
         </div>
       </header>
 
-      <section id="auth-section" class="card settings" style="display: none">
+      <div id="loading-view" class="loading-view">
+        <div class="spinner"></div>
+        <div>Initializing...</div>
+      </div>
+
+      <section id="auth-section" class="card settings hidden">
         <div class="settings-header">
           <div>
             <h2>Connect to Reway</h2>
-            <p>Enter your access token to get started.</p>
+            <p>Please log in to your dashboard to use the extension.</p>
           </div>
-          <a id="dashboard-link" href="#" class="link">Open dashboard</a>
         </div>
 
-        <label class="field">
-          <span>Base URL</span>
-          <input
-            id="base-url"
-            type="text"
-            placeholder="http://localhost:3000"
-          />
-        </label>
+        <button id="login-button" class="primary">Log in to Reway</button>
 
-        <label class="field">
-          <span>Access token</span>
-          <input id="token" type="password" placeholder="Paste token" />
-        </label>
+        <div id="dev-mode-panel" class="dev-panel">
+          <div class="field" style="margin-top: 20px">
+            <span>Environment</span>
+            <div style="display: flex; gap: 8px; margin-top: 8px">
+              <button
+                id="env-prod"
+                class="secondary"
+                style="flex: 1; font-size: 11px"
+              >
+                Production
+              </button>
+              <button
+                id="env-local"
+                class="ghost"
+                style="flex: 1; font-size: 11px"
+              >
+                Local
+              </button>
+            </div>
+          </div>
 
-        <button id="save-settings" class="secondary">Connect</button>
-        <p class="hint">
-          Generate tokens from your dashboard: Avatar menu → Manage Access
-          Tokens.
-        </p>
+          <label
+            id="local-port-field"
+            class="field"
+            style="margin-top: 12px; display: none"
+          >
+            <span>Local Port</span>
+            <input id="local-port" type="number" placeholder="3000" />
+          </label>
+
+          <button
+            id="save-dev-settings"
+            class="secondary"
+            style="width: 100%; margin-top: 12px"
+          >
+            Apply Changes
+          </button>
+        </div>
       </section>
 
-      <section id="main-section" class="card" style="display: none">
-        <div class="page-meta">
-          <img id="favicon" class="favicon" alt="" />
-          <div>
-            <div class="label">Current page</div>
-            <div id="page-url" class="url"></div>
+      <section id="main-section" class="card hidden">
+        <!-- Tab Navigation -->
+        <div
+          class="tabs"
+          id="real-content"
+          role="tablist"
+          aria-label="Extension features"
+        >
+          <button
+            class="tab-button active"
+            role="tab"
+            aria-selected="true"
+            aria-controls="tab-save"
+            id="tab-save-btn"
+            data-tab="save"
+          >
+            Save Page
+          </button>
+          <button
+            class="tab-button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-links"
+            id="tab-links-btn"
+            data-tab="links"
+          >
+            Save Links
+          </button>
+          <button
+            class="tab-button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-session"
+            id="tab-session-btn"
+            data-tab="session"
+          >
+            Tab Session
+          </button>
+        </div>
+
+        <!-- Tab Content: Save Bookmark -->
+        <div
+          id="tab-save"
+          class="tab-content active"
+          role="tabpanel"
+          aria-labelledby="tab-save-btn"
+        >
+          <div class="page-meta">
+            <img id="favicon" class="favicon" alt="" />
+            <div class="page-meta-content">
+              <div class="label">Current page</div>
+              <div id="page-url" class="url"></div>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Title</span>
+            <input id="title" type="text" placeholder="Page title" />
+          </label>
+
+          <label class="field">
+            <span>Description</span>
+            <textarea
+              id="description"
+              rows="4"
+              placeholder="Short summary"
+            ></textarea>
+          </label>
+
+          <label class="field">
+            <span>Group</span>
+            <div class="select" id="group-select">
+              <button id="group-trigger" class="select-trigger" type="button">
+                <span id="group-label">No group</span>
+                <span class="select-chevron" aria-hidden="true"></span>
+              <div id="group-menu" class="select-menu" role="listbox"></div>
+            </div>
+            <div id="status" class="status"></div>
+          </label>
+
+          <div class="actions">
+            <button id="save" class="primary">Save bookmark</button>
           </div>
         </div>
 
-        <label class="field">
-          <span>Title</span>
-          <input id="title" type="text" placeholder="Page title" />
-        </label>
-
-        <label class="field">
-          <span>Description</span>
-          <textarea
-            id="description"
-            rows="4"
-            placeholder="Short summary"
-          ></textarea>
-        </label>
-
-        <label class="field">
-          <span>Group</span>
-          <div class="select" id="group-select">
-            <button id="group-trigger" class="select-trigger" type="button">
-              <span id="group-label">No group</span>
-              <span class="select-chevron" aria-hidden="true"></span>
-            </button>
-            <div id="group-menu" class="select-menu" role="listbox"></div>
+        <!-- Tab Content: Save Links -->
+        <div id="tab-links" class="tab-content">
+          <label class="field">
+            <span>Add a link</span>
+            <div class="inline-input">
+              <input
+                id="links-manual-url"
+                type="text"
+                placeholder="https://example.com"
+              />
+              <button
+                id="add-manual-link"
+                class="secondary link-action-button icon-button"
+                type="button"
+                aria-label="Add link"
+                title="Add link"
+              >
+                +
+              </button>
+            </div>
+            <div id="manual-link-status" class="status"></div>
+          </label>
+          <div class="session-header">
+            <span id="links-count" class="session-count">Loading...</span>
           </div>
-        </label>
+          <div id="grabbed-links-list" class="session-preview">
+            <!-- Empty state -->
+            <div id="links-empty" class="empty-state">
+              <p>No links saved yet</p>
+              <p class="hint">Paste links to build a group</p>
+            </div>
+          </div>
 
-        <div class="actions">
-          <button id="save" class="primary">Save bookmark</button>
+          <div id="links-actions" class="link-grab-actions">
+            <label class="field">
+              <div class="field-header">
+                <span>Group Name</span>
+                <span id="links-group-char-count" class="char-count">0/18</span>
+              </div>
+              <input
+                id="links-group-name"
+                type="text"
+                placeholder="My Research Links"
+                maxlength="18"
+              />
+              <div id="links-status" class="status"></div>
+            </label>
+            <div class="actions">
+              <button id="create-group-from-links" class="primary">
+                Save as Group
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div id="status" class="status"></div>
+        <!-- Tab Content: Tab Session -->
+        <div id="tab-session" class="tab-content">
+          <div class="session-header">
+            <span id="tab-count" class="session-count">Loading...</span>
+          </div>
+
+          <div id="session-preview" class="session-preview">
+            <!-- Tab preview will be inserted here -->
+            <div id="session-empty" class="empty-state" style="display: none">
+              <p>No tabs to save</p>
+              <p class="hint">Open some tabs to create a session</p>
+            </div>
+          </div>
+
+          <label class="field">
+            <div class="field-header">
+              <span>Session Name</span>
+              <span id="session-char-count" class="char-count">0/18</span>
+            </div>
+            <input
+              id="session-name"
+              type="text"
+              placeholder="My Work Session"
+              maxlength="18"
+            />
+            <div id="session-status" class="status"></div>
+          </label>
+
+          <div class="actions">
+            <button id="save-session" class="primary">Save Session</button>
+          </div>
+        </div>
       </section>
     </div>
 
-    <script src="popup.js"></script>
+    <script type="module" src="popup.js"></script>
   </body>
 </html>

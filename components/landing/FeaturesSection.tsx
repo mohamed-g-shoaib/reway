@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { features } from "./features/demo-data";
 import { ExtractDemo } from "./features/ExtractDemo";
 import { GroupsDemo } from "./features/GroupsDemo";
@@ -8,14 +8,23 @@ import { NavigationDemo } from "./features/NavigationDemo";
 import { ViewModesDemo } from "./features/ViewModesDemo";
 
 export function FeaturesSection() {
+  const containerVariants: Variants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.28, ease: "easeOut" },
+    },
+  };
+
   return (
-    <section id="features" className="border-b border-border/60 bg-muted/20">
+    <section id="features" className="border-b border-foreground/8 bg-muted/20">
       <motion.div
-        className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
+        className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true, margin: "-120px" }}
-        transition={{ duration: 0.28, ease: "easeOut" }}
+        variants={containerVariants}
       >
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -34,7 +43,7 @@ export function FeaturesSection() {
           {features.map((feature) => (
             <article
               key={feature.title}
-              className="flex flex-col gap-4 rounded-4xl border border-border bg-background p-5 shadow-sm"
+              className="flex flex-col gap-4 rounded-4xl ring-1 ring-foreground/8 bg-background p-5 shadow-none isolate"
             >
               <div className="flex min-h-24 items-start">
                 <div className="space-y-2">
@@ -46,7 +55,7 @@ export function FeaturesSection() {
                   </p>
                 </div>
               </div>
-              <div className="flex h-[184px] items-center overflow-visible">
+              <div className="flex h-46 items-center overflow-visible">
                 {feature.demo === "extract" ? <ExtractDemo /> : null}
                 {feature.demo === "groups" ? <GroupsDemo /> : null}
                 {feature.demo === "navigate" ? <NavigationDemo /> : null}

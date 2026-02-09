@@ -1,219 +1,82 @@
-const DEFAULT_BASE_URL = "http://localhost:3000";
-
-const selectors = {
-  title: "#title",
-  description: "#description",
-  groupSelect: "#group-select",
-  groupTrigger: "#group-trigger",
-  groupLabel: "#group-label",
-  groupMenu: "#group-menu",
-  save: "#save",
-  status: "#status",
-  favicon: "#favicon",
-  pageUrl: "#page-url",
-  token: "#token",
-  baseUrl: "#base-url",
-  saveSettings: "#save-settings",
-  dashboardLink: "#dashboard-link",
-  settingsToggle: "#settings-toggle",
-  authSection: "#auth-section",
-  mainSection: "#main-section",
-};
-
-const elements = Object.fromEntries(
-  Object.entries(selectors).map(([key, selector]) => [
-    key,
-    document.querySelector(selector),
-  ]),
-);
+import {
+  elements,
+  showSection,
+  setStatus,
+  switchTab,
+  setLoading,
+} from "./js/ui.js";
+import { apiFetch, getSettings } from "./js/api.js";
+import { MAX_NAME_LENGTH } from "./js/config.js";
+import { fetchPageMeta } from "./js/metadata.js";
+import { loadGrabbedLinks, createGroupFromLinks } from "./js/grabber.js";
+import { loadTabSession, saveTabSession } from "./js/sessions.js";
 
 let selectedGroupId = "";
 let hasManualGroupSelection = false;
 
-function setGroupLabel(label) {
-  elements.groupLabel.textContent = label || "No group";
-}
+// UI Initialization
+async function init() {
+  document.querySelector(".shell").style.opacity = "1";
+  const loadingView = document.getElementById("loading-view");
 
-function closeGroupMenu() {
-  elements.groupSelect.classList.remove("open");
-}
+  await getSettings();
+  const { rewayBaseUrl } = await chrome.storage.local.get("rewayBaseUrl");
 
-function openGroupMenu() {
-  elements.groupSelect.classList.add("open");
-}
-
-function toggleGroupMenu() {
-  if (elements.groupSelect.classList.contains("open")) {
-    closeGroupMenu();
+  // Handle Dev Mode Toggle State
+  if (rewayBaseUrl && rewayBaseUrl.includes("localhost")) {
+    switchEnv("local");
+    try {
+      elements.localPort.value = new URL(rewayBaseUrl).port || "3000";
+    } catch {
+      elements.localPort.value = "3000";
+    }
   } else {
-    openGroupMenu();
-  }
-}
-
-function setSelectedGroup(group, { manual = false } = {}) {
-  selectedGroupId = group?.id || "";
-  setGroupLabel(group?.name || "No group");
-  if (manual) {
-    hasManualGroupSelection = true;
+    switchEnv("prod");
   }
 
-  const options = elements.groupMenu.querySelectorAll(".select-option");
-  options.forEach((option) => {
-    option.dataset.selected =
-      option.dataset.id === selectedGroupId ? "true" : "false";
-  });
-}
-
-function setStatus(text, tone = "") {
-  if (!elements.status) return;
-  elements.status.textContent = text;
-  elements.status.dataset.tone = tone;
-}
-
-async function getActiveTab() {
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    lastFocusedWindow: true,
-  });
-  return tab;
-}
-
-async function getSettings() {
-  const { rewayToken, rewayBaseUrl, rewayGroups } =
-    await chrome.storage.local.get([
-      "rewayToken",
-      "rewayBaseUrl",
-      "rewayGroups",
-    ]);
-
-  return {
-    token: rewayToken || "",
-    baseUrl: rewayBaseUrl || DEFAULT_BASE_URL,
-    groups: Array.isArray(rewayGroups) ? rewayGroups : [],
-  };
-}
-
-async function saveSettings() {
-  const token = elements.token.value.trim();
-  const baseUrl = elements.baseUrl.value.trim() || DEFAULT_BASE_URL;
-
-  if (!token) {
-    setStatus("Access token is required.", "error");
-    return;
-  }
-
-  // Test the connection
+  // Check Auth by attempting to load groups
   try {
-    const response = await fetch(`${baseUrl}/api/extension/groups`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Auth failed:", response.status, errorText);
-      setStatus(`Invalid token (${response.status}). Check console.`, "error");
-      return;
-    }
-  } catch (error) {
-    console.error("Connection failed:", error);
-    setStatus("Failed to connect to server.", "error");
-    return;
-  }
-
-  await chrome.storage.local.set({ rewayToken: token, rewayBaseUrl: baseUrl });
-  setStatus("Connected successfully!");
-
-  // Switch to main interface after successful connection
-  showMainInterface();
-  loadGroups();
-}
-
-function renderGroups(groups) {
-  elements.groupMenu.innerHTML = "";
-  const groupOptions = [{ id: "", name: "No group", icon: null }, ...groups];
-
-  groupOptions.forEach((group) => {
-    const option = document.createElement("button");
-    option.type = "button";
-    option.className = "select-option";
-    option.dataset.id = group.id || "";
-
-    // Add group name only (no icon)
-    const textSpan = document.createElement("span");
-    textSpan.className = "select-option-text";
-    textSpan.textContent = group.name;
-    option.appendChild(textSpan);
-
-    option.addEventListener("click", () => {
-      setSelectedGroup(group, { manual: true });
-      closeGroupMenu();
-    });
-    elements.groupMenu.appendChild(option);
-  });
-
-  if (!hasManualGroupSelection) {
-    const current = groupOptions.find((group) => group.id === selectedGroupId);
-    setSelectedGroup(current || groupOptions[0]);
-  }
-}
-
-async function loadGroups() {
-  const settings = await getSettings();
-  if (!settings.token) {
-    return false;
-  }
-
-  try {
-    const response = await fetch(`${settings.baseUrl}/api/extension/groups`, {
-      headers: { Authorization: `Bearer ${settings.token}` },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Failed to load groups:", response.status, errorText);
-      return false;
-    }
-
-    const data = await response.json();
+    const data = await apiFetch("/api/extension/groups");
     const groups = data.groups || [];
-    renderGroups(groups);
     await chrome.storage.local.set({ rewayGroups: groups });
-    return true;
-  } catch (error) {
-    return false;
+    renderGroups(groups);
+    showSection("main-section");
+  } catch {
+    showSection("auth-section");
+  } finally {
+    if (loadingView) {
+      loadingView.classList.add("hidden");
+      setTimeout(() => {
+        loadingView.style.display = "none";
+        loadingView.remove();
+      }, 200);
+    }
   }
+
+  // Populate UI even if auth fails
+  fetchMeta();
 }
 
+// Metadata Fetching (On-Demand)
 async function fetchMeta() {
-  const tab = await getActiveTab();
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
   elements.pageUrl.textContent = tab.url || "";
-  elements.favicon.src = tab.favIconUrl || "";
+  elements.favicon.src = tab.favIconUrl || "icons/icon16.png";
   elements.title.value = tab.title || "";
 
-  try {
-    const response = await chrome.tabs.sendMessage(tab.id, { type: "getMeta" });
-    if (response?.description) {
-      elements.description.value = response.description;
-    }
-  } catch (error) {
-    // Content script may not be loaded, that's OK
+  const meta = await fetchPageMeta(tab.id);
+  if (meta?.description) {
+    elements.description.value = meta.description;
   }
 }
 
+// Save Page Logic
 async function saveBookmark() {
-  const settings = await getSettings();
-  if (!settings.token) {
-    setStatus("Add an access token first.", "error");
-    return;
-  }
+  setLoading(elements.saveBookmarkBtn, true, "Saving...");
 
-  const tab = await getActiveTab();
-  if (!tab?.url) return;
-
-  setStatus("Saving...");
-
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const payload = {
     url: tab.url,
     title: elements.title.value.trim(),
@@ -222,112 +85,270 @@ async function saveBookmark() {
   };
 
   try {
-    const response = await fetch(
-      `${settings.baseUrl}/api/extension/bookmarks`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${settings.token}`,
-        },
-        body: JSON.stringify(payload),
-      },
-    );
+    const data = await apiFetch("/api/extension/bookmarks", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
 
-    if (!response.ok) {
-      setStatus("Failed to save. Check your token.", "error");
-      return;
-    }
-
-    const data = await response.json();
     if (data?.bookmark) {
-      try {
-        const tabs = await chrome.tabs.query({
-          url: `${settings.baseUrl}/*`,
-        });
-        await Promise.allSettled(
-          tabs.map((tab) =>
-            tab.id
-              ? chrome.tabs.sendMessage(tab.id, {
-                  type: "broadcastBookmark",
-                  bookmark: data.bookmark,
-                })
-              : Promise.resolve(),
-          ),
-        );
-      } catch (error) {
-        console.warn("Dashboard broadcast skipped:", error);
-      }
+      // Broadcast to any open dashboard tabs
+      const settings = await getSettings();
+      const dashboardTabs = await chrome.tabs.query({
+        url: `${settings.baseUrl}/*`,
+      });
+      dashboardTabs.forEach((t) => {
+        chrome.tabs
+          .sendMessage(t.id, {
+            type: "broadcastBookmark",
+            bookmark: data.bookmark,
+          })
+          .catch(() => {
+            // Ignore - dashboard tab might not have listener ready
+          });
+      });
     }
 
-    setStatus("Saved to Reway!");
-    // Close extension popup after save
-    setTimeout(() => {
-      window.close();
-    }, 1000);
-  } catch (error) {
-    setStatus("Network error. Check connection.", "error");
+    elements.saveBookmarkBtn.classList.add("success");
+    setLoading(elements.saveBookmarkBtn, false, "✓ Saved!");
+    setTimeout(() => window.close(), 800);
+  } catch {
+    setLoading(elements.saveBookmarkBtn, false, "Save Page");
+    setStatus("Failed to save", "error");
   }
 }
 
-function showAuthInterface() {
-  elements.authSection.style.display = "block";
-  elements.mainSection.style.display = "none";
+// Dev Mode Helpers
+let currentDevEnv = "prod";
+function switchEnv(env) {
+  currentDevEnv = env;
+  const isProd = env === "prod";
+  elements.envProd.classList.toggle("secondary", isProd);
+  elements.envProd.classList.toggle("ghost", !isProd);
+  elements.envLocal.classList.toggle("secondary", !isProd);
+  elements.envLocal.classList.toggle("ghost", isProd);
+  elements.localPortField.style.display = isProd ? "none" : "block";
 }
 
-function showMainInterface() {
-  elements.authSection.style.display = "none";
-  elements.mainSection.style.display = "block";
-}
-
-async function init() {
-  const settings = await getSettings();
-  elements.token.value = settings.token;
-  elements.baseUrl.value = settings.baseUrl;
-  elements.dashboardLink.href = `${settings.baseUrl}/dashboard`;
-
-  if (settings.groups.length > 0) {
-    renderGroups(settings.groups);
-  }
-
-  // Check if user has valid token
-  if (settings.token) {
-    showMainInterface();
-    fetchMeta();
-    loadGroups();
+async function handleSaveDevSettings() {
+  if (currentDevEnv === "prod") {
+    await chrome.storage.local.remove("rewayBaseUrl");
   } else {
-    showAuthInterface();
+    const port = elements.localPort.value.trim() || "3000";
+    await chrome.storage.local.set({
+      rewayBaseUrl: `http://localhost:${port}`,
+    });
   }
-
-  // Show UI after initialization
-  document.querySelector(".shell").style.opacity = "1";
+  window.location.reload();
 }
 
-// Event listeners
-if (elements.saveSettings) {
-  elements.saveSettings.addEventListener("click", saveSettings);
+// Triple-click logo logic for Dev Mode
+let logoClickCount = 0;
+let logoClickTimeout;
+function handleLogoClick() {
+  logoClickCount++;
+  clearTimeout(logoClickTimeout);
+  if (logoClickCount === 3) {
+    elements.devPanel.classList.toggle("open");
+    logoClickCount = 0;
+    return;
+  }
+  logoClickTimeout = setTimeout(() => (logoClickCount = 0), 1000);
 }
 
-if (elements.save) {
-  elements.save.addEventListener("click", saveBookmark);
+// Group UI helpers
+function renderGroups(groups) {
+  elements.groupMenu.innerHTML = "";
+  const options = [{ id: "", name: "No group" }, ...groups];
+
+  options.forEach((group, index) => {
+    const btn = document.createElement("button");
+    btn.className = "select-option";
+    btn.textContent = group.name;
+    btn.setAttribute("role", "option");
+    btn.setAttribute("tabindex", "-1");
+    btn.dataset.index = index;
+
+    btn.addEventListener("click", () => {
+      selectedGroupId = group.id;
+      elements.groupLabel.textContent = group.name;
+      elements.groupTrigger.parentElement.classList.remove("open");
+      hasManualGroupSelection = true;
+
+      document
+        .querySelectorAll(".select-option")
+        .forEach((opt) => opt.classList.remove("active"));
+      btn.classList.add("active");
+    });
+    elements.groupMenu.appendChild(btn);
+  });
+
+  if (!hasManualGroupSelection) {
+    elements.groupLabel.textContent = options[0].name;
+  }
 }
 
-if (elements.groupTrigger) {
-  elements.groupTrigger.addEventListener("click", toggleGroupMenu);
-}
+// Event Listeners
+document.addEventListener("DOMContentLoaded", init);
 
-document.addEventListener("click", (event) => {
-  if (!elements.groupSelect.contains(event.target)) {
-    closeGroupMenu();
+elements.saveBookmarkBtn?.addEventListener("click", saveBookmark);
+elements.groupTrigger?.addEventListener("click", () => {
+  const isOpen = elements.groupTrigger.parentElement.classList.toggle("open");
+  elements.groupTrigger.setAttribute("aria-expanded", isOpen);
+  if (isOpen) {
+    const activeOpt =
+      elements.groupMenu.querySelector(".select-option.active") ||
+      elements.groupMenu.querySelector(".select-option");
+    activeOpt?.focus();
   }
 });
 
-if (elements.token) {
-  elements.token.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      saveSettings();
+elements.groupTrigger?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    elements.groupTrigger.click();
+  }
+});
+
+// Keyboard Navigation for Dropdown
+elements.groupTrigger.parentElement?.addEventListener("keydown", (e) => {
+  const container = elements.groupTrigger.parentElement;
+  const isOpen = container.classList.contains("open");
+  const options = Array.from(
+    elements.groupMenu.querySelectorAll(".select-option"),
+  );
+  const currentIndex = options.indexOf(document.activeElement);
+
+  if (e.key === "Escape") {
+    container.classList.remove("open");
+    elements.groupTrigger.setAttribute("aria-expanded", "false");
+    elements.groupTrigger.focus();
+  } else if (e.key === "ArrowDown") {
+    e.preventDefault();
+    if (!isOpen) {
+      container.classList.add("open");
+      elements.groupTrigger.setAttribute("aria-expanded", "true");
+      options[0]?.focus();
+    } else {
+      const nextIndex = (currentIndex + 1) % options.length;
+      options[nextIndex]?.focus();
     }
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    if (isOpen) {
+      const prevIndex = (currentIndex - 1 + options.length) % options.length;
+      options[prevIndex]?.focus();
+    }
+  }
+});
+
+if (elements.loginButton) {
+  elements.loginButton.addEventListener("click", async () => {
+    const { baseUrl } = await getSettings();
+    chrome.tabs.create({ url: `${baseUrl}/login` });
   });
 }
 
-init();
+elements.logo?.addEventListener("click", handleLogoClick);
+elements.envProd?.addEventListener("click", () => switchEnv("prod"));
+elements.envLocal?.addEventListener("click", () => switchEnv("local"));
+elements.saveDevSettings?.addEventListener("click", handleSaveDevSettings);
+
+// Save Actions Listeners
+document
+  .getElementById("create-group-from-links")
+  ?.addEventListener("click", createGroupFromLinks);
+document
+  .getElementById("save-session")
+  ?.addEventListener("click", saveTabSession);
+
+// Manual Link Adding with Duplicate Check
+const addManualLinkBtn = document.getElementById("add-manual-link");
+const manualLinkInput = document.getElementById("links-manual-url");
+
+if (addManualLinkBtn && manualLinkInput) {
+  const handleAddLink = async () => {
+    const value = manualLinkInput.value.trim();
+    if (!value) return;
+
+    addManualLinkBtn.disabled = true;
+
+    // Optimistic URL parsing
+    let urlToAdd = value;
+    if (!/^https?:\/\//i.test(urlToAdd)) {
+      urlToAdd = `https://${urlToAdd}`;
+    }
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: "addGrabbedLink",
+        url: urlToAdd,
+        source: "manual",
+      });
+
+      if (
+        response &&
+        response.success === false &&
+        response.reason === "duplicate"
+      ) {
+        setStatus(
+          "⚠️ Link already added",
+          "error",
+          document.getElementById("manual-link-status"),
+        );
+        setTimeout(() => {
+          setStatus("", "", document.getElementById("manual-link-status"));
+        }, 3000);
+      } else {
+        manualLinkInput.value = "";
+        loadGrabbedLinks();
+      }
+    } catch (err) {
+      console.error("Failed to add link", err);
+    } finally {
+      addManualLinkBtn.disabled = false;
+      manualLinkInput.focus();
+    }
+  };
+
+  addManualLinkBtn.addEventListener("click", handleAddLink);
+  manualLinkInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleAddLink();
+  });
+}
+
+// Tab Navigation Listener
+document.querySelectorAll(".tab-button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tabId = btn.dataset.tab;
+    switchTab(tabId);
+    if (tabId === "links") loadGrabbedLinks();
+    if (tabId === "session") loadTabSession();
+  });
+});
+
+// Character count helpers
+const updateChars = (input, countEl) => {
+  const len = input.value.length;
+  countEl.textContent = `${len}/${MAX_NAME_LENGTH}`;
+  countEl.classList.toggle("error", len >= MAX_NAME_LENGTH);
+};
+
+elements.linksGroupName?.addEventListener("input", () =>
+  updateChars(
+    elements.linksGroupName,
+    document.getElementById("links-group-char-count"),
+  ),
+);
+elements.sessionName?.addEventListener("input", () =>
+  updateChars(
+    elements.sessionName,
+    document.getElementById("session-char-count"),
+  ),
+);
+
+// Close menus on outside click
+document.addEventListener("click", (e) => {
+  if (!elements.groupTrigger.parentElement.contains(e.target)) {
+    elements.groupTrigger.parentElement.classList.remove("open");
+  }
+});

@@ -9,7 +9,6 @@ import {
   Delete02Icon,
   FileImportIcon,
   FileExportIcon,
-  Key02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -38,7 +37,6 @@ import { useTheme } from "next-themes";
 import { deleteAccount } from "@/app/dashboard/actions/account";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ApiTokenDialog } from "./ApiTokenDialog";
 
 interface SettingsDialogProps {
   children: React.ReactNode;
@@ -90,7 +88,7 @@ export function SettingsDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-2xl">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg">
             <HugeiconsIcon icon={Settings01Icon} size={20} strokeWidth={2} />
@@ -124,16 +122,6 @@ export function SettingsDialog({
                 <HugeiconsIcon icon={FileExportIcon} size={16} />
                 Export bookmarks
               </Button>
-              <ApiTokenDialog>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="justify-start gap-2 rounded-4xl"
-                >
-                  <HugeiconsIcon icon={Key02Icon} size={16} />
-                  Manage access tokens
-                </Button>
-              </ApiTokenDialog>
             </div>
           </div>
 
@@ -221,10 +209,12 @@ export function SettingsDialog({
                 </AlertDialogTrigger>
                 <AlertDialogContent className="sm:max-w-md">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete account permanently?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      Delete account permanently?
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will delete all bookmarks, groups, tokens, and your
-                      account. This action cannot be undone.
+                      This will delete all bookmarks, groups, and your account.
+                      This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <div className="space-y-2">

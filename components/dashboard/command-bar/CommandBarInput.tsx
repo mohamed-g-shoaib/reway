@@ -55,7 +55,7 @@ export function CommandBarInput({
         className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
-            : "ring-1 ring-foreground/5 after:ring-white/5"
+            : "ring-1 ring-foreground/8 after:ring-white/5"
         } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate`}
       >
         <input
@@ -125,13 +125,16 @@ export function CommandBarInput({
               >
                 <HugeiconsIcon icon={BookmarkAdd02Icon} size={13} />
                 <KbdGroup className="hidden md:inline-flex">
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                  <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1.5">
                     {isMac ? "⌘K" : "CtrlK"}
                   </Kbd>
                 </KbdGroup>
               </button>
             </TooltipTrigger>
-            <TooltipContent className="rounded-lg font-medium" side="bottom">
+            <TooltipContent
+              className="rounded-lg font-medium hidden md:flex"
+              side="bottom"
+            >
               Add bookmarks
             </TooltipContent>
           </Tooltip>
@@ -149,13 +152,16 @@ export function CommandBarInput({
               >
                 <HugeiconsIcon icon={Search02Icon} size={13} />
                 <KbdGroup className="hidden md:inline-flex">
-                  <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1.5">
+                  <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1.5">
                     {isMac ? "⌘F" : "CtrlF"}
                   </Kbd>
                 </KbdGroup>
               </button>
             </TooltipTrigger>
-            <TooltipContent className="rounded-lg font-medium" side="bottom">
+            <TooltipContent
+              className="rounded-lg font-medium hidden md:flex"
+              side="bottom"
+            >
               Search bookmarks
             </TooltipContent>
           </Tooltip>

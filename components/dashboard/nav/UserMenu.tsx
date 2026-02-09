@@ -5,7 +5,6 @@ import {
   Settings01Icon,
   FileImportIcon,
   FileExportIcon,
-  Key02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,7 +20,6 @@ import { SettingsDialog } from "../SettingsDialog";
 import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
-import { ApiTokenDialog } from "../ApiTokenDialog";
 
 interface UserMenuProps {
   user: User;
@@ -57,7 +55,7 @@ export function UserMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 animate-in slide-in-from-top-2 duration-200 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
+        className="w-56 rounded-2xl p-2 ring-1 ring-foreground/8 animate-in slide-in-from-top-2 duration-200 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
       >
         <div className="px-2 py-1.5 font-normal">
           <div className="flex flex-col space-y-1">
@@ -73,7 +71,7 @@ export function UserMenu({
             <p className="text-[11px] font-medium text-muted-foreground">
               Data & access
             </p>
-            <div className="relative isolate inline-flex h-8 items-center rounded-full border border-dotted px-1">
+            <div className="relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1">
               <button
                 type="button"
                 onClick={() => onOpenImportDialog()}
@@ -108,11 +106,13 @@ export function UserMenu({
             <p className="text-[11px] font-medium text-muted-foreground">
               Row content
             </p>
-            <div className="relative isolate inline-flex h-8 items-center rounded-full border border-dotted px-1">
-              {([
-                { value: "date", label: "Date" },
-                { value: "group", label: "Group" },
-              ] as const).map((option) => (
+            <div className="relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1">
+              {(
+                [
+                  { value: "date", label: "Date" },
+                  { value: "group", label: "Group" },
+                ] as const
+              ).map((option) => (
                 <button
                   key={option.value}
                   type="button"
@@ -143,15 +143,7 @@ export function UserMenu({
           </div>
         </div>
         <DropdownMenuSeparator />
-        <ApiTokenDialog>
-          <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-            onSelect={(event) => event.preventDefault()}
-          >
-            <HugeiconsIcon icon={Key02Icon} size={16} />
-            API keys
-          </DropdownMenuItem>
-        </ApiTokenDialog>
+
         <SettingsDialog
           rowContent={rowContent}
           onRowContentChange={onRowContentChange}

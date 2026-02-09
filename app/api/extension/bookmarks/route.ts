@@ -1,5 +1,5 @@
+import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { requireExtensionAuth } from "@/lib/extension-auth";
 import { normalizeUrl } from "@/lib/metadata";
 import { corsHeaders, jsonResponse } from "../utils";
 
@@ -8,6 +8,7 @@ interface BookmarkPayload {
   title?: string;
   description?: string;
   groupId?: string | null;
+  faviconUrl?: string | null;
 }
 
 export async function OPTIONS() {
@@ -16,7 +17,16 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await requireExtensionAuth();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
     const payload = (await request.json()) as BookmarkPayload;
 
     if (!payload?.url) {
@@ -26,6 +36,7 @@ export async function POST(request: Request) {
     const normalizedUrl = normalizeUrl(payload.url);
     const title = payload.title?.trim() || normalizedUrl;
     const description = payload.description?.trim() || null;
+    const faviconUrl = payload.faviconUrl?.trim() || null;
 
     const { data: minOrderData, error: orderError } = await supabaseAdmin
       .from("bookmarks")
@@ -50,6 +61,7 @@ export async function POST(request: Request) {
         normalized_url: normalizedUrl,
         title,
         description,
+        favicon_url: faviconUrl,
         group_id: payload.groupId ?? null,
         user_id: userId,
         status: "ready",
@@ -63,7 +75,24 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Failed to create bookmark:", error);
-      return jsonResponse({ error: "Failed to create bookmark" }, { status: 500 });
+      return jsonResponse(
+        { error: "Failed to create bookmark" },
+        { status: 500 },
+      );
+    }
+
+    try {
+      const channel = supabaseAdmin.channel(`user:${userId}:bookmarks`, {
+        config: { private: true },
+      });
+      await channel.send({
+        type: "broadcast",
+        event: "INSERT",
+        payload: data,
+      });
+      supabaseAdmin.removeChannel(channel);
+    } catch (broadcastError) {
+      console.warn("Realtime broadcast failed (bookmarks):", broadcastError);
     }
 
     return jsonResponse({ id: data.id, bookmark: data });
@@ -75,7 +104,16 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await requireExtensionAuth();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const userId = user.id;
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get("groupId");
 
@@ -94,7 +132,10 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("Failed to fetch bookmarks:", error);
-      return jsonResponse({ error: "Failed to fetch bookmarks" }, { status: 500 });
+      return jsonResponse(
+        { error: "Failed to fetch bookmarks" },
+        { status: 500 },
+      );
     }
 
     return jsonResponse({ bookmarks: data ?? [] });

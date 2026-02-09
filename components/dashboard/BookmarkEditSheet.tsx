@@ -102,14 +102,21 @@ export function BookmarkEditSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-lg p-0">
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col sm:max-w-lg p-0"
+      >
         <SheetHeader className="px-6 py-4 border-b shrink-0">
           <SheetTitle>Edit Bookmark</SheetTitle>
           <SheetDescription>Update your bookmark details.</SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-6">
-          <form id="edit-bookmark-sheet" onSubmit={handleSubmit} className="space-y-5">
+          <form
+            id="edit-bookmark-sheet"
+            onSubmit={handleSubmit}
+            className="space-y-5"
+          >
             <div className="space-y-2">
               <Label htmlFor="edit-sheet-url">URL *</Label>
               <Input

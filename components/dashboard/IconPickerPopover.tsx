@@ -37,7 +37,7 @@ export function IconPickerPopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
-        className="w-[320px] p-0 ring-foreground/5 bg-popover backdrop-blur-xl rounded-2xl ring-1 last:relative after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
+        className="w-80 p-0 ring-foreground/8 bg-popover backdrop-blur-xl rounded-2xl ring-1 last:relative after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
         align="start"
         side="bottom"
         sideOffset={8}
@@ -47,7 +47,7 @@ export function IconPickerPopover({
             Choose Icon
           </h4>
         </div>
-        <ScrollArea className="h-[280px]">
+        <ScrollArea className="h-70">
           <div className="p-3 space-y-4">
             {onColorChange ? (
               <div className="space-y-2">

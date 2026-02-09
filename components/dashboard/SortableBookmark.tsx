@@ -4,7 +4,6 @@ import { useState, memo, useEffect } from "react";
 import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GridIcon } from "@hugeicons/core-free-icons";
 import { Favicon } from "./Favicon";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { GroupRow } from "@/lib/supabase/queries";
@@ -27,6 +26,7 @@ interface SortableBookmarkProps {
   onDelete?: (id: string) => void;
   groups?: GroupRow[];
   groupsMap?: Map<string, GroupRow>;
+  activeGroupId?: string;
   isSelected?: boolean;
   onEdit?: (
     id: string,
@@ -59,6 +59,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   groupId,
   onDelete,
   groupsMap,
+  activeGroupId,
   isSelected,
   onEdit,
   groups = [],
@@ -109,7 +110,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   const dragStyle = isDragging
     ? "z-50 bg-background ring-1 ring-primary/20"
     : isSelected
-      ? "bg-foreground/4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
+      ? "bg-foreground/4 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
       : "";
 
   const openInNewTab = (e: React.MouseEvent) => {
@@ -348,6 +349,15 @@ export const SortableBookmark = memo(function SortableBookmark({
               <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
                 {rowContent === "group"
                   ? (() => {
+                      // If viewing a specific group and bookmark belongs to that group, show date instead
+                      if (
+                        activeGroupId &&
+                        activeGroupId !== "all" &&
+                        groupId === activeGroupId
+                      ) {
+                        return createdAt;
+                      }
+                      // Otherwise show group name
                       if (groupId === "all" || !groupsMap || !groupId)
                         return "No Group";
                       const group = groupsMap.get(groupId);

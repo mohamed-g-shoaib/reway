@@ -37,6 +37,7 @@ export function FolderHeader({
             size={18}
             strokeWidth={1.8}
             style={{ color: group.color || undefined }}
+            className={group.color ? "" : "text-foreground/80"}
           />
           <div className="min-w-0">
             <div className="flex items-center gap-2 min-w-0">

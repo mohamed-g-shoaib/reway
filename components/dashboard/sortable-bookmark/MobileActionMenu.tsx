@@ -56,7 +56,7 @@ export function MobileActionMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-40 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
+          className="w-40 rounded-2xl p-2 ring-1 ring-foreground/8 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
         >
           <DropdownMenuItem
             className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"

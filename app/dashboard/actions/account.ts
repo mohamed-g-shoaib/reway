@@ -16,7 +16,6 @@ export async function deleteAccount() {
   const deleteResults = await Promise.all([
     supabaseAdmin.from("bookmarks").delete().eq("user_id", userId),
     supabaseAdmin.from("groups").delete().eq("user_id", userId),
-    supabaseAdmin.from("api_tokens").delete().eq("user_id", userId),
   ]);
 
   for (const result of deleteResults) {

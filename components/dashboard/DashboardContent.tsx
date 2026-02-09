@@ -111,6 +111,7 @@ export function DashboardContent({
     index: number;
   } | null>(null);
   const lastDeletedGroupRef = React.useRef<GroupRow | null>(null);
+  const lastDeletedGroupBookmarksRef = React.useRef<BookmarkRow[]>([]);
   const lastBulkDeletedRef = React.useRef<
     { bookmark: BookmarkRow; index: number }[]
   >([]);
@@ -118,6 +119,7 @@ export function DashboardContent({
     { url: string; title: string }[] | null
   >(null);
   const viewModeStorageKey = "reway.dashboard.viewMode";
+  const rowContentStorageKey = "reway.dashboard.rowContent";
 
   const normalizeGroupName = useCallback((value?: string | null) => {
     const name = value?.trim() ?? "";
@@ -185,11 +187,31 @@ export function DashboardContent({
 
   React.useEffect(() => {
     try {
+      const storedRowContent =
+        window.localStorage.getItem(rowContentStorageKey);
+      if (storedRowContent === "date" || storedRowContent === "group") {
+        setRowContent(storedRowContent);
+      }
+    } catch (error) {
+      console.warn("Failed to load row content preference:", error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    try {
       window.localStorage.setItem(viewModeStorageKey, viewMode);
     } catch (error) {
       console.warn("Failed to persist view mode:", error);
     }
   }, [viewMode]);
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(rowContentStorageKey, rowContent);
+    } catch (error) {
+      console.warn("Failed to persist row content preference:", error);
+    }
+  }, [rowContent]);
 
   React.useEffect(() => {
     if (viewMode !== "folders") {
@@ -247,7 +269,10 @@ export function DashboardContent({
     userId: user.id,
     activeGroupId,
     groups,
+    bookmarks,
     setGroups,
+    setBookmarks,
+    sortBookmarks,
     sortGroups,
     setActiveGroupId,
     editGroupName,
@@ -259,10 +284,12 @@ export function DashboardContent({
     deleteConfirmGroupId,
     setDeleteConfirmGroupId,
     lastDeletedGroupRef,
+    lastDeletedGroupBookmarksRef,
     createGroup,
     updateGroup: updateGroupAction,
     deleteGroup: deleteGroupAction,
     restoreGroup: restoreGroupAction,
+    restoreBookmark: restoreAction,
     initialGroups,
     newGroupName,
     newGroupIcon,
@@ -501,6 +528,7 @@ export function DashboardContent({
                 <BookmarkBoard
                   bookmarks={filteredBookmarks}
                   initialGroups={groups}
+                  activeGroupId={activeGroupId}
                   onReorder={handleReorder}
                   onDeleteBookmark={handleDeleteBookmark}
                   onEditBookmark={handleEditBookmark}

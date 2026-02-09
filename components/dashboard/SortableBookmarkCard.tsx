@@ -36,6 +36,7 @@ interface SortableBookmarkCardProps {
   groupId: string;
   rowContent?: "date" | "group";
   groupsMap?: Map<string, GroupRow>;
+  activeGroupId?: string;
   isSelected?: boolean;
   selectionMode?: boolean;
   isSelectionChecked?: boolean;
@@ -56,6 +57,7 @@ export function SortableBookmarkCard({
   groupId,
   rowContent = "date",
   groupsMap,
+  activeGroupId,
   isSelected,
   selectionMode = false,
   isSelectionChecked = false,
@@ -85,9 +87,13 @@ export function SortableBookmarkCard({
   };
 
   const metaLabel =
-    rowContent === "group"
-      ? groupsMap?.get(groupId)?.name || "No Group"
-      : createdAt;
+    rowContent === "group" &&
+    activeGroupId !== "all" &&
+    activeGroupId === groupId
+      ? createdAt
+      : rowContent === "group"
+        ? groupsMap?.get(groupId)?.name || "No Group"
+        : createdAt;
 
   const handleOpen = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -136,7 +142,7 @@ export function SortableBookmarkCard({
           {...attributes}
           {...(selectionMode ? {} : listeners)}
           data-slot="bookmark-card"
-          className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
+          className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
             isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
           } ${isDragging ? "opacity-0" : ""}`}
         >

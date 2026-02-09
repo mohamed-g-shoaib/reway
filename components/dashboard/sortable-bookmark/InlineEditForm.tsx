@@ -59,7 +59,7 @@ export function InlineEditForm({
   return (
     <div
       ref={setNodeRef}
-      className={`group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3 ${
+      className={`group relative flex flex-col rounded-2xl p-3 bg-muted/20 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate space-y-3 ${
         isDragging ? "opacity-0" : "opacity-100"
       }`}
       style={{
@@ -103,7 +103,7 @@ export function InlineEditForm({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-56 rounded-2xl p-2 ring-1 ring-foreground/5 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
+              className="w-56 rounded-2xl p-2 ring-1 ring-foreground/8 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
             >
               <DropdownMenuItem
                 className={`rounded-lg flex items-center gap-2 cursor-pointer ${

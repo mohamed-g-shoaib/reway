@@ -9,10 +9,24 @@ import {
   Delete02Icon,
   PencilEdit01Icon,
   GridIcon,
+  MoreHorizontalIcon,
 } from "@hugeicons/core-free-icons";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
@@ -26,6 +40,27 @@ const IconPickerPopover = dynamic<IconPickerPopoverProps>(
     ssr: false,
   },
 );
+
+const MAX_GROUP_NAME_LENGTH = 18;
+
+function CharacterCount({ current, max }: { current: number; max: number }) {
+  const isNearLimit = current > max - 5;
+  const isAtLimit = current >= max;
+
+  return (
+    <span
+      className={`text-[9px] font-medium tabular-nums transition-colors duration-200 ${
+        isAtLimit
+          ? "text-red-500"
+          : isNearLimit
+            ? "text-amber-500"
+            : "text-muted-foreground/40"
+      }`}
+    >
+      {current}/{max}
+    </span>
+  );
+}
 
 interface DashboardSidebarProps {
   groups: GroupRow[];
@@ -41,7 +76,10 @@ interface DashboardSidebarProps {
   editGroupColor: string | null;
   setEditGroupColor: (value: string | null) => void;
   isUpdatingGroup: boolean;
-  handleSidebarGroupUpdate: (groupId: string) => void;
+  handleSidebarGroupUpdate: (
+    groupId: string,
+    onError?: () => void,
+  ) => Promise<void>;
   deleteConfirmGroupId: string | null;
   handleDeleteGroupClick: (groupId: string) => void;
   isInlineCreating: boolean;
@@ -53,7 +91,7 @@ interface DashboardSidebarProps {
   newGroupColor: string | null;
   setNewGroupColor: (value: string | null) => void;
   isCreatingGroup: boolean;
-  handleInlineCreateGroup: () => void;
+  handleInlineCreateGroup: (onError?: () => void) => Promise<void>;
 }
 
 export function DashboardSidebar({
@@ -84,57 +122,85 @@ export function DashboardSidebar({
   isCreatingGroup,
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
+  const [hasEditError, setHasEditError] = useState(false);
+  const [hasCreateError, setHasCreateError] = useState(false);
+
   return (
-    <aside className="hidden lg:flex fixed left-6 top-36 z-30 flex-col gap-2 text-sm text-muted-foreground/70">
+    <aside className="hidden min-[1200px]:flex fixed left-6 top-43 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
         <KbdGroup className="gap-0.5">
-          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
-            Shift
-          </Kbd>
-          <Kbd className="h-[18px] min-w-[18px] text-[10px] px-1">
-            A–Z
-          </Kbd>
+          <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
+          <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">A–Z</Kbd>
         </KbdGroup>
         <span>Switch Group</span>
       </div>
-      <div
-        className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
-          activeGroupId === "all"
-            ? "text-foreground font-semibold"
-            : "hover:text-foreground/80"
-        }`}
-      >
-        <button
-          type="button"
-          onClick={() => setActiveGroupId("all")}
-          className="flex items-center gap-3 min-w-0 flex-1 text-left"
-        >
-          <span
-            className={`h-px transition-[width,opacity] duration-200 ease-out ${
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div
+            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
               activeGroupId === "all"
-                ? "w-12 opacity-80"
-                : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-            } bg-current`}
-          />
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <HugeiconsIcon
-              icon={GridIcon}
-              size={16}
-              strokeWidth={2}
-              className="text-muted-foreground/70"
-            />
-            <span className="truncate">All Bookmarks</span>
+                ? "text-foreground font-semibold"
+                : "hover:text-foreground/80"
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => setActiveGroupId("all")}
+              className="flex items-center gap-3 min-w-0 flex-1 text-left"
+            >
+              <span
+                className={`h-px transition-[width,opacity] duration-200 ease-out ${
+                  activeGroupId === "all"
+                    ? "w-12 opacity-80"
+                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                } bg-current`}
+              />
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <HugeiconsIcon
+                  icon={GridIcon}
+                  size={16}
+                  strokeWidth={2}
+                  className="text-muted-foreground/70"
+                />
+                <span className="truncate">All Bookmarks</span>
+              </div>
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-all duration-200 ${
+                    activeGroupId === "all"
+                      ? "text-foreground"
+                      : "text-muted-foreground/50 group-hover:text-foreground/80 hover:text-foreground"
+                  }`}
+                  aria-label="Group options"
+                >
+                  <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-40">
+                <DropdownMenuItem
+                  onClick={() => handleOpenGroup("all")}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                  Open bookmarks
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </button>
-        <button
-          type="button"
-          onClick={() => handleOpenGroup("all")}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
-          aria-label="Open all bookmarks"
-        >
-          <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-        </button>
-      </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-44">
+          <ContextMenuItem
+            onClick={() => handleOpenGroup("all")}
+            className="gap-2 text-xs cursor-pointer"
+          >
+            <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+            Open bookmarks
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
       {groups.map((group) => {
         const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
         const isEditing = editingGroupId === group.id;
@@ -144,7 +210,7 @@ export function DashboardSidebar({
           return (
             <div
               key={group.id}
-              className="relative mx-1 my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
+              className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/8"
             >
               <div className="flex items-center gap-2">
                 <IconPickerPopover
@@ -170,15 +236,29 @@ export function DashboardSidebar({
                 </IconPickerPopover>
                 <Input
                   value={editGroupName}
-                  onChange={(e) => setEditGroupName(e.target.value)}
+                  onChange={(e) => {
+                    setEditGroupName(
+                      e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                    );
+                    setHasEditError(false);
+                  }}
                   placeholder="Group name"
-                  className="h-8 flex-1 text-sm rounded-xl"
+                  className={`h-8 flex-1 text-sm rounded-xl ${
+                    hasEditError
+                      ? "ring-2 ring-destructive focus-visible:ring-destructive"
+                      : ""
+                  }`}
                   autoFocus
+                  aria-invalid={hasEditError}
+                  maxLength={MAX_GROUP_NAME_LENGTH}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      handleSidebarGroupUpdate(group.id);
+                      handleSidebarGroupUpdate(group.id, () =>
+                        setHasEditError(true),
+                      );
                     } else if (e.key === "Escape") {
                       setEditingGroupId(null);
+                      setHasEditError(false);
                     }
                   }}
                 />
@@ -192,99 +272,162 @@ export function DashboardSidebar({
                 >
                   Cancel
                 </Button>
-                <Button
-                  size="sm"
-                  className="h-7 px-3 text-xs rounded-4xl"
-                  onClick={() => handleSidebarGroupUpdate(group.id)}
-                  disabled={!editGroupName.trim() || isUpdatingGroup}
-                >
-                  {isUpdatingGroup ? "Saving..." : "Save"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <CharacterCount
+                    current={editGroupName.length}
+                    max={MAX_GROUP_NAME_LENGTH}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-7 px-3 text-xs rounded-4xl"
+                    onClick={() =>
+                      handleSidebarGroupUpdate(group.id, () =>
+                        setHasEditError(true),
+                      )
+                    }
+                    disabled={!editGroupName.trim() || isUpdatingGroup}
+                  >
+                    {isUpdatingGroup ? "Saving..." : "Save"}
+                  </Button>
+                </div>
               </div>
             </div>
           );
         }
 
         return (
-          <div
-            key={group.id}
-            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
-              activeGroupId === group.id
-                ? "text-foreground font-semibold"
-                : "hover:text-foreground/80"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={() => setActiveGroupId(group.id)}
-              className="flex items-center gap-3 min-w-0 flex-1 text-left"
-            >
-              <span
-                className={`h-px transition-[width,opacity] duration-200 ease-out ${
+          <ContextMenu key={group.id}>
+            <ContextMenuTrigger asChild>
+              <div
+                className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
                   activeGroupId === group.id
-                    ? "w-12 opacity-80"
-                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                } bg-current`}
-              />
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <HugeiconsIcon
-                  icon={GroupIcon}
-                  size={16}
-                  strokeWidth={2}
-                  style={{ color: group.color || undefined }}
-                />
-                <span className="truncate max-w-32">{group.name}</span>
+                    ? "text-foreground font-semibold"
+                    : "hover:text-foreground/80"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveGroupId(group.id)}
+                  className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                >
+                  <span
+                    className={`h-px transition-[width,opacity] duration-200 ease-out ${
+                      activeGroupId === group.id
+                        ? "w-12 opacity-80"
+                        : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                    } bg-current`}
+                  />
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <HugeiconsIcon
+                      icon={GroupIcon || GridIcon}
+                      size={16}
+                      strokeWidth={2}
+                      style={{ color: group.color || undefined }}
+                      className={group.color ? "" : "text-foreground/80"}
+                    />
+                    <span className="truncate max-w-32">{group.name}</span>
+                  </div>
+                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-all duration-200 ${
+                        activeGroupId === group.id
+                          ? "text-foreground"
+                          : "text-muted-foreground/50 group-hover:text-foreground/80 hover:text-foreground"
+                      }`}
+                      aria-label={`${group.name} options`}
+                    >
+                      <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-40">
+                    <DropdownMenuItem
+                      onClick={() => handleOpenGroup(group.id)}
+                      className="gap-2 text-xs cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                      Open group
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditingGroupId(group.id);
+                        setEditGroupName(group.name);
+                        setEditGroupIcon(group.icon || "folder");
+                        setEditGroupColor(group.color || "#6366f1");
+                      }}
+                      className="gap-2 text-xs cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                      Edit group
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        handleDeleteGroupClick(group.id);
+                      }}
+                      className={`gap-2 text-xs cursor-pointer ${
+                        isDeleteConfirm
+                          ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                          : "text-destructive/80 focus:text-destructive"
+                      }`}
+                    >
+                      <HugeiconsIcon
+                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                        size={14}
+                      />
+                      {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            </button>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button
-                type="button"
+            </ContextMenuTrigger>
+            <ContextMenuContent className="w-44">
+              <ContextMenuItem
                 onClick={() => handleOpenGroup(group.id)}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
-                aria-label={`Open ${group.name}`}
+                className="gap-2 text-xs cursor-pointer"
               >
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-              </button>
-              <button
-                type="button"
+                Open group
+              </ContextMenuItem>
+              <ContextMenuItem
                 onClick={() => {
                   setEditingGroupId(group.id);
                   setEditGroupName(group.name);
                   setEditGroupIcon(group.icon || "folder");
                   setEditGroupColor(group.color || "#6366f1");
                 }}
-                className="text-muted-foreground/50 hover:text-foreground transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center"
-                aria-label={`Edit ${group.name}`}
+                className="gap-2 text-xs cursor-pointer"
               >
                 <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteGroupClick(group.id)}
-                className={`transition-colors duration-200 h-6 w-6 rounded-md flex items-center justify-center ${
+                Edit group
+              </ContextMenuItem>
+              <ContextMenuItem
+                onSelect={(e) => {
+                  e.preventDefault();
+                  handleDeleteGroupClick(group.id);
+                }}
+                className={`gap-2 text-xs cursor-pointer ${
                   isDeleteConfirm
-                    ? "text-destructive"
-                    : "text-destructive/80 hover:text-destructive"
+                    ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                    : "text-destructive/80 focus:text-destructive"
                 }`}
-                aria-label={
-                  isDeleteConfirm
-                    ? `Confirm delete ${group.name}`
-                    : `Delete ${group.name}`
-                }
               >
                 <HugeiconsIcon
                   icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
                   size={14}
                 />
-              </button>
-            </div>
-          </div>
+                {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         );
       })}
 
       <div className="pt-3 mt-2 border-t border-border/40">
         {isInlineCreating ? (
-          <div className="relative mx-1 mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5">
+          <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/8">
             <div className="flex items-center gap-2">
               <IconPickerPopover
                 selectedIcon={newGroupIcon}
@@ -309,18 +452,30 @@ export function DashboardSidebar({
               </IconPickerPopover>
               <Input
                 value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
+                onChange={(e) => {
+                  setNewGroupName(
+                    e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                  );
+                  setHasCreateError(false);
+                }}
                 placeholder="New group"
-                className="h-8 flex-1 text-sm rounded-xl"
+                className={`h-8 flex-1 text-sm rounded-xl ${
+                  hasCreateError
+                    ? "ring-2 ring-destructive focus-visible:ring-destructive"
+                    : ""
+                }`}
                 autoFocus
+                aria-invalid={hasCreateError}
+                maxLength={MAX_GROUP_NAME_LENGTH}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleInlineCreateGroup();
+                    handleInlineCreateGroup(() => setHasCreateError(true));
                   } else if (e.key === "Escape") {
                     setIsInlineCreating(false);
                     setNewGroupName("");
                     setNewGroupIcon("folder");
                     setNewGroupColor("#6366f1");
+                    setHasCreateError(false);
                   }
                 }}
               />
@@ -339,14 +494,22 @@ export function DashboardSidebar({
               >
                 Cancel
               </Button>
-              <Button
-                size="sm"
-                className="h-7 px-3 text-xs rounded-4xl"
-                onClick={handleInlineCreateGroup}
-                disabled={!newGroupName.trim() || isCreatingGroup}
-              >
-                {isCreatingGroup ? "Creating..." : "Create"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <CharacterCount
+                  current={newGroupName.length}
+                  max={MAX_GROUP_NAME_LENGTH}
+                />
+                <Button
+                  size="sm"
+                  className="h-7 px-3 text-xs rounded-4xl"
+                  onClick={() =>
+                    handleInlineCreateGroup(() => setHasCreateError(true))
+                  }
+                  disabled={!newGroupName.trim() || isCreatingGroup}
+                >
+                  {isCreatingGroup ? "Creating..." : "Create"}
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
