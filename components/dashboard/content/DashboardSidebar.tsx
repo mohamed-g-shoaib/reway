@@ -80,8 +80,7 @@ interface DashboardSidebarProps {
     groupId: string,
     onError?: () => void,
   ) => Promise<void>;
-  deleteConfirmGroupId: string | null;
-  handleDeleteGroupClick: (groupId: string) => void;
+  onRequestDeleteGroup: (groupId: string) => void;
   isInlineCreating: boolean;
   setIsInlineCreating: (value: boolean) => void;
   newGroupName: string;
@@ -109,8 +108,7 @@ export function DashboardSidebar({
   setEditGroupColor,
   isUpdatingGroup,
   handleSidebarGroupUpdate,
-  deleteConfirmGroupId,
-  handleDeleteGroupClick,
+  onRequestDeleteGroup,
   isInlineCreating,
   setIsInlineCreating,
   newGroupName,
@@ -189,7 +187,7 @@ export function DashboardSidebar({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-all duration-200 ${
+                  className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-colors duration-200 ${
                     activeGroupId === "all"
                       ? "text-foreground"
                       : "text-muted-foreground/50 group-hover:text-foreground/80 hover:text-foreground"
@@ -226,7 +224,6 @@ export function DashboardSidebar({
           ? (iconsMap?.[group.icon] ?? Folder01Icon)
           : Folder01Icon;
         const isEditing = editingGroupId === group.id;
-        const isDeleteConfirm = deleteConfirmGroupId === group.id;
 
         if (isEditing) {
           return (
@@ -356,7 +353,7 @@ export function DashboardSidebar({
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-all duration-200 ${
+                      className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-colors duration-200 ${
                         activeGroupId === group.id
                           ? "text-foreground"
                           : "text-muted-foreground/50 group-hover:text-foreground/80 hover:text-foreground"
@@ -389,19 +386,15 @@ export function DashboardSidebar({
                     <DropdownMenuItem
                       onSelect={(e) => {
                         e.preventDefault();
-                        handleDeleteGroupClick(group.id);
+                        onRequestDeleteGroup(group.id);
                       }}
-                      className={`gap-2 text-xs cursor-pointer ${
-                        isDeleteConfirm
-                          ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                          : "text-destructive/80 focus:text-destructive"
-                      }`}
+                      className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
                     >
                       <HugeiconsIcon
-                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                        icon={Delete02Icon}
                         size={14}
                       />
-                      {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                      Delete group
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -430,19 +423,15 @@ export function DashboardSidebar({
               <ContextMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
-                  handleDeleteGroupClick(group.id);
+                  onRequestDeleteGroup(group.id);
                 }}
-                className={`gap-2 text-xs cursor-pointer ${
-                  isDeleteConfirm
-                    ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                    : "text-destructive/80 focus:text-destructive"
-                }`}
+                className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
               >
                 <HugeiconsIcon
-                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                  icon={Delete02Icon}
                   size={14}
                 />
-                {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                Delete group
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>

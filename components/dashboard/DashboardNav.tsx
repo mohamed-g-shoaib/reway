@@ -100,9 +100,6 @@ export function DashboardNav({
   const [editGroupIcon, setEditGroupIcon] = useState("folder");
   const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [deleteConfirmGroupId, setDeleteConfirmGroupId] = useState<
-    string | null
-  >(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [selectedImportGroups, setSelectedImportGroups] = useState<string[]>(
@@ -139,13 +136,7 @@ export function DashboardNav({
   };
 
   const handleDeleteGroupClick = (id: string) => {
-    if (deleteConfirmGroupId === id) {
-      onGroupDelete?.(id);
-      setDeleteConfirmGroupId(null);
-    } else {
-      setDeleteConfirmGroupId(id);
-      setTimeout(() => setDeleteConfirmGroupId(null), 3000);
-    }
+    onGroupDelete?.(id);
   };
 
   const handleInlineCreate = async () => {
@@ -281,7 +272,6 @@ export function DashboardNav({
               setEditGroupColor={setEditGroupColor}
               isUpdating={isUpdating}
               onUpdateGroup={handleUpdateGroup}
-              deleteConfirmGroupId={deleteConfirmGroupId}
               isInlineCreating={isInlineCreating}
               setIsInlineCreating={setIsInlineCreating}
               newGroupName={newGroupName}

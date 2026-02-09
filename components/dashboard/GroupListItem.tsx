@@ -3,7 +3,6 @@
 import {
   Delete02Icon,
   PencilEdit01Icon,
-  Alert02Icon,
   Folder01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
@@ -18,7 +17,6 @@ interface GroupListItemProps {
   group: GroupRow;
   isActive: boolean;
   isEditing: boolean;
-  isDeleteConfirm: boolean;
   editGroupName: string;
   editGroupIcon: string;
   groupCount: number;
@@ -34,7 +32,6 @@ export function GroupListItem({
   group,
   isActive,
   isEditing,
-  isDeleteConfirm,
   editGroupName,
   editGroupIcon,
   groupCount,
@@ -138,7 +135,7 @@ export function GroupListItem({
         isActive
           ? "bg-primary/5 text-primary font-bold"
           : "text-muted-foreground"
-      } ${isDeleteConfirm ? "bg-muted/50" : ""}`}
+      }`}
       onSelect={(e) => {
         const isButton = (e.target as HTMLElement).closest("button");
         if (isButton) {
@@ -170,22 +167,16 @@ export function GroupListItem({
           <button
             type="button"
             className={`h-7 w-7 flex items-center justify-center rounded-lg cursor-pointer transition-transform active:scale-95 ${
-              isDeleteConfirm
-                ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                : "text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
+              "text-destructive/70 hover:bg-destructive/10 hover:text-destructive"
             }`}
             onClick={(e) => {
               e.stopPropagation();
               onDelete(group.id);
             }}
-            aria-label={
-              isDeleteConfirm
-                ? `Confirm delete ${group.name}`
-                : `Delete ${group.name}`
-            }
+            aria-label={`Delete ${group.name}`}
           >
             <HugeiconsIcon
-              icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+              icon={Delete02Icon}
               size={14}
             />
           </button>

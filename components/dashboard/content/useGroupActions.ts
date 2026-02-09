@@ -21,8 +21,6 @@ interface UseGroupActionsOptions {
   setEditingGroupId: (value: string | null) => void;
   isUpdatingGroup: boolean;
   setIsUpdatingGroup: (value: boolean) => void;
-  deleteConfirmGroupId: string | null;
-  setDeleteConfirmGroupId: (value: string | null) => void;
   lastDeletedGroupRef: React.MutableRefObject<GroupRow | null>;
   createGroup: (formData: {
     name: string;
@@ -70,8 +68,6 @@ export function useGroupActions({
   setEditingGroupId,
   isUpdatingGroup,
   setIsUpdatingGroup,
-  deleteConfirmGroupId,
-  setDeleteConfirmGroupId,
   lastDeletedGroupRef,
   createGroup,
   updateGroup,
@@ -277,19 +273,6 @@ export function useGroupActions({
     ],
   );
 
-  const handleDeleteGroupClick = useCallback(
-    (id: string) => {
-      if (deleteConfirmGroupId === id) {
-        handleDeleteGroup(id);
-        setDeleteConfirmGroupId(null);
-      } else {
-        setDeleteConfirmGroupId(id);
-        setTimeout(() => setDeleteConfirmGroupId(null), 3000);
-      }
-    },
-    [deleteConfirmGroupId, handleDeleteGroup, setDeleteConfirmGroupId],
-  );
-
   const handleInlineCreateGroup = useCallback(
     async (onError?: () => void) => {
       if (!newGroupName.trim() || isCreatingGroup) return;
@@ -345,7 +328,6 @@ export function useGroupActions({
     handleUpdateGroup,
     handleSidebarGroupUpdate,
     handleDeleteGroup,
-    handleDeleteGroupClick,
     handleInlineCreateGroup,
   };
 }
