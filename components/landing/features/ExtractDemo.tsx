@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
@@ -66,8 +67,8 @@ export function ExtractDemo() {
   return (
     <div className="w-full">
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
-          <span className="flex size-7 items-center justify-center rounded-xl border border-border bg-muted/40 text-foreground">
+        <div className="flex items-center gap-3 rounded-2xl ring-1 ring-foreground/8 bg-background px-3 py-2 text-xs text-muted-foreground">
+          <span className="flex size-7 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-muted/40 text-foreground">
             <HugeiconsIcon icon={Add01Icon} size={14} />
           </span>
           <span className="flex min-w-0 flex-1 items-center justify-start text-foreground">
@@ -76,10 +77,10 @@ export function ExtractDemo() {
             </span>
           </span>
           <div className="ml-auto hidden shrink-0 items-center text-[10px] text-muted-foreground/70 sm:flex">
-            <Kbd className="h-[18px] min-w-[18px] px-1.5 text-[9px]">CtrlK</Kbd>
+            <Kbd className="h-4.5 min-w-4.5 px-1.5 text-[9px]">CtrlK</Kbd>
           </div>
         </div>
-        <div className="relative h-[108px]">
+        <div className="relative h-27">
           <AnimatePresence mode="wait">
             {phase === 0 ? (
               <motion.div
@@ -93,7 +94,7 @@ export function ExtractDemo() {
                 {inputLinks.map((link) => (
                   <div
                     key={link}
-                    className="flex h-8 items-center justify-between rounded-xl border border-dashed border-border/70 px-3 text-[11px] opacity-40"
+                    className="flex h-8 items-center justify-between rounded-xl ring-1 ring-dashed ring-foreground/8 px-3 text-[11px] opacity-40"
                   />
                 ))}
               </motion.div>
@@ -154,12 +155,14 @@ export function ExtractDemo() {
                 {demoLinks.map((item) => (
                   <div
                     key={item.title}
-                    className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-1.5 text-[11px]"
+                    className="flex items-center justify-between rounded-xl ring-1 ring-foreground/8 bg-muted/30 px-3 py-1.5 text-[11px]"
                   >
                     <div className="flex items-center gap-2">
-                      <img
+                      <Image
                         src={item.favicon}
                         alt={`${item.title} favicon`}
+                        width={16}
+                        height={16}
                         className="h-4 w-4"
                         loading="lazy"
                         referrerPolicy="no-referrer"

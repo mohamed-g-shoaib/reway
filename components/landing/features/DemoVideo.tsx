@@ -111,7 +111,7 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={togglePlay}
-            className="flex size-8 items-center justify-center rounded-xl border border-border bg-background text-foreground transition-colors hover:bg-muted"
+            className="flex size-8 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-background text-foreground transition-colors hover:bg-muted"
           >
             <HugeiconsIcon icon={isPlaying ? PauseIcon : PlayIcon} size={14} />
           </button>

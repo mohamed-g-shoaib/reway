@@ -27,7 +27,7 @@ export function GroupsDemo() {
       {groups.map((group, index) => (
         <div
           key={group.label}
-          className="flex items-center justify-between rounded-2xl border border-border bg-background px-3 py-1.5 text-[11px]"
+          className="flex items-center justify-between rounded-2xl ring-1 ring-foreground/8 bg-background px-3 py-1.5 text-[11px]"
         >
           <span className="font-medium text-foreground">{group.label}</span>
           <div className="flex items-center gap-2">

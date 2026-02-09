@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -52,7 +53,7 @@ export function ViewModesDemo() {
           </button>
         ))}
       </div>
-      <div className="relative h-[120px]">
+      <div className="relative h-30">
         <AnimatePresence mode="wait">
           {activeView === 0 ? (
             <motion.div
@@ -66,13 +67,15 @@ export function ViewModesDemo() {
               {demoLinks.slice(0, 2).map((item) => (
                 <div
                   key={item.title}
-                  className="rounded-2xl bg-muted/30 p-3 ring-1 ring-foreground/5"
+                  className="rounded-2xl bg-muted/30 p-3 ring-1 ring-foreground/8"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-background">
-                      <img
+                      <Image
                         src={item.favicon}
                         alt={`${item.title} favicon`}
+                        width={16}
+                        height={16}
                         className="h-4 w-4"
                         loading="lazy"
                         referrerPolicy="no-referrer"
@@ -129,12 +132,14 @@ export function ViewModesDemo() {
               {demoLinks.slice(0, 3).map((item) => (
                 <div
                   key={item.title}
-                  className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-2 text-xs"
+                  className="flex items-center justify-between rounded-xl ring-1 ring-foreground/8 bg-muted/30 px-3 py-2 text-xs"
                 >
                   <div className="flex items-center gap-2">
-                    <img
+                    <Image
                       src={item.favicon}
                       alt={`${item.title} favicon`}
+                      width={16}
+                      height={16}
                       className="h-4 w-4"
                       loading="lazy"
                       referrerPolicy="no-referrer"
@@ -162,11 +167,13 @@ export function ViewModesDemo() {
               {demoLinks.slice(0, 3).map((item) => (
                 <div
                   key={item.title}
-                  className="flex flex-col items-center justify-center rounded-xl border border-border bg-muted/30 px-3 py-3 text-xs text-center"
+                  className="flex flex-col items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-muted/30 px-3 py-3 text-xs text-center"
                 >
-                  <img
+                  <Image
                     src={item.favicon}
                     alt={`${item.title} favicon`}
+                    width={28}
+                    height={28}
                     className="h-7 w-7"
                     loading="lazy"
                     referrerPolicy="no-referrer"
