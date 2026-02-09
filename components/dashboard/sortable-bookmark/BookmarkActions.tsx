@@ -2,7 +2,6 @@
 
 import type { MouseEventHandler } from "react";
 import {
-  Alert02Icon,
   ArrowUpRight03Icon,
   Copy01Icon,
   Delete02Icon,
@@ -14,7 +13,6 @@ import { Button } from "@/components/ui/button";
 
 interface BookmarkActionsProps {
   isCopied: boolean;
-  isDeleteConfirm: boolean;
   onEdit: MouseEventHandler<HTMLButtonElement>;
   onCopyLink: MouseEventHandler<HTMLButtonElement>;
   onOpen: MouseEventHandler<HTMLButtonElement>;
@@ -23,7 +21,6 @@ interface BookmarkActionsProps {
 
 export function BookmarkActions({
   isCopied,
-  isDeleteConfirm,
   onEdit,
   onCopyLink,
   onOpen,
@@ -77,22 +74,16 @@ export function BookmarkActions({
       <Button
         variant="ghost"
         size="icon"
-        className={`h-9 w-9 rounded-xl transition-transform duration-150 ease-out cursor-pointer text-destructive hover:text-destructive active:scale-[0.97] motion-reduce:transition-none ${
-          isDeleteConfirm
-            ? "bg-destructive/10 hover:bg-destructive/20"
-            : "hover:bg-destructive/10"
-        }`}
+        className="h-9 w-9 rounded-xl transition-transform duration-150 ease-out cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 active:scale-[0.97] motion-reduce:transition-none"
         onClick={onDelete}
-        aria-label={
-          isDeleteConfirm ? "Click again to confirm delete" : "Delete bookmark"
-        }
+        aria-label="Delete bookmark"
       >
         <div
           className="transition-transform duration-200 ease-in-out"
-          key={isDeleteConfirm ? "alert" : "delete"}
+          key="delete"
         >
           <HugeiconsIcon
-            icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+            icon={Delete02Icon}
             size={16}
           />
         </div>

@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/context-menu";
 
 interface BookmarkContextMenuProps {
-  isDeleteConfirm: boolean;
   onOpen: MouseEventHandler<HTMLDivElement>;
   onPreview: () => void;
   onCopyLink: MouseEventHandler<HTMLDivElement>;
@@ -26,7 +25,6 @@ interface BookmarkContextMenuProps {
 }
 
 export function BookmarkContextMenu({
-  isDeleteConfirm,
   onOpen,
   onPreview,
   onCopyLink,
@@ -101,7 +99,7 @@ export function BookmarkContextMenu({
         }}
       >
         <HugeiconsIcon icon={Delete02Icon} size={16} />
-        <span>{isDeleteConfirm ? "Click again to delete" : "Delete"}</span>
+        <span>Delete</span>
         <ContextMenuShortcut>⌫</ContextMenuShortcut>
       </ContextMenuItem>
     </ContextMenuContent>

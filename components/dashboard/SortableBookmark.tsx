@@ -5,6 +5,16 @@ import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Favicon } from "./Favicon";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { GroupRow } from "@/lib/supabase/queries";
 import { toast } from "sonner";
@@ -73,7 +83,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   onEnterSelectionMode,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title || "");
   const [editUrl, setEditUrl] = useState(url);
@@ -131,18 +141,14 @@ export const SortableBookmark = memo(function SortableBookmark({
     }
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteRequest = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (isDeleteConfirm) {
-      // Second click - Actually delete
-      onDelete?.(id);
-      setIsDeleteConfirm(false);
-    } else {
-      // First click - Show warning
-      setIsDeleteConfirm(true);
-      // Reset after 3 seconds if not clicked again
-      setTimeout(() => setIsDeleteConfirm(false), 3000);
-    }
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDelete?.(id);
+    setDeleteDialogOpen(false);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -209,129 +215,131 @@ export const SortableBookmark = memo(function SortableBookmark({
 
   // Normal Bookmark View
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div
-          ref={setNodeRef}
-          className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 ${
-            status === "pending"
-              ? "opacity-60"
-              : selectionMode
-                ? "hover:bg-muted/50 cursor-pointer"
-                : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
-          } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
-          style={{ ...style, contentVisibility: "auto" }}
-          {...attributes}
-          {...(selectionMode ? {} : listeners)}
-          data-slot="bookmark-card"
-          role="button"
-          tabIndex={status === "pending" ? -1 : 0}
-          aria-roledescription="Draggable bookmark"
-        >
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            {/* Favicon/Checkbox Container */}
-            {selectionMode ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleSelection?.(id);
-                }}
-                className="size-9 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
-                aria-label={
-                  isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
-                }
-              >
-                <div
-                  className={`size-4 rounded border-2 flex items-center justify-center ${
-                    isSelectionChecked
-                      ? "bg-primary border-primary"
-                      : "border-muted-foreground/30"
-                  }`}
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div
+            ref={setNodeRef}
+            className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 ${
+              status === "pending"
+                ? "opacity-60"
+                : selectionMode
+                  ? "hover:bg-muted/50 cursor-pointer"
+                  : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
+            } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
+            style={{ ...style, contentVisibility: "auto" }}
+            {...attributes}
+            {...(selectionMode ? {} : listeners)}
+            data-slot="bookmark-card"
+            role="button"
+            tabIndex={status === "pending" ? -1 : 0}
+            aria-roledescription="Draggable bookmark"
+          >
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              {/* Favicon/Checkbox Container */}
+              {selectionMode ? (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleSelection?.(id);
+                  }}
+                  className="h-9 w-9 shrink-0 flex items-center justify-center rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
+                  aria-label={
+                    isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
+                  }
                 >
-                  {isSelectionChecked && (
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      className="text-primary-foreground"
+                  <div
+                    className={`size-4 rounded border-2 flex items-center justify-center ${
+                      isSelectionChecked
+                        ? "bg-primary border-primary"
+                        : "border-muted-foreground/30"
+                    }`}
+                  >
+                    {isSelectionChecked && (
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        className="text-primary-foreground"
+                      >
+                        <path
+                          d="M10 3L4.5 8.5L2 6"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={(event) => {
+                    if (event.shiftKey) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      onEnterSelectionMode?.();
+                      onToggleSelection?.(id);
+                      return;
+                    }
+                    openInNewTab(event);
+                  }}
+                  aria-label="Open bookmark"
+                >
+                  <Favicon
+                    url={favicon || ""}
+                    domain={domain}
+                    title={title}
+                    className="h-10 w-10"
+                  />
+                </button>
+              )}
+
+              <div className="min-w-0 flex-1">
+                <div className="w-fit max-w-full h-5">
+                  {status === "pending" ? (
+                    <TextShimmer
+                      as="span"
+                      className="block truncate text-sm font-semibold"
+                      duration={2.5}
                     >
-                      <path
-                        d="M10 3L4.5 8.5L2 6"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                      {title || "Loading..."}
+                    </TextShimmer>
+                  ) : (
+                    <span
+                      className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
+                      onClick={openInNewTab}
+                    >
+                      {title}
+                    </span>
                   )}
                 </div>
-              </button>
-            ) : (
-              <div
-                onClick={(e) => {
-                  if (e.shiftKey) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onEnterSelectionMode?.();
-                    onToggleSelection?.(id);
-                  } else {
-                    openInNewTab(e);
-                  }
-                }}
-                className="cursor-pointer"
-              >
-                <Favicon
-                  url={favicon || ""}
-                  domain={domain || ""}
-                  title={title || ""}
-                  isEnriching={status === "pending"}
-                />
-              </div>
-            )}
-
-            {/* Text Content - Multi-stage truncation to avoid actions while remaining generous */}
-            <div className="flex min-w-0 flex-1 flex-col gap-0.5 pr-8 md:pr-36">
-              <div className="w-fit max-w-full">
-                {status === "pending" ? (
-                  <TextShimmer
-                    as="span"
-                    className="block truncate text-sm font-semibold"
-                    duration={2.5}
-                  >
-                    {title || "Loading..."}
-                  </TextShimmer>
-                ) : (
-                  <span
-                    className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
-                    onClick={openInNewTab}
-                  >
-                    {title}
-                  </span>
-                )}
-              </div>
-              <div className="w-fit max-w-full h-4">
-                {status === "pending" ? (
-                  <TextShimmer
-                    as="span"
-                    className="block truncate text-xs font-medium"
-                    duration={2.5}
-                    delay={0.2}
-                  >
-                    Fetching details...
-                  </TextShimmer>
-                ) : (
-                  <span
-                    className="block truncate text-xs font-medium cursor-pointer text-muted-foreground/70 group-hover:text-muted-foreground"
-                    onClick={openInNewTab}
-                  >
-                    {domain}
-                  </span>
-                )}
+                <div className="w-fit max-w-full h-4">
+                  {status === "pending" ? (
+                    <TextShimmer
+                      as="span"
+                      className="block truncate text-xs font-medium"
+                      duration={2.5}
+                      delay={0.2}
+                    >
+                      Fetching details...
+                    </TextShimmer>
+                  ) : (
+                    <span
+                      className="block truncate text-xs font-medium cursor-pointer text-muted-foreground/70 group-hover:text-muted-foreground"
+                      onClick={openInNewTab}
+                    >
+                      {domain}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
           {/* Actions / Date Container */}
           <div className="relative flex shrink-0 items-center min-w-0 md:min-w-25 justify-end">
@@ -371,11 +379,10 @@ export const SortableBookmark = memo(function SortableBookmark({
             {status !== "pending" && !selectionMode ? (
               <BookmarkActions
                 isCopied={isCopied}
-                isDeleteConfirm={isDeleteConfirm}
                 onEdit={handleEdit}
                 onCopyLink={handleCopyLink}
                 onOpen={openInNewTab}
-                onDelete={handleDelete}
+                onDelete={handleDeleteRequest}
               />
             ) : null}
 
@@ -383,25 +390,43 @@ export const SortableBookmark = memo(function SortableBookmark({
             {status !== "pending" ? (
               <MobileActionMenu
                 isCopied={isCopied}
-                isDeleteConfirm={isDeleteConfirm}
                 onEdit={handleEdit}
                 onCopyLink={handleCopyLink}
                 onOpen={openInNewTab}
-                onDelete={handleDelete}
+                onDelete={handleDeleteRequest}
               />
             ) : null}
           </div>
         </div>
-      </ContextMenuTrigger>
+        </ContextMenuTrigger>
 
-      <BookmarkContextMenu
-        isDeleteConfirm={isDeleteConfirm}
-        onOpen={openInNewTab}
-        onPreview={() => onPreview?.(id)}
-        onCopyLink={handleCopyLink}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
-    </ContextMenu>
+        <BookmarkContextMenu
+          onOpen={openInNewTab}
+          onPreview={() => onPreview?.(id)}
+          onCopyLink={handleCopyLink}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
+        />
+      </ContextMenu>
+
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete bookmark?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will remove the bookmark from your dashboard.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            className="rounded-4xl"
+            onClick={handleDeleteConfirm}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 });

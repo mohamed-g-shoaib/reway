@@ -2,7 +2,6 @@
 
 import type { MouseEventHandler } from "react";
 import {
-  Alert02Icon,
   ArrowUpRight03Icon,
   Copy01Icon,
   Delete02Icon,
@@ -21,7 +20,6 @@ import {
 
 interface MobileActionMenuProps {
   isCopied: boolean;
-  isDeleteConfirm: boolean;
   onEdit: MouseEventHandler<HTMLDivElement>;
   onCopyLink: MouseEventHandler<HTMLDivElement>;
   onOpen: MouseEventHandler<HTMLDivElement>;
@@ -30,7 +28,6 @@ interface MobileActionMenuProps {
 
 export function MobileActionMenu({
   isCopied,
-  isDeleteConfirm,
   onEdit,
   onCopyLink,
   onOpen,
@@ -82,18 +79,14 @@ export function MobileActionMenu({
             <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
           </DropdownMenuItem>
           <DropdownMenuItem
-            className={`rounded-xl flex items-center gap-2 cursor-pointer font-medium ${
-              isDeleteConfirm
-                ? "text-destructive bg-destructive/5 focus:bg-destructive/10 focus:text-destructive"
-                : "text-destructive focus:bg-destructive/5 focus:text-destructive"
-            }`}
+            className="rounded-xl flex items-center gap-2 cursor-pointer font-medium text-destructive focus:bg-destructive/5 focus:text-destructive"
             onClick={onDelete}
           >
             <HugeiconsIcon
-              icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+              icon={Delete02Icon}
               size={16}
             />
-            {isDeleteConfirm ? "Click to Confirm" : "Delete"}
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

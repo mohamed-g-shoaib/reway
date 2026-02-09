@@ -7,6 +7,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -15,7 +25,6 @@ import {
   Copy01Icon,
   ArrowUpRight01Icon,
   Cancel01Icon,
-  Alert02Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Favicon } from "./Favicon";
@@ -40,21 +49,20 @@ export function QuickGlanceDialog({
   onDelete,
   groups,
 }: QuickGlanceDialogProps) {
-  const [isDeleteConfirm, setIsDeleteConfirm] = React.useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
-  // Reset confirmation when bookmark changes or dialog closes
   React.useEffect(() => {
-    setIsDeleteConfirm(false);
+    setDeleteDialogOpen(false);
   }, [bookmark?.id, open]);
 
-  const handleDelete = () => {
-    if (isDeleteConfirm) {
-      onDelete(bookmark?.id || "");
-      setIsDeleteConfirm(false);
-    } else {
-      setIsDeleteConfirm(true);
-      setTimeout(() => setIsDeleteConfirm(false), 3000);
-    }
+  const handleDeleteRequest = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDelete(bookmark?.id || "");
+    setDeleteDialogOpen(false);
+    onOpenChange(false);
   };
 
   if (!bookmark) return null;
@@ -81,11 +89,12 @@ export function QuickGlanceDialog({
   const group = groups.find((g) => g.id === bookmark.group_id);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="sm:max-w-125 p-0 overflow-hidden bg-background rounded-4xl focus:outline-none"
-        showCloseButton={false}
-      >
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          className="sm:max-w-125 p-0 overflow-hidden bg-background rounded-4xl focus:outline-none"
+          showCloseButton={false}
+        >
         <DialogTitle className="sr-only">
           Bookmark Preview: {bookmark.title}
         </DialogTitle>
@@ -158,28 +167,12 @@ export function QuickGlanceDialog({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className={`rounded-lg ${
-                    isDeleteConfirm
-                      ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-                      : "text-muted-foreground/60 hover:text-destructive"
-                  }`}
-                  onClick={handleDelete}
-                  title={isDeleteConfirm ? "Click again to confirm" : "Delete"}
-                  aria-label={
-                    isDeleteConfirm
-                      ? "Confirm delete bookmark"
-                      : "Delete bookmark"
-                  }
+                  className="rounded-lg text-muted-foreground/60 hover:text-destructive"
+                  onClick={handleDeleteRequest}
+                  title="Delete"
+                  aria-label="Delete bookmark"
                 >
-                  <div
-                    className="transition-transform duration-200"
-                    key={isDeleteConfirm ? "alert" : "delete"}
-                  >
-                    <HugeiconsIcon
-                      icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                      size={18}
-                    />
-                  </div>
+                  <HugeiconsIcon icon={Delete02Icon} size={18} />
                 </Button>
               </div>
             </div>
@@ -240,7 +233,27 @@ export function QuickGlanceDialog({
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialogContent size="sm">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete bookmark?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will remove the bookmark from your dashboard.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            className="rounded-4xl"
+            onClick={handleDeleteConfirm}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
