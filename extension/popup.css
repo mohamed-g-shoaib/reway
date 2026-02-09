@@ -1,3 +1,49 @@
+.hidden {
+  display: none !important;
+}
+
+button[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+button.loading {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+button.loading::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: rotate 0.8s linear infinite;
+  display: block;
+}
+
+button.success {
+  background: #10b981 !important;
+  color: white !important;
+  border-color: #10b981 !important;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 :root {
   color-scheme: dark;
   font-family:
@@ -33,6 +79,7 @@
 body {
   margin: 0;
   min-width: 360px;
+  min-height: 480px;
   color: var(--foreground);
   background: var(--background);
 }
@@ -349,16 +396,15 @@ button.success::after {
 }
 
 /* Status Messages */
+/* Status Messages */
 .status {
-  margin-top: 12px;
-  padding: 8px 12px;
-  font-size: 13px;
+  margin-top: 6px;
+  font-size: 12px;
   line-height: 1.4;
   color: var(--muted-foreground);
-  border-radius: var(--radius-control);
-  background: color-mix(in oklab, var(--muted), transparent 50%);
-  text-align: center;
+  text-align: left;
   display: none;
+  font-weight: 500;
 }
 
 .status:not(:empty) {
@@ -367,7 +413,7 @@ button.success::after {
 
 .status[data-tone="error"] {
   color: var(--destructive);
-  background: color-mix(in oklab, var(--destructive), transparent 90%);
+  background: transparent;
 }
 
 /* Settings Section */
@@ -375,11 +421,15 @@ button.success::after {
   background: var(--card);
 }
 
-.settings-advanced {
+.logo {
+  cursor: pointer;
+}
+
+.dev-panel {
   display: none;
 }
 
-.settings-advanced.open {
+.dev-panel.open {
   display: block;
 }
 
@@ -580,6 +630,14 @@ button.success::after {
   transition: all 0.1s ease;
   white-space: nowrap;
   overflow: visible;
+  justify-content: flex-start;
+}
+
+.select-option.active,
+.select-option:active {
+  background: var(--muted);
+  color: var(--primary);
+  font-weight: 500;
 }
 
 .select-option:hover {
@@ -785,6 +843,7 @@ button.success::after {
   cursor: pointer;
   accent-color: var(--primary);
   flex-shrink: 0;
+  order: 99;
 }
 
 .session-tab-remove {
@@ -850,4 +909,93 @@ button.success::after {
 
 ::-webkit-scrollbar-thumb:hover {
   background: color-mix(in oklab, var(--foreground), transparent 40%);
+}
+/* Skeleton Loading */
+.skeleton {
+  background-color: var(--muted);
+  border-radius: var(--radius-control);
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Skeleton Specifics */
+.skeleton-input {
+  height: 36px;
+  margin-bottom: 12px;
+}
+.skeleton-textarea {
+  height: 72px;
+  margin-bottom: 12px;
+}
+.skeleton-button {
+  height: 36px;
+  width: 100%;
+}
+.skeleton-text {
+  height: 14px;
+  margin-bottom: 8px;
+  width: 60%;
+}
+.skeleton-label {
+  height: 12px;
+  margin-bottom: 6px;
+  width: 30%;
+}
+
+/* Loading State Overlays */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--background);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+/* Loading Screen */
+.loading-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+  min-height: 300px;
+  padding: 40px 0;
+}
+
+.loading-view.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.success-text {
+  color: #10b981 !important;
 }

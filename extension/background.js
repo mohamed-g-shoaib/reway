@@ -1,12 +1,8 @@
 const DEFAULT_BASE_URL = "https://reway.vercel.app";
 
 async function getSettings() {
-  const { rewayToken, rewayBaseUrl } = await chrome.storage.local.get([
-    "rewayToken",
-    "rewayBaseUrl",
-  ]);
+  const { rewayBaseUrl } = await chrome.storage.local.get(["rewayBaseUrl"]);
   return {
-    token: rewayToken || "",
     baseUrl: rewayBaseUrl || DEFAULT_BASE_URL,
   };
 }
@@ -106,14 +102,16 @@ async function captureCurrentTab() {
   );
 }
 
-async function updateGrabbedLinksBadge() {
-  // Badge disabled - no visual indicator needed
-  // if (count > 0) {
-  //   await chrome.action.setBadgeText({ text: String(count) });
-  //   await chrome.action.setBadgeBackgroundColor({ color: "#18181b" });
-  // } else {
-  //   await chrome.action.setBadgeText({ text: "" });
-  // }
+async function updateGrabbedLinksBadge(count) {
+  if (count > 0) {
+    await chrome.action.setBadgeText({ text: String(count) });
+    await chrome.action.setBadgeBackgroundColor({ color: "#18181b" });
+    if (typeof chrome.action.setBadgeTextColor === "function") {
+      await chrome.action.setBadgeTextColor({ color: "#ffffff" });
+    }
+  } else {
+    await chrome.action.setBadgeText({ text: "" });
+  }
 }
 
 // Fetch page metadata (title and favicon)
@@ -225,23 +223,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       try {
         const settings = await getSettings();
         console.log("Settings retrieved:", {
-          hasToken: !!settings.token,
           baseUrl: settings.baseUrl,
         });
-
-        if (!settings.token) {
-          console.error("Not authenticated - no token");
-          sendResponse({ success: false, error: "Not authenticated" });
-          return;
-        }
 
         // Check if "X Bookmarks" group exists, create if not
         console.log("Fetching groups...");
         const groupsResponse = await fetch(
           `${settings.baseUrl}/api/extension/groups`,
-          {
-            headers: { Authorization: `Bearer ${settings.token}` },
-          },
         );
 
         if (!groupsResponse.ok) {
@@ -282,7 +270,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${settings.token}`,
               },
               body: JSON.stringify({ name: "X Bookmarks", icon: "twitter" }),
             },
@@ -322,7 +309,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${settings.token}`,
             },
             body: JSON.stringify({
               url: message.url,
@@ -371,20 +357,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const settings = await getSettings();
-        if (!settings.token) {
-          throw new Error("No access token configured");
-        }
 
         const url = new URL(`${settings.baseUrl}/api/extension/bookmarks`);
         if (message.groupId) {
           url.searchParams.set("groupId", message.groupId);
         }
 
-        const response = await fetch(url.toString(), {
-          headers: {
-            Authorization: `Bearer ${settings.token}`,
-          },
-        });
+        const response = await fetch(url.toString());
 
         if (!response.ok) {
           throw new Error("Failed to fetch bookmarks");

@@ -4,7 +4,11 @@
   "version": "0.1.0",
   "description": "Save pages to Reway and open bookmark groups.",
   "permissions": ["tabs", "activeTab", "scripting", "storage"],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+    "https://reway.vercel.app/api/*",
+    "http://localhost:3000/api/*",
+    "<all_urls>"
+  ],
   "action": {
     "default_title": "Save to Reway",
     "default_popup": "popup.html",
@@ -25,7 +29,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": [
+        "https://reway.vercel.app/*",
+        "http://localhost:3000/*",
+        "http://localhost:3001/*"
+      ],
       "js": ["content-script.js"],
       "run_at": "document_idle"
     },
