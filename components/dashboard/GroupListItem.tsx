@@ -4,14 +4,15 @@ import {
   Delete02Icon,
   PencilEdit01Icon,
   Alert02Icon,
+  Folder01Icon,
 } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { GroupRow } from "@/lib/supabase/queries";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { IconPickerPopover } from "./IconPickerPopover";
 import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 
 interface GroupListItemProps {
   group: GroupRow;
@@ -44,7 +45,27 @@ export function GroupListItem({
   onEditSave,
   onEditCancel,
 }: GroupListItemProps) {
-  const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : null;
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const GroupIcon = group.icon ? (iconsMap?.[group.icon] ?? null) : null;
 
   if (isEditing) {
     return (
@@ -63,7 +84,11 @@ export function GroupListItem({
               aria-label="Select group icon"
             >
               <HugeiconsIcon
-                icon={ALL_ICONS_MAP[editGroupIcon] || ALL_ICONS_MAP["folder"]}
+                icon={
+                  iconsMap?.[editGroupIcon] ??
+                  iconsMap?.["folder"] ??
+                  Folder01Icon
+                }
                 size={16}
                 strokeWidth={2}
                 className="text-primary"

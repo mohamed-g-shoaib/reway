@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import { GridIcon } from "@hugeicons/core-free-icons";
 
 interface BookmarkEditSheetProps {
@@ -50,11 +49,31 @@ export function BookmarkEditSheet({
   groups,
   onSave,
 }: BookmarkEditSheetProps) {
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [groupId, setGroupId] = useState("no-group");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!bookmark) return;
@@ -91,7 +110,10 @@ export function BookmarkEditSheet({
   };
 
   const renderGroupOption = (group: GroupRow) => {
-    const Icon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
+    const Icon =
+      group.icon && iconsMap
+        ? (iconsMap[group.icon] ?? GridIcon)
+        : GridIcon;
     return (
       <div className="flex items-center gap-2">
         <HugeiconsIcon icon={Icon} size={14} />

@@ -1,12 +1,12 @@
 "use client";
 
-import { Add01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon, Folder01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { IconPickerPopover } from "./IconPickerPopover";
 import { Input } from "@/components/ui/input";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
+import { useEffect, useState } from "react";
 
 interface InlineGroupCreatorProps {
   newGroupName: string;
@@ -27,6 +27,26 @@ export function InlineGroupCreator({
   onSave,
   onCancel,
 }: InlineGroupCreatorProps) {
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div
       className="relative mx-1 my-1.5 px-3 py-3 space-y-3 bg-muted/20 rounded-xl ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate"
@@ -43,7 +63,11 @@ export function InlineGroupCreator({
             aria-label="Select group icon"
           >
             <HugeiconsIcon
-              icon={ALL_ICONS_MAP[newGroupIcon]}
+              icon={
+                iconsMap?.[newGroupIcon] ??
+                iconsMap?.["folder"] ??
+                Folder01Icon
+              }
               size={16}
               strokeWidth={2}
               className="text-primary"

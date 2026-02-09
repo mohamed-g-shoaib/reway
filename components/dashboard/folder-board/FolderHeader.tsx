@@ -1,10 +1,10 @@
 "use client";
 
 import { Folder01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { AccordionTrigger } from "@/components/ui/accordion";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
+import { useEffect, useState } from "react";
 
 interface FolderHeaderProps {
   group: GroupRow;
@@ -19,7 +19,27 @@ export function FolderHeader({
   isSelected,
   onSelect,
 }: FolderHeaderProps) {
-  const Icon = group.icon ? ALL_ICONS_MAP[group.icon] : Folder01Icon;
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const Icon = group.icon ? (iconsMap?.[group.icon] ?? Folder01Icon) : Folder01Icon;
 
   return (
     <AccordionTrigger

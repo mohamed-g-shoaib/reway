@@ -1,6 +1,7 @@
 "use client";
 
 import type { RefCallback } from "react";
+import type { IconSvgElement } from "@hugeicons/react";
 import { CSS, type Transform } from "@dnd-kit/utilities";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { File02Icon, GridIcon, Link01Icon } from "@hugeicons/core-free-icons";
@@ -14,8 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
+import { useEffect, useState } from "react";
 
 interface InlineEditFormProps {
   setNodeRef: RefCallback<HTMLDivElement>;
@@ -56,6 +57,26 @@ export function InlineEditForm({
   onCancel,
   isSaving,
 }: InlineEditFormProps) {
+  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/hugeicons-list")
+      .then((mod) => {
+        if (cancelled) return;
+        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setIconsMap(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div
       ref={setNodeRef}
@@ -87,8 +108,8 @@ export function InlineEditForm({
                   (() => {
                     const group = groupsMap?.get(editGroupId);
                     const Icon =
-                      group?.icon && ALL_ICONS_MAP[group.icon]
-                        ? ALL_ICONS_MAP[group.icon]
+                      group?.icon && iconsMap?.[group.icon]
+                        ? (iconsMap[group.icon] as typeof GridIcon)
                         : GridIcon;
                     return (
                       <HugeiconsIcon
@@ -122,8 +143,8 @@ export function InlineEditForm({
                   <div className="max-h-60 overflow-y-auto">
                     {groups.map((group) => {
                       const Icon =
-                        group.icon && ALL_ICONS_MAP[group.icon]
-                          ? ALL_ICONS_MAP[group.icon]
+                        group.icon && iconsMap?.[group.icon]
+                          ? (iconsMap[group.icon] as typeof GridIcon)
                           : GridIcon;
                       return (
                         <DropdownMenuItem
