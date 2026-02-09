@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { DashboardHref } from "@/components/landing/types";
@@ -14,9 +14,13 @@ interface LandingNavProps {
 
 export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
   const [hasScrolled, setHasScrolled] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const handleScroll = () => setHasScrolled(window.scrollY > 8);
+    const handleScroll = () => {
+      const next = window.scrollY > 8;
+      setHasScrolled((prev) => (prev === next ? prev : next));
+    };
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -34,15 +38,15 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
   return (
     <motion.header
       className="sticky top-4 z-40"
-      initial="hidden"
-      animate="visible"
-      variants={headerVariants}
+      initial={shouldReduceMotion ? false : "hidden"}
+      animate={shouldReduceMotion ? undefined : "visible"}
+      variants={shouldReduceMotion ? undefined : headerVariants}
     >
       <div className="mx-auto flex max-w-350 justify-center px-4 sm:px-6">
         <div
           className={`inline-flex w-full max-w-115 items-center gap-3 sm:gap-6 rounded-full ring-1 px-3 sm:px-4 py-2.5 transition-[background-color,ring-color] duration-200 ease-out ${
             hasScrolled
-              ? "ring-foreground/8 bg-background/80 shadow-none backdrop-blur-xl"
+              ? "ring-foreground/8 bg-background/95 shadow-none"
               : "ring-foreground/0 bg-transparent shadow-none"
           }`}
         >
@@ -58,7 +62,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
               alt="Reway Logo"
               className="dark:invert"
             />
-            <span className="text-sm font-semibold tracking-tight sm:text-base">
+            <span className="text-sm font-semibold sm:text-base">
               Reway
             </span>
           </Link>

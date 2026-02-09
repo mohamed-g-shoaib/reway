@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import {
   GithubIcon,
   Linkedin02Icon,
@@ -13,6 +13,7 @@ import BrandWord from "@/components/landing/BrandWord";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
 
 export function LandingFooter() {
+  const shouldReduceMotion = useReducedMotion();
   const socialLinks = [
     { icon: NewTwitterIcon, href: "https://x.com", label: "Twitter" },
     { icon: Linkedin02Icon, href: "https://linkedin.com", label: "LinkedIn" },
@@ -33,17 +34,17 @@ export function LandingFooter() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
+      transition: { duration: 0.32, ease: "easeOut" },
     },
   };
 
   return (
     <motion.footer
       className="border-t border-foreground/8 bg-background pt-16 pb-0"
-      initial="hidden"
-      whileInView="visible"
+      initial={shouldReduceMotion ? false : "hidden"}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
       viewport={{ once: true, margin: "-120px" }}
-      variants={footerVariants}
+      variants={shouldReduceMotion ? undefined : footerVariants}
     >
       <div className="mx-auto w-full max-w-350 px-4 sm:px-6">
         <div className="grid grid-cols-1 gap-12 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
@@ -60,7 +61,7 @@ export function LandingFooter() {
                 alt="Reway Logo"
                 className="dark:invert"
               />
-              <span className="font-semibold tracking-tight">Reway</span>
+              <span className="font-semibold">Reway</span>
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               Built for research, inspiration, and building. Reway sits at the
@@ -70,7 +71,7 @@ export function LandingFooter() {
 
           {/* Column 2: Product (2/12 columns) */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+            <h4 className="text-xs font-bold uppercase text-foreground">
               Product
             </h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -103,7 +104,7 @@ export function LandingFooter() {
 
           {/* Column 3: Legal (2/12 columns) */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+            <h4 className="text-xs font-bold uppercase text-foreground">
               Legal
             </h4>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -128,7 +129,7 @@ export function LandingFooter() {
 
           {/* Column 4: Connect (2/12 columns) */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+            <h4 className="text-xs font-bold uppercase text-foreground">
               Connect
             </h4>
             <ul className="mt-4 space-y-3">
@@ -140,7 +141,7 @@ export function LandingFooter() {
                     rel="noopener noreferrer"
                     className="group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    <span className="flex size-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground transition-all duration-200 group-hover:bg-foreground group-hover:text-background border border-transparent group-hover:border-foreground">
+                    <span className="flex size-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground transition-colors duration-200 group-hover:bg-foreground group-hover:text-background border border-transparent group-hover:border-foreground">
                       <HugeiconsIcon icon={social.icon} size={14} />
                     </span>
                     <span className="font-medium">{social.label}</span>
@@ -152,7 +153,7 @@ export function LandingFooter() {
 
           {/* Column 5: Appearance (2/12 columns) */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">
+            <h4 className="text-xs font-bold uppercase text-foreground">
               Appearance
             </h4>
             <div className="mt-4">
@@ -166,10 +167,10 @@ export function LandingFooter() {
 
         <motion.div
           className="pb-4 w-full text-muted-foreground/6"
-          initial="hidden"
-          whileInView="visible"
+          initial={shouldReduceMotion ? false : "hidden"}
+          whileInView={shouldReduceMotion ? undefined : "visible"}
           viewport={{ once: true }}
-          variants={signatureVariants}
+          variants={shouldReduceMotion ? undefined : signatureVariants}
         >
           <BrandWord className="h-auto w-full select-none" />
         </motion.div>

@@ -3,14 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import {
   ArrowRight01Icon,
   Add01Icon,
   Copy01Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
-  Alert02Icon,
   PencilEdit01Icon,
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
@@ -72,7 +71,7 @@ const previewBookmarks = [
 
 export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   const handleCopy = async (
     event: React.MouseEvent,
@@ -101,13 +100,6 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
     event.stopPropagation();
   };
 
-  const handleDelete = (event: React.MouseEvent, index: number) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setDeleteIndex(index);
-    setTimeout(() => setDeleteIndex(null), 2000);
-  };
-
   const sectionVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
@@ -131,10 +123,10 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
       <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
         <motion.div
           className="space-y-6 text-center"
-          initial="hidden"
-          whileInView="visible"
+          initial={shouldReduceMotion ? false : "hidden"}
+          whileInView={shouldReduceMotion ? undefined : "visible"}
           viewport={{ once: true, margin: "-120px" }}
-          variants={sectionVariants}
+          variants={shouldReduceMotion ? undefined : sectionVariants}
         >
           <h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
             A Calm Home For Everything You Save.
@@ -145,9 +137,9 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
             groups, and view modes that match the way you think.
           </p>
           <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ duration: 0.16, ease: "easeOut" }}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.16, ease: "easeOut" }}
           >
             <Button
               asChild
@@ -169,10 +161,10 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
         <motion.div
           id="how-it-works"
           className="overflow-hidden rounded-4xl ring-1 ring-foreground/8 bg-card shadow-none isolate"
-          initial="hidden"
-          whileInView="visible"
+          initial={shouldReduceMotion ? false : "hidden"}
+          whileInView={shouldReduceMotion ? undefined : "visible"}
           viewport={{ once: true, margin: "-120px" }}
-          variants={showcaseVariants}
+          variants={shouldReduceMotion ? undefined : showcaseVariants}
         >
           <div className="flex items-center justify-between border-b border-foreground/8 bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
             <div className="flex items-center gap-3 text-foreground">
@@ -343,17 +335,12 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                           </button>
                           <button
                             type="button"
-                            onClick={(event) => handleDelete(event, index)}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 text-destructive transition-[color,background-color,transform] duration-200 ease-out hover:bg-destructive/10 active:scale-[0.97]"
+                            className="flex h-7 w-7 items-center justify-center rounded-xl transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] text-destructive hover:bg-destructive/10"
                             aria-label="Delete bookmark"
                           >
                             <HugeiconsIcon
-                              icon={
-                                deleteIndex === index
-                                  ? Alert02Icon
-                                  : Delete02Icon
-                              }
-                              size={12}
+                              icon={Delete02Icon}
+                              size={14}
                             />
                           </button>
                         </div>

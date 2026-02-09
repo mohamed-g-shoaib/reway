@@ -1,11 +1,12 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { demoVideos } from "./features/demo-data";
 import { DemoVideo } from "./features/DemoVideo";
 import { cn } from "@/lib/utils";
 
 export function DemoVideosSection() {
+  const shouldReduceMotion = useReducedMotion();
   const containerVariants: Variants = {
     hidden: { opacity: 0, y: 12 },
     visible: {
@@ -22,13 +23,13 @@ export function DemoVideosSection() {
     >
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
-        initial="hidden"
-        whileInView="visible"
+        initial={shouldReduceMotion ? false : "hidden"}
+        whileInView={shouldReduceMotion ? undefined : "visible"}
         viewport={{ once: true, margin: "-120px" }}
-        variants={containerVariants}
+        variants={shouldReduceMotion ? undefined : containerVariants}
       >
         <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-xs font-semibold uppercase text-muted-foreground">
             In Action
           </p>
           <h2 className="mt-3 text-balance text-3xl font-semibold text-foreground sm:text-4xl">
@@ -66,7 +67,7 @@ export function DemoVideosSection() {
                 )}
               >
                 <div className="space-y-4">
-                  <h3 className="text-3xl font-semibold leading-tight text-foreground tracking-tight sm:text-4xl">
+                  <h3 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
                     {video.title}
                   </h3>
                   <p className="text-pretty text-base text-foreground/90 leading-relaxed sm:text-lg">

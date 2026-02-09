@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { features } from "./features/demo-data";
 import { ExtractDemo } from "./features/ExtractDemo";
 import { GroupsDemo } from "./features/GroupsDemo";
@@ -8,6 +8,7 @@ import { NavigationDemo } from "./features/NavigationDemo";
 import { ViewModesDemo } from "./features/ViewModesDemo";
 
 export function FeaturesSection() {
+  const shouldReduceMotion = useReducedMotion();
   const containerVariants: Variants = {
     hidden: { opacity: 0, y: 12 },
     visible: {
@@ -21,13 +22,13 @@ export function FeaturesSection() {
     <section id="features" className="border-b border-foreground/8 bg-muted/20">
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
-        initial="hidden"
-        whileInView="visible"
+        initial={shouldReduceMotion ? false : "hidden"}
+        whileInView={shouldReduceMotion ? undefined : "visible"}
         viewport={{ once: true, margin: "-120px" }}
-        variants={containerVariants}
+        variants={shouldReduceMotion ? undefined : containerVariants}
       >
         <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-xs font-semibold uppercase text-muted-foreground">
             Core Features
           </p>
           <h2 className="mt-3 text-balance text-3xl font-semibold text-foreground sm:text-4xl">
