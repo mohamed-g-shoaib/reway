@@ -99,6 +99,8 @@ export function DashboardContent({
     { url: string; title: string }[] | null
   >(null);
   const viewModeStorageKey = "reway.dashboard.viewMode";
+  const rowContentStorageKey = "reway.dashboard.rowContent";
+  const commandModeStorageKey = "reway.dashboard.commandMode";
 
   const normalizeGroupName = useCallback((value?: string | null) => {
     const name = value?.trim() ?? "";
@@ -150,6 +152,7 @@ export function DashboardContent({
 
   React.useEffect(() => {
     try {
+      // 1. Load viewMode
       const storedView = window.localStorage.getItem(viewModeStorageKey);
       if (
         storedView === "list" ||
@@ -159,8 +162,23 @@ export function DashboardContent({
       ) {
         setViewMode(storedView);
       }
+
+      // 2. Load rowContent
+      const storedRowContent =
+        window.localStorage.getItem(rowContentStorageKey);
+      if (storedRowContent === "date" || storedRowContent === "group") {
+        setRowContent(storedRowContent);
+      }
+
+      // 3. Load commandMode
+      const storedCommandMode = window.localStorage.getItem(
+        commandModeStorageKey,
+      );
+      if (storedCommandMode === "add" || storedCommandMode === "search") {
+        setCommandMode(storedCommandMode);
+      }
     } catch (error) {
-      console.warn("Failed to load view mode:", error);
+      console.warn("Failed to load dashboard preferences:", error);
     }
   }, []);
 
@@ -171,6 +189,22 @@ export function DashboardContent({
       console.warn("Failed to persist view mode:", error);
     }
   }, [viewMode]);
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(rowContentStorageKey, rowContent);
+    } catch (error) {
+      console.warn("Failed to persist row content preferences:", error);
+    }
+  }, [rowContent]);
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(commandModeStorageKey, commandMode);
+    } catch (error) {
+      console.warn("Failed to persist command mode preferences:", error);
+    }
+  }, [commandMode]);
 
   React.useEffect(() => {
     if (viewMode !== "folders") {
@@ -426,7 +460,7 @@ export function DashboardContent({
           handleInlineCreateGroup={handleInlineCreateGroup}
         />
         {/* Fixed Header Section */}
-        <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
+        <div className="flex-none z-40 bg-background px-1">
           <DashboardNav
             user={user}
             groups={groups}

@@ -101,7 +101,7 @@ export function CommandBarInput({
           placeholder={
             mode === "search"
               ? "Search bookmarks..."
-              : "Insert a link, image, or just search..."
+              : "Add a link, image, or search..."
           }
           className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
           onFocus={() => onFocusChange(true)}

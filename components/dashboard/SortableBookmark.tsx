@@ -341,63 +341,63 @@ export const SortableBookmark = memo(function SortableBookmark({
               </div>
             </div>
 
-          {/* Actions / Date Container */}
-          <div className="relative flex shrink-0 items-center min-w-0 md:min-w-25 justify-end">
-            {/* Desktop Date: Fades out on hover if not mobile */}
-            {status === "pending" ? (
-              <TextShimmer
-                as="span"
-                className="text-sm font-medium tabular-nums"
-                duration={2.5}
-                delay={0.4}
-              >
-                Enriching...
-              </TextShimmer>
-            ) : (
-              <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
-                {rowContent === "group"
-                  ? (() => {
-                      // If viewing a specific group and bookmark belongs to that group, show date instead
-                      if (
-                        activeGroupId &&
-                        activeGroupId !== "all" &&
-                        groupId === activeGroupId
-                      ) {
-                        return createdAt;
-                      }
-                      // Otherwise show group name
-                      if (groupId === "all" || !groupsMap || !groupId)
-                        return "No Group";
-                      const group = groupsMap.get(groupId);
-                      return group?.name || "No Group";
-                    })()
-                  : createdAt}
-              </span>
-            )}
+            {/* Actions / Date Container */}
+            <div className="relative flex shrink-0 items-center min-w-28 md:min-w-48 justify-end">
+              {/* Desktop Date: Fades out on hover if not mobile */}
+              {status === "pending" ? (
+                <TextShimmer
+                  as="span"
+                  className="text-sm font-medium tabular-nums"
+                  duration={2.5}
+                  delay={0.4}
+                >
+                  Enriching...
+                </TextShimmer>
+              ) : (
+                <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
+                  {rowContent === "group"
+                    ? (() => {
+                        // If viewing a specific group and bookmark belongs to that group, show date instead
+                        if (
+                          activeGroupId &&
+                          activeGroupId !== "all" &&
+                          groupId === activeGroupId
+                        ) {
+                          return createdAt;
+                        }
+                        // Otherwise show group name
+                        if (groupId === "all" || !groupsMap || !groupId)
+                          return "No Group";
+                        const group = groupsMap.get(groupId);
+                        return group?.name || "No Group";
+                      })()
+                    : createdAt}
+                </span>
+              )}
 
-            {/* Desktop Action Buttons: Visible only on hover and on desktop */}
-            {status !== "pending" && !selectionMode ? (
-              <BookmarkActions
-                isCopied={isCopied}
-                onEdit={handleEdit}
-                onCopyLink={handleCopyLink}
-                onOpen={openInNewTab}
-                onDelete={handleDeleteRequest}
-              />
-            ) : null}
+              {/* Desktop Action Buttons: Visible only on hover and on desktop */}
+              {status !== "pending" && !selectionMode ? (
+                <BookmarkActions
+                  isCopied={isCopied}
+                  onEdit={handleEdit}
+                  onCopyLink={handleCopyLink}
+                  onOpen={openInNewTab}
+                  onDelete={handleDeleteRequest}
+                />
+              ) : null}
 
-            {/* Mobile Action Menu */}
-            {status !== "pending" ? (
-              <MobileActionMenu
-                isCopied={isCopied}
-                onEdit={handleEdit}
-                onCopyLink={handleCopyLink}
-                onOpen={openInNewTab}
-                onDelete={handleDeleteRequest}
-              />
-            ) : null}
+              {/* Mobile Action Menu */}
+              {status !== "pending" ? (
+                <MobileActionMenu
+                  isCopied={isCopied}
+                  onEdit={handleEdit}
+                  onCopyLink={handleCopyLink}
+                  onOpen={openInNewTab}
+                  onDelete={handleDeleteRequest}
+                />
+              ) : null}
+            </div>
           </div>
-        </div>
         </ContextMenuTrigger>
 
         <BookmarkContextMenu
