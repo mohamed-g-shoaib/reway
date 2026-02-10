@@ -41,7 +41,7 @@ function PortalBackdrop({
   return (
     <div
       className={cn(
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 -z-1 bg-background backdrop-blur-sm duration-500 data-[state=closed]:animate-out data-[state=open]:animate-in supports-backdrop-filter:bg-background",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 -z-1 bg-background backdrop-blur-sm duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in supports-backdrop-filter:bg-background",
         className,
       )}
       {...props}

@@ -73,16 +73,17 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 mx-auto w-full max-w-4xl border-transparent border-b md:top-4 md:rounded-md md:border md:transition-all md:ease-out",
-        {
-          "border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:shadow":
-            scrolled,
-        },
+        "sticky top-0 z-50 mx-auto w-full max-w-4xl border-transparent border-b",
+        "md:top-4 md:rounded-md md:border",
+        "md:origin-top md:transform-gpu md:transition-[background-color,border-color,box-shadow,opacity,transform,top,max-width] md:duration-200 md:ease-out",
+        scrolled
+          ? "border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:translate-y-0 md:scale-100 md:shadow"
+          : "md:translate-y-2 md:scale-[1.06]",
       )}
     >
       <nav
         className={cn(
-          "flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-all md:ease-out",
+          "flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
           {
             "md:px-2": scrolled,
           },
