@@ -111,7 +111,14 @@ export function Header() {
           aria-label="Reway Home"
           href="#"
         >
-          <RewayLogo className="size-8" aria-hidden="true" focusable="false" />
+          <span className="flex items-center gap-2">
+            <RewayLogo
+              className="size-8"
+              aria-hidden="true"
+              focusable="false"
+            />
+            <span className="text-sm font-semibold text-foreground">Reway</span>
+          </span>
         </a>
 
         <div className="hidden items-center gap-2 md:flex">

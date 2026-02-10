@@ -51,18 +51,6 @@ export const demoLinks = [
 
 export const demoVideos = [
   {
-    title: "Save Links Anywhere",
-    description:
-      "Instantly capture links from any website, note, or app with a single click. Reway extracts the core context for you.",
-    src: "/assets/videos/save-links.mp4",
-    accentColor: "bg-highlight-links",
-    highlights: [
-      "Auto-extract titles and metadata",
-      "One-click browser extension",
-      "Seamless clipboard detection",
-    ],
-  },
-  {
     title: "Full Page Capture",
     description:
       "Organize entire pages into your library. Keep the context of where your links came from without the noise.",
@@ -72,6 +60,18 @@ export const demoVideos = [
       "Distraction-free reading view",
       "Preserves original source URL",
       "Smart categorization of content",
+    ],
+  },
+  {
+    title: "Save Links Anywhere",
+    description:
+      "Instantly capture links from any website, note, or app with a single click. Reway extracts the core context for you.",
+    src: "/assets/videos/save-links.mp4",
+    accentColor: "bg-highlight-links",
+    highlights: [
+      "Auto-extract titles and metadata",
+      "One-click browser extension",
+      "Seamless clipboard detection",
     ],
   },
   {

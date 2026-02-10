@@ -45,7 +45,7 @@ export function DemoVideosSection() {
           {demoVideos.map((video, index) => (
             <article
               key={video.title}
-              className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center rounded-4xl ring-1 ring-foreground/8 bg-background p-6 shadow-none isolate"
+              className="relative grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-center rounded-4xl ring-1 ring-foreground/8 bg-background p-6 shadow-none isolate"
             >
               {/* Video Side - Dominant (8/12 columns) */}
               <div
@@ -67,6 +67,9 @@ export function DemoVideosSection() {
                 )}
               >
                 <div className="space-y-4">
+                  <div className="text-5xl font-semibold leading-none text-muted-foreground/15">
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
                   <h3 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
                     {video.title}
                   </h3>
