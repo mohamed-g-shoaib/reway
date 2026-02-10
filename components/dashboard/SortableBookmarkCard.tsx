@@ -92,7 +92,7 @@ export function SortableBookmarkCard({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0 : 1,
-    touchAction: selectionMode ? "auto" : "none",
+    touchAction: selectionMode ? "auto" : "manipulation",
   };
 
   const metaLabel =
@@ -240,67 +240,64 @@ export function SortableBookmarkCard({
                     {domain}
                   </button>
                 </p>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center justify-between text-xs text-muted-foreground/70">
-            <span className="truncate max-w-[70%]">{metaLabel}</span>
-            <div
-              className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-[opacity,transform] md:duration-200 md:ease-out"
-              onClick={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={handleEdit}
-                aria-label="Edit bookmark"
+            <div className="flex items-center justify-between text-xs text-muted-foreground/70">
+              <span className="truncate max-w-[70%]">{metaLabel}</span>
+              <div
+                className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-[opacity,transform] md:duration-200 md:ease-out"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
               >
-                <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={handleCopy}
-                aria-label={isCopied ? "URL copied" : "Copy link"}
-              >
-                <div
-                  className="transition-transform duration-200 ease-in-out"
-                  key={isCopied ? "tick" : "copy"}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={handleEdit}
+                  aria-label="Edit bookmark"
                 >
-                  <HugeiconsIcon
-                    icon={isCopied ? Tick01Icon : Copy01Icon}
-                    size={14}
-                    className={isCopied ? "text-green-500" : ""}
-                  />
-                </div>
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={handleOpen}
-                aria-label="Open link"
-              >
-                <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-lg transition-transform duration-150 ease-out cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 active:scale-[0.97] motion-reduce:transition-none"
-                onClick={handleDeleteRequest}
-                aria-label="Delete bookmark"
-              >
-                <HugeiconsIcon
-                  icon={Delete02Icon}
-                  size={14}
-                />
-              </Button>
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={handleCopy}
+                  aria-label={isCopied ? "URL copied" : "Copy link"}
+                >
+                  <div
+                    className="transition-transform duration-200 ease-in-out"
+                    key={isCopied ? "tick" : "copy"}
+                  >
+                    <HugeiconsIcon
+                      icon={isCopied ? Tick01Icon : Copy01Icon}
+                      size={14}
+                      className={isCopied ? "text-green-500" : ""}
+                    />
+                  </div>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg hover:bg-background hover:text-primary cursor-pointer transition-transform duration-150 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={handleOpen}
+                  aria-label="Open link"
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 rounded-lg transition-transform duration-150 ease-out cursor-pointer text-destructive hover:text-destructive hover:bg-destructive/10 active:scale-[0.97] motion-reduce:transition-none"
+                  onClick={handleDeleteRequest}
+                  aria-label="Delete bookmark"
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={14} />
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-44">
           <ContextMenuItem className="gap-2" onClick={handleOpen}>

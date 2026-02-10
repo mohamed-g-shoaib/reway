@@ -114,7 +114,7 @@ export const SortableBookmark = memo(function SortableBookmark({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0 : 1,
-    touchAction: selectionMode ? "auto" : "none",
+    touchAction: selectionMode ? "auto" : "manipulation",
   };
 
   const dragStyle = isDragging
