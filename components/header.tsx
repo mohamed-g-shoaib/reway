@@ -74,7 +74,7 @@ export function Header() {
     <header
       className={cn(
         "sticky top-0 z-50 mx-auto w-full max-w-4xl border-transparent border-b",
-        "md:top-4 md:rounded-md md:border",
+        "md:top-4 md:rounded-4xl md:border",
         "md:origin-top md:transform-gpu md:transition-[background-color,border-color,box-shadow,opacity,transform,top,max-width] md:duration-200 md:ease-out",
         scrolled
           ? "border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:translate-y-0 md:scale-100 md:shadow"
