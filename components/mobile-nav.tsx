@@ -65,7 +65,10 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
         variant="ghost"
         type="button"
       >
-        <MenuMorphIcon isOpen={open} reduceMotion={shouldReduceMotion ?? false} />
+        <MenuMorphIcon
+          isOpen={open}
+          reduceMotion={shouldReduceMotion ?? false}
+        />
       </Button>
       {open && (
         <Portal id="mobile-menu">
@@ -81,7 +84,7 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
           >
             <div className="mx-auto w-full max-w-4xl px-4 pt-3">
               {user ? (
-                <div className="mb-6 rounded-4xl border bg-muted/20 px-3 py-3">
+                <div className="mb-6 rounded-4xl ring-1 ring-foreground/8 bg-muted/20 px-3 py-3 shadow-none isolate after:absolute after:inset-0 after:rounded-4xl after:ring-1 after:ring-white/5 after:pointer-events-none relative">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
                       <AvatarImage src={user.avatar_url} alt={user.name} />
@@ -121,13 +124,21 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
                   </Button>
                 ))}
               </div>
-              <div className="mt-8 border-t pt-4">
+              <div className="mt-8 border-t border-foreground/8 pt-4">
                 {user ? (
-                  <Button asChild className="w-full" onClick={() => setOpen(false)}>
+                  <Button
+                    asChild
+                    className="w-full ring-1 ring-foreground/8"
+                    onClick={() => setOpen(false)}
+                  >
                     <a href="/dashboard">Go to Dashboard</a>
                   </Button>
                 ) : (
-                  <Button asChild className="w-full" onClick={() => setOpen(false)}>
+                  <Button
+                    asChild
+                    className="w-full ring-1 ring-foreground/8"
+                    onClick={() => setOpen(false)}
+                  >
                     <a href="/login">Get Started</a>
                   </Button>
                 )}

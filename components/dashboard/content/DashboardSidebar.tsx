@@ -1,18 +1,16 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
   Alert02Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
-  Folder01Icon,
   PencilEdit01Icon,
   GridIcon,
   MoreHorizontalIcon,
 } from "@hugeicons/core-free-icons";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -28,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
 
@@ -76,11 +75,9 @@ interface DashboardSidebarProps {
   editGroupColor: string | null;
   setEditGroupColor: (value: string | null) => void;
   isUpdatingGroup: boolean;
-  handleSidebarGroupUpdate: (
-    groupId: string,
-    onError?: () => void,
-  ) => Promise<void>;
-  onRequestDeleteGroup: (groupId: string) => void;
+  handleSidebarGroupUpdate: (groupId: string) => void;
+  deleteConfirmGroupId: string | null;
+  handleDeleteGroupClick: (groupId: string) => void;
   isInlineCreating: boolean;
   setIsInlineCreating: (value: boolean) => void;
   newGroupName: string;
@@ -90,7 +87,7 @@ interface DashboardSidebarProps {
   newGroupColor: string | null;
   setNewGroupColor: (value: string | null) => void;
   isCreatingGroup: boolean;
-  handleInlineCreateGroup: (onError?: () => void) => Promise<void>;
+  handleInlineCreateGroup: () => void;
 }
 
 export function DashboardSidebar({
@@ -108,7 +105,8 @@ export function DashboardSidebar({
   setEditGroupColor,
   isUpdatingGroup,
   handleSidebarGroupUpdate,
-  onRequestDeleteGroup,
+  deleteConfirmGroupId,
+  handleDeleteGroupClick,
   isInlineCreating,
   setIsInlineCreating,
   newGroupName,
@@ -120,31 +118,8 @@ export function DashboardSidebar({
   isCreatingGroup,
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
-  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    import("@/lib/hugeicons-list")
-      .then((mod) => {
-        if (cancelled) return;
-        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setIconsMap(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const [hasEditError, setHasEditError] = useState(false);
-  const [hasCreateError, setHasCreateError] = useState(false);
-
   return (
-    <aside className="hidden min-[1200px]:flex fixed left-6 top-43 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground">
+    <aside className="hidden min-[1200px]:flex fixed left-6 top-[10.75rem] z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
         <KbdGroup className="gap-0.5">
           <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
@@ -187,11 +162,7 @@ export function DashboardSidebar({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-colors duration-200 ${
-                    activeGroupId === "all"
-                      ? "text-foreground"
-                      : "text-muted-foreground/50 group-hover:text-foreground/80 hover:text-foreground"
-                  }`}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
                   aria-label="Group options"
                 >
                   <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
@@ -220,16 +191,15 @@ export function DashboardSidebar({
         </ContextMenuContent>
       </ContextMenu>
       {groups.map((group) => {
-        const GroupIcon = group.icon
-          ? (iconsMap?.[group.icon] ?? Folder01Icon)
-          : Folder01Icon;
+        const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
         const isEditing = editingGroupId === group.id;
+        const isDeleteConfirm = deleteConfirmGroupId === group.id;
 
         if (isEditing) {
           return (
             <div
               key={group.id}
-              className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/8"
+              className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
             >
               <div className="flex items-center gap-2">
                 <IconPickerPopover
@@ -245,9 +215,7 @@ export function DashboardSidebar({
                   >
                     <HugeiconsIcon
                       icon={
-                        iconsMap?.[editGroupIcon] ??
-                        iconsMap?.["folder"] ??
-                        Folder01Icon
+                        ALL_ICONS_MAP[editGroupIcon] || ALL_ICONS_MAP["folder"]
                       }
                       size={16}
                       strokeWidth={2}
@@ -257,29 +225,20 @@ export function DashboardSidebar({
                 </IconPickerPopover>
                 <Input
                   value={editGroupName}
-                  onChange={(e) => {
+                  onChange={(e) =>
                     setEditGroupName(
                       e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                    );
-                    setHasEditError(false);
-                  }}
+                    )
+                  }
                   placeholder="Group name"
-                  className={`h-8 flex-1 text-sm rounded-xl ${
-                    hasEditError
-                      ? "ring-2 ring-destructive focus-visible:ring-destructive"
-                      : ""
-                  }`}
+                  className="h-8 flex-1 text-sm rounded-xl"
                   autoFocus
-                  aria-invalid={hasEditError}
                   maxLength={MAX_GROUP_NAME_LENGTH}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      handleSidebarGroupUpdate(group.id, () =>
-                        setHasEditError(true),
-                      );
+                      handleSidebarGroupUpdate(group.id);
                     } else if (e.key === "Escape") {
                       setEditingGroupId(null);
-                      setHasEditError(false);
                     }
                   }}
                 />
@@ -301,11 +260,7 @@ export function DashboardSidebar({
                   <Button
                     size="sm"
                     className="h-7 px-3 text-xs rounded-4xl"
-                    onClick={() =>
-                      handleSidebarGroupUpdate(group.id, () =>
-                        setHasEditError(true),
-                      )
-                    }
+                    onClick={() => handleSidebarGroupUpdate(group.id)}
                     disabled={!editGroupName.trim() || isUpdatingGroup}
                   >
                     {isUpdatingGroup ? "Saving..." : "Save"}
@@ -340,7 +295,7 @@ export function DashboardSidebar({
                   />
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <HugeiconsIcon
-                      icon={GroupIcon}
+                      icon={GroupIcon || GridIcon}
                       size={16}
                       strokeWidth={2}
                       style={{ color: group.color || undefined }}
@@ -353,11 +308,7 @@ export function DashboardSidebar({
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className={`opacity-0 group-hover:opacity-100 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 transition-colors duration-200 ${
-                        activeGroupId === group.id
-                          ? "text-foreground"
-                          : "text-muted-foreground/50 group-hover:text-foreground/80 hover:text-foreground"
-                      }`}
+                      className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
                       aria-label={`${group.name} options`}
                     >
                       <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
@@ -386,15 +337,19 @@ export function DashboardSidebar({
                     <DropdownMenuItem
                       onSelect={(e) => {
                         e.preventDefault();
-                        onRequestDeleteGroup(group.id);
+                        handleDeleteGroupClick(group.id);
                       }}
-                      className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                      className={`gap-2 text-xs cursor-pointer ${
+                        isDeleteConfirm
+                          ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                          : "text-destructive/80 focus:text-destructive"
+                      }`}
                     >
                       <HugeiconsIcon
-                        icon={Delete02Icon}
+                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
                         size={14}
                       />
-                      Delete group
+                      {isDeleteConfirm ? "Click to confirm" : "Delete group"}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -423,15 +378,19 @@ export function DashboardSidebar({
               <ContextMenuItem
                 onSelect={(e) => {
                   e.preventDefault();
-                  onRequestDeleteGroup(group.id);
+                  handleDeleteGroupClick(group.id);
                 }}
-                className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                className={`gap-2 text-xs cursor-pointer ${
+                  isDeleteConfirm
+                    ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                    : "text-destructive/80 focus:text-destructive"
+                }`}
               >
                 <HugeiconsIcon
-                  icon={Delete02Icon}
+                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
                   size={14}
                 />
-                Delete group
+                {isDeleteConfirm ? "Click to confirm" : "Delete group"}
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
@@ -440,7 +399,7 @@ export function DashboardSidebar({
 
       <div className="pt-3 mt-2 border-t border-border/40">
         {isInlineCreating ? (
-          <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/8">
+          <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5">
             <div className="flex items-center gap-2">
               <IconPickerPopover
                 selectedIcon={newGroupIcon}
@@ -455,43 +414,33 @@ export function DashboardSidebar({
                 >
                   <HugeiconsIcon
                     icon={
-                      iconsMap?.[newGroupIcon] ??
-                      iconsMap?.["folder"] ??
-                      Folder01Icon
+                      ALL_ICONS_MAP[newGroupIcon] || ALL_ICONS_MAP["folder"]
                     }
                     size={16}
                     strokeWidth={2}
                     style={{ color: newGroupColor || "#6366f1" }}
-                    className="text-primary"
                   />
                 </button>
               </IconPickerPopover>
               <Input
                 value={newGroupName}
-                onChange={(e) => {
+                onChange={(e) =>
                   setNewGroupName(
                     e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                  );
-                  setHasCreateError(false);
-                }}
+                  )
+                }
                 placeholder="New group"
-                className={`h-8 flex-1 text-sm rounded-xl ${
-                  hasCreateError
-                    ? "ring-2 ring-destructive focus-visible:ring-destructive"
-                    : ""
-                }`}
+                className="h-8 flex-1 text-sm rounded-xl"
                 autoFocus
-                aria-invalid={hasCreateError}
                 maxLength={MAX_GROUP_NAME_LENGTH}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleInlineCreateGroup(() => setHasCreateError(true));
+                    handleInlineCreateGroup();
                   } else if (e.key === "Escape") {
                     setIsInlineCreating(false);
                     setNewGroupName("");
                     setNewGroupIcon("folder");
                     setNewGroupColor("#6366f1");
-                    setHasCreateError(false);
                   }
                 }}
               />
@@ -518,9 +467,7 @@ export function DashboardSidebar({
                 <Button
                   size="sm"
                   className="h-7 px-3 text-xs rounded-4xl"
-                  onClick={() =>
-                    handleInlineCreateGroup(() => setHasCreateError(true))
-                  }
+                  onClick={handleInlineCreateGroup}
                   disabled={!newGroupName.trim() || isCreatingGroup}
                 >
                   {isCreatingGroup ? "Creating..." : "Create"}

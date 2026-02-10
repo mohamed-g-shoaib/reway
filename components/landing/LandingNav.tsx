@@ -44,10 +44,8 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
     >
       <div className="mx-auto flex max-w-350 justify-center px-4 sm:px-6">
         <div
-          className={`inline-flex w-full max-w-115 items-center gap-3 sm:gap-6 rounded-full ring-1 px-3 sm:px-4 py-2.5 transition-[background-color,ring-color] duration-200 ease-out ${
-            hasScrolled
-              ? "ring-foreground/8 bg-background/95 shadow-none"
-              : "ring-foreground/0 bg-transparent shadow-none"
+          className={`relative isolate inline-flex w-full max-w-115 items-center gap-3 sm:gap-6 rounded-full ring-1 ring-foreground/8 px-3 sm:px-4 py-2.5 transition-[background-color,ring-color] duration-200 ease-out after:absolute after:inset-0 after:rounded-full after:ring-1 after:ring-white/5 after:pointer-events-none ${
+            hasScrolled ? "bg-background/95" : "bg-transparent"
           }`}
         >
           <Link
@@ -55,10 +53,12 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
             className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97]"
             aria-label="Reway Home"
           >
-            <RewayLogo className="size-7" aria-hidden="true" focusable="false" />
-            <span className="text-sm font-semibold sm:text-base">
-              Reway
-            </span>
+            <RewayLogo
+              className="size-7"
+              aria-hidden="true"
+              focusable="false"
+            />
+            <span className="text-base font-bold sm:text-lg">Reway</span>
           </Link>
           <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
             <Button
@@ -72,7 +72,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
             <Button
               asChild
               size="sm"
-              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97]"
+              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] ring-1 ring-foreground/8"
             >
               <Link href={dashboardHref}>{ctaLabel}</Link>
             </Button>

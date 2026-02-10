@@ -121,7 +121,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
 
   return (
     <section className="border-b border-foreground/8 bg-background">
-      <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-14">
+      <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-20">
         <motion.div
           className="space-y-6 text-center"
           initial={shouldReduceMotion ? false : "hidden"}
@@ -140,7 +140,11 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
           <motion.div
             whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.16, ease: "easeOut" }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { duration: 0.16, ease: "easeOut" }
+            }
           >
             <Button
               asChild
@@ -169,7 +173,11 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
         >
           <div className="flex items-center justify-between border-b border-foreground/8 bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
             <div className="flex items-center gap-3 text-foreground">
-              <RewayLogo className="size-4.5" aria-hidden="true" focusable="false" />
+              <RewayLogo
+                className="size-4.5"
+                aria-hidden="true"
+                focusable="false"
+              />
               <span className="text-sm font-semibold">All Bookmarks</span>
             </div>
             <Avatar className="h-7 w-7">
@@ -333,10 +341,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
                             className="flex h-7 w-7 items-center justify-center rounded-xl transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] text-destructive hover:bg-destructive/10"
                             aria-label="Delete bookmark"
                           >
-                            <HugeiconsIcon
-                              icon={Delete02Icon}
-                              size={14}
-                            />
+                            <HugeiconsIcon icon={Delete02Icon} size={14} />
                           </button>
                         </div>
                       </div>

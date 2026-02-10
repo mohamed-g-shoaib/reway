@@ -245,7 +245,7 @@ export function DashboardNav({
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="hidden md:flex shrink-0 items-center transition-opacity hover:opacity-80 active:scale-95"
+              className="hidden md:flex shrink-0 items-center active:scale-95"
             >
               <RewayLogo className="size-8" aria-label="Reway" />
             </Link>

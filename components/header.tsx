@@ -85,11 +85,11 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 mx-auto w-full max-w-4xl border-transparent border-b",
-        "md:top-4 md:rounded-4xl md:border",
+        "sticky top-0 z-50 mx-auto w-full max-w-4xl border-b border-foreground/8",
+        "md:top-4 md:rounded-4xl md:border md:border-foreground/8",
         "md:origin-top md:transform-gpu md:transition-[background-color,border-color,box-shadow,opacity,transform,top,max-width] md:duration-200 md:ease-out",
         scrolled
-          ? "border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:translate-y-0 md:scale-100 md:shadow"
+          ? "bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:translate-y-0 md:scale-100"
           : "md:translate-y-2 md:scale-[1.06]",
       )}
     >
@@ -105,7 +105,7 @@ export function Header() {
           className={cn(
             "-m-2 rounded-md p-2",
             "transition-[opacity,transform] duration-200 ease-out",
-            "hover:opacity-80 active:scale-[0.97]",
+            "active:scale-[0.97]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           )}
           aria-label="Reway Home"
@@ -117,7 +117,7 @@ export function Header() {
               aria-hidden="true"
               focusable="false"
             />
-            <span className="text-sm font-semibold text-foreground">Reway</span>
+            <span className="text-base font-bold text-foreground">Reway</span>
           </span>
         </a>
 
@@ -132,7 +132,12 @@ export function Header() {
 
           {user ? (
             <>
-              <Button asChild size="sm" variant="outline">
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="ring-foreground/8"
+              >
                 <a href="/dashboard">Dashboard</a>
               </Button>
               <DropdownMenu>

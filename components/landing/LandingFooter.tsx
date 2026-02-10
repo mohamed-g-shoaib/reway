@@ -52,9 +52,13 @@ export function LandingFooter() {
           <div className="space-y-4 lg:col-span-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
+              className="inline-flex items-center gap-2 text-foreground"
             >
-              <RewayLogo className="size-6" aria-hidden="true" focusable="false" />
+              <RewayLogo
+                className="size-6"
+                aria-hidden="true"
+                focusable="false"
+              />
               <span className="font-semibold">Reway</span>
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">

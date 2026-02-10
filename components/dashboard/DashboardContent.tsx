@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { CommandBar } from "@/components/dashboard/CommandBar";
 import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
 import { FolderBoard } from "@/components/dashboard/FolderBoard";
@@ -9,19 +9,6 @@ import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import type { User } from "@/components/dashboard/nav/types";
 import { useIsMac } from "@/hooks/useIsMac";
 import { toast } from "sonner";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { GridIcon, ArrowUpRight03Icon } from "@hugeicons/core-free-icons";
-import dynamic from "next/dynamic";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { DashboardSidebar } from "./content/DashboardSidebar";
 import { TableHeader } from "./content/TableHeader";
 import { FloatingActionBar } from "./content/FloatingActionBar";
@@ -62,22 +49,7 @@ import {
   updateGroup as updateGroupAction,
 } from "@/app/dashboard/actions/groups";
 
-import type { IconPickerPopoverProps } from "./IconPickerPopover";
-import type {
-  EnrichmentResult,
-  ImportEntry,
-  ImportGroupSummary,
-} from "./content/dashboard-types";
-
-const IconPickerPopover = dynamic<IconPickerPopoverProps>(
-  () => import("./IconPickerPopover").then((mod) => mod.IconPickerPopover),
-  {
-    loading: () => (
-      <div className="h-8 w-8 animate-pulse rounded-lg bg-primary/10" />
-    ),
-    ssr: false,
-  },
-);
+import type { EnrichmentResult } from "./content/dashboard-types";
 
 export function DashboardContent({
   user,
@@ -106,8 +78,9 @@ export function DashboardContent({
   const [editGroupIcon, setEditGroupIcon] = useState("folder");
   const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
   const [isUpdatingGroup, setIsUpdatingGroup] = useState(false);
-  const [deleteGroupDialogOpen, setDeleteGroupDialogOpen] = useState(false);
-  const [groupToDeleteId, setGroupToDeleteId] = useState<string | null>(null);
+  const [deleteConfirmGroupId, setDeleteConfirmGroupId] = useState<
+    string | null
+  >(null);
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupIcon, setNewGroupIcon] = useState("folder");
@@ -126,7 +99,6 @@ export function DashboardContent({
     { url: string; title: string }[] | null
   >(null);
   const viewModeStorageKey = "reway.dashboard.viewMode";
-  const rowContentStorageKey = "reway.dashboard.rowContent";
 
   const normalizeGroupName = useCallback((value?: string | null) => {
     const name = value?.trim() ?? "";
@@ -194,31 +166,11 @@ export function DashboardContent({
 
   React.useEffect(() => {
     try {
-      const storedRowContent =
-        window.localStorage.getItem(rowContentStorageKey);
-      if (storedRowContent === "date" || storedRowContent === "group") {
-        setRowContent(storedRowContent);
-      }
-    } catch (error) {
-      console.warn("Failed to load row content preference:", error);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    try {
       window.localStorage.setItem(viewModeStorageKey, viewMode);
     } catch (error) {
       console.warn("Failed to persist view mode:", error);
     }
   }, [viewMode]);
-
-  React.useEffect(() => {
-    try {
-      window.localStorage.setItem(rowContentStorageKey, rowContent);
-    } catch (error) {
-      console.warn("Failed to persist row content preference:", error);
-    }
-  }, [rowContent]);
 
   React.useEffect(() => {
     if (viewMode !== "folders") {
@@ -306,17 +258,18 @@ export function DashboardContent({
     setIsCreatingGroup,
   });
 
-  const handleRequestDeleteGroup = useCallback((id: string) => {
-    setGroupToDeleteId(id);
-    setDeleteGroupDialogOpen(true);
-  }, []);
-
-  const handleConfirmDeleteGroup = useCallback(() => {
-    if (!groupToDeleteId) return;
-    handleDeleteGroup(groupToDeleteId);
-    setDeleteGroupDialogOpen(false);
-    setGroupToDeleteId(null);
-  }, [groupToDeleteId, handleDeleteGroup]);
+  const handleDeleteGroupClick = useCallback(
+    (groupId: string) => {
+      setDeleteConfirmGroupId((prev) => {
+        if (prev === groupId) {
+          handleDeleteGroup(groupId);
+          return null;
+        }
+        return groupId;
+      });
+    },
+    [handleDeleteGroup],
+  );
 
   const {
     importPreview,
@@ -341,11 +294,10 @@ export function DashboardContent({
     setGroups,
   });
 
-  const { exportProgress, handleExportBookmarks, resetExportProgress } =
-    useExportHandlers({
-      bookmarks,
-      groups,
-    });
+  const { exportProgress, handleExportBookmarks } = useExportHandlers({
+    bookmarks,
+    groups,
+  });
 
   const handleResolveConflicts = useCallback(
     async (action: "skip" | "override") => {
@@ -397,9 +349,15 @@ export function DashboardContent({
         }
       }
 
+      // 2. Handle Import Conflicts
+      if (importPreview) {
+        handleUpdateImportAction(action);
+      }
     },
     [
       addConflicts,
+      importPreview,
+      handleUpdateImportAction,
       addOptimisticBookmark,
       applyEnrichment,
       replaceBookmarkId,
@@ -422,7 +380,6 @@ export function DashboardContent({
     initialBookmarks,
     deleteBookmark: deleteAction,
     restoreBookmark: restoreAction,
-    extensionStoreUrl: EXTENSION_STORE_URL,
     lastBulkDeletedRef,
   });
 
@@ -438,13 +395,7 @@ export function DashboardContent({
   });
 
   return (
-    <AlertDialog
-      open={deleteGroupDialogOpen}
-      onOpenChange={(open) => {
-        setDeleteGroupDialogOpen(open);
-        if (!open) setGroupToDeleteId(null);
-      }}
-    >
+    <>
       <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
         <DashboardSidebar
           groups={groups}
@@ -461,7 +412,8 @@ export function DashboardContent({
           setEditGroupColor={setEditGroupColor}
           isUpdatingGroup={isUpdatingGroup}
           handleSidebarGroupUpdate={handleSidebarGroupUpdate}
-          onRequestDeleteGroup={handleRequestDeleteGroup}
+          deleteConfirmGroupId={deleteConfirmGroupId}
+          handleDeleteGroupClick={handleDeleteGroupClick}
           isInlineCreating={isInlineCreating}
           setIsInlineCreating={setIsInlineCreating}
           newGroupName={newGroupName}
@@ -474,7 +426,7 @@ export function DashboardContent({
           handleInlineCreateGroup={handleInlineCreateGroup}
         />
         {/* Fixed Header Section */}
-        <div className="flex-none z-40 bg-background/95 px-1 border-b border-border/20">
+        <div className="flex-none z-40 bg-background/80 backdrop-blur-xl px-1">
           <DashboardNav
             user={user}
             groups={groups}
@@ -483,7 +435,7 @@ export function DashboardContent({
             onGroupSelect={setActiveGroupId}
             onGroupCreated={handleGroupCreated}
             onGroupUpdate={handleUpdateGroup}
-            onGroupDelete={handleRequestDeleteGroup}
+            onGroupDelete={handleDeleteGroup}
             onGroupOpen={handleOpenGroup}
             rowContent={rowContent}
             setRowContent={setRowContent}
@@ -498,7 +450,6 @@ export function DashboardContent({
             onConfirmImport={handleConfirmImport}
             onClearImport={handleClearImport}
             onExportBookmarks={handleExportBookmarks}
-            onResetExport={resetExportProgress}
           />
           <div className="pt-4 md:pt-6">
             <CommandBar
@@ -574,25 +525,6 @@ export function DashboardContent({
           onResolve={handleResolveConflicts}
         />
       </div>
-
-      <AlertDialogContent size="sm">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete group?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will delete the group and remove its bookmarks from your dashboard.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            className="rounded-4xl"
-            onClick={handleConfirmDeleteGroup}
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    </>
   );
 }

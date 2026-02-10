@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useId, useMemo, useRef, useEffect } from "react";
+import React, { useState, useId, useMemo, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -12,7 +12,6 @@ import {
   DragStartEvent,
   DragEndEvent,
   MeasuringStrategy,
-  defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -73,9 +72,10 @@ export function BookmarkBoard({
   onToggleSelection,
   onEnterSelectionMode,
 }: BookmarkBoardProps) {
-  const stableSelectedIds = useMemo(() => selectedIds ?? new Set<string>(), [
-    selectedIds,
-  ]);
+  const stableSelectedIds = useMemo(
+    () => selectedIds ?? new Set<string>(),
+    [selectedIds],
+  );
 
   // ... existing sensors and handlers
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -165,12 +165,7 @@ export function BookmarkBoard({
       setIsPreviewOpen(true);
     },
   });
-
-  useEffect(() => {
-    if (viewMode !== "list") {
-      setEditingId(null);
-    }
-  }, [viewMode]);
+  const activeEditingId = viewMode === "list" ? editingId : null;
 
   if (bookmarks.length === 0) {
     return <EmptyState isMac={isMac} />;
@@ -278,7 +273,7 @@ export function BookmarkBoard({
                   groups={initialGroups}
                   groupsMap={groupsMap}
                   activeGroupId={activeGroupId}
-                  isEditing={editingId === bookmark.id}
+                  isEditing={activeEditingId === bookmark.id}
                   onEditDone={() => setEditingId(null)}
                   onPreview={(id) => {
                     const b = bookmarks.find((bm) => bm.id === id);
