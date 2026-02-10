@@ -56,6 +56,9 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
     if (videoRef.current) {
       const current = videoRef.current.currentTime;
       const duration = videoRef.current.duration;
+      if (!isReady && current > 0) {
+        setIsReady(true);
+      }
       if (duration > 0) {
         setProgress((current / duration) * 100);
       }
@@ -91,10 +94,12 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
         playsInline
         className={cn(
           "h-full w-full object-cover transition-opacity duration-300",
-          isReady ? "opacity-100" : "opacity-0",
+          isReady || isPlaying ? "opacity-100" : "opacity-0",
         )}
         onTimeUpdate={handleTimeUpdate}
+        onLoadedData={() => setIsReady(true)}
         onCanPlay={() => setIsReady(true)}
+        onPlaying={() => setIsReady(true)}
       />
 
       {!isReady && (
