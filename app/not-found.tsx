@@ -9,9 +9,19 @@ import {
   ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function NotFound() {
   const shouldReduceMotion = useReducedMotion();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAuthenticated(!!data?.user);
+    });
+  }, []);
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
@@ -47,8 +57,8 @@ export default function NotFound() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="rounded-3xl">
-              <Link href="/login">
-                Sign in
+              <Link href={isAuthenticated ? "/dashboard" : "/login"}>
+                {isAuthenticated ? "Dashboard" : "Sign in"}
                 <HugeiconsIcon
                   icon={ArrowRight01Icon}
                   size={18}
