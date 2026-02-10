@@ -2,7 +2,6 @@
 
 import {
   Add01Icon,
-  Alert02Icon,
   ArrowDown01Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
@@ -61,7 +60,6 @@ function CharacterCount({ current, max }: { current: number; max: number }) {
 interface GroupMenuProps {
   groups: GroupRow[];
   activeGroupId: string;
-  groupCounts: Record<string, number>;
   onGroupSelect: (id: string) => void;
   onGroupOpen?: (id: string) => void;
   onDeleteGroupClick: (id: string) => void;
@@ -91,7 +89,6 @@ interface GroupMenuProps {
 export function GroupMenu({
   groups,
   activeGroupId,
-  groupCounts,
   onGroupSelect,
   onGroupOpen,
   onDeleteGroupClick,
@@ -153,8 +150,6 @@ export function GroupMenu({
       : activeGroup.icon
         ? (iconsMap?.[activeGroup.icon] ?? Folder01Icon)
         : Folder01Icon;
-
-  const getBookmarkCount = (groupId: string) => groupCounts[groupId] || 0;
 
   return (
     <div className="md:hidden">

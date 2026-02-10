@@ -119,7 +119,7 @@ export function DashboardSidebar({
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
   return (
-    <aside className="hidden min-[1200px]:flex fixed left-6 top-[10.75rem] bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
+    <aside className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
         <KbdGroup className="gap-0.5">
           <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
