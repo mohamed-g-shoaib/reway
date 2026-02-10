@@ -1,1 +1,1 @@
-export type DashboardHref = "/login" | "/dashboard";
+export type DashboardHref = "/login" | "/dashboard" | "/terms" | "/privacy";

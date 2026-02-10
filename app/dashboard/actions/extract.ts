@@ -3,6 +3,12 @@
 import { google } from "@/lib/ai";
 import { generateText } from "ai";
 
+function isStringArray(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
+}
+
 export async function extractLinks(content: string, isImage = false) {
   try {
     const { text } = await generateText({
@@ -29,10 +35,13 @@ export async function extractLinks(content: string, isImage = false) {
 
     console.log("AI Raw Response:", text);
 
-    const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const cleanText = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
     const urls = JSON.parse(cleanText);
     console.log("Extracted URLs:", urls);
-    return Array.isArray(urls) ? urls : [];
+    return isStringArray(urls) ? urls : [];
   } catch (error) {
     console.error("Link extraction failed:", error);
     return [];

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 export type TextShimmerProps = {
   children: string;
-  as?: string;
+  as?: keyof typeof motion;
   className?: string;
   duration?: number;
   spread?: number;
@@ -23,8 +23,8 @@ const TextShimmer = ({
   delay = 0,
   repeatDelay = 0,
 }: TextShimmerProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const MotionComponent = (motion as any)[as] || motion.p;
+  const MotionComponent = (motion[as as keyof typeof motion] ||
+    motion.p) as typeof motion.p;
 
   const dynamicSpread = useMemo(() => {
     return children.length * spread;

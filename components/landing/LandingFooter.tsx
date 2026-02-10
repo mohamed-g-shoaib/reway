@@ -11,6 +11,7 @@ import {
 import BrandWord from "@/components/landing/BrandWord";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
 import RewayLogo from "@/components/logo";
+import type { DashboardHref } from "@/components/landing/types";
 
 export function LandingFooter() {
   const shouldReduceMotion = useReducedMotion();
@@ -108,7 +109,7 @@ export function LandingFooter() {
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  href={"/terms" as any} // eslint-disable-line @typescript-eslint/no-explicit-any
+                  href={"/terms" as DashboardHref}
                   className="hover:text-foreground transition-colors"
                 >
                   Terms
@@ -116,7 +117,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href={"/privacy" as any} // eslint-disable-line @typescript-eslint/no-explicit-any
+                  href={"/privacy" as DashboardHref}
                   className="hover:text-foreground transition-colors"
                 >
                   Privacy
