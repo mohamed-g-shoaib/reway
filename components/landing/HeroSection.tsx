@@ -15,6 +15,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import RewayLogo from "@/components/logo";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import type { DashboardHref } from "@/components/landing/types";
 import { useState } from "react";
@@ -168,13 +169,7 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
         >
           <div className="flex items-center justify-between border-b border-foreground/8 bg-muted/40 px-4 py-3 text-xs text-muted-foreground sm:text-sm">
             <div className="flex items-center gap-3 text-foreground">
-              <Image
-                src="/logo.svg"
-                width={18}
-                height={18}
-                alt="Reway Logo"
-                className="dark:invert"
-              />
+              <RewayLogo className="size-4.5" aria-hidden="true" focusable="false" />
               <span className="text-sm font-semibold">All Bookmarks</span>
             </div>
             <Avatar className="h-7 w-7">

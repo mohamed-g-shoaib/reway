@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import {
@@ -11,6 +10,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import BrandWord from "@/components/landing/BrandWord";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
+import RewayLogo from "@/components/logo";
 
 export function LandingFooter() {
   const shouldReduceMotion = useReducedMotion();
@@ -54,13 +54,7 @@ export function LandingFooter() {
               href="/"
               className="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
             >
-              <Image
-                src="/logo.svg"
-                width={24}
-                height={24}
-                alt="Reway Logo"
-                className="dark:invert"
-              />
+              <RewayLogo className="size-6" aria-hidden="true" focusable="false" />
               <span className="font-semibold">Reway</span>
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">

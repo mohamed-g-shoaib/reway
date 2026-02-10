@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { DashboardHref } from "@/components/landing/types";
+import RewayLogo from "@/components/logo";
 
 interface LandingNavProps {
   dashboardHref: DashboardHref;
@@ -37,7 +37,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
 
   return (
     <motion.header
-      className="sticky top-4 z-40"
+      className="sticky top-0 z-40 md:top-4"
       initial={shouldReduceMotion ? false : "hidden"}
       animate={shouldReduceMotion ? undefined : "visible"}
       variants={shouldReduceMotion ? undefined : headerVariants}
@@ -55,13 +55,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
             className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97]"
             aria-label="Reway Home"
           >
-            <Image
-              src="/logo.svg"
-              width={28}
-              height={28}
-              alt="Reway Logo"
-              className="dark:invert"
-            />
+            <RewayLogo className="size-7" aria-hidden="true" focusable="false" />
             <span className="text-sm font-semibold sm:text-base">
               Reway
             </span>

@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import { GroupRow } from "@/lib/supabase/queries";
-import Image from "next/image";
 import Link from "next/link";
+import RewayLogo from "@/components/logo";
 import { createGroup } from "@/app/dashboard/actions/groups";
 import { ImportDialog } from "./nav/ImportDialog";
 import { ExportDialog } from "./nav/ExportDialog";
@@ -247,13 +247,7 @@ export function DashboardNav({
               href="/"
               className="hidden md:flex shrink-0 items-center transition-opacity hover:opacity-80 active:scale-95"
             >
-              <Image
-                src="/logo.svg"
-                width={32}
-                height={32}
-                alt="Reway Logo"
-                className="select-none dark:invert"
-              />
+              <RewayLogo className="size-8" aria-label="Reway" />
             </Link>
 
             <GroupMenu
