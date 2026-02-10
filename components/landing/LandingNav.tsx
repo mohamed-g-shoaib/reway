@@ -72,7 +72,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
             <Button
               asChild
               size="sm"
-              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] ring-1 ring-foreground/8"
+              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold bg-foreground text-background hover:bg-foreground/90 transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] ring-0"
             >
               <Link href={dashboardHref}>{ctaLabel}</Link>
             </Button>

@@ -80,7 +80,7 @@ export function Header() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
-  }, [user?.name]);
+  }, [user]);
 
   return (
     <header
@@ -135,8 +135,7 @@ export function Header() {
               <Button
                 asChild
                 size="sm"
-                variant="outline"
-                className="ring-foreground/8"
+                className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
               >
                 <a href="/dashboard">Dashboard</a>
               </Button>
@@ -161,7 +160,11 @@ export function Header() {
               </DropdownMenu>
             </>
           ) : (
-            <Button asChild size="sm">
+            <Button
+              asChild
+              size="sm"
+              className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
+            >
               <a href="/login">Get Started</a>
             </Button>
           )}

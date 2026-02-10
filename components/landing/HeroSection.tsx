@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import {
-  ArrowRight01Icon,
   Add01Icon,
   Copy01Icon,
   ArrowUpRight03Icon,
@@ -13,17 +11,12 @@ import {
   PencilEdit01Icon,
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import RewayLogo from "@/components/logo";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import type { DashboardHref } from "@/components/landing/types";
-import { useState } from "react";
 
-interface HeroSectionProps {
-  dashboardHref: DashboardHref;
-  ctaLabel: string;
-}
+import { useState } from "react";
 
 const previewBookmarks = [
   {
@@ -70,7 +63,7 @@ const previewBookmarks = [
   },
 ];
 
-export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
+export function HeroSection() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -137,30 +130,6 @@ export function HeroSection({ dashboardHref, ctaLabel }: HeroSectionProps) {
             in seconds, let AI extract what matters, and move fast with search,
             groups, and view modes that match the way you think.
           </p>
-          <motion.div
-            whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
-            whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-            transition={
-              shouldReduceMotion
-                ? { duration: 0 }
-                : { duration: 0.16, ease: "easeOut" }
-            }
-          >
-            <Button
-              asChild
-              size="lg"
-              className="h-12 rounded-3xl px-6 text-sm font-semibold transition-[color,background-color] duration-200 ease-out"
-            >
-              <Link href={dashboardHref}>
-                {ctaLabel}
-                <HugeiconsIcon
-                  icon={ArrowRight01Icon}
-                  size={18}
-                  className="ml-2"
-                />
-              </Link>
-            </Button>
-          </motion.div>
         </motion.div>
 
         <motion.div

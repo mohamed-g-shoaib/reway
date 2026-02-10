@@ -19,7 +19,7 @@ export default function LandingPage({
     <div className="min-h-dvh bg-background text-foreground">
       <LandingNav dashboardHref={dashboardHref} ctaLabel={ctaLabel} />
       <main className="pt-20">
-        <HeroSection dashboardHref={dashboardHref} ctaLabel={ctaLabel} />
+        <HeroSection />
         <FeaturesSection />
         <DemoVideosSection />
         <CallToAction dashboardHref={dashboardHref} ctaLabel={ctaLabel} />
