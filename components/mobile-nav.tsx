@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { navLinks } from "@/components/header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, useReducedMotion } from "motion/react";
+import { createClient } from "@/lib/supabase/client";
 
 type MobileNavUser = {
   id: string;
@@ -21,6 +22,13 @@ interface MobileNavProps {
 export function MobileNav({ user, initials = "U" }: MobileNavProps) {
   const [open, setOpen] = React.useState(false);
   const shouldReduceMotion = useReducedMotion();
+
+  const onLogout = React.useCallback(async () => {
+    setOpen(false);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.reload();
+  }, []);
 
   React.useEffect(() => {
     if (!open) return;
@@ -73,27 +81,38 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
           >
             <div className="mx-auto w-full max-w-4xl px-4 pt-3">
               {user ? (
-                <div className="mb-8 flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar_url} alt={user.name} />
-                    <AvatarFallback>{initials}</AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-medium text-foreground">
-                      {user.name}
+                <div className="mb-6 rounded-4xl border bg-muted/20 px-3 py-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={user.avatar_url} alt={user.name} />
+                      <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {user.name}
+                      </div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        {user.email}
+                      </div>
                     </div>
-                    <div className="truncate text-xs text-muted-foreground">
-                      {user.email}
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="shrink-0"
+                      onClick={onLogout}
+                      type="button"
+                    >
+                      Logout
+                    </Button>
                   </div>
                 </div>
               ) : null}
 
-              <div className="grid gap-y-2">
+              <div className="grid gap-y-1">
                 {navLinks.map((link) => (
                   <Button
                     asChild
-                    className="justify-start"
+                    className="-mx-2 h-10 justify-start px-2"
                     key={link.label}
                     variant="ghost"
                     onClick={() => setOpen(false)}
@@ -102,25 +121,15 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
                   </Button>
                 ))}
               </div>
-              <div className="mt-12 flex flex-col gap-2">
+              <div className="mt-8 border-t pt-4">
                 {user ? (
                   <Button asChild className="w-full" onClick={() => setOpen(false)}>
                     <a href="/dashboard">Go to Dashboard</a>
                   </Button>
                 ) : (
-                  <>
-                    <Button
-                      asChild
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => setOpen(false)}
-                    >
-                      <a href="/login">Sign In</a>
-                    </Button>
-                    <Button asChild className="w-full" onClick={() => setOpen(false)}>
-                      <a href="/login">Get Started</a>
-                    </Button>
-                  </>
+                  <Button asChild className="w-full" onClick={() => setOpen(false)}>
+                    <a href="/login">Get Started</a>
+                  </Button>
                 )}
               </div>
             </div>

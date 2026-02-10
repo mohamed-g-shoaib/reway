@@ -8,6 +8,12 @@ import { MobileNav } from "@/components/mobile-nav";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const navLinks = [
   {
@@ -34,6 +40,12 @@ type HeaderUser = {
 export function Header() {
   const scrolled = useScroll(10);
   const [user, setUser] = useState<HeaderUser | null>(null);
+
+  const onLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   useEffect(() => {
     const supabase = createClient();
@@ -116,10 +128,25 @@ export function Header() {
               <Button asChild size="sm" variant="outline">
                 <a href="/dashboard">Dashboard</a>
               </Button>
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatar_url} alt={user.name} />
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label="Open user menu"
+                  >
+                    <Avatar className="h-8 w-8 transition-transform active:scale-95 cursor-pointer">
+                      <AvatarImage src={user.avatar_url} alt={user.name} />
+                      <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem variant="destructive" onSelect={onLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <Button asChild size="sm">
