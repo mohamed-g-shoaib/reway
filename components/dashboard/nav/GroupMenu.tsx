@@ -214,7 +214,7 @@ export function GroupMenu({
 
           {groups.length > 0 ? (
             <div
-              className={`max-h-75 overflow-y-auto ${
+              className={`max-h-75 overflow-y-auto scroll-fade-effect-y ${
                 groups.length > 1
                   ? "border-t border-border/50 my-1 pt-1"
                   : "mt-1"
@@ -384,10 +384,7 @@ export function GroupMenu({
                             }}
                             className="gap-2 text-xs rounded-xl cursor-pointer text-destructive/80 focus:text-destructive"
                           >
-                            <HugeiconsIcon
-                              icon={Delete02Icon}
-                              size={14}
-                            />
+                            <HugeiconsIcon icon={Delete02Icon} size={14} />
                             Delete group
                           </DropdownMenuItem>
                         </DropdownMenuContent>

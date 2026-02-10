@@ -119,7 +119,7 @@ export function DashboardSidebar({
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
   return (
-    <aside className="hidden min-[1200px]:flex fixed left-6 top-[10.75rem] z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
+    <aside className="hidden min-[1200px]:flex fixed left-6 top-[10.75rem] bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
         <KbdGroup className="gap-0.5">
           <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
@@ -190,212 +190,215 @@ export function DashboardSidebar({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      {groups.map((group) => {
-        const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
-        const isEditing = editingGroupId === group.id;
-        const isDeleteConfirm = deleteConfirmGroupId === group.id;
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-fade-effect-y overscroll-contain scrollbar-hover-only">
+        {groups.map((group) => {
+          const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
+          const isEditing = editingGroupId === group.id;
+          const isDeleteConfirm = deleteConfirmGroupId === group.id;
 
-        if (isEditing) {
+          if (isEditing) {
+            return (
+              <div
+                key={group.id}
+                className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
+              >
+                <div className="flex items-center gap-2">
+                  <IconPickerPopover
+                    selectedIcon={editGroupIcon}
+                    onIconSelect={setEditGroupIcon}
+                    color={editGroupColor}
+                    onColorChange={setEditGroupColor}
+                  >
+                    <button
+                      type="button"
+                      className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
+                      aria-label="Select group icon"
+                    >
+                      <HugeiconsIcon
+                        icon={
+                          ALL_ICONS_MAP[editGroupIcon] ||
+                          ALL_ICONS_MAP["folder"]
+                        }
+                        size={16}
+                        strokeWidth={2}
+                        style={{ color: editGroupColor || "#6366f1" }}
+                      />
+                    </button>
+                  </IconPickerPopover>
+                  <Input
+                    value={editGroupName}
+                    onChange={(e) =>
+                      setEditGroupName(
+                        e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
+                      )
+                    }
+                    placeholder="Group name"
+                    className="h-8 flex-1 text-sm rounded-xl"
+                    autoFocus
+                    maxLength={MAX_GROUP_NAME_LENGTH}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleSidebarGroupUpdate(group.id);
+                      } else if (e.key === "Escape") {
+                        setEditingGroupId(null);
+                      }
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 px-3 text-xs rounded-4xl font-bold"
+                    onClick={() => setEditingGroupId(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <div className="flex items-center gap-2">
+                    <CharacterCount
+                      current={editGroupName.length}
+                      max={MAX_GROUP_NAME_LENGTH}
+                    />
+                    <Button
+                      size="sm"
+                      className="h-7 px-3 text-xs rounded-4xl"
+                      onClick={() => handleSidebarGroupUpdate(group.id)}
+                      disabled={!editGroupName.trim() || isUpdatingGroup}
+                    >
+                      {isUpdatingGroup ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
           return (
-            <div
-              key={group.id}
-              className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
-            >
-              <div className="flex items-center gap-2">
-                <IconPickerPopover
-                  selectedIcon={editGroupIcon}
-                  onIconSelect={setEditGroupIcon}
-                  color={editGroupColor}
-                  onColorChange={setEditGroupColor}
+            <ContextMenu key={group.id}>
+              <ContextMenuTrigger asChild>
+                <div
+                  className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+                    activeGroupId === group.id
+                      ? "text-foreground font-semibold"
+                      : "hover:text-foreground/80"
+                  }`}
                 >
                   <button
                     type="button"
-                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
-                    aria-label="Select group icon"
+                    onClick={() => setActiveGroupId(group.id)}
+                    className="flex items-center gap-3 min-w-0 flex-1 text-left"
                   >
-                    <HugeiconsIcon
-                      icon={
-                        ALL_ICONS_MAP[editGroupIcon] || ALL_ICONS_MAP["folder"]
-                      }
-                      size={16}
-                      strokeWidth={2}
-                      style={{ color: editGroupColor || "#6366f1" }}
+                    <span
+                      className={`h-px transition-[width,opacity] duration-200 ease-out ${
+                        activeGroupId === group.id
+                          ? "w-12 opacity-80"
+                          : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                      } bg-current`}
                     />
-                  </button>
-                </IconPickerPopover>
-                <Input
-                  value={editGroupName}
-                  onChange={(e) =>
-                    setEditGroupName(
-                      e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                    )
-                  }
-                  placeholder="Group name"
-                  className="h-8 flex-1 text-sm rounded-xl"
-                  autoFocus
-                  maxLength={MAX_GROUP_NAME_LENGTH}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleSidebarGroupUpdate(group.id);
-                    } else if (e.key === "Escape") {
-                      setEditingGroupId(null);
-                    }
-                  }}
-                />
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="h-7 px-3 text-xs rounded-4xl font-bold"
-                  onClick={() => setEditingGroupId(null)}
-                >
-                  Cancel
-                </Button>
-                <div className="flex items-center gap-2">
-                  <CharacterCount
-                    current={editGroupName.length}
-                    max={MAX_GROUP_NAME_LENGTH}
-                  />
-                  <Button
-                    size="sm"
-                    className="h-7 px-3 text-xs rounded-4xl"
-                    onClick={() => handleSidebarGroupUpdate(group.id)}
-                    disabled={!editGroupName.trim() || isUpdatingGroup}
-                  >
-                    {isUpdatingGroup ? "Saving..." : "Save"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <ContextMenu key={group.id}>
-            <ContextMenuTrigger asChild>
-              <div
-                className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
-                  activeGroupId === group.id
-                    ? "text-foreground font-semibold"
-                    : "hover:text-foreground/80"
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => setActiveGroupId(group.id)}
-                  className="flex items-center gap-3 min-w-0 flex-1 text-left"
-                >
-                  <span
-                    className={`h-px transition-[width,opacity] duration-200 ease-out ${
-                      activeGroupId === group.id
-                        ? "w-12 opacity-80"
-                        : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                    } bg-current`}
-                  />
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <HugeiconsIcon
-                      icon={GroupIcon || GridIcon}
-                      size={16}
-                      strokeWidth={2}
-                      style={{ color: group.color || undefined }}
-                      className={group.color ? "" : "text-foreground/80"}
-                    />
-                    <span className="truncate max-w-32">{group.name}</span>
-                  </div>
-                </button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
-                      aria-label={`${group.name} options`}
-                    >
-                      <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" className="w-40">
-                    <DropdownMenuItem
-                      onClick={() => handleOpenGroup(group.id)}
-                      className="gap-2 text-xs cursor-pointer"
-                    >
-                      <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-                      Open group
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setEditingGroupId(group.id);
-                        setEditGroupName(group.name);
-                        setEditGroupIcon(group.icon || "folder");
-                        setEditGroupColor(group.color || "#6366f1");
-                      }}
-                      className="gap-2 text-xs cursor-pointer"
-                    >
-                      <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-                      Edit group
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault();
-                        handleDeleteGroupClick(group.id);
-                      }}
-                      className={`gap-2 text-xs cursor-pointer ${
-                        isDeleteConfirm
-                          ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                          : "text-destructive/80 focus:text-destructive"
-                      }`}
-                    >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
                       <HugeiconsIcon
-                        icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                        size={14}
+                        icon={GroupIcon || GridIcon}
+                        size={16}
+                        strokeWidth={2}
+                        style={{ color: group.color || undefined }}
+                        className={group.color ? "" : "text-foreground/80"}
                       />
-                      {isDeleteConfirm ? "Click to confirm" : "Delete group"}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </ContextMenuTrigger>
-            <ContextMenuContent className="w-44">
-              <ContextMenuItem
-                onClick={() => handleOpenGroup(group.id)}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-                Open group
-              </ContextMenuItem>
-              <ContextMenuItem
-                onClick={() => {
-                  setEditingGroupId(group.id);
-                  setEditGroupName(group.name);
-                  setEditGroupIcon(group.icon || "folder");
-                  setEditGroupColor(group.color || "#6366f1");
-                }}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-                Edit group
-              </ContextMenuItem>
-              <ContextMenuItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                  handleDeleteGroupClick(group.id);
-                }}
-                className={`gap-2 text-xs cursor-pointer ${
-                  isDeleteConfirm
-                    ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                    : "text-destructive/80 focus:text-destructive"
-                }`}
-              >
-                <HugeiconsIcon
-                  icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                  size={14}
-                />
-                {isDeleteConfirm ? "Click to confirm" : "Delete group"}
-              </ContextMenuItem>
-            </ContextMenuContent>
-          </ContextMenu>
-        );
-      })}
+                      <span className="truncate max-w-32">{group.name}</span>
+                    </div>
+                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+                        aria-label={`${group.name} options`}
+                      >
+                        <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="w-40">
+                      <DropdownMenuItem
+                        onClick={() => handleOpenGroup(group.id)}
+                        className="gap-2 text-xs cursor-pointer"
+                      >
+                        <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                        Open group
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setEditingGroupId(group.id);
+                          setEditGroupName(group.name);
+                          setEditGroupIcon(group.icon || "folder");
+                          setEditGroupColor(group.color || "#6366f1");
+                        }}
+                        className="gap-2 text-xs cursor-pointer"
+                      >
+                        <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                        Edit group
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          handleDeleteGroupClick(group.id);
+                        }}
+                        className={`gap-2 text-xs cursor-pointer ${
+                          isDeleteConfirm
+                            ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                            : "text-destructive/80 focus:text-destructive"
+                        }`}
+                      >
+                        <HugeiconsIcon
+                          icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                          size={14}
+                        />
+                        {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </ContextMenuTrigger>
+              <ContextMenuContent className="w-44">
+                <ContextMenuItem
+                  onClick={() => handleOpenGroup(group.id)}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
+                  Open group
+                </ContextMenuItem>
+                <ContextMenuItem
+                  onClick={() => {
+                    setEditingGroupId(group.id);
+                    setEditGroupName(group.name);
+                    setEditGroupIcon(group.icon || "folder");
+                    setEditGroupColor(group.color || "#6366f1");
+                  }}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                  Edit group
+                </ContextMenuItem>
+                <ContextMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    handleDeleteGroupClick(group.id);
+                  }}
+                  className={`gap-2 text-xs cursor-pointer ${
+                    isDeleteConfirm
+                      ? "text-destructive focus:text-destructive focus:bg-destructive/10"
+                      : "text-destructive/80 focus:text-destructive"
+                  }`}
+                >
+                  <HugeiconsIcon
+                    icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
+                    size={14}
+                  />
+                  {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
+          );
+        })}
+      </div>
 
       <div className="pt-3 mt-2 border-t border-border/40">
         {isInlineCreating ? (
