@@ -19,7 +19,11 @@ export default function NotFound() {
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
           animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : { duration: 0.28, ease: "easeOut" }
+          }
           className="space-y-8"
         >
           <div className="flex flex-col items-center text-center space-y-4">
@@ -27,11 +31,10 @@ export default function NotFound() {
               <HugeiconsIcon icon={FileNotFoundIcon} size={28} />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold">
-                Page not found
-              </h1>
+              <h1 className="text-3xl font-bold">Page not found</h1>
               <p className="text-muted-foreground">
-                The page you're looking for doesn't exist or has been moved.
+                The page you&apos;re looking for doesn&apos;t exist or has been
+                moved.
               </p>
             </div>
           </div>
