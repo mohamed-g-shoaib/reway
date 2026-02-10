@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
+
 import {
   AttachmentIcon,
   BookmarkAdd02Icon,
@@ -48,11 +50,64 @@ export function CommandBarInput({
   onFileChange,
   onPlusClick,
 }: CommandBarInputProps) {
+  const FADE_SIZE = 20; // px
+  const [fadeState, setFadeState] = useState<
+    "none" | "left" | "right" | "both"
+  >("none");
+
+  const updateFade = useCallback((el: HTMLInputElement) => {
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const canScrollLeft = scrollLeft > 1;
+    const canScrollRight = scrollLeft + clientWidth < scrollWidth - 1;
+
+    if (canScrollLeft && canScrollRight) setFadeState("both");
+    else if (canScrollLeft) setFadeState("left");
+    else if (canScrollRight) setFadeState("right");
+    else setFadeState("none");
+  }, []);
+
+  // Listen to scroll events on the input
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+
+    const handler = () => updateFade(el);
+    el.addEventListener("scroll", handler, { passive: true });
+    // Also check on input changes (typing/pasting)
+    el.addEventListener("input", handler, { passive: true });
+    // Initial check
+    handler();
+
+    return () => {
+      el.removeEventListener("scroll", handler);
+      el.removeEventListener("input", handler);
+    };
+  }, [inputRef, updateFade]);
+
+  // Also recheck when value changes externally (e.g. mode switch clears query)
+  const currentValue = mode === "search" ? searchQuery : inputValue;
+  useEffect(() => {
+    const el = inputRef.current;
+    if (el) {
+      // Defer to let the browser update the input's internal scroll
+      requestAnimationFrame(() => updateFade(el));
+    }
+  }, [currentValue, inputRef, updateFade]);
+
+  const maskImage =
+    fadeState === "both"
+      ? `linear-gradient(to right, transparent, black ${FADE_SIZE}px, black calc(100% - ${FADE_SIZE}px), transparent)`
+      : fadeState === "left"
+        ? `linear-gradient(to right, transparent, black ${FADE_SIZE}px)`
+        : fadeState === "right"
+          ? `linear-gradient(to right, black calc(100% - ${FADE_SIZE}px), transparent)`
+          : undefined;
+
   return (
     <div className="relative w-full">
       <form
         onSubmit={onSubmit}
-        className={`group relative flex items-center justify-between rounded-2xl px-4 py-1.5 ${
+        className={`group relative flex items-center justify-between gap-3 rounded-2xl px-4 py-1.5 ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
             : "ring-1 ring-foreground/8 after:ring-white/5"
@@ -103,7 +158,8 @@ export function CommandBarInput({
               ? "Search bookmarks..."
               : "Add a link, image, or search..."
           }
-          className="flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
+          className="flex-1 min-w-0 bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
+          style={{ maskImage }}
           onFocus={() => onFocusChange(true)}
           onBlur={() => onFocusChange(false)}
           aria-label="Search or add bookmarks"
