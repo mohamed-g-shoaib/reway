@@ -54,7 +54,7 @@ export function DemoVideosSection() {
                   index % 2 === 0 ? "lg:order-1" : "lg:order-2",
                 )}
               >
-                <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl ring-1 ring-foreground/8 bg-muted/5">
+                <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl ring-1 ring-foreground/8 bg-black/5">
                   <DemoVideo src={video.src} className="h-full w-full" />
                 </div>
               </div>

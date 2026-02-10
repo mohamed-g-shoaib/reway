@@ -12,11 +12,14 @@ interface DemoVideoProps {
 }
 
 export function DemoVideo({ src, poster, className }: DemoVideoProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isTouchUI, setIsTouchUI] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -39,6 +42,44 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const active = Boolean(document.fullscreenElement);
+      setIsFullscreen(active);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    const video = videoRef.current as (HTMLVideoElement & {
+      addEventListener: HTMLVideoElement["addEventListener"];
+    }) | null;
+    const handleWebkitBegin = () => setIsFullscreen(true);
+    const handleWebkitEnd = () => setIsFullscreen(false);
+    video?.addEventListener?.("webkitbeginfullscreen", handleWebkitBegin);
+    video?.addEventListener?.("webkitendfullscreen", handleWebkitEnd);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      video?.removeEventListener?.("webkitbeginfullscreen", handleWebkitBegin);
+      video?.removeEventListener?.("webkitendfullscreen", handleWebkitEnd);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mql = window.matchMedia("(hover: none), (pointer: coarse)");
+    const update = () => setIsTouchUI(Boolean(mql.matches));
+    update();
+
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", update);
+      return () => mql.removeEventListener("change", update);
+    }
+
+    mql.addListener(update);
+    return () => mql.removeListener(update);
+  }, []);
+
   const togglePlay = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (videoRef.current) {
@@ -50,6 +91,44 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
         setIsPlaying(false);
       }
     }
+  }, []);
+
+  const handleWrapperClick = useCallback(() => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play().catch(() => {});
+      setIsPlaying(true);
+      return;
+    }
+    videoRef.current.pause();
+    setIsPlaying(false);
+  }, []);
+
+  const toggleFullscreen = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const wrapper = wrapperRef.current;
+    const video = videoRef.current;
+    if (!wrapper || !video) return;
+
+    // iOS Safari uses a separate fullscreen API on the <video> element.
+    const anyVideo = video as HTMLVideoElement & {
+      webkitEnterFullscreen?: () => void;
+    };
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+      return;
+    }
+
+    if (typeof wrapper.requestFullscreen === "function") {
+      wrapper.requestFullscreen().catch(() => {
+        anyVideo.webkitEnterFullscreen?.();
+      });
+      return;
+    }
+
+    anyVideo.webkitEnterFullscreen?.();
   }, []);
 
   const handleTimeUpdate = () => {
@@ -77,10 +156,13 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
 
   return (
     <div
+      ref={wrapperRef}
       className={cn(
-        "group relative h-full w-full overflow-hidden bg-muted/20",
+        "group relative h-full w-full overflow-hidden",
+        isFullscreen ? "bg-black" : "bg-muted/20",
         className,
       )}
+      onClick={handleWrapperClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -93,7 +175,7 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
         muted
         playsInline
         className={cn(
-          "h-full w-full object-cover transition-opacity duration-300",
+          "h-full w-full object-contain transition-opacity duration-300",
           isReady || isPlaying ? "opacity-100" : "opacity-0",
         )}
         onTimeUpdate={handleTimeUpdate}
@@ -108,15 +190,23 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
 
       {/* Controls Overlay - Using base theme components and consistent tokens */}
       <div
+        style={{ zIndex: 10 }}
         className={cn(
-          "absolute inset-0 flex flex-col justify-end bg-linear-to-t from-background/80 via-transparent to-transparent p-4 transition-opacity duration-200",
-          isHovered || !isPlaying ? "opacity-100" : "opacity-0",
+          "absolute inset-0 flex flex-col justify-end p-4 transition-opacity duration-200",
+          isTouchUI
+            ? isPlaying
+              ? "opacity-60"
+              : "opacity-100"
+            : isHovered || !isPlaying
+              ? "opacity-100"
+              : "opacity-0",
         )}
       >
         <div className="flex items-center gap-3">
           <button
             onClick={togglePlay}
             className="flex size-8 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-background text-foreground transition-colors hover:bg-muted"
+            type="button"
           >
             <HugeiconsIcon icon={isPlaying ? PauseIcon : PlayIcon} size={14} />
           </button>
@@ -142,13 +232,45 @@ export function DemoVideo({ src, poster, className }: DemoVideoProps) {
               className="absolute inset-0 z-10 w-full cursor-pointer opacity-0"
             />
           </div>
+
+          <button
+            onClick={toggleFullscreen}
+            className="flex size-8 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-background text-foreground transition-colors hover:bg-muted"
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            type="button"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {isFullscreen ? (
+                <>
+                  <path d="M9 9H5V5" />
+                  <path d="M15 9h4V5" />
+                  <path d="M9 15H5v4" />
+                  <path d="M15 15h4v4" />
+                </>
+              ) : (
+                <>
+                  <path d="M9 5H5v4" />
+                  <path d="M15 5h4v4" />
+                  <path d="M9 19H5v-4" />
+                  <path d="M15 19h4v-4" />
+                </>
+              )}
+            </svg>
+          </button>
         </div>
       </div>
-
-      <div
-        className="absolute inset-0 z-0 cursor-pointer"
-        onClick={togglePlay}
-      />
     </div>
   );
 }
