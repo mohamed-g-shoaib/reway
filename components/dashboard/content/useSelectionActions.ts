@@ -4,6 +4,26 @@ import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
 
+type ExtensionResponsePayload = {
+  ok: boolean;
+  count?: number;
+  error?: string;
+};
+
+type ExtensionResponse = {
+  type: "reway_open_group_response";
+  requestId: string;
+  response?: ExtensionResponsePayload | null;
+};
+
+function isExtensionResponse(data: unknown): data is ExtensionResponse {
+  if (typeof data !== "object" || data === null) return false;
+  const d = data as Record<string, unknown>;
+  return (
+    d.type === "reway_open_group_response" && typeof d.requestId === "string"
+  );
+}
+
 interface UseSelectionActionsOptions {
   bookmarks: BookmarkRow[];
   selectedIds: Set<string>;
@@ -32,21 +52,19 @@ export function useSelectionActions({
   lastBulkDeletedRef,
 }: UseSelectionActionsOptions) {
   const pendingRequestsRef = useRef(
-    new Map<
-      string,
-      (response: { ok: boolean; count?: number; error?: string } | null) => void
-    >(),
+    new Map<string, (response: ExtensionResponsePayload | null) => void>(),
   );
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if ((event as any)?.data?.type !== "reway_open_group_response") return;
-      const requestId = (event as any).data.requestId as string | undefined;
-      if (!requestId) return;
-      const resolver = pendingRequestsRef.current.get(requestId);
+      const data = event.data;
+      if (!isExtensionResponse(data)) return;
+
+      const resolver = pendingRequestsRef.current.get(data.requestId);
       if (!resolver) return;
-      pendingRequestsRef.current.delete(requestId);
-      resolver((event as any).data.response ?? null);
+
+      pendingRequestsRef.current.delete(data.requestId);
+      resolver(data.response ?? null);
     };
 
     window.addEventListener("message", onMessage);
@@ -84,35 +102,37 @@ export function useSelectionActions({
       return;
     }
 
-    const urls = selectedBookmarks.map((bookmark) => bookmark.url).filter(Boolean);
+    const urls = selectedBookmarks
+      .map((bookmark) => bookmark.url)
+      .filter(Boolean);
     if (urls.length === 0) return;
 
     const requestId = crypto.randomUUID();
-    const responsePromise = new Promise<{
-      ok: boolean;
-      count?: number;
-      error?: string;
-    } | null>((resolve) => {
-      const timer = window.setTimeout(() => {
-        pendingRequestsRef.current.delete(requestId);
-        resolve(null);
-      }, 250);
+    const responsePromise = new Promise<ExtensionResponsePayload | null>(
+      (resolve) => {
+        const timer = window.setTimeout(() => {
+          pendingRequestsRef.current.delete(requestId);
+          resolve(null);
+        }, 250);
 
-      pendingRequestsRef.current.set(requestId, (payload) => {
-        window.clearTimeout(timer);
-        resolve(payload ?? null);
-      });
+        pendingRequestsRef.current.set(requestId, (payload) => {
+          window.clearTimeout(timer);
+          resolve(payload ?? null);
+        });
 
-      window.postMessage(
-        { type: "reway_open_group", requestId, groupId: "selected", urls },
-        "*",
-      );
-    });
+        window.postMessage(
+          { type: "reway_open_group", requestId, groupId: "selected", urls },
+          "*",
+        );
+      },
+    );
 
     (async () => {
       const response = await responsePromise;
       if (response?.ok) {
-        toast.success(`Opened ${response.count ?? urls.length} tabs via extension`);
+        toast.success(
+          `Opened ${response.count ?? urls.length} tabs via extension`,
+        );
       } else {
         // Popup fallback: stagger opens to improve success rate across browsers.
         urls.forEach((url, index) => {
@@ -134,7 +154,13 @@ export function useSelectionActions({
       setSelectionMode(false);
       setSelectedIds(new Set());
     })();
-  }, [bookmarks, extensionStoreUrl, selectedIds, setSelectedIds, setSelectionMode]);
+  }, [
+    bookmarks,
+    extensionStoreUrl,
+    selectedIds,
+    setSelectedIds,
+    setSelectionMode,
+  ]);
 
   const handleBulkDelete = useCallback(async () => {
     const idsToDelete = Array.from(selectedIds);
