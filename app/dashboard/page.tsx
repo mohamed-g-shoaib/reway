@@ -11,30 +11,28 @@ export const metadata = {
 };
 
 export default async function DashboardPage() {
-  try {
-    const [user, bookmarks, groups] = await Promise.all([
-      getUser(),
-      getBookmarks(),
-      getGroups(),
-    ]);
-
-    return (
-      <ErrorBoundary>
-        <div className="h-dvh overflow-hidden bg-background text-foreground">
-          <main className="mx-auto w-full max-w-3xl px-4 py-6">
-            <DashboardContent
-              user={user}
-              initialBookmarks={bookmarks}
-              initialGroups={groups}
-            />
-          </main>
-
-          <MobileNav />
-        </div>
-      </ErrorBoundary>
-    );
-  } catch (error) {
+  const [user, bookmarks, groups] = await Promise.all([
+    getUser(),
+    getBookmarks(),
+    getGroups(),
+  ]).catch((error) => {
     console.error("Failed to load dashboard:", error);
-    throw error; // Let ErrorBoundary handle it
-  }
+    throw error;
+  });
+
+  return (
+    <ErrorBoundary>
+      <div className="h-dvh overflow-hidden bg-background text-foreground">
+        <main className="mx-auto w-full max-w-3xl px-4 py-6">
+          <DashboardContent
+            user={user}
+            initialBookmarks={bookmarks}
+            initialGroups={groups}
+          />
+        </main>
+
+        <MobileNav />
+      </div>
+    </ErrorBoundary>
+  );
 }
