@@ -20,6 +20,7 @@ import { SettingsDialog } from "../SettingsDialog";
 import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
+import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
 
 interface UserMenuProps {
   user: User;
@@ -159,6 +160,15 @@ export function UserMenu({
             Settings
           </DropdownMenuItem>
         </SettingsDialog>
+
+        <ExtensionInstallDialog>
+          <DropdownMenuItem
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+            onSelect={(event) => event.preventDefault()}
+          >
+            Download Extension
+          </DropdownMenuItem>
+        </ExtensionInstallDialog>
         <form action={signOut}>
           <DropdownMenuItem
             asChild

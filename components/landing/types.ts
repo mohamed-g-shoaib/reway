@@ -2,5 +2,5 @@ import type { Route } from "next";
 
 export type DashboardHref = Extract<
   Route,
-  "/login" | "/dashboard" | "/terms" | "/privacy"
+  "/login" | "/dashboard" | "/terms" | "/privacy" | "/about"
 >;

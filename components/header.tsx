@@ -18,15 +18,19 @@ import {
 export const navLinks = [
   {
     label: "Features",
-    href: "#features",
+    href: "/#features",
   },
   {
     label: "Demos",
-    href: "#demo-videos",
+    href: "/#demo-videos",
+  },
+  {
+    label: "Extension",
+    href: "/#extension",
   },
   {
     label: "About",
-    href: "#about",
+    href: "/about",
   },
 ];
 
@@ -110,7 +114,7 @@ export function Header() {
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           )}
           aria-label="Reway Home"
-          href="#"
+          href="/"
         >
           <span className="flex items-center gap-2">
             <RewayLogo
