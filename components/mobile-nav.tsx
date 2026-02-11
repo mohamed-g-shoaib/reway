@@ -65,10 +65,7 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
         variant="ghost"
         type="button"
       >
-        <MenuMorphIcon
-          isOpen={open}
-          reduceMotion={shouldReduceMotion ?? false}
-        />
+        <MenuMorphIcon isOpen={open} reduceMotion={shouldReduceMotion ?? false} />
       </Button>
       {open && (
         <Portal id="mobile-menu">
