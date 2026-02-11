@@ -2,8 +2,7 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { ChromeIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
+import { Google } from "@/components/google-logo";
 import { signInWithGoogle } from "./actions";
 
 export default function LoginPage() {
@@ -32,7 +31,7 @@ export default function LoginPage() {
               size="lg"
               className="w-full rounded-3xl"
             >
-              <HugeiconsIcon icon={ChromeIcon} size={20} className="mr-2" />
+              <Google className="mr-2 size-5" aria-hidden="true" focusable="false" />
               Continue with Google
             </Button>
           </form>
