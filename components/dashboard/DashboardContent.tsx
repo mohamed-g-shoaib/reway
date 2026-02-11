@@ -13,6 +13,7 @@ import { DashboardSidebar } from "./content/DashboardSidebar";
 import { TableHeader } from "./content/TableHeader";
 import { FloatingActionBar } from "./content/FloatingActionBar";
 import { ConflictBar } from "./content/ConflictBar";
+import { DashboardOnboarding } from "./DashboardOnboarding";
 import { useDashboardRealtime } from "./content/useDashboardRealtime";
 import { useImportHandlers } from "./content/useImportHandlers";
 import { useExportHandlers } from "./content/useExportHandlers";
@@ -411,6 +412,7 @@ export function DashboardContent({
 
   return (
     <>
+      <DashboardOnboarding />
       <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
         <DashboardSidebar
           groups={groups}
