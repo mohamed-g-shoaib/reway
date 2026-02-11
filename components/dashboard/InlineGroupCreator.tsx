@@ -27,9 +27,10 @@ export function InlineGroupCreator({
   onSave,
   onCancel,
 }: InlineGroupCreatorProps) {
-  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
-    null,
-  );
+  const [iconsMap, setIconsMap] = useState<Record<
+    string,
+    IconSvgElement
+  > | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,9 +65,7 @@ export function InlineGroupCreator({
           >
             <HugeiconsIcon
               icon={
-                iconsMap?.[newGroupIcon] ??
-                iconsMap?.["folder"] ??
-                Folder01Icon
+                iconsMap?.[newGroupIcon] ?? iconsMap?.["folder"] ?? Folder01Icon
               }
               size={16}
               strokeWidth={2}

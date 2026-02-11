@@ -200,7 +200,7 @@ export function DashboardSidebar({
             return (
               <div
                 key={group.id}
-                className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5"
+                className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5"
               >
                 <div className="flex items-center gap-2">
                   <IconPickerPopover
@@ -402,7 +402,7 @@ export function DashboardSidebar({
 
       <div className="pt-3 mt-2 border-t border-border/40">
         {isInlineCreating ? (
-          <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-foreground/5">
+          <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
             <div className="flex items-center gap-2">
               <IconPickerPopover
                 selectedIcon={newGroupIcon}
