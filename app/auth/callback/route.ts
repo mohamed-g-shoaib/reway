@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { seedNewUser } from "@/lib/supabase/seed";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -35,7 +36,19 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // If setAll wasn't called during exchange, force it with getUser
       if (!cookiesWereSet) {
-        await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          await seedNewUser(supabase, user);
+        }
+      } else {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          await seedNewUser(supabase, user);
+        }
       }
 
       console.log(
