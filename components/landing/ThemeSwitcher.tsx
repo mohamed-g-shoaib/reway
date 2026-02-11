@@ -62,7 +62,7 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
           title={label}
           type="button"
           onClick={() => setTheme(value)}
-          className="group relative size-6 rounded-full transition duration-200 ease-out"
+          className="group relative size-6 rounded-full transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
         >
           {theme === value && (
             <div className="-z-1 absolute inset-0 rounded-full bg-muted" />

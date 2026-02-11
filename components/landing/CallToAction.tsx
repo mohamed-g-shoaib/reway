@@ -70,9 +70,8 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
               variants={shouldReduceMotion ? undefined : itemVariants}
             >
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.16, ease: "easeOut" }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                transition={shouldReduceMotion ? undefined : { duration: 0.16, ease: "easeOut" }}
               >
                 <Button
                   asChild
