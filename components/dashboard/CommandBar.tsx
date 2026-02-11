@@ -16,7 +16,9 @@ interface CommandBarProps {
   searchQuery?: string;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
-  onDuplicatesDetected?: (duplicates: { url: string; title: string }[]) => void;
+  onDuplicatesDetected?: (
+    duplicates: { id: string; url: string; title: string }[],
+  ) => void;
 }
 
 export function CommandBar({
@@ -32,6 +34,8 @@ export function CommandBar({
 }: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
+  const [addStatus, setAddStatus] = useState<string | null>(null);
+  const [isAddBusy, setIsAddBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,18 +51,35 @@ export function CommandBar({
     onDuplicatesDetected,
     activeGroupId,
     inputRef,
+    onAddStatusChange: setAddStatus,
+    onAddBusyChange: setIsAddBusy,
   });
+
+  const handleModeChange = (nextMode: "add" | "search") => {
+    if (nextMode === mode) return;
+
+    if (nextMode === "search") {
+      onSearchChange?.(inputValue);
+    } else if (nextMode === "add") {
+      setInputValue(searchQuery);
+      onSearchChange?.("");
+    }
+
+    onModeChange?.(nextMode);
+  };
 
   return (
     <CommandBarInput
       mode={mode}
       searchQuery={searchQuery}
       inputValue={inputValue}
+      addStatus={addStatus}
+      isAddBusy={isAddBusy}
       isFocused={isFocused}
       isMac={isMac}
       inputRef={inputRef}
       fileInputRef={fileInputRef}
-      onModeChange={onModeChange}
+      onModeChange={handleModeChange}
       onSearchChange={onSearchChange}
       onInputValueChange={setInputValue}
       onFocusChange={setIsFocused}

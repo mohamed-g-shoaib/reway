@@ -21,6 +21,8 @@ interface CommandBarInputProps {
   mode: "add" | "search";
   searchQuery: string;
   inputValue: string;
+  addStatus?: string | null;
+  isAddBusy?: boolean;
   isFocused: boolean;
   isMac: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -38,6 +40,8 @@ export function CommandBarInput({
   mode,
   searchQuery,
   inputValue,
+  addStatus,
+  isAddBusy = false,
   isFocused,
   isMac,
   inputRef,
@@ -103,6 +107,9 @@ export function CommandBarInput({
           ? `linear-gradient(to right, black calc(100% - ${FADE_SIZE}px), transparent)`
           : undefined;
 
+  const addPlaceholder =
+    isAddBusy && addStatus ? addStatus : "Add a link, image, or search...";
+
   return (
     <div className="relative w-full">
       <form
@@ -154,12 +161,11 @@ export function CommandBarInput({
             }
           }}
           placeholder={
-            mode === "search"
-              ? "Search bookmarks..."
-              : "Add a link, image, or search..."
+            mode === "search" ? "Search bookmarks..." : addPlaceholder
           }
           className="flex-1 min-w-0 bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
           style={{ maskImage }}
+          disabled={mode === "add" && isAddBusy}
           onFocus={() => onFocusChange(true)}
           onBlur={() => onFocusChange(false)}
           aria-label="Search or add bookmarks"

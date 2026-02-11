@@ -19,9 +19,13 @@ interface UseCommandHandlersOptions {
   onReplaceBookmarkId?: (stableId: string, actualId: string) => void;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
-  onDuplicatesDetected?: (duplicates: { url: string; title: string }[]) => void;
+  onDuplicatesDetected?: (
+    duplicates: { id: string; url: string; title: string }[],
+  ) => void;
   activeGroupId: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  onAddStatusChange?: (status: string | null) => void;
+  onAddBusyChange?: (busy: boolean) => void;
 }
 
 export function useCommandHandlers({
@@ -33,24 +37,34 @@ export function useCommandHandlers({
   onDuplicatesDetected,
   activeGroupId,
   inputRef,
+  onAddStatusChange,
+  onAddBusyChange,
 }: UseCommandHandlersOptions) {
+  const setAddStatus = useCallback(
+    (status: string | null, busy?: boolean) => {
+      onAddStatusChange?.(status);
+      if (typeof busy === "boolean") {
+        onAddBusyChange?.(busy);
+      }
+    },
+    [onAddBusyChange, onAddStatusChange],
+  );
+
   const processUrls = useCallback(
     async (urls: string[]) => {
       let duplicateMap: Record<
         string,
         { id: string; title: string; url: string }
       > = {};
-      if (activeGroupId === "all") {
-        try {
-          const checkUrls = [...urls];
-          urls.forEach((u) => {
-            if (!u.startsWith("http")) checkUrls.push(`https://${u}`);
-          });
-          const result = await checkDuplicateBookmarks(checkUrls);
-          duplicateMap = result.duplicates;
-        } catch (error) {
-          console.error("Failed to check for duplicates:", error);
-        }
+      try {
+        const checkUrls = [...urls];
+        urls.forEach((u) => {
+          if (!u.startsWith("http")) checkUrls.push(`https://${u}`);
+        });
+        const result = await checkDuplicateBookmarks(checkUrls);
+        duplicateMap = result.duplicates;
+      } catch (error) {
+        console.error("Failed to check for duplicates:", error);
       }
 
       const uniqueUrls: string[] = [];
@@ -111,10 +125,11 @@ export function useCommandHandlers({
 
       await Promise.all(uniqueUrls.map(executeAdd));
 
-      if (duplicateEntries.length > 0 && activeGroupId === "all") {
+      if (duplicateEntries.length > 0) {
         if (onDuplicatesDetected) {
           onDuplicatesDetected(
             duplicateEntries.map((entry) => ({
+              id: entry.existing.id,
               url: entry.url,
               title: entry.existing.title,
             })),
@@ -145,14 +160,20 @@ export function useCommandHandlers({
             const file = item.getAsFile();
             if (file) {
               e.preventDefault();
+              setAddStatus("Extracting links from image...", true);
               const reader = new FileReader();
               reader.readAsDataURL(file);
               reader.onload = async () => {
-                const base64 = reader.result as string;
-                const base64Data = base64.split(",")[1];
-                const urls = await extractLinks(base64Data, true);
-                if (urls.length > 0) {
-                  await processUrls(urls);
+                try {
+                  const base64 = reader.result as string;
+                  const base64Data = base64.split(",")[1];
+                  const urls = await extractLinks(base64Data, true);
+                  if (urls.length > 0) {
+                    setAddStatus("Adding links from image...", true);
+                    await processUrls(urls);
+                  }
+                } finally {
+                  setAddStatus(null, false);
                 }
               };
               return;
@@ -161,7 +182,7 @@ export function useCommandHandlers({
         }
       }
     },
-    [processUrls],
+    [processUrls, setAddStatus],
   );
 
   const handleKeyDown = useCallback(
@@ -197,22 +218,29 @@ export function useCommandHandlers({
       const file = e.target.files?.[0];
       if (file) {
         try {
+          setAddStatus("Extracting links from image...", true);
           const reader = new FileReader();
           reader.readAsDataURL(file);
           reader.onload = async () => {
-            const base64 = reader.result as string;
-            const base64Data = base64.split(",")[1];
-            const urls = await extractLinks(base64Data, true);
-            if (urls.length > 0) {
-              await processUrls(urls);
+            try {
+              const base64 = reader.result as string;
+              const base64Data = base64.split(",")[1];
+              const urls = await extractLinks(base64Data, true);
+              if (urls.length > 0) {
+                setAddStatus("Adding links from image...", true);
+                await processUrls(urls);
+              }
+            } finally {
+              setAddStatus(null, false);
             }
           };
         } catch (error) {
           console.error("Image processing failed:", error);
+          setAddStatus(null, false);
         }
       }
     },
-    [processUrls],
+    [processUrls, setAddStatus],
   );
 
   const handleSubmit = useCallback(
@@ -237,21 +265,30 @@ export function useCommandHandlers({
       inputRef.current?.blur();
 
       if (isUrl(value) && !value.includes(" ")) {
-        await processUrls([value]);
+        setAddStatus("Adding link...", true);
+        try {
+          await processUrls([value]);
+        } finally {
+          setAddStatus(null, false);
+        }
       } else {
+        setAddStatus("Extracting links from text...", true);
         try {
           const urls = await extractLinks(value);
           if (urls.length > 0) {
+            setAddStatus("Adding links from text...", true);
             await processUrls(urls);
           } else {
             console.log("No links found by AI or just searching.");
           }
         } catch (error) {
           console.error("AI extraction failed:", error);
+        } finally {
+          setAddStatus(null, false);
         }
       }
     },
-    [inputRef, onSearchChange, processUrls],
+    [inputRef, onSearchChange, processUrls, setAddStatus],
   );
 
   return {
