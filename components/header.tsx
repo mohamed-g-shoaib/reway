@@ -99,7 +99,7 @@ export function Header() {
     >
       <nav
         className={cn(
-          "flex h-14 w-full items-center justify-between px-4 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
+          "flex h-14 w-full items-center justify-between px-4 md:px-2 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
           {
             "md:px-2": scrolled,
           },
