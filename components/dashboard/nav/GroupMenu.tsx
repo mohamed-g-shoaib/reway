@@ -125,6 +125,7 @@ export function GroupMenu({
   onInlineCreateCancel,
   setEditingGroupId,
 }: GroupMenuProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [iconsMap, setIconsMap] = useState<Record<
     string,
     IconSvgElement
@@ -145,6 +146,17 @@ export function GroupMenu({
       });
     return () => {
       cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const openHandler = () => setMenuOpen(true);
+    const closeHandler = () => setMenuOpen(false);
+    window.addEventListener("reway:open-groups-menu", openHandler);
+    window.addEventListener("reway:close-groups-menu", closeHandler);
+    return () => {
+      window.removeEventListener("reway:open-groups-menu", openHandler);
+      window.removeEventListener("reway:close-groups-menu", closeHandler);
     };
   }, []);
 
@@ -181,10 +193,11 @@ export function GroupMenu({
 
   return (
     <div className="md:hidden">
-      <DropdownMenu>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
+            data-onboarding="groups-mobile"
             className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-transform duration-150 active:scale-[0.98]"
           >
             <div className="flex items-center justify-center h-8 w-8">
@@ -488,6 +501,7 @@ export function GroupMenu({
             </div>
           ) : (
             <DropdownMenuItem
+              data-onboarding="create-group-mobile"
               className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center justify-between gap-3 py-2"
               onSelect={(e) => {
                 e.preventDefault();
