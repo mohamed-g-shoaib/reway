@@ -181,10 +181,10 @@ cp .env.example .env.local
 Configure the following environment variables:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-TOKEN_ENCRYPTION_KEY=base64_encoded_32_byte_key
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your_actual_key_here
+GOOGLE_GENERATION_AI_API_KEY=your_actual_key_here
 ```
 
 4. Database setup:
@@ -307,3 +307,7 @@ reway/
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Credits
+
+This project is developed and maintained by [Devloop](https://www.devloop.software/)
