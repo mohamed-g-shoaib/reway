@@ -55,6 +55,7 @@ export function ViewModeControls({
           <Button
             variant="ghost"
             size="icon"
+            data-onboarding="view-mode-mobile"
             className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95 cursor-pointer"
             aria-label="Change view mode"
           >
@@ -126,6 +127,7 @@ export function ViewModeControls({
                 <Button
                   size="icon"
                   variant="ghost"
+                  data-onboarding="view-mode-desktop"
                   className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                   onClick={() => setIsOpen((prev) => !prev)}
                   aria-label="Toggle view modes"
