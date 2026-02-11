@@ -68,7 +68,7 @@ export function UserMenu({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
         >
           <Avatar className="h-8 w-8 transition-transform">
             <AvatarImage src={user.avatar_url} alt={user.name} />
@@ -100,7 +100,7 @@ export function UserMenu({
               <button
                 type="button"
                 onClick={() => onOpenImportDialog()}
-                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out"
+                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out cursor-pointer"
                 aria-label="Import bookmarks"
               >
                 <HugeiconsIcon
@@ -114,7 +114,7 @@ export function UserMenu({
               <button
                 type="button"
                 onClick={() => onOpenExportDialog()}
-                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out"
+                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out cursor-pointer"
                 aria-label="Export bookmarks"
               >
                 <HugeiconsIcon
@@ -142,7 +142,7 @@ export function UserMenu({
                   key={option.value}
                   type="button"
                   onClick={() => onRowContentChange(option.value)}
-                  className="group relative h-6 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out"
+                  className="group relative h-6 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out cursor-pointer"
                 >
                   {rowContent === option.value ? (
                     <span className="absolute inset-0 rounded-full bg-muted" />

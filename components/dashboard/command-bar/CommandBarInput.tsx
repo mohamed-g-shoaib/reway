@@ -130,7 +130,7 @@ export function CommandBarInput({
                 variant="ghost"
                 size="icon"
                 onClick={onPlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                 aria-label="Add image or file"
               >
                 <HugeiconsIcon icon={AttachmentIcon} size={16} />
@@ -171,7 +171,7 @@ export function CommandBarInput({
               <button
                 type="button"
                 onClick={() => onModeChange?.("add")}
-                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out ${
+                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out cursor-pointer ${
                   mode === "add"
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -199,7 +199,7 @@ export function CommandBarInput({
               <button
                 type="button"
                 onClick={() => onModeChange?.("search")}
-                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out ${
+                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out cursor-pointer ${
                   mode === "search"
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/40"

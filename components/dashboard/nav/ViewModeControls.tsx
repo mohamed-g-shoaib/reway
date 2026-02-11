@@ -55,7 +55,7 @@ export function ViewModeControls({
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95"
+            className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95 cursor-pointer"
             aria-label="Change view mode"
           >
             <HugeiconsIcon
@@ -126,7 +126,7 @@ export function ViewModeControls({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none"
+                  className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                   onClick={() => setIsOpen((prev) => !prev)}
                   aria-label="Toggle view modes"
                   aria-expanded={isOpen}
@@ -148,7 +148,7 @@ export function ViewModeControls({
                         variant={
                           viewMode === option.value ? "default" : "ghost"
                         }
-                        className={`size-7 rounded-lg transition-colors duration-150 ease-out ${
+                        className={`size-7 rounded-lg transition-colors duration-150 ease-out cursor-pointer ${
                           viewMode === option.value ? "" : "hover:bg-muted/50"
                         }`}
                         onClick={() => {

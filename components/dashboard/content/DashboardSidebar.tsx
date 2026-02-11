@@ -139,7 +139,7 @@ export function DashboardSidebar({
             <button
               type="button"
               onClick={() => setActiveGroupId("all")}
-              className="flex items-center gap-3 min-w-0 flex-1 text-left"
+              className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
             >
               <span
                 className={`h-px transition-[width,opacity] duration-200 ease-out ${
@@ -162,7 +162,7 @@ export function DashboardSidebar({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 cursor-pointer"
                   aria-label="Group options"
                 >
                   <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
@@ -211,7 +211,7 @@ export function DashboardSidebar({
                   >
                     <button
                       type="button"
-                      className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
+                      className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 cursor-pointer"
                       aria-label="Select group icon"
                     >
                       <HugeiconsIcon
@@ -249,7 +249,7 @@ export function DashboardSidebar({
                   <Button
                     size="sm"
                     variant="secondary"
-                    className="h-7 px-3 text-xs rounded-4xl font-bold"
+                    className="h-7 px-3 text-xs rounded-4xl font-bold cursor-pointer"
                     onClick={() => setEditingGroupId(null)}
                   >
                     Cancel
@@ -261,7 +261,7 @@ export function DashboardSidebar({
                     />
                     <Button
                       size="sm"
-                      className="h-7 px-3 text-xs rounded-4xl"
+                      className="h-7 px-3 text-xs rounded-4xl cursor-pointer"
                       onClick={() => handleSidebarGroupUpdate(group.id)}
                       disabled={!editGroupName.trim() || isUpdatingGroup}
                     >
@@ -286,7 +286,7 @@ export function DashboardSidebar({
                   <button
                     type="button"
                     onClick={() => setActiveGroupId(group.id)}
-                    className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                    className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
                   >
                     <span
                       className={`h-px transition-[width,opacity] duration-200 ease-out ${
@@ -310,7 +310,7 @@ export function DashboardSidebar({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 cursor-pointer"
                         aria-label={`${group.name} options`}
                       >
                         <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
@@ -412,7 +412,7 @@ export function DashboardSidebar({
               >
                 <button
                   type="button"
-                  className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
+                  className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20 cursor-pointer"
                   aria-label="Select group icon"
                 >
                   <HugeiconsIcon
@@ -452,7 +452,7 @@ export function DashboardSidebar({
               <Button
                 size="sm"
                 variant="secondary"
-                className="h-7 px-3 text-xs rounded-4xl font-bold"
+                className="h-7 px-3 text-xs rounded-4xl font-bold cursor-pointer"
                 onClick={() => {
                   setIsInlineCreating(false);
                   setNewGroupName("");
@@ -469,7 +469,7 @@ export function DashboardSidebar({
                 />
                 <Button
                   size="sm"
-                  className="h-7 px-3 text-xs rounded-4xl"
+                  className="h-7 px-3 text-xs rounded-4xl cursor-pointer"
                   onClick={handleInlineCreateGroup}
                   disabled={!newGroupName.trim() || isCreatingGroup}
                 >
@@ -482,7 +482,7 @@ export function DashboardSidebar({
           <button
             type="button"
             onClick={() => setIsInlineCreating(true)}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} />
             Create group
