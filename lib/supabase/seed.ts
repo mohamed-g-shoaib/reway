@@ -31,7 +31,7 @@ export const DEMO_BOOKMARKS = [
     url: "https://x.com/devloopsoftware",
     title: "Follow us on X",
     description: "Stay updated with Devloop.",
-    favicon_url: "https://abs.twimg.com/favicons/twitter.2.ico",
+    favicon_url: "https://x.com/favicon.ico",
   },
 ];
 
