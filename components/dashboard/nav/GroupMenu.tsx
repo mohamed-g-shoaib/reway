@@ -226,7 +226,7 @@ export function GroupMenu({
 
           {groups.length > 0 ? (
             <div
-              className={`max-h-75 overflow-y-auto scroll-fade-effect-y ${
+              className={`max-h-75 overflow-y-auto ${
                 groups.length > 1
                   ? "border-t border-border/50 my-1 pt-1"
                   : "mt-1"

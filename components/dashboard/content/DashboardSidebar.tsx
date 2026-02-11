@@ -214,7 +214,7 @@ export function DashboardSidebar({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <div className="flex-1 min-h-0 overflow-y-auto scroll-fade-effect-y overscroll-contain scrollbar-hover-only">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
         {groups.map((group) => {
           const GroupIcon = group.icon
             ? ALL_ICONS_MAP[group.icon]
