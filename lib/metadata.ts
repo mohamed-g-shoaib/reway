@@ -72,14 +72,14 @@ export async function fetchMetadata(url: string): Promise<MetadataResult> {
   const root = parse(html);
 
   // 1. Extract Title
-  let title =
+  const title =
     root.querySelector('meta[property="og:title"]')?.getAttribute("content") ||
     root.querySelector('meta[name="twitter:title"]')?.getAttribute("content") ||
     root.querySelector("title")?.text ||
     "";
 
   // 2. Extract Description
-  let description =
+  const description =
     root
       .querySelector('meta[property="og:description"]')
       ?.getAttribute("content") ||

@@ -8,7 +8,7 @@ export function DemoLayout() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <main className="pt-12">
-        <HeroSection dashboardHref="/dashboard" ctaLabel="Dashboard" />
+        <HeroSection />
         <FeaturesSection />
         <DemoVideosSection />
         <div id="about" />

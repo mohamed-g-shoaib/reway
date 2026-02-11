@@ -60,6 +60,7 @@ function CharacterCount({ current, max }: { current: number; max: number }) {
 interface GroupMenuProps {
   groups: GroupRow[];
   activeGroupId: string;
+  groupCounts?: Record<string, number>;
   onGroupSelect: (id: string) => void;
   onGroupOpen?: (id: string) => void;
   onDeleteGroupClick: (id: string) => void;
@@ -89,6 +90,7 @@ interface GroupMenuProps {
 export function GroupMenu({
   groups,
   activeGroupId,
+  groupCounts,
   onGroupSelect,
   onGroupOpen,
   onDeleteGroupClick,
@@ -134,6 +136,11 @@ export function GroupMenu({
       cancelled = true;
     };
   }, []);
+
+  const totalCount = Object.values(groupCounts || {}).reduce(
+    (acc, count) => acc + count,
+    0,
+  );
 
   const activeGroup =
     activeGroupId === "all"
@@ -194,6 +201,11 @@ export function GroupMenu({
               <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
               <span>All Bookmarks</span>
             </div>
+            {totalCount > 0 && (
+              <span className="text-[10px] tabular-nums text-muted-foreground/50 font-medium group-hover:translate-x-0.5 transition-transform duration-200">
+                {totalCount}
+              </span>
+            )}
             <button
               type="button"
               onClick={(event) => {
@@ -321,16 +333,23 @@ export function GroupMenu({
                     >
                       <button
                         type="button"
-                        className="flex w-full items-center gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                        className="flex w-full items-center justify-between gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
                       >
-                        <HugeiconsIcon
-                          icon={GroupIcon}
-                          size={16}
-                          strokeWidth={2}
-                          style={{ color: group.color || undefined }}
-                          className={group.color ? "" : "text-foreground/80"}
-                        />
-                        <span className="truncate">{group.name}</span>
+                        <div className="flex items-center gap-3 min-w-0">
+                          <HugeiconsIcon
+                            icon={GroupIcon}
+                            size={16}
+                            strokeWidth={2}
+                            style={{ color: group.color || undefined }}
+                            className={group.color ? "" : "text-foreground/80"}
+                          />
+                          <span className="truncate">{group.name}</span>
+                        </div>
+                        {groupCounts?.[group.id] !== undefined && (
+                          <span className="text-[10px] tabular-nums text-muted-foreground/50 font-medium">
+                            {groupCounts[group.id]}
+                          </span>
+                        )}
                       </button>
                     </DropdownMenuItem>
 
