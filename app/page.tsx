@@ -3,9 +3,9 @@ import { DemoLayout } from "@/components/demo-layout";
 import { Header } from "@/components/header";
 
 export const metadata: Metadata = {
-  title: "Reway | AI Bookmarking, Organized",
+  title: "Reway | A Calm Home For Everything You Save",
   description:
-    "Capture everything you save. Reway extracts links with AI, organizes by groups, and keeps your knowledge searchable.",
+    "Reway turns noisy links into a structured library. Capture anything in seconds, let AI extract what matters, and move fast with search, groups, and view modes that match the way you think.",
   openGraph: {
     images: [
       {

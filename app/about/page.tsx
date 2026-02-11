@@ -4,7 +4,7 @@ import { Header } from "@/components/header";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export const metadata: Metadata = {
-  title: "About Reway",
+  title: "About",
   description: "Why Reway was built and the philosophy behind it.",
   openGraph: {
     images: [
@@ -64,10 +64,11 @@ export default function AboutPage() {
                 The problem
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Most of us save links faster than we can return to them. Bookmarks
-                become a long list, scattered across browsers, chats, and notes.
-                The cost shows up later when you need to find a source, remember
-                why you saved it, or reuse a reference in a new project.
+                Most of us save links faster than we can return to them.
+                Bookmarks become a long list, scattered across browsers, chats,
+                and notes. The cost shows up later when you need to find a
+                source, remember why you saved it, or reuse a reference in a new
+                project.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 I wanted a place where saved items stay readable and searchable,
@@ -107,10 +108,10 @@ export default function AboutPage() {
               </h2>
               <p className="text-muted-foreground leading-relaxed">
                 Reway helps you capture links and group them into a personal
-                library. When you save something, it can extract helpful metadata
-                so you can skim later and find it again. The browser extension is
-                there to reduce friction, so saving does not depend on where you
-                are working.
+                library. When you save something, it can extract helpful
+                metadata so you can skim later and find it again. The browser
+                extension is there to reduce friction, so saving does not depend
+                on where you are working.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 The goal is simple: turn scattered links into a library you can
