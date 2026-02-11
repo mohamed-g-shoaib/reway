@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/opengraph-image.png",
+        url: "/api/og",
         width: 1200,
         height: 630,
         alt: "Reway — A calm home for everything you save",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: "Reway — A Calm Home for Everything You Save",
     description:
       "Capture anything, let AI extract what matters, and move fast with groups, keyboard navigation, and flexible views.",
-    images: ["/twitter-image.png"],
+    images: ["/api/og"],
   },
   icons: {
     icon: "/favicon.ico",

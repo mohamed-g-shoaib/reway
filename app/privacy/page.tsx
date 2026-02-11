@@ -7,6 +7,19 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "Learn how we protect your privacy and handle your data at Reway.",
+  openGraph: {
+    images: [
+      {
+        url: "/privacy/api/og",
+        width: 1200,
+        height: 630,
+        alt: "Privacy Policy",
+      },
+    ],
+  },
+  twitter: {
+    images: ["/privacy/api/og"],
+  },
 };
 
 export default async function PrivacyPage() {
