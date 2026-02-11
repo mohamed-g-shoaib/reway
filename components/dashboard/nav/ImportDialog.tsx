@@ -59,8 +59,9 @@ export function ImportDialog({
     const dupActions = importPreview.entries
       .filter((e) => e.isDuplicate)
       .map((e) => e.action)
-      .filter((value): value is "skip" | "override" =>
-        value === "skip" || value === "override",
+      .filter(
+        (value): value is "skip" | "override" =>
+          value === "skip" || value === "override",
       );
     if (dupActions.length === 0) return null;
     const first = dupActions[0];
@@ -126,7 +127,7 @@ export function ImportDialog({
                       variant={
                         duplicateAction === "skip" ? "default" : "secondary"
                       }
-                      className="rounded-4xl"
+                      className="rounded-4xl cursor-pointer"
                       aria-pressed={duplicateAction === "skip"}
                       onClick={() => onUpdateImportAction("skip")}
                     >
@@ -136,11 +137,9 @@ export function ImportDialog({
                       type="button"
                       size="sm"
                       variant={
-                        duplicateAction === "override"
-                          ? "default"
-                          : "secondary"
+                        duplicateAction === "override" ? "default" : "secondary"
                       }
-                      className="rounded-4xl"
+                      className="rounded-4xl cursor-pointer"
                       aria-pressed={duplicateAction === "override"}
                       onClick={() => onUpdateImportAction("override")}
                     >
@@ -158,7 +157,7 @@ export function ImportDialog({
                     type="button"
                     size="sm"
                     variant="secondary"
-                    className="rounded-4xl"
+                    className="rounded-4xl cursor-pointer"
                     onClick={handleSelectAllGroups}
                   >
                     Select all
@@ -167,7 +166,7 @@ export function ImportDialog({
                     type="button"
                     size="sm"
                     variant="secondary"
-                    className="rounded-4xl"
+                    className="rounded-4xl cursor-pointer"
                     onClick={handleClearAllGroups}
                     disabled={selectedImportGroups.length === 0}
                   >
@@ -178,7 +177,7 @@ export function ImportDialog({
               <ul className="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {importPreview.groups.map((group) => (
                   <li key={group.name}>
-                    <label className="flex items-center justify-between gap-2 text-sm">
+                    <label className="flex items-center justify-between gap-2 text-sm cursor-pointer">
                       <span className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -221,8 +220,8 @@ export function ImportDialog({
                     />
                   </div>
                   <p className="sr-only" aria-live="polite">
-                    Import {importProgress.status}. {importProgress.processed} of{" "}
-                    {importProgress.total}.
+                    Import {importProgress.status}. {importProgress.processed}{" "}
+                    of {importProgress.total}.
                   </p>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{importProgress.status}</span>
@@ -235,7 +234,7 @@ export function ImportDialog({
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  className="rounded-4xl"
+                  className="rounded-4xl cursor-pointer"
                   onClick={() => onConfirmImport(selectedImportGroups)}
                   disabled={selectedImportGroups.length === 0}
                 >
@@ -244,7 +243,7 @@ export function ImportDialog({
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="rounded-4xl"
+                  className="rounded-4xl cursor-pointer"
                   onClick={onClearImport}
                 >
                   Clear

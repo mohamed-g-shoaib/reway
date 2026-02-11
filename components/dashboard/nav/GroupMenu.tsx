@@ -6,12 +6,21 @@ import {
   ArrowUpRight03Icon,
   Delete02Icon,
   Folder01Icon,
-  GridIcon,
   PencilEdit01Icon,
-  MoreHorizontalIcon,
+  MoreVerticalIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,7 +81,7 @@ interface GroupMenuProps {
   editGroupColor: string | null;
   setEditGroupColor: (value: string | null) => void;
   isUpdating: boolean;
-  onUpdateGroup: (id: string) => void;
+  onUpdateGroup: (id: string, onError?: () => void) => void;
   isInlineCreating: boolean;
   setIsInlineCreating: (value: boolean) => void;
   newGroupName: string;
@@ -82,7 +91,7 @@ interface GroupMenuProps {
   newGroupColor: string | null;
   setNewGroupColor: (value: string | null) => void;
   isCreating: boolean;
-  onInlineCreate: () => void;
+  onInlineCreate: (onError?: () => void) => void;
   onInlineCreateCancel: () => void;
   setEditingGroupId: (value: string | null) => void;
 }
@@ -120,6 +129,8 @@ export function GroupMenu({
     string,
     IconSvgElement
   > | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<GroupRow | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -144,19 +155,29 @@ export function GroupMenu({
 
   const activeGroup =
     activeGroupId === "all"
-      ? { name: "All Bookmarks", icon: "all", color: null }
+      ? { name: "All Bookmarks", icon: "folder", color: null }
       : groups.find((g) => g.id === activeGroupId) || {
           name: "Unknown",
           icon: "folder",
           color: null,
         };
 
-  const ActiveIcon =
-    activeGroup.icon === "all"
-      ? GridIcon
-      : activeGroup.icon
-        ? (iconsMap?.[activeGroup.icon] ?? Folder01Icon)
-        : Folder01Icon;
+  const ActiveIcon = activeGroup.icon
+    ? (iconsMap?.[activeGroup.icon] ?? Folder01Icon)
+    : Folder01Icon;
+
+  const openDeleteDialog = (group: GroupRow) => {
+    setDeleteTarget(group);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      onDeleteGroupClick(deleteTarget.id);
+    }
+    setDeleteDialogOpen(false);
+    setDeleteTarget(null);
+  };
 
   return (
     <div className="md:hidden">
@@ -198,25 +219,9 @@ export function GroupMenu({
             onClick={() => onGroupSelect("all")}
           >
             <div className="flex items-center gap-3 flex-1 min-w-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5 mt-0.5">
-              <HugeiconsIcon icon={GridIcon} size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={Folder01Icon} size={16} strokeWidth={2} />
               <span>All Bookmarks</span>
             </div>
-            {totalCount > 0 && (
-              <span className="text-[10px] tabular-nums text-muted-foreground/50 font-medium group-hover:translate-x-0.5 transition-transform duration-200">
-                {totalCount}
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                onGroupOpen?.("all");
-              }}
-              className="opacity-100 text-muted-foreground/90 hover:text-foreground transition-opacity duration-150"
-              aria-label="Open all bookmarks"
-            >
-              <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-            </button>
           </DropdownMenuItem>
 
           {groups.length > 0 ? (
@@ -267,11 +272,11 @@ export function GroupMenu({
                         </IconPickerPopover>
                         <Input
                           value={editGroupName}
-                          onChange={(e) =>
+                          onChange={(e) => {
                             setEditGroupName(
                               e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                            )
-                          }
+                            );
+                          }}
                           placeholder="Group name"
                           className="h-8 flex-1 text-sm rounded-lg"
                           maxLength={MAX_GROUP_NAME_LENGTH}
@@ -286,7 +291,7 @@ export function GroupMenu({
                           }}
                         />
                       </div>
-                      <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2">
                         <UIButton
                           size="sm"
                           variant="secondary"
@@ -298,14 +303,14 @@ export function GroupMenu({
                         >
                           Cancel
                         </UIButton>
-                        <div className="flex items-center justify-between flex-1">
+                        <div className="flex items-center justify-end flex-1 gap-2">
                           <CharacterCount
                             current={editGroupName.length}
                             max={MAX_GROUP_NAME_LENGTH}
                           />
                           <UIButton
                             size="sm"
-                            className="h-7 px-3 text-xs rounded-4xl"
+                            className="h-7 px-3 text-xs rounded-4xl whitespace-nowrap min-w-[72px]"
                             onClick={() => onUpdateGroup(group.id)}
                             disabled={!editGroupName.trim() || isUpdating}
                           >
@@ -345,11 +350,6 @@ export function GroupMenu({
                           />
                           <span className="truncate">{group.name}</span>
                         </div>
-                        {groupCounts?.[group.id] !== undefined && (
-                          <span className="text-[10px] tabular-nums text-muted-foreground/50 font-medium">
-                            {groupCounts[group.id]}
-                          </span>
-                        )}
                       </button>
                     </DropdownMenuItem>
 
@@ -362,10 +362,7 @@ export function GroupMenu({
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`${group.name} options`}
                           >
-                            <HugeiconsIcon
-                              icon={MoreHorizontalIcon}
-                              size={14}
-                            />
+                            <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center" className="w-40">
@@ -392,9 +389,8 @@ export function GroupMenu({
                             Edit group
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onSelect={(e) => {
-                              e.preventDefault();
-                              onDeleteGroupClick(group.id);
+                            onSelect={() => {
+                              openDeleteDialog(group);
                             }}
                             className="gap-2 text-xs rounded-xl cursor-pointer text-destructive/80 focus:text-destructive"
                           >
@@ -444,11 +440,11 @@ export function GroupMenu({
                 </IconPickerPopover>
                 <Input
                   value={newGroupName}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setNewGroupName(
                       e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                    )
-                  }
+                    );
+                  }}
                   placeholder="Group name"
                   className="h-8 flex-1 text-sm rounded-lg"
                   maxLength={MAX_GROUP_NAME_LENGTH}
@@ -463,24 +459,26 @@ export function GroupMenu({
                   }}
                 />
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <UIButton
                   size="sm"
                   variant="secondary"
                   className="h-7 px-3 text-xs rounded-4xl font-bold"
-                  onClick={onInlineCreateCancel}
+                  onClick={() => {
+                    onInlineCreateCancel();
+                  }}
                 >
                   Cancel
                 </UIButton>
-                <div className="flex items-center justify-between flex-1">
+                <div className="flex items-center justify-end flex-1 gap-2">
                   <CharacterCount
                     current={newGroupName.length}
                     max={MAX_GROUP_NAME_LENGTH}
                   />
                   <UIButton
                     size="sm"
-                    className="h-7 px-3 text-xs rounded-4xl"
-                    onClick={onInlineCreate}
+                    className="h-7 px-3 text-xs rounded-4xl whitespace-nowrap min-w-[72px]"
+                    onClick={() => onInlineCreate()}
                     disabled={!newGroupName.trim() || isCreating}
                   >
                     {isCreating ? "Creating..." : "Save"}
@@ -509,6 +507,38 @@ export function GroupMenu({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) {
+            setDeleteTarget(null);
+          }
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete group?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget
+                ? `This will remove the group "${deleteTarget.name}" and its bookmarks.`
+                : "This will remove the group and its bookmarks."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-4xl cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              className="rounded-4xl cursor-pointer"
+              onClick={handleDeleteConfirm}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -50,7 +50,7 @@ export function ExportDialog({
           <ul className="space-y-2 max-h-56 overflow-y-auto pr-1">
             {exportGroupOptions.map((name) => (
               <li key={name}>
-                <label className="flex items-center gap-2 text-sm">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input
                     type="checkbox"
                     className="h-4 w-4 rounded border-border"
@@ -94,7 +94,7 @@ export function ExportDialog({
           <div className="flex items-center gap-2">
             <Button
               size="sm"
-              className="rounded-4xl"
+              className="rounded-4xl cursor-pointer"
               onClick={() => onExportBookmarks(selectedExportGroups)}
               disabled={
                 selectedExportGroups.length === 0 ||
@@ -106,7 +106,7 @@ export function ExportDialog({
             <Button
               size="sm"
               variant="secondary"
-              className="rounded-4xl"
+              className="rounded-4xl cursor-pointer"
               onClick={() => onOpenChange(false)}
             >
               Close
