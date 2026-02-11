@@ -106,6 +106,7 @@ export function Header() {
             "-m-2 rounded-md p-2",
             "transition-[opacity,transform] duration-200 ease-out",
             "active:scale-[0.97]",
+            "motion-reduce:transition-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           )}
           aria-label="Reway Home"
@@ -146,7 +147,7 @@ export function Header() {
                     className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     aria-label="Open user menu"
                   >
-                    <Avatar className="h-8 w-8 transition-transform active:scale-95 cursor-pointer">
+                    <Avatar className="h-8 w-8 transition-transform cursor-pointer">
                       <AvatarImage src={user.avatar_url} alt={user.name} />
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>

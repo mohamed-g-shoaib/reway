@@ -167,7 +167,7 @@ export function HeroSection() {
                 <button
                   key={item.label}
                   type="button"
-                  className={`flex items-center gap-2 rounded-2xl px-2 py-1 text-[11px] transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] ${
+                  className={`flex items-center gap-2 rounded-2xl px-2 py-1 text-[11px] transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ${
                     item.active
                       ? "font-semibold text-foreground"
                       : "text-muted-foreground"
@@ -271,7 +271,7 @@ export function HeroSection() {
                           <button
                             type="button"
                             onClick={handleEdit}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97]"
+                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97] motion-reduce:transition-none"
                             aria-label="Edit bookmark"
                           >
                             <HugeiconsIcon icon={PencilEdit01Icon} size={12} />
@@ -281,7 +281,7 @@ export function HeroSection() {
                             onClick={(event) =>
                               handleCopy(event, bookmark.url, index)
                             }
-                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97]"
+                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97] motion-reduce:transition-none"
                             aria-label="Copy link"
                           >
                             <HugeiconsIcon
@@ -297,7 +297,7 @@ export function HeroSection() {
                           <button
                             type="button"
                             onClick={(event) => handleOpen(event, bookmark.url)}
-                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97]"
+                            className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97] motion-reduce:transition-none"
                             aria-label="Open link"
                           >
                             <HugeiconsIcon
@@ -307,7 +307,7 @@ export function HeroSection() {
                           </button>
                           <button
                             type="button"
-                            className="flex h-7 w-7 items-center justify-center rounded-xl transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] text-destructive hover:bg-destructive/10"
+                            className="flex h-7 w-7 items-center justify-center rounded-xl transition-[color,background-color,transform] duration-200 ease-out text-destructive hover:bg-destructive/10 active:scale-[0.97] motion-reduce:transition-none"
                             aria-label="Delete bookmark"
                           >
                             <HugeiconsIcon icon={Delete02Icon} size={14} />

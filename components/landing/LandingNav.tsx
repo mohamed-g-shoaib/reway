@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion, type Variants } from "motion/react";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { DashboardHref } from "@/components/landing/types";
 import RewayLogo from "@/components/logo";
+import { useScroll } from "@/hooks/use-scroll";
 
 interface LandingNavProps {
   dashboardHref: DashboardHref;
@@ -13,18 +13,8 @@ interface LandingNavProps {
 }
 
 export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const hasScrolled = useScroll(8);
   const shouldReduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const next = window.scrollY > 8;
-      setHasScrolled((prev) => (prev === next ? prev : next));
-    };
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const headerVariants: Variants = {
     hidden: { opacity: 0, y: -8 },
@@ -50,7 +40,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
         >
           <Link
             href="/"
-            className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97]"
+            className="flex items-center gap-1.5 sm:gap-2 text-foreground transition-[color,transform] duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
             aria-label="Reway Home"
           >
             <RewayLogo
@@ -65,14 +55,14 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
               asChild
               variant="outline"
               size="sm"
-              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97]"
+              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
             >
               <Link href="#features">Features</Link>
             </Button>
             <Button
               asChild
               size="sm"
-              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold bg-foreground text-background hover:bg-foreground/90 transition-[color,background-color,transform] duration-200 ease-out active:scale-[0.97] ring-0"
+              className="rounded-full px-2.5 sm:px-3 text-xs font-semibold bg-foreground text-background hover:bg-foreground/90 transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none ring-0"
             >
               <Link href={dashboardHref}>{ctaLabel}</Link>
             </Button>
