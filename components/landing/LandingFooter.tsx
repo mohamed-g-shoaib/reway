@@ -94,7 +94,7 @@ export function LandingFooter() {
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  href="#features"
+                  href="/#features"
                   className="hover:text-foreground transition-colors"
                 >
                   Features
@@ -102,7 +102,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="#demo-videos"
+                  href="/#demo-videos"
                   className="hover:text-foreground transition-colors"
                 >
                   Demos
@@ -110,7 +110,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="#extension"
+                  href="/#extension"
                   className="hover:text-foreground transition-colors"
                 >
                   Extension

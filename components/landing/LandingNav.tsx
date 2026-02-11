@@ -57,7 +57,7 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
               size="sm"
               className="rounded-full px-2.5 sm:px-3 text-xs font-semibold transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
             >
-              <Link href="#features">Features</Link>
+              <Link href="/#features">Features</Link>
             </Button>
             <Button
               asChild
