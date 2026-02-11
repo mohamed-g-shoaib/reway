@@ -6,19 +6,6 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "Read our terms of service to understand how to use Reway.",
-  openGraph: {
-    images: [
-      {
-        url: "/terms/api/og",
-        width: 1200,
-        height: 630,
-        alt: "Terms of Service",
-      },
-    ],
-  },
-  twitter: {
-    images: ["/terms/api/og"],
-  },
 };
 
 export default async function TermsPage() {

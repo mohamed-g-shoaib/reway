@@ -6,19 +6,6 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
   title: "About",
   description: "Why Reway was built and the philosophy behind it.",
-  openGraph: {
-    images: [
-      {
-        url: "/about/api/og",
-        width: 1200,
-        height: 630,
-        alt: "About Reway",
-      },
-    ],
-  },
-  twitter: {
-    images: ["/about/api/og"],
-  },
 };
 
 export default function AboutPage() {

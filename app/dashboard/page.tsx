@@ -8,19 +8,6 @@ export const metadata = {
   title: "Dashboard",
   description: "Organize and search your bookmarks with Reway.",
   robots: { index: false, follow: false },
-  openGraph: {
-    images: [
-      {
-        url: "/dashboard/api/og",
-        width: 1200,
-        height: 630,
-        alt: "Reway Dashboard",
-      },
-    ],
-  },
-  twitter: {
-    images: ["/dashboard/api/og"],
-  },
 };
 
 export default async function DashboardPage() {
