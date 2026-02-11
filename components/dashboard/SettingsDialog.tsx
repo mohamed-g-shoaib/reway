@@ -231,14 +231,14 @@ export function SettingsDialog({
                   </div>
                   <AlertDialogFooter>
                     <AlertDialogCancel
-                      className="rounded-4xl"
+                      className="rounded-4xl cursor-pointer"
                       disabled={isDeleting}
                     >
                       Cancel
                     </AlertDialogCancel>
                     <AlertDialogAction
                       variant="destructive"
-                      className="rounded-4xl"
+                      className="rounded-4xl cursor-pointer"
                       disabled={!isConfirmMatch || isDeleting}
                       onClick={handleDeleteAccount}
                     >
