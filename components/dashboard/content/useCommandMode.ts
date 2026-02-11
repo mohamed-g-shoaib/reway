@@ -4,21 +4,14 @@ import { useCallback } from "react";
 
 interface UseCommandModeOptions {
   setCommandMode: (mode: "add" | "search") => void;
-  setSearchQuery: (value: string) => void;
 }
 
-export function useCommandMode({
-  setCommandMode,
-  setSearchQuery,
-}: UseCommandModeOptions) {
+export function useCommandMode({ setCommandMode }: UseCommandModeOptions) {
   const handleCommandModeChange = useCallback(
     (mode: "add" | "search") => {
       setCommandMode(mode);
-      if (mode === "add") {
-        setSearchQuery("");
-      }
     },
-    [setCommandMode, setSearchQuery],
+    [setCommandMode],
   );
 
   return { handleCommandModeChange };

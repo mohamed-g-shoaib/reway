@@ -10,7 +10,9 @@ interface UseBookmarkActionsOptions {
   initialBookmarks: BookmarkRow[];
   setBookmarks: React.Dispatch<React.SetStateAction<BookmarkRow[]>>;
   sortBookmarks: (items: BookmarkRow[]) => BookmarkRow[];
-  updateBookmarksOrder: (updates: { id: string; order_index: number }[]) => Promise<void>;
+  updateBookmarksOrder: (
+    updates: { id: string; order_index: number }[],
+  ) => Promise<void>;
   updateFolderBookmarksOrder: (
     updates: { id: string; folder_order_index: number }[],
   ) => Promise<void>;
@@ -25,9 +27,10 @@ interface UseBookmarkActionsOptions {
       group_id?: string | null;
     },
   ) => Promise<void>;
-  lastDeletedRef: React.MutableRefObject<
-    { bookmark: BookmarkRow; index: number } | null
-  >;
+  lastDeletedRef: React.MutableRefObject<{
+    bookmark: BookmarkRow;
+    index: number;
+  } | null>;
 }
 
 export function useBookmarkActions({
@@ -109,17 +112,20 @@ export function useBookmarkActions({
 
   const handleFolderReorder = useCallback(
     async (groupId: string, newOrder: BookmarkRow[]) => {
-      setBookmarks((prev) => {
-        const updatedOrder = newOrder.map((bookmark, index) => ({
-          ...bookmark,
-          folder_order_index: index,
-        }));
-        const otherBookmarks = prev.filter((bookmark) => {
-          const bookmarkGroup = bookmark.group_id ?? "no-group";
-          return bookmarkGroup !== groupId;
-        });
-        return [...updatedOrder, ...otherBookmarks];
+      const orderMap = new Map<string, number>();
+      newOrder.forEach((bookmark, index) => {
+        orderMap.set(bookmark.id, index);
       });
+
+      setBookmarks((prev) =>
+        prev.map((bookmark) => {
+          if (!orderMap.has(bookmark.id)) return bookmark;
+          return {
+            ...bookmark,
+            folder_order_index: orderMap.get(bookmark.id) ?? 0,
+          };
+        }),
+      );
 
       const updates = newOrder.map((bookmark, index) => ({
         id: bookmark.id,

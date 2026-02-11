@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
+import { EXTENSION_DOWNLOAD_URL } from "@/lib/extension";
 
 type ExtensionResponsePayload = {
   ok: boolean;
@@ -33,7 +34,6 @@ interface UseSelectionActionsOptions {
   initialBookmarks: BookmarkRow[];
   deleteBookmark: (id: string) => Promise<void>;
   restoreBookmark: (bookmark: BookmarkRow) => Promise<void>;
-  extensionStoreUrl?: string;
   lastBulkDeletedRef: React.MutableRefObject<
     { bookmark: BookmarkRow; index: number }[]
   >;
@@ -48,7 +48,6 @@ export function useSelectionActions({
   initialBookmarks,
   deleteBookmark,
   restoreBookmark,
-  extensionStoreUrl,
   lastBulkDeletedRef,
 }: UseSelectionActionsOptions) {
   const pendingRequestsRef = useRef(
@@ -134,33 +133,40 @@ export function useSelectionActions({
           `Opened ${response.count ?? urls.length} tabs via extension`,
         );
       } else {
-        // Popup fallback: stagger opens to improve success rate across browsers.
-        urls.forEach((url, index) => {
-          window.setTimeout(() => {
-            window.open(url, "_blank", "noopener,noreferrer");
-          }, index * 100);
+        // If extension responded but with error, log it
+        if (response && !response.ok) {
+          console.warn("Extension error:", response.error);
+        }
+
+        // Popup fallback: open all tabs immediately to avoid popup blocker
+        urls.forEach((url) => {
+          window.open(url, "_blank", "noopener,noreferrer");
         });
 
-        if (extensionStoreUrl) {
-          toast.error("Install the Reway extension for instant open-all", {
-            action: {
-              label: "Get extension",
-              onClick: () => window.open(extensionStoreUrl, "_blank"),
+        // Only show extension prompt if extension didn't respond at all
+        if (response === null) {
+          toast.error(
+            "Popups blocked. Allow popups or install the Reway extension to open all tabs.",
+            {
+              action: {
+                label: "Download extension",
+                onClick: () => {
+                  window.open(
+                    EXTENSION_DOWNLOAD_URL,
+                    "_blank",
+                    "noopener,noreferrer",
+                  );
+                },
+              },
             },
-          });
+          );
         }
       }
 
       setSelectionMode(false);
       setSelectedIds(new Set());
     })();
-  }, [
-    bookmarks,
-    extensionStoreUrl,
-    selectedIds,
-    setSelectedIds,
-    setSelectionMode,
-  ]);
+  }, [bookmarks, selectedIds, setSelectedIds, setSelectionMode]);
 
   const handleBulkDelete = useCallback(async () => {
     const idsToDelete = Array.from(selectedIds);

@@ -1,19 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
-  Alert02Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
   PencilEdit01Icon,
-  GridIcon,
-  MoreHorizontalIcon,
+  Folder01Icon,
+  MoreVerticalIcon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -75,9 +85,8 @@ interface DashboardSidebarProps {
   editGroupColor: string | null;
   setEditGroupColor: (value: string | null) => void;
   isUpdatingGroup: boolean;
-  handleSidebarGroupUpdate: (groupId: string) => void;
-  deleteConfirmGroupId: string | null;
-  handleDeleteGroupClick: (groupId: string) => void;
+  handleSidebarGroupUpdate: (groupId: string, onError?: () => void) => void;
+  onDeleteGroup: (groupId: string) => void;
   isInlineCreating: boolean;
   setIsInlineCreating: (value: boolean) => void;
   newGroupName: string;
@@ -87,7 +96,7 @@ interface DashboardSidebarProps {
   newGroupColor: string | null;
   setNewGroupColor: (value: string | null) => void;
   isCreatingGroup: boolean;
-  handleInlineCreateGroup: () => void;
+  handleInlineCreateGroup: (onError?: () => void) => void;
 }
 
 export function DashboardSidebar({
@@ -105,8 +114,7 @@ export function DashboardSidebar({
   setEditGroupColor,
   isUpdatingGroup,
   handleSidebarGroupUpdate,
-  deleteConfirmGroupId,
-  handleDeleteGroupClick,
+  onDeleteGroup,
   isInlineCreating,
   setIsInlineCreating,
   newGroupName,
@@ -118,6 +126,22 @@ export function DashboardSidebar({
   isCreatingGroup,
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<GroupRow | null>(null);
+
+  const openDeleteDialog = (group: GroupRow) => {
+    setDeleteTarget(group);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      onDeleteGroup(deleteTarget.id);
+    }
+    setDeleteDialogOpen(false);
+    setDeleteTarget(null);
+  };
+
   return (
     <aside className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground">
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -150,7 +174,7 @@ export function DashboardSidebar({
               />
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <HugeiconsIcon
-                  icon={GridIcon}
+                  icon={Folder01Icon}
                   size={16}
                   strokeWidth={2}
                   className="text-muted-foreground"
@@ -165,7 +189,7 @@ export function DashboardSidebar({
                   className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 cursor-pointer"
                   aria-label="Group options"
                 >
-                  <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                  <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-40">
@@ -192,9 +216,10 @@ export function DashboardSidebar({
       </ContextMenu>
       <div className="flex-1 min-h-0 overflow-y-auto scroll-fade-effect-y overscroll-contain scrollbar-hover-only">
         {groups.map((group) => {
-          const GroupIcon = group.icon ? ALL_ICONS_MAP[group.icon] : GridIcon;
+          const GroupIcon = group.icon
+            ? ALL_ICONS_MAP[group.icon]
+            : Folder01Icon;
           const isEditing = editingGroupId === group.id;
-          const isDeleteConfirm = deleteConfirmGroupId === group.id;
 
           if (isEditing) {
             return (
@@ -227,11 +252,11 @@ export function DashboardSidebar({
                   </IconPickerPopover>
                   <Input
                     value={editGroupName}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setEditGroupName(
                         e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                      )
-                    }
+                      );
+                    }}
                     placeholder="Group name"
                     className="h-8 flex-1 text-sm rounded-xl"
                     autoFocus
@@ -250,7 +275,9 @@ export function DashboardSidebar({
                     size="sm"
                     variant="secondary"
                     className="h-7 px-3 text-xs rounded-4xl font-bold cursor-pointer"
-                    onClick={() => setEditingGroupId(null)}
+                    onClick={() => {
+                      setEditingGroupId(null);
+                    }}
                   >
                     Cancel
                   </Button>
@@ -297,7 +324,7 @@ export function DashboardSidebar({
                     />
                     <div className="flex items-center gap-2 min-w-0 flex-1">
                       <HugeiconsIcon
-                        icon={GroupIcon || GridIcon}
+                        icon={GroupIcon || Folder01Icon}
                         size={16}
                         strokeWidth={2}
                         style={{ color: group.color || undefined }}
@@ -313,7 +340,7 @@ export function DashboardSidebar({
                         className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 cursor-pointer"
                         aria-label={`${group.name} options`}
                       >
-                        <HugeiconsIcon icon={MoreHorizontalIcon} size={14} />
+                        <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="center" className="w-40">
@@ -337,21 +364,13 @@ export function DashboardSidebar({
                         Edit group
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          handleDeleteGroupClick(group.id);
+                        onSelect={() => {
+                          openDeleteDialog(group);
                         }}
-                        className={`gap-2 text-xs cursor-pointer ${
-                          isDeleteConfirm
-                            ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                            : "text-destructive/80 focus:text-destructive"
-                        }`}
+                        className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
                       >
-                        <HugeiconsIcon
-                          icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                          size={14}
-                        />
-                        {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                        <HugeiconsIcon icon={Delete02Icon} size={14} />
+                        Delete group
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -378,21 +397,13 @@ export function DashboardSidebar({
                   Edit group
                 </ContextMenuItem>
                 <ContextMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    handleDeleteGroupClick(group.id);
+                  onSelect={() => {
+                    openDeleteDialog(group);
                   }}
-                  className={`gap-2 text-xs cursor-pointer ${
-                    isDeleteConfirm
-                      ? "text-destructive focus:text-destructive focus:bg-destructive/10"
-                      : "text-destructive/80 focus:text-destructive"
-                  }`}
+                  className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
                 >
-                  <HugeiconsIcon
-                    icon={isDeleteConfirm ? Alert02Icon : Delete02Icon}
-                    size={14}
-                  />
-                  {isDeleteConfirm ? "Click to confirm" : "Delete group"}
+                  <HugeiconsIcon icon={Delete02Icon} size={14} />
+                  Delete group
                 </ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>
@@ -427,11 +438,11 @@ export function DashboardSidebar({
               </IconPickerPopover>
               <Input
                 value={newGroupName}
-                onChange={(e) =>
+                onChange={(e) => {
                   setNewGroupName(
                     e.target.value.slice(0, MAX_GROUP_NAME_LENGTH),
-                  )
-                }
+                  );
+                }}
                 placeholder="New group"
                 className="h-8 flex-1 text-sm rounded-xl"
                 autoFocus
@@ -470,7 +481,7 @@ export function DashboardSidebar({
                 <Button
                   size="sm"
                   className="h-7 px-3 text-xs rounded-4xl cursor-pointer"
-                  onClick={handleInlineCreateGroup}
+                  onClick={() => handleInlineCreateGroup()}
                   disabled={!newGroupName.trim() || isCreatingGroup}
                 >
                   {isCreatingGroup ? "Creating..." : "Create"}
@@ -481,7 +492,9 @@ export function DashboardSidebar({
         ) : (
           <button
             type="button"
-            onClick={() => setIsInlineCreating(true)}
+            onClick={() => {
+              setIsInlineCreating(true);
+            }}
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} />
@@ -489,6 +502,38 @@ export function DashboardSidebar({
           </button>
         )}
       </div>
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) {
+            setDeleteTarget(null);
+          }
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete group?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget
+                ? `This will remove the group "${deleteTarget.name}" and its bookmarks.`
+                : "This will remove the group and its bookmarks."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-4xl cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              className="rounded-4xl cursor-pointer"
+              onClick={handleDeleteConfirm}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }

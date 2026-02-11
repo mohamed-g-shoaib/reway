@@ -35,7 +35,7 @@ export function FloatingActionBar({
           {selectedCount} selected.
         </p>
         <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-background ring-1 ring-foreground/8 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none">
-          <span className="text-sm font-medium text-foreground tabular-nums">
+          <span className="text-sm font-medium text-foreground tabular-nums whitespace-nowrap shrink-0">
             {selectedCount} selected
           </span>
           <div className="h-4 w-px bg-border/50" />
@@ -74,10 +74,12 @@ export function FloatingActionBar({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="rounded-4xl cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
-            className="rounded-4xl"
+            className="rounded-4xl cursor-pointer"
             onClick={() => {
               onBulkDelete();
               setDeleteDialogOpen(false);

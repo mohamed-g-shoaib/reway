@@ -4,14 +4,11 @@ import { Alert02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 interface ConflictBarProps {
-  addConflicts: { url: string; title: string }[] | null;
+  addConflicts: { id: string; url: string; title: string }[] | null;
   onResolve: (action: "skip" | "override") => void;
 }
 
-export function ConflictBar({
-  addConflicts,
-  onResolve,
-}: ConflictBarProps) {
+export function ConflictBar({ addConflicts, onResolve }: ConflictBarProps) {
   if (!addConflicts) {
     return null;
   }

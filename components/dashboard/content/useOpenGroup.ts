@@ -4,17 +4,16 @@ import { useCallback, useRef } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
 import { useGlobalEvent } from "@/hooks/useGlobalEvent";
+import { EXTENSION_DOWNLOAD_URL } from "@/lib/extension";
 
 interface UseOpenGroupOptions {
   bookmarks: BookmarkRow[];
   deferredSearchQuery: string;
-  extensionStoreUrl: string;
 }
 
 export function useOpenGroup({
   bookmarks,
   deferredSearchQuery,
-  extensionStoreUrl,
 }: UseOpenGroupOptions) {
   const pendingRequestsRef = useRef(
     new Map<
@@ -82,28 +81,37 @@ export function useOpenGroup({
         return;
       }
 
-      if (targetBookmarks.length > 1) {
-        targetBookmarks.forEach((bookmark, index) => {
-          if (index === 0) {
-            window.open(bookmark.url, "_blank", "noopener,noreferrer");
-          } else {
-            setTimeout(() => {
-              window.open(bookmark.url, "_blank", "noopener,noreferrer");
-            }, index * 100);
-          }
-        });
-      } else {
-        window.open(targetBookmarks[0].url, "_blank", "noopener,noreferrer");
+      // If extension responded but with error, try manual fallback
+      if (response && !response.ok) {
+        console.warn("Extension error:", response.error);
       }
 
-      toast.error("Install the Reway extension for instant open-all", {
-        action: {
-          label: "Get extension",
-          onClick: () => window.open(extensionStoreUrl, "_blank"),
-        },
+      // Manual fallback or no extension detected
+      // Open all tabs immediately to avoid popup blocker
+      targetBookmarks.forEach((bookmark) => {
+        window.open(bookmark.url, "_blank", "noopener,noreferrer");
       });
+
+      // Only show extension prompt if extension didn't respond at all
+      if (response === null) {
+        toast.error(
+          "Popups blocked. Allow popups or install the Reway extension to open all tabs.",
+          {
+            action: {
+              label: "Download extension",
+              onClick: () => {
+                window.open(
+                  EXTENSION_DOWNLOAD_URL,
+                  "_blank",
+                  "noopener,noreferrer",
+                );
+              },
+            },
+          },
+        );
+      }
     },
-    [bookmarks, deferredSearchQuery, extensionStoreUrl],
+    [bookmarks, deferredSearchQuery],
   );
 
   return { handleOpenGroup };

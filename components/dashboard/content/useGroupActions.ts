@@ -86,6 +86,15 @@ export function useGroupActions({
   isCreatingGroup,
   setIsCreatingGroup,
 }: UseGroupActionsOptions) {
+  const getDuplicateMessage = (error: unknown) => {
+    if (error instanceof Error) {
+      if (/already exists/i.test(error.message)) {
+        return error.message;
+      }
+    }
+    return null;
+  };
+
   const handleGroupCreated = useCallback(
     (id: string, name: string, icon: string, color?: string | null) => {
       const newGroup: GroupRow = {
@@ -146,6 +155,13 @@ export function useGroupActions({
         setEditingGroupId(null);
       } catch (error) {
         console.error("Failed to update group:", error);
+        const duplicateMessage = getDuplicateMessage(error);
+        if (duplicateMessage) {
+          toast.error(duplicateMessage);
+          onError?.();
+        } else {
+          toast.error("Failed to update group");
+        }
       } finally {
         setIsUpdatingGroup(false);
       }
@@ -282,7 +298,6 @@ export function useGroupActions({
         if (exists) {
           toast.error(`A group named "${newGroupName.trim()}" already exists`);
           onError?.();
-          setIsCreatingGroup(false);
           return;
         }
 
@@ -303,7 +318,13 @@ export function useGroupActions({
         setNewGroupColor("#6366f1");
       } catch (error) {
         console.error("Failed to create group:", error);
-        toast.error("Failed to create group");
+        const duplicateMessage = getDuplicateMessage(error);
+        if (duplicateMessage) {
+          toast.error(duplicateMessage);
+          onError?.();
+        } else {
+          toast.error("Failed to create group");
+        }
       } finally {
         setIsCreatingGroup(false);
       }
