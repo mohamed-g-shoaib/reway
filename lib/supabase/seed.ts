@@ -23,13 +23,13 @@ export const DEMO_BOOKMARKS = [
   },
   {
     url: "https://github.com/mohamed-g-shoaib/reway",
-    title: "Source Code on GitHub",
+    title: "Reway Source Code on GitHub",
     description: "View the source code and contribute to the project.",
     favicon_url: "https://github.com/favicon.ico",
   },
   {
     url: "https://x.com/devloopsoftware",
-    title: "Follow us on X",
+    title: "Follow us on X (Devloop)",
     description: "Stay updated with Devloop.",
     favicon_url: "https://x.com/favicon.ico",
   },
