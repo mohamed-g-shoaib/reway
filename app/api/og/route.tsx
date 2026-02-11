@@ -57,9 +57,7 @@ export async function createOgImageResponse(
             "radial-gradient(circle at center, #111111 0%, #080808 100%)",
           color: "#FAFAFA",
           padding: "80px",
-          fontFamily: fontData
-            ? "Geist"
-            : "ui-sans-serif, system-ui, sans-serif",
+          fontFamily: fontData ? "Geist" : "sans-serif",
         }}
       >
         {/* Decorative Top Border */}
