@@ -24,8 +24,6 @@ import { useOpenGroup } from "./content/useOpenGroup";
 import { useCommandMode } from "./content/useCommandMode";
 import { useDashboardDerived } from "./content/useDashboardDerived";
 
-const EXTENSION_STORE_URL = "https://example.com/reway-extension";
-
 interface DashboardContentProps {
   user: User;
   initialBookmarks: BookmarkRow[];
@@ -78,9 +76,6 @@ export function DashboardContent({
   const [editGroupIcon, setEditGroupIcon] = useState("folder");
   const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
   const [isUpdatingGroup, setIsUpdatingGroup] = useState(false);
-  const [deleteConfirmGroupId, setDeleteConfirmGroupId] = useState<
-    string | null
-  >(null);
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupIcon, setNewGroupIcon] = useState("folder");
@@ -96,7 +91,7 @@ export function DashboardContent({
     { bookmark: BookmarkRow; index: number }[]
   >([]);
   const [addConflicts, setAddConflicts] = useState<
-    { url: string; title: string }[] | null
+    { id: string; url: string; title: string }[] | null
   >(null);
   const viewModeStorageKey = "reway.dashboard.viewMode";
   const rowContentStorageKey = "reway.dashboard.rowContent";
@@ -248,6 +243,7 @@ export function DashboardContent({
       activeGroupId,
       deferredSearchQuery,
     });
+  const isFilteredSearch = deferredSearchQuery.trim().length > 0;
 
   useGroupShortcuts({ groups, setActiveGroupId });
 
@@ -291,19 +287,6 @@ export function DashboardContent({
     isCreatingGroup,
     setIsCreatingGroup,
   });
-
-  const handleDeleteGroupClick = useCallback(
-    (groupId: string) => {
-      setDeleteConfirmGroupId((prev) => {
-        if (prev === groupId) {
-          handleDeleteGroup(groupId);
-          return null;
-        }
-        return groupId;
-      });
-    },
-    [handleDeleteGroup],
-  );
 
   const {
     importPreview,
@@ -420,12 +403,10 @@ export function DashboardContent({
   const { handleOpenGroup } = useOpenGroup({
     bookmarks,
     deferredSearchQuery,
-    extensionStoreUrl: EXTENSION_STORE_URL,
   });
 
   const { handleCommandModeChange } = useCommandMode({
     setCommandMode,
-    setSearchQuery,
   });
 
   return (
@@ -446,8 +427,7 @@ export function DashboardContent({
           setEditGroupColor={setEditGroupColor}
           isUpdatingGroup={isUpdatingGroup}
           handleSidebarGroupUpdate={handleSidebarGroupUpdate}
-          deleteConfirmGroupId={deleteConfirmGroupId}
-          handleDeleteGroupClick={handleDeleteGroupClick}
+          onDeleteGroup={handleDeleteGroup}
           isInlineCreating={isInlineCreating}
           setIsInlineCreating={setIsInlineCreating}
           newGroupName={newGroupName}
@@ -519,6 +499,7 @@ export function DashboardContent({
                   onReorder={handleFolderReorder}
                   onDeleteBookmark={handleDeleteBookmark}
                   onEditBookmark={handleEditBookmark}
+                  isFiltered={isFilteredSearch}
                   selectionMode={selectionMode}
                   selectedIds={selectedIds}
                   onToggleSelection={handleToggleSelection}

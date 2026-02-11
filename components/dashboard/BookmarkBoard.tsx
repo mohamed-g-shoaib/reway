@@ -84,7 +84,6 @@ export function BookmarkBoard({
   const [previewBookmark, setPreviewBookmark] = useState<BookmarkRow | null>(
     null,
   );
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [editSheetBookmark, setEditSheetBookmark] =
     useState<BookmarkRow | null>(null);
@@ -168,8 +167,6 @@ export function BookmarkBoard({
       setIsPreviewOpen(true);
     },
   });
-  const activeEditingId = viewMode === "list" ? editingId : null;
-
   if (bookmarks.length === 0) {
     return <EmptyState isMac={isMac} />;
   }
@@ -271,13 +268,15 @@ export function BookmarkBoard({
                 <SortableBookmark
                   key={bookmark.id}
                   onDelete={onDeleteBookmark}
-                  onEdit={onEditBookmark}
+                  onEdit={(id: string) => {
+                    const target = bookmarks.find((bm) => bm.id === id);
+                    if (target) {
+                      setEditSheetBookmark(target);
+                      setIsEditSheetOpen(true);
+                    }
+                  }}
                   isSelected={clampedSelectedIndex === index}
-                  groups={initialGroups}
-                  groupsMap={groupsMap}
                   activeGroupId={activeGroupId}
-                  isEditing={activeEditingId === bookmark.id}
-                  onEditDone={() => setEditingId(null)}
                   onPreview={(id) => {
                     const b = bookmarks.find((bm) => bm.id === id);
                     if (b) {
@@ -286,6 +285,7 @@ export function BookmarkBoard({
                     }
                   }}
                   rowContent={rowContent}
+                  groupsMap={groupsMap}
                   selectionMode={selectionMode}
                   isSelectionChecked={stableSelectedIds.has(bookmark.id)}
                   onToggleSelection={onToggleSelection}
@@ -315,7 +315,8 @@ export function BookmarkBoard({
         onOpenChange={setIsPreviewOpen}
         onEdit={(bookmark) => {
           setIsPreviewOpen(false);
-          setEditingId(bookmark.id);
+          setEditSheetBookmark(bookmark);
+          setIsEditSheetOpen(true);
         }}
         onDelete={(id) => {
           setIsPreviewOpen(false);

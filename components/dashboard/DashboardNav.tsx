@@ -1,10 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { GroupRow } from "@/lib/supabase/queries";
 import Link from "next/link";
 import RewayLogo from "@/components/logo";
-import { createGroup } from "@/app/dashboard/actions/groups";
+import {
+  checkDuplicateGroup,
+  createGroup,
+} from "@/app/dashboard/actions/groups";
 import { ImportDialog } from "./nav/ImportDialog";
 import { ExportDialog } from "./nav/ExportDialog";
 import { ViewModeControls } from "./nav/ViewModeControls";
@@ -117,10 +121,16 @@ export function DashboardNav({
     .toUpperCase()
     .slice(0, 2);
 
-  const handleUpdateGroup = async (id: string) => {
+  const handleUpdateGroup = async (id: string, onError?: () => void) => {
     if (!editGroupName.trim() || isUpdating) return;
     setIsUpdating(true);
     try {
+      const { exists } = await checkDuplicateGroup(editGroupName.trim(), id);
+      if (exists) {
+        toast.error(`A group named "${editGroupName.trim()}" already exists`);
+        onError?.();
+        return;
+      }
       await onGroupUpdate?.(
         id,
         editGroupName.trim(),
@@ -130,6 +140,12 @@ export function DashboardNav({
       setEditingGroupId(null);
     } catch (error) {
       console.error("Failed to update group:", error);
+      if (error instanceof Error && /already exists/i.test(error.message)) {
+        toast.error(error.message);
+        onError?.();
+      } else {
+        toast.error("Failed to update group");
+      }
     } finally {
       setIsUpdating(false);
     }
@@ -139,11 +155,17 @@ export function DashboardNav({
     onGroupDelete?.(id);
   };
 
-  const handleInlineCreate = async () => {
+  const handleInlineCreate = async (onError?: () => void) => {
     if (!newGroupName.trim() || isCreating) return;
 
     setIsCreating(true);
     try {
+      const { exists } = await checkDuplicateGroup(newGroupName.trim());
+      if (exists) {
+        toast.error(`A group named "${newGroupName.trim()}" already exists`);
+        onError?.();
+        return;
+      }
       const groupId = await createGroup({
         name: newGroupName.trim(),
         icon: newGroupIcon,
@@ -161,6 +183,12 @@ export function DashboardNav({
       setNewGroupColor("#6366f1");
     } catch (error) {
       console.error("Failed to create group:", error);
+      if (error instanceof Error && /already exists/i.test(error.message)) {
+        toast.error(error.message);
+        onError?.();
+      } else {
+        toast.error("Failed to create group");
+      }
     } finally {
       setIsCreating(false);
     }

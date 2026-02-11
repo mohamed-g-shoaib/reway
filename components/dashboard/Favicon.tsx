@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -37,6 +37,7 @@ export function Favicon({
 }: FaviconProps) {
   const [imageError, setImageError] = useState(false);
   const [useGoogleFallback, setUseGoogleFallback] = useState(false);
+  const [useOriginFallback, setUseOriginFallback] = useState(false);
 
   // Determine if we have a valid primary URL
   const hasValidUrl = isValidImageUrl(url);
@@ -64,6 +65,13 @@ export function Favicon({
   const googleFallbackUrl = domain
     ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`
     : null;
+  const originFallbackUrl = domain ? `https://${domain}/favicon.ico` : null;
+
+  useEffect(() => {
+    setImageError(false);
+    setUseGoogleFallback(false);
+    setUseOriginFallback(false);
+  }, [url, domain]);
 
   return (
     <div
@@ -83,9 +91,16 @@ export function Favicon({
           size={20}
           className="text-muted-foreground/20"
         />
-      ) : !imageError && (hasValidUrl || googleFallbackUrl) ? (
+      ) : !imageError &&
+        (hasValidUrl || googleFallbackUrl || originFallbackUrl) ? (
         <img
-          src={useGoogleFallback || !hasValidUrl ? googleFallbackUrl! : url}
+          src={
+            useOriginFallback
+              ? originFallbackUrl!
+              : useGoogleFallback || !hasValidUrl
+                ? googleFallbackUrl!
+                : url
+          }
           alt=""
           width={24}
           height={24}
@@ -93,15 +108,15 @@ export function Favicon({
           onError={() => {
             if (!useGoogleFallback && googleFallbackUrl) {
               setUseGoogleFallback(true);
+            } else if (!useOriginFallback && originFallbackUrl) {
+              setUseOriginFallback(true);
             } else {
               setImageError(true);
             }
           }}
         />
       ) : (
-        <span className="text-sm font-bold">
-          {initials.char}
-        </span>
+        <span className="text-sm font-bold">{initials.char}</span>
       )}
     </div>
   );

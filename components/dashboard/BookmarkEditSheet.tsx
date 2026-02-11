@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
-import { GridIcon } from "@hugeicons/core-free-icons";
+import { Folder01Icon } from "@hugeicons/core-free-icons";
 
 interface BookmarkEditSheetProps {
   open: boolean;
@@ -49,9 +49,10 @@ export function BookmarkEditSheet({
   groups,
   onSave,
 }: BookmarkEditSheetProps) {
-  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
-    null,
-  );
+  const [iconsMap, setIconsMap] = useState<Record<
+    string,
+    IconSvgElement
+  > | null>(null);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -112,8 +113,8 @@ export function BookmarkEditSheet({
   const renderGroupOption = (group: GroupRow) => {
     const Icon =
       group.icon && iconsMap
-        ? (iconsMap[group.icon] ?? GridIcon)
-        : GridIcon;
+        ? (iconsMap[group.icon] ?? Folder01Icon)
+        : Folder01Icon;
     return (
       <div className="flex items-center gap-2">
         <HugeiconsIcon icon={Icon} size={14} />
