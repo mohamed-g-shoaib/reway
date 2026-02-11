@@ -58,7 +58,7 @@ export function CommandBarInput({
     isAddBusy && addStatus ? addStatus : "Add a link, image, or search...";
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" data-onboarding="command-bar">
       <form
         onSubmit={onSubmit}
         className={`group relative flex items-center justify-between gap-3 rounded-2xl px-4 py-1.5 ${
@@ -123,6 +123,7 @@ export function CommandBarInput({
               <button
                 type="button"
                 onClick={() => onModeChange?.("add")}
+                data-onboarding="add-bookmarks"
                 className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out cursor-pointer ${
                   mode === "add"
                     ? "bg-primary/10 text-primary"
@@ -151,6 +152,7 @@ export function CommandBarInput({
               <button
                 type="button"
                 onClick={() => onModeChange?.("search")}
+                data-onboarding="search-bookmarks"
                 className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out cursor-pointer ${
                   mode === "search"
                     ? "bg-primary/10 text-primary"
