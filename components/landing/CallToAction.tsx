@@ -5,12 +5,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
+import { Google } from "@/components/google-logo";
 import type { DashboardHref } from "@/components/landing/types";
-
-interface CallToActionProps {
-  dashboardHref: DashboardHref;
-  ctaLabel: string;
-}
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -37,8 +36,20 @@ const itemVariants: Variants = {
   },
 };
 
-export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
+export function CallToAction() {
   const shouldReduceMotion = useReducedMotion();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setIsAuthenticated(Boolean(data?.user)))
+      .catch(() => setIsAuthenticated(false));
+  }, []);
+
+  const primaryHref: DashboardHref = isAuthenticated ? "/dashboard" : "/login";
+  const primaryLabel = isAuthenticated ? "Dashboard" : "Get Started";
 
   return (
     <section className="bg-background py-16 sm:py-24">
@@ -69,25 +80,42 @@ export function CallToAction({ dashboardHref, ctaLabel }: CallToActionProps) {
               className="flex flex-col items-center gap-4"
               variants={shouldReduceMotion ? undefined : itemVariants}
             >
-              <motion.div
-                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                transition={shouldReduceMotion ? undefined : { duration: 0.16, ease: "easeOut" }}
-              >
-                <Button
-                  asChild
-                  size="lg"
-                  className="h-12 rounded-full px-8 text-base font-semibold transition-[color,background-color] duration-200 ease-out sm:h-14 sm:px-10"
+              <div className="flex flex-col items-center gap-3 sm:flex-row">
+                <motion.div
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                  transition={
+                    shouldReduceMotion
+                      ? undefined
+                      : { duration: 0.16, ease: "easeOut" }
+                  }
                 >
-                  <Link href={dashboardHref}>
-                    {ctaLabel}
-                    <HugeiconsIcon
-                      icon={ArrowRight01Icon}
-                      size={20}
-                      className="ml-2"
+                  <Button asChild size="lg" className="rounded-full px-8">
+                    <Link href={primaryHref}>
+                      {primaryLabel}
+                      <HugeiconsIcon
+                        icon={ArrowRight01Icon}
+                        size={20}
+                        className="ml-2"
+                      />
+                    </Link>
+                  </Button>
+                </motion.div>
+
+                <ExtensionInstallDialog>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="rounded-full px-8 cursor-pointer"
+                  >
+                    <Google
+                      className="mr-2 size-4"
+                      aria-hidden="true"
+                      focusable="false"
                     />
-                  </Link>
-                </Button>
-              </motion.div>
+                    Download Extension
+                  </Button>
+                </ExtensionInstallDialog>
+              </div>
               <p className="text-xs font-medium text-muted-foreground/60">
                 Free to use. No account required to try the studio.
               </p>
