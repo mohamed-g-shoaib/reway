@@ -11,9 +11,28 @@ Reway helps you drop in messy notes or screenshots and extracts the links automa
 - **Keyboard Navigation**: Move through bookmarks with arrow keys, preview instantly, and act without touching the mouse.
 - **Flexible View Modes**: Switch between card, list, and icon layouts to fit the amount of context you need.
 
+## Browser extension
+- **Instant capture**: Save the current page directly from Chrome (Manifest V3).
+- **Group workflows**: Open bookmark groups from the extension (with safe staggered popup fallback).
+- **Duplicate detection**: Clear duplicate actions, including allowing duplicates across different groups.
+
+## Dashboard workflows
+- **Bulk selection**: Select multiple bookmarks and perform fast actions.
+- **Optimistic group deletion**: Delete groups with cascade removal of bookmarks plus undo.
+- **Group name limits**: 18-character limit with inline character counter.
+
+## Motion, performance, and accessibility
+- **Reduced-motion support**: Guards across landing, auth, legal pages, and dashboard interactions.
+- **Animation tuning**: Shorter, stricter durations and removal of prohibited tracking utilities.
+- **Accessibility**: Improved ARIA/accessible names for icon-only controls and toggles.
+
+## Social previews
+- **Dynamic OpenGraph images**: Clean per-page OG routes (for example: `/about/api/og`, `/privacy/api/og`, `/terms/api/og`).
+
 ## Primary routes
 - https://reway.vercel.app/ — landing page with product overview and feature demos
 - https://reway.vercel.app/login — sign in
+- https://reway.vercel.app/dashboard — private dashboard
 
 ## Brand
 - Name: Reway

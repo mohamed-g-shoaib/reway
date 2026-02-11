@@ -6,9 +6,12 @@
 
 Reway is a modern bookmark management application that provides intelligent organization, instant search, and seamless cross-device synchronization. It addresses the common problem of bookmark clutter across browsers and devices by offering a centralized, searchable repository with advanced grouping capabilities.
 
+Reway also ships with a Chrome MV3 extension that lets you save pages instantly and open bookmark groups in one click.
+
 ## Problem Statement
 
 Traditional bookmark management suffers from several limitations:
+
 - Browser-specific storage creates silos across devices
 - Limited organization capabilities beyond basic folders
 - Poor search functionality within bookmark collections
@@ -22,22 +25,54 @@ Reway solves these problems by providing a unified platform with enhanced organi
 ### Core Components
 
 **Frontend Application**
+
 - Built with Next.js 16 using the App Router pattern
 - TypeScript for type safety and better developer experience
 - Tailwind CSS with shadcn/ui components for consistent design
 - React state management with optimistic updates for responsive UI
 
 **Backend Infrastructure**
+
 - Supabase as the primary database and authentication provider
 - PostgreSQL database with Row Level Security (RLS) policies
 - Real-time subscriptions using Supabase broadcast channels
 - Server-side API routes for bookmark operations and metadata enrichment
 
 **Browser Extension**
+
 - Chrome MV3 extension for instant bookmark capture
-- Secure token-based authentication with AES-256-GCM encryption
 - Background service worker for multi-tab operations
 - Content script integration for page metadata extraction
+
+## Features
+
+### Capture
+
+- Save the current tab from the browser extension.
+- Extract and enrich link metadata (title, favicon, preview image) for cleaner libraries.
+- Duplicate detection and clearer duplicate actions (including allowing duplicates across different groups).
+
+### Organize
+
+- Groups with icons/colors and an 18-character name limit with inline character counter.
+- Optimistic group deletion with cascade removal of bookmarks plus undo.
+- Context menus and improved sidebar controls for fast group operations.
+
+### Browse and act fast
+
+- Keyboard-first navigation and reliable key handling (including Space/Enter behavior).
+- Multiple view modes (list/cards/icons) tuned for different density preferences.
+- Bulk selection workflows and “open selected” via extension, with safe staggered popup fallback.
+
+### UX, motion, and accessibility
+
+- Reduced-motion guards across landing, auth, legal pages, and dashboard.
+- Shorter, stricter dashboard animation timings to reduce jank and meet motion standards.
+- Improved accessible names/ARIA for icon-only actions and toggles.
+
+### Sharing and previews
+
+- Dynamic OpenGraph images generated per page (clean endpoints like `/about/api/og`).
 
 ### Database Schema
 
@@ -50,19 +85,15 @@ bookmarks
 - favicon_url, og_image_url, image_url
 - created_at, last_fetched_at
 
-groups  
+groups
 - id, name, icon, color, user_id
 - order_index, created_at
-
-api_tokens
-- id, name, token_prefix, token_hash
-- encrypted_token, user_id
-- created_at, last_used_at
 ```
 
 ### Real-time Architecture
 
 Reway uses Supabase broadcast triggers for scalable real-time updates:
+
 - User-specific private channels (`user:{userId}:bookmarks`, `user:{userId}:groups`)
 - Postgres triggers broadcast changes on INSERT/UPDATE/DELETE operations
 - Client-side subscriptions update UI instantly without page refreshes
@@ -73,17 +104,20 @@ Reway uses Supabase broadcast triggers for scalable real-time updates:
 ### Frontend Stack
 
 **Next.js 16**
+
 - App Router provides better file-based routing and layout patterns
 - Server components enable efficient data fetching and caching
 - Built-in optimizations for images, fonts, and performance
 - Strong TypeScript integration with excellent developer experience
 
 **React 19**
+
 - Concurrent features for better user experience
 - Improved server-side rendering capabilities
 - Enhanced developer tools and debugging support
 
 **Tailwind CSS + shadcn/ui**
+
 - Utility-first CSS for rapid development
 - Consistent design system with accessible components
 - Dark mode support built into the design tokens
@@ -92,12 +126,14 @@ Reway uses Supabase broadcast triggers for scalable real-time updates:
 ### Backend Stack
 
 **Supabase**
+
 - Managed PostgreSQL with automatic backups and scaling
 - Built-in authentication with social providers
 - Real-time subscriptions with broadcast channels
 - Row Level Security for secure multi-tenant data access
 
 **PostgreSQL**
+
 - Advanced indexing for fast bookmark search and filtering
 - JSON support for flexible metadata storage
 - Full-text search capabilities for content discovery
@@ -106,6 +142,7 @@ Reway uses Supabase broadcast triggers for scalable real-time updates:
 ### Extension Technology
 
 **Chrome MV3**
+
 - Modern extension API with improved security model
 - Service workers for background processing
 - Cross-origin fetch capabilities for API communication
@@ -123,22 +160,26 @@ Reway uses Supabase broadcast triggers for scalable real-time updates:
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/mohamed-g-shoaib/reway.git
 cd reway
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Environment setup:
+
 ```bash
 cp .env.example .env.local
 ```
 
 Configure the following environment variables:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -147,16 +188,19 @@ TOKEN_ENCRYPTION_KEY=base64_encoded_32_byte_key
 ```
 
 4. Database setup:
+
 ```bash
 pnpm run db:push
 ```
 
 5. Start development server:
+
 ```bash
 pnpm run dev
 ```
 
 6. Extension development:
+
 ```bash
 # Load extension in Chrome
 # Navigate to chrome://extensions/
@@ -188,40 +232,34 @@ reway/
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/signin` - User authentication
 - `POST /api/auth/signup` - User registration
 
 ### Bookmarks
+
 - `GET /api/bookmarks` - List user bookmarks
 - `POST /api/bookmarks` - Create new bookmark
 - `PUT /api/bookmarks/[id]` - Update bookmark
 - `DELETE /api/bookmarks/[id]` - Delete bookmark
 
 ### Extension API
+
 - `GET /api/extension/bookmarks` - Extension bookmark list
 - `POST /api/extension/bookmarks` - Extension bookmark creation
 - `GET /api/extension/groups` - Extension groups list
 
-### API Tokens
-- `GET /api/tokens` - List user tokens
-- `POST /api/tokens` - Create new token
-- `DELETE /api/tokens/[id]` - Delete token
-
 ## Security Considerations
 
-### Token Management
-- API tokens use SHA-256 hashing for storage
-- Tokens are encrypted with AES-256-GCM before database storage
-- Service role key used for privileged operations
-- Token expiration and rotation capabilities
-
 ### Data Protection
+
 - Row Level Security policies enforce user data isolation
 - HTTPS required for all API communications
 - Input validation and sanitization on all endpoints
 - SQL injection prevention through parameterized queries
 
 ### Extension Security
+
 - Content Security Policy headers enforced
 - Minimal permissions requested in manifest
 - Secure token storage in Chrome local storage
@@ -230,18 +268,21 @@ reway/
 ## Performance Optimizations
 
 ### Frontend
+
 - React.memo and useMemo for component optimization
 - Virtual scrolling for large bookmark lists
 - Image optimization with Next.js Image component
 - Code splitting for reduced bundle size
 
 ### Backend
+
 - Database indexes on frequently queried columns
 - Connection pooling for efficient database access
 - Caching strategies for metadata enrichment
 - Optimistic updates for responsive UI
 
 ### Real-time
+
 - Broadcast channels instead of polling for efficiency
 - User-specific channels to reduce unnecessary traffic
 - Connection management with automatic reconnection
