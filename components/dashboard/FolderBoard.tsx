@@ -60,6 +60,7 @@ interface FolderBoardProps {
   onToggleSelection?: (id: string) => void;
   onEnterSelectionMode?: () => void;
   onKeyboardContextChange?: (context: "folder" | "bookmark") => void;
+  isFiltered?: boolean;
 }
 
 const COLLAPSE_STORAGE_KEY = "reway.folder.collapsed";
@@ -76,10 +77,12 @@ export function FolderBoard({
   onToggleSelection,
   onEnterSelectionMode,
   onKeyboardContextChange,
+  isFiltered = false,
 }: FolderBoardProps) {
-  const stableSelectedIds = useMemo(() => selectedIds ?? new Set<string>(), [
-    selectedIds,
-  ]);
+  const stableSelectedIds = useMemo(
+    () => selectedIds ?? new Set<string>(),
+    [selectedIds],
+  );
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<
@@ -142,6 +145,27 @@ export function FolderBoard({
   const visibleGroups = useMemo(() => {
     if (activeGroupId !== "all") {
       return groups.filter((group) => group.id === activeGroupId);
+    }
+
+    if (isFiltered) {
+      const groupIds = new Set(
+        bookmarks.map((bookmark) => bookmark.group_id ?? "no-group"),
+      );
+      const filtered = groups.filter((group) => groupIds.has(group.id));
+      if (!groupIds.has("no-group")) return filtered;
+
+      return [
+        ...filtered,
+        {
+          id: "no-group",
+          name: "No Group",
+          icon: "folder",
+          color: null,
+          user_id: "",
+          created_at: new Date().toISOString(),
+          order_index: null,
+        },
+      ];
     }
 
     const hasUngrouped = bookmarks.some((bookmark) => !bookmark.group_id);
@@ -373,14 +397,18 @@ export function FolderBoard({
                               onEnterSelectionMode={onEnterSelectionMode}
                               onDelete={onDeleteBookmark}
                               onEdit={(id: string) => {
-                                const target = bookmarks.find((b) => b.id === id);
+                                const target = bookmarks.find(
+                                  (b) => b.id === id,
+                                );
                                 if (target) {
                                   setEditSheetBookmark(target);
                                   setIsEditSheetOpen(true);
                                 }
                               }}
                               onPreview={(id: string) => {
-                                const target = bookmarks.find((b) => b.id === id);
+                                const target = bookmarks.find(
+                                  (b) => b.id === id,
+                                );
                                 if (target) {
                                   setPreviewBookmark(target);
                                   setIsPreviewOpen(true);
