@@ -243,10 +243,7 @@ export function DashboardNav({
       <nav className="z-40 mx-auto max-w-3xl transition-transform duration-200 group-data-[scrolled=true]/body:top-2">
         <div className="flex h-14 w-full items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link
-              href="/"
-              className="hidden md:flex shrink-0 items-center active:scale-95"
-            >
+            <Link href="/" className="hidden md:flex shrink-0 items-center">
               <RewayLogo className="size-8" aria-label="Reway" />
             </Link>
 

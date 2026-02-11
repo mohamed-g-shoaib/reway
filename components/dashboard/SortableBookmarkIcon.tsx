@@ -140,7 +140,7 @@ export function SortableBookmarkIcon({
                   event.stopPropagation();
                   onToggleSelection?.(id);
                 }}
-                className="size-12 flex items-center justify-center rounded-2xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
+                className="size-12 flex items-center justify-center rounded-2xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150"
                 aria-label={
                   isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
                 }
