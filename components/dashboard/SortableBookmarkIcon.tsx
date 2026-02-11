@@ -23,14 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Favicon } from "./Favicon";
+import { BookmarkContextMenu } from "./sortable-bookmark/BookmarkContextMenu";
 
 interface SortableBookmarkIconProps {
   id: string;
@@ -119,6 +114,12 @@ export function SortableBookmarkIcon({
     onPreview?.(id);
   };
 
+  const handleBulkSelect = () => {
+    if (selectionMode) return;
+    onEnterSelectionMode?.();
+    onToggleSelection?.(id);
+  };
+
   return (
     <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
       <ContextMenu>
@@ -172,18 +173,27 @@ export function SortableBookmarkIcon({
                 </div>
               </button>
             ) : (
-              <button
-                type="button"
+              <a
                 className="cursor-pointer"
+                href={url}
+                target="_blank"
+                rel="noreferrer"
                 onClick={(event) => {
                   if (event.shiftKey) {
                     event.preventDefault();
                     event.stopPropagation();
                     onEnterSelectionMode?.();
                     onToggleSelection?.(id);
-                    return;
                   }
-                  handleOpen(event);
+                }}
+                onPointerDown={(event) => {
+                  event.stopPropagation();
+                }}
+                onMouseDown={(event) => {
+                  event.stopPropagation();
+                }}
+                onTouchStart={(event) => {
+                  event.stopPropagation();
                 }}
                 aria-label="Open bookmark"
               >
@@ -193,46 +203,46 @@ export function SortableBookmarkIcon({
                   title={title}
                   className="h-12 w-12"
                 />
-              </button>
+              </a>
             )}
-            <span className="text-xs font-semibold text-foreground truncate w-full">
-              <button
-                type="button"
-                className="cursor-pointer hover:text-primary"
-                onClick={handleOpen}
-                aria-label="Open bookmark"
-              >
-                {title}
-              </button>
-            </span>
+            <a
+              className="text-xs font-semibold text-foreground truncate w-full block cursor-pointer hover:text-primary"
+              style={{ textDecoration: "none" }}
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(event) => {
+                if (event.shiftKey && !selectionMode) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onEnterSelectionMode?.();
+                  onToggleSelection?.(id);
+                }
+              }}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+              }}
+              onMouseDown={(event) => {
+                event.stopPropagation();
+              }}
+              onTouchStart={(event) => {
+                event.stopPropagation();
+              }}
+              aria-label="Open bookmark"
+            >
+              {title}
+            </a>
           </div>
         </ContextMenuTrigger>
-        <ContextMenuContent className="w-44">
-          <ContextMenuItem className="gap-2" onClick={handleOpen}>
-            <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-            Open
-          </ContextMenuItem>
-          <ContextMenuItem className="gap-2" onClick={handleCopy}>
-            <HugeiconsIcon icon={Copy01Icon} size={14} />
-            {isCopied ? "Copied" : "Copy"}
-          </ContextMenuItem>
-          <ContextMenuItem className="gap-2" onClick={handlePreview}>
-            <HugeiconsIcon icon={ViewIcon} size={14} />
-            Preview
-          </ContextMenuItem>
-          <ContextMenuSeparator className="my-1" />
-          <ContextMenuItem className="gap-2" onClick={handleEdit}>
-            <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-            Edit
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="gap-2 text-destructive focus:text-destructive"
-            onClick={handleDeleteRequest}
-          >
-            <HugeiconsIcon icon={Delete02Icon} size={14} />
-            Delete
-          </ContextMenuItem>
-        </ContextMenuContent>
+        <BookmarkContextMenu
+          onOpen={handleOpen}
+          onPreview={handlePreview}
+          onCopyLink={handleCopy}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
+          onBulkSelect={handleBulkSelect}
+          showBulkSelect={!selectionMode}
+        />
       </ContextMenu>
 
       <AlertDialogContent size="sm">
@@ -243,10 +253,12 @@ export function SortableBookmarkIcon({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="rounded-4xl cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
-            className="rounded-4xl"
+            className="rounded-4xl cursor-pointer"
             onClick={handleDeleteConfirm}
           >
             Delete

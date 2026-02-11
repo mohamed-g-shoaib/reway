@@ -6,6 +6,7 @@ import {
   Copy01Icon,
   Delete02Icon,
   PencilEdit01Icon,
+  Tick01Icon,
   ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -15,6 +16,7 @@ import {
   ContextMenuSeparator,
   ContextMenuShortcut,
 } from "@/components/ui/context-menu";
+import { useShowShortcuts } from "@/hooks/useShowShortcuts";
 
 interface BookmarkContextMenuProps {
   onOpen: MouseEventHandler<HTMLDivElement>;
@@ -22,6 +24,8 @@ interface BookmarkContextMenuProps {
   onCopyLink: MouseEventHandler<HTMLDivElement>;
   onEdit: MouseEventHandler<HTMLDivElement>;
   onDelete: MouseEventHandler<HTMLDivElement>;
+  onBulkSelect?: () => void;
+  showBulkSelect?: boolean;
 }
 
 export function BookmarkContextMenu({
@@ -30,11 +34,15 @@ export function BookmarkContextMenu({
   onCopyLink,
   onEdit,
   onDelete,
+  onBulkSelect,
+  showBulkSelect = false,
 }: BookmarkContextMenuProps) {
+  const showShortcuts = useShowShortcuts();
+
   return (
     <ContextMenuContent className="w-56 rounded-2xl p-1.5">
       <ContextMenuItem
-        className="rounded-xl flex items-center gap-2.5 py-2"
+        className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
         onClick={onOpen}
       >
         <HugeiconsIcon
@@ -43,10 +51,10 @@ export function BookmarkContextMenu({
           className="text-muted-foreground"
         />
         <span>Open in New Tab</span>
-        <ContextMenuShortcut>⏎</ContextMenuShortcut>
+        {showShortcuts ? <ContextMenuShortcut>⏎</ContextMenuShortcut> : null}
       </ContextMenuItem>
       <ContextMenuItem
-        className="rounded-xl flex items-center gap-2.5 py-2"
+        className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
         onClick={onPreview}
       >
         <HugeiconsIcon
@@ -55,10 +63,12 @@ export function BookmarkContextMenu({
           className="text-muted-foreground"
         />
         <span>Quick Glance</span>
-        <ContextMenuShortcut>Space</ContextMenuShortcut>
+        {showShortcuts ? (
+          <ContextMenuShortcut>Space</ContextMenuShortcut>
+        ) : null}
       </ContextMenuItem>
       <ContextMenuItem
-        className="rounded-xl flex items-center gap-2.5 py-2"
+        className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
         onSelect={(e) => {
           e.preventDefault();
           onCopyLink(e as unknown as React.MouseEvent<HTMLDivElement>);
@@ -70,13 +80,29 @@ export function BookmarkContextMenu({
           className="text-muted-foreground"
         />
         <span>Copy Link</span>
-        <ContextMenuShortcut>C</ContextMenuShortcut>
+        {showShortcuts ? <ContextMenuShortcut>C</ContextMenuShortcut> : null}
       </ContextMenuItem>
+
+      {showBulkSelect && onBulkSelect ? (
+        <ContextMenuItem
+          className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
+          onSelect={() => {
+            onBulkSelect();
+          }}
+        >
+          <HugeiconsIcon
+            icon={Tick01Icon}
+            size={16}
+            className="text-muted-foreground"
+          />
+          <span>Bulk select</span>
+        </ContextMenuItem>
+      ) : null}
 
       <ContextMenuSeparator />
 
       <ContextMenuItem
-        className="rounded-xl flex items-center gap-2.5 py-2"
+        className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
         onSelect={(e) => {
           e.preventDefault();
           onEdit(e as unknown as React.MouseEvent<HTMLDivElement>);
@@ -88,11 +114,11 @@ export function BookmarkContextMenu({
           className="text-muted-foreground"
         />
         <span>Edit Bookmark</span>
-        <ContextMenuShortcut>E</ContextMenuShortcut>
+        {showShortcuts ? <ContextMenuShortcut>E</ContextMenuShortcut> : null}
       </ContextMenuItem>
       <ContextMenuItem
         variant="destructive"
-        className="rounded-xl flex items-center gap-2.5 py-2"
+        className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
         onSelect={(e) => {
           e.preventDefault();
           onDelete(e as unknown as React.MouseEvent<HTMLDivElement>);
@@ -100,7 +126,7 @@ export function BookmarkContextMenu({
       >
         <HugeiconsIcon icon={Delete02Icon} size={16} />
         <span>Delete</span>
-        <ContextMenuShortcut>⌫</ContextMenuShortcut>
+        {showShortcuts ? <ContextMenuShortcut>⌫</ContextMenuShortcut> : null}
       </ContextMenuItem>
     </ContextMenuContent>
   );

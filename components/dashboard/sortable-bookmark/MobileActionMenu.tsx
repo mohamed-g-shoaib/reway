@@ -1,6 +1,5 @@
 "use client";
 
-import type { MouseEventHandler } from "react";
 import {
   ArrowUpRight03Icon,
   Copy01Icon,
@@ -20,10 +19,12 @@ import {
 
 interface MobileActionMenuProps {
   isCopied: boolean;
-  onEdit: MouseEventHandler<HTMLDivElement>;
-  onCopyLink: MouseEventHandler<HTMLDivElement>;
-  onOpen: MouseEventHandler<HTMLDivElement>;
-  onDelete: MouseEventHandler<HTMLDivElement>;
+  onEdit: (e?: React.MouseEvent) => void;
+  onCopyLink: (e?: React.MouseEvent) => void | Promise<void>;
+  onOpen: (e?: React.MouseEvent) => void;
+  onDelete: (e?: React.MouseEvent) => void;
+  onBulkSelect?: () => void;
+  showBulkSelect?: boolean;
 }
 
 export function MobileActionMenu({
@@ -32,10 +33,12 @@ export function MobileActionMenu({
   onCopyLink,
   onOpen,
   onDelete,
+  onBulkSelect,
+  showBulkSelect = false,
 }: MobileActionMenuProps) {
   return (
     <div className="md:hidden">
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
@@ -43,6 +46,8 @@ export function MobileActionMenu({
             className="h-9 w-9 -mr-3 rounded-xl hover:bg-muted/50 cursor-pointer"
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
             aria-label="Open bookmark actions"
           >
             <HugeiconsIcon
@@ -55,16 +60,34 @@ export function MobileActionMenu({
         <DropdownMenuContent
           align="end"
           className="w-40 rounded-2xl p-2 ring-1 ring-foreground/8 shadow-none isolate after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-['']"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <DropdownMenuItem
             className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-            onClick={onEdit}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onEdit();
+            }}
           >
             <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem
             className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-            onClick={onCopyLink}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCopyLink();
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onCopyLink();
+            }}
           >
             <HugeiconsIcon
               icon={isCopied ? Tick01Icon : Copy01Icon}
@@ -75,18 +98,47 @@ export function MobileActionMenu({
           </DropdownMenuItem>
           <DropdownMenuItem
             className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
-            onClick={onOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen();
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onOpen();
+            }}
           >
             <HugeiconsIcon icon={ArrowUpRight03Icon} size={16} /> Open
           </DropdownMenuItem>
+          {showBulkSelect && onBulkSelect ? (
+            <DropdownMenuItem
+              className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+              onClick={(e) => {
+                e.stopPropagation();
+                onBulkSelect();
+              }}
+              onTouchEnd={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onBulkSelect();
+              }}
+            >
+              <HugeiconsIcon icon={Tick01Icon} size={16} /> Bulk select
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuItem
             className="rounded-xl flex items-center gap-2 cursor-pointer font-medium text-destructive focus:bg-destructive/5 focus:text-destructive"
-            onClick={onDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            onTouchEnd={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onDelete();
+            }}
           >
-            <HugeiconsIcon
-              icon={Delete02Icon}
-              size={16}
-            />
+            <HugeiconsIcon icon={Delete02Icon} size={16} />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, memo, useEffect } from "react";
+import { useState, memo } from "react";
 import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Favicon } from "./Favicon";
+import { GroupRow } from "@/lib/supabase/queries";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,9 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { GroupRow } from "@/lib/supabase/queries";
 import { toast } from "sonner";
-import { InlineEditForm } from "./sortable-bookmark/InlineEditForm";
 import { BookmarkActions } from "./sortable-bookmark/BookmarkActions";
 import { MobileActionMenu } from "./sortable-bookmark/MobileActionMenu";
 import { BookmarkContextMenu } from "./sortable-bookmark/BookmarkContextMenu";
@@ -34,23 +33,12 @@ interface SortableBookmarkProps {
   createdAt: string;
   groupId: string;
   onDelete?: (id: string) => void;
-  groups?: GroupRow[];
-  groupsMap?: Map<string, GroupRow>;
   activeGroupId?: string;
   isSelected?: boolean;
-  onEdit?: (
-    id: string,
-    data: {
-      title: string;
-      url: string;
-      description?: string;
-      group_id?: string;
-    },
-  ) => Promise<void>;
-  isEditing?: boolean;
-  onEditDone?: () => void;
+  onEdit?: (id: string) => void;
   onPreview?: (id: string) => void;
   rowContent?: "date" | "group";
+  groupsMap?: Map<string, GroupRow>;
   selectionMode?: boolean;
   isSelectionChecked?: boolean;
   onToggleSelection?: (id: string) => void;
@@ -68,15 +56,12 @@ export const SortableBookmark = memo(function SortableBookmark({
   createdAt,
   groupId,
   onDelete,
-  groupsMap,
   activeGroupId,
   isSelected,
   onEdit,
-  groups = [],
-  isEditing: forceEditing,
-  onEditDone,
   onPreview,
   rowContent = "date",
+  groupsMap,
   selectionMode = false,
   isSelectionChecked = false,
   onToggleSelection,
@@ -84,22 +69,6 @@ export const SortableBookmark = memo(function SortableBookmark({
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(title || "");
-  const [editUrl, setEditUrl] = useState(url);
-  const [editDescription, setEditDescription] = useState("");
-  const [editGroupId, setEditGroupId] = useState(groupId || "no-group");
-  const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    if (forceEditing) {
-      setIsEditing(true);
-      setEditTitle(title || "");
-      setEditUrl(url);
-      setEditDescription(description || "");
-      setEditGroupId(groupId || "no-group");
-    }
-  }, [forceEditing, title, url, description, groupId]);
 
   const {
     attributes,
@@ -123,13 +92,13 @@ export const SortableBookmark = memo(function SortableBookmark({
       ? "bg-foreground/4 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] isolate shadow-none"
       : "";
 
-  const openInNewTab = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const openInNewTab = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     window.open(url, "_blank");
   };
 
-  const handleCopyLink = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCopyLink = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     try {
       await navigator.clipboard.writeText(url);
       setIsCopied(true);
@@ -141,8 +110,8 @@ export const SortableBookmark = memo(function SortableBookmark({
     }
   };
 
-  const handleDeleteRequest = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteRequest = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setDeleteDialogOpen(true);
   };
 
@@ -151,67 +120,16 @@ export const SortableBookmark = memo(function SortableBookmark({
     setDeleteDialogOpen(false);
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsEditing(true);
-    setEditTitle(title || "");
-    setEditUrl(url);
-    setEditDescription(description || "");
-    setEditGroupId(groupId || "no-group");
+  const handleEdit = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    onEdit?.(id);
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditTitle(title || "");
-    setEditUrl(url);
-    setEditDescription("");
-    setEditGroupId(groupId || "no-group");
-    onEditDone?.();
+  const handleBulkSelect = () => {
+    if (selectionMode) return;
+    onEnterSelectionMode?.();
+    onToggleSelection?.(id);
   };
-
-  const handleSaveEdit = async () => {
-    if (!editTitle.trim() || !editUrl.trim() || isSaving) return;
-
-    setIsSaving(true);
-    try {
-      await onEdit?.(id, {
-        title: editTitle.trim(),
-        url: editUrl.trim(),
-        description: editDescription.trim() || undefined,
-        group_id: editGroupId === "no-group" ? undefined : editGroupId,
-      });
-      setIsEditing(false);
-      onEditDone?.();
-    } catch (error) {
-      console.error("Failed to save bookmark:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <InlineEditForm
-        setNodeRef={setNodeRef}
-        transform={transform}
-        transition={transition}
-        isDragging={isDragging}
-        editGroupId={editGroupId}
-        setEditGroupId={setEditGroupId}
-        groups={groups}
-        groupsMap={groupsMap}
-        editTitle={editTitle}
-        setEditTitle={setEditTitle}
-        editUrl={editUrl}
-        setEditUrl={setEditUrl}
-        editDescription={editDescription}
-        setEditDescription={setEditDescription}
-        onSave={handleSaveEdit}
-        onCancel={handleCancelEdit}
-        isSaving={isSaving}
-      />
-    );
-  }
 
   // Normal Bookmark View
   return (
@@ -276,18 +194,27 @@ export const SortableBookmark = memo(function SortableBookmark({
                   </div>
                 </button>
               ) : (
-                <button
-                  type="button"
+                <a
                   className="cursor-pointer"
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
                   onClick={(event) => {
                     if (event.shiftKey) {
                       event.preventDefault();
                       event.stopPropagation();
                       onEnterSelectionMode?.();
                       onToggleSelection?.(id);
-                      return;
                     }
-                    openInNewTab(event);
+                  }}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onMouseDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onTouchStart={(event) => {
+                    event.stopPropagation();
                   }}
                   aria-label="Open bookmark"
                 >
@@ -297,7 +224,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     title={title}
                     className="h-10 w-10"
                   />
-                </button>
+                </a>
               )}
 
               <div className="min-w-0 flex-1">
@@ -311,12 +238,31 @@ export const SortableBookmark = memo(function SortableBookmark({
                       {title || "Loading..."}
                     </TextShimmer>
                   ) : (
-                    <span
+                    <a
                       className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
-                      onClick={openInNewTab}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(event) => {
+                        if (event.shiftKey && !selectionMode) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          onEnterSelectionMode?.();
+                          onToggleSelection?.(id);
+                        }
+                      }}
+                      onPointerDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      onMouseDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      onTouchStart={(event) => {
+                        event.stopPropagation();
+                      }}
                     >
                       {title}
-                    </span>
+                    </a>
                   )}
                 </div>
                 <div className="w-fit max-w-full h-4">
@@ -330,12 +276,31 @@ export const SortableBookmark = memo(function SortableBookmark({
                       Fetching details...
                     </TextShimmer>
                   ) : (
-                    <span
+                    <a
                       className="block truncate text-xs font-medium cursor-pointer text-muted-foreground group-hover:text-muted-foreground"
-                      onClick={openInNewTab}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(event) => {
+                        if (event.shiftKey && !selectionMode) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          onEnterSelectionMode?.();
+                          onToggleSelection?.(id);
+                        }
+                      }}
+                      onPointerDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      onMouseDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      onTouchStart={(event) => {
+                        event.stopPropagation();
+                      }}
                     >
                       {domain}
-                    </span>
+                    </a>
                   )}
                 </div>
               </div>
@@ -394,6 +359,8 @@ export const SortableBookmark = memo(function SortableBookmark({
                   onCopyLink={handleCopyLink}
                   onOpen={openInNewTab}
                   onDelete={handleDeleteRequest}
+                  onBulkSelect={handleBulkSelect}
+                  showBulkSelect={!selectionMode}
                 />
               ) : null}
             </div>
@@ -406,6 +373,8 @@ export const SortableBookmark = memo(function SortableBookmark({
           onCopyLink={handleCopyLink}
           onEdit={handleEdit}
           onDelete={handleDeleteRequest}
+          onBulkSelect={handleBulkSelect}
+          showBulkSelect={!selectionMode}
         />
       </ContextMenu>
 
@@ -417,10 +386,12 @@ export const SortableBookmark = memo(function SortableBookmark({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="rounded-4xl cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
-            className="rounded-4xl"
+            className="rounded-4xl cursor-pointer"
             onClick={handleDeleteConfirm}
           >
             Delete

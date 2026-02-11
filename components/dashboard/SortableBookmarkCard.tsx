@@ -25,15 +25,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { Favicon } from "./Favicon";
 import { GroupRow } from "@/lib/supabase/queries";
+import { BookmarkContextMenu } from "./sortable-bookmark/BookmarkContextMenu";
 
 interface SortableBookmarkCardProps {
   id: string;
@@ -131,6 +126,12 @@ export function SortableBookmarkCard({
     setDeleteDialogOpen(false);
   };
 
+  const handleBulkSelect = () => {
+    if (selectionMode) return;
+    onEnterSelectionMode?.();
+    onToggleSelection?.(id);
+  };
+
   const handleEdit = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     onEdit?.(id);
@@ -195,18 +196,27 @@ export function SortableBookmarkCard({
                   </div>
                 </button>
               ) : (
-                <button
-                  type="button"
+                <a
                   className="cursor-pointer"
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
                   onClick={(event) => {
                     if (event.shiftKey) {
                       event.preventDefault();
                       event.stopPropagation();
                       onEnterSelectionMode?.();
                       onToggleSelection?.(id);
-                      return;
                     }
-                    handleOpen(event);
+                  }}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onMouseDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onTouchStart={(event) => {
+                    event.stopPropagation();
                   }}
                   aria-label="Open bookmark"
                 >
@@ -216,29 +226,65 @@ export function SortableBookmarkCard({
                     title={title}
                     className="h-9 w-9"
                   />
-                </button>
+                </a>
               )}
 
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-foreground">
-                  <button
-                    type="button"
+                  <a
                     className="cursor-pointer"
-                    onClick={handleOpen}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(event) => {
+                      if (event.shiftKey && !selectionMode) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onEnterSelectionMode?.();
+                        onToggleSelection?.(id);
+                      }
+                    }}
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onMouseDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onTouchStart={(event) => {
+                      event.stopPropagation();
+                    }}
                     aria-label="Open bookmark"
                   >
                     {title}
-                  </button>
+                  </a>
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  <button
-                    type="button"
+                  <a
                     className="cursor-pointer"
-                    onClick={handleOpen}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(event) => {
+                      if (event.shiftKey && !selectionMode) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onEnterSelectionMode?.();
+                        onToggleSelection?.(id);
+                      }
+                    }}
+                    onPointerDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onMouseDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onTouchStart={(event) => {
+                      event.stopPropagation();
+                    }}
                     aria-label="Open bookmark"
                   >
                     {domain}
-                  </button>
+                  </a>
                 </p>
               </div>
             </div>
@@ -249,6 +295,8 @@ export function SortableBookmarkCard({
                 className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-[opacity,transform] md:duration-200 md:ease-out"
                 onClick={(e) => e.stopPropagation()}
                 onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
               >
                 <Button
                   variant="ghost"
@@ -299,32 +347,15 @@ export function SortableBookmarkCard({
             </div>
           </div>
         </ContextMenuTrigger>
-        <ContextMenuContent className="w-44">
-          <ContextMenuItem className="gap-2" onClick={handleOpen}>
-            <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
-            Open
-          </ContextMenuItem>
-          <ContextMenuItem className="gap-2" onClick={handleCopy}>
-            <HugeiconsIcon icon={Copy01Icon} size={14} />
-            {isCopied ? "Copied" : "Copy"}
-          </ContextMenuItem>
-          <ContextMenuItem className="gap-2" onClick={handlePreview}>
-            <HugeiconsIcon icon={ViewIcon} size={14} />
-            Preview
-          </ContextMenuItem>
-          <ContextMenuSeparator className="my-1" />
-          <ContextMenuItem className="gap-2" onClick={handleEdit}>
-            <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-            Edit
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="gap-2 text-destructive focus:text-destructive"
-            onClick={handleDeleteRequest}
-          >
-            <HugeiconsIcon icon={Delete02Icon} size={14} />
-            Delete
-          </ContextMenuItem>
-        </ContextMenuContent>
+        <BookmarkContextMenu
+          onOpen={handleOpen}
+          onPreview={handlePreview}
+          onCopyLink={handleCopy}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
+          onBulkSelect={handleBulkSelect}
+          showBulkSelect={!selectionMode}
+        />
       </ContextMenu>
 
       <AlertDialogContent size="sm">
@@ -335,10 +366,12 @@ export function SortableBookmarkCard({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="rounded-4xl">Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="rounded-4xl cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
-            className="rounded-4xl"
+            className="rounded-4xl cursor-pointer"
             onClick={handleDeleteConfirm}
           >
             Delete
