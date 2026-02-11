@@ -143,7 +143,10 @@ export function DashboardSidebar({
   };
 
   return (
-    <aside className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground">
+    <aside
+      className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground"
+      data-onboarding="groups-desktop"
+    >
       <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground">
         <KbdGroup className="gap-0.5">
           <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
@@ -495,6 +498,7 @@ export function DashboardSidebar({
             onClick={() => {
               setIsInlineCreating(true);
             }}
+            data-onboarding="create-group-desktop"
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} />
