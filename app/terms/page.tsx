@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { LandingNav } from "@/components/landing/LandingNav";
+import Link from "next/link";
+import { Header } from "@/components/header";
 import { LandingFooter } from "@/components/landing/LandingFooter";
-import { createClient } from "@/lib/supabase/server";
-import { DashboardHref } from "@/components/landing/types";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -10,20 +9,33 @@ export const metadata: Metadata = {
 };
 
 export default async function TermsPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const isAuthenticated = Boolean(data?.user);
-  const dashboardHref: DashboardHref = isAuthenticated
-    ? "/dashboard"
-    : "/login";
-  const ctaLabel = isAuthenticated ? "Dashboard" : "Get Started";
-
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <LandingNav dashboardHref={dashboardHref} ctaLabel={ctaLabel} />
+      <Header />
 
       <main className="mx-auto max-w-350 px-4 pt-32 pb-20 sm:px-6">
         <div className="mx-auto max-w-3xl">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-4"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            Back
+          </Link>
+
           <div className="space-y-4 text-center mb-16">
             <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
               Terms of Service

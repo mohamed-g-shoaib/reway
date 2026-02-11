@@ -12,9 +12,27 @@ import BrandWord from "@/components/landing/BrandWord";
 import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
 import RewayLogo from "@/components/logo";
 import type { DashboardHref } from "@/components/landing/types";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useMemo, useState } from "react";
 
 export function LandingFooter() {
   const shouldReduceMotion = useReducedMotion();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setIsAuthenticated(Boolean(data?.user)))
+      .catch(() => setIsAuthenticated(false));
+  }, []);
+
+  const primaryHref: DashboardHref = useMemo(
+    () => (isAuthenticated ? "/dashboard" : "/login"),
+    [isAuthenticated],
+  );
+  const primaryLabel = isAuthenticated ? "Dashboard" : "Get Started";
+
   const socialLinks = [
     { icon: NewTwitterIcon, href: "https://x.com", label: "Twitter" },
     { icon: Linkedin02Icon, href: "https://linkedin.com", label: "LinkedIn" },
@@ -92,10 +110,26 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="/dashboard"
+                  href="#extension"
                   className="hover:text-foreground transition-colors"
                 >
-                  Dashboard
+                  Extension
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={"/about" as DashboardHref}
+                  className="hover:text-foreground transition-colors"
+                >
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={primaryHref}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {primaryLabel}
                 </Link>
               </li>
             </ul>
