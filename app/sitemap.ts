@@ -4,11 +4,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   return [
     {
-      url: "https://reway.vercel.app/",
+      url: "https://reway-app.vercel.app/",
       lastModified,
     },
     {
-      url: "https://reway.vercel.app/login",
+      url: "https://reway-app.vercel.app/login",
       lastModified,
     },
   ];

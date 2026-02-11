@@ -3,9 +3,9 @@
 Reway is an AI-first bookmarking workspace that turns messy links into a calm, structured library. It helps teams and individuals capture links fast, organize them by groups, and move through collections with keyboard-first navigation.
 
 ## Key pages
-- https://reway.vercel.app/ — landing page
-- https://reway.vercel.app/login — sign in
-- https://reway.vercel.app/dashboard — app dashboard (private)
+- https://reway-app.vercel.app/ — landing page
+- https://reway-app.vercel.app/login — sign in
+- https://reway-app.vercel.app/dashboard — app dashboard (private)
 
 ## Product highlights
 - AI link extraction with auto-enriched titles and previews

@@ -30,9 +30,9 @@ Reway helps you drop in messy notes or screenshots and extracts the links automa
 - **Dynamic OpenGraph images**: Clean per-page OG routes (for example: `/about/api/og`, `/privacy/api/og`, `/terms/api/og`).
 
 ## Primary routes
-- https://reway.vercel.app/ — landing page with product overview and feature demos
-- https://reway.vercel.app/login — sign in
-- https://reway.vercel.app/dashboard — private dashboard
+- https://reway-app.vercel.app/ — landing page with product overview and feature demos
+- https://reway-app.vercel.app/login — sign in
+- https://reway-app.vercel.app/dashboard — private dashboard
 
 ## Brand
 - Name: Reway

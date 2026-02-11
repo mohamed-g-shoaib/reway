@@ -13,12 +13,12 @@ I’ve read your 4 extension skill docs and mapped the extension entry points in
   - **Permissions**:
     - `tabs`, `activeTab`, `scripting`, `storage`
   - **host_permissions**:
-    - `https://reway.vercel.app/*`
+    - `https://reway-app.vercel.app/*`
     - `http://localhost:3000/*`
     - `http://localhost:3001/*`
   - **content_scripts**:
     - [content-script.js](cci:7://file:///d:/Developer/reway/extension/content-script.js:0:0-0:0) on your own site:
-      - `https://reway.vercel.app/*`, `http://localhost:3000/*`, `http://localhost:3001/*`
+      - `https://reway-app.vercel.app/*`, `http://localhost:3000/*`, `http://localhost:3001/*`
     - [twitter-content-script.js](cci:7://file:///d:/Developer/reway/extension/twitter-content-script.js:0:0-0:0) on:
       - `https://x.com/*`, `https://twitter.com/*`
 
@@ -113,7 +113,7 @@ I’ve read your 4 extension skill docs and mapped the extension entry points in
 
 - Remove `<all_urls>` from `host_permissions`.
 - Add explicit host permissions only for:
-  - `https://reway.vercel.app/*`
+  - `https://reway-app.vercel.app/*`
   - `http://localhost:3000/*` (dev-only while you iterate)
   - `http://localhost:3001/*` (dev-only while you iterate)
 - For metadata extraction you **do not need** `<all_urls>` because you rely on `activeTab` + `chrome.scripting.executeScript()`.

@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "https://reway.vercel.app";
+const DEFAULT_BASE_URL = "https://reway-app.vercel.app";
 
 async function getSettings() {
   const { rewayBaseUrl } = await chrome.storage.local.get(["rewayBaseUrl"]);
@@ -345,7 +345,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           url.searchParams.set("groupId", message.groupId);
         }
 
-        const response = await fetch(url.toString(), { credentials: "include" });
+        const response = await fetch(url.toString(), {
+          credentials: "include",
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch bookmarks");

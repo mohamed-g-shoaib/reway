@@ -3,4 +3,4 @@ Allow: /
 Allow: /api/og
 Disallow: /api/
 
-Sitemap: https://reway.vercel.app/sitemap.xml
+Sitemap: https://reway-app.vercel.app/sitemap.xml

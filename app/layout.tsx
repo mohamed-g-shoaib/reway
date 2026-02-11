@@ -4,7 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://reway.vercel.app"),
+  metadataBase: new URL("https://reway-app.vercel.app"),
   title: {
     default: "Reway — A Calm Home for Everything You Save",
     template: "%s | Reway",
@@ -12,13 +12,13 @@ export const metadata: Metadata = {
   description:
     "Reway turns messy links into a structured, searchable library with AI extraction, groups, keyboard navigation, and flexible views.",
   alternates: {
-    canonical: "https://reway.vercel.app/",
+    canonical: "https://reway-app.vercel.app/",
   },
   openGraph: {
     title: "Reway — A Calm Home for Everything You Save",
     description:
       "Capture anything, let AI extract what matters, and move fast with groups, keyboard navigation, and flexible views.",
-    url: "https://reway.vercel.app/",
+    url: "https://reway-app.vercel.app/",
     siteName: "Reway",
     type: "website",
     images: [

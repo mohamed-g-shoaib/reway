@@ -1,4 +1,4 @@
-export const DEFAULT_BASE_URL = "https://reway.vercel.app";
+export const DEFAULT_BASE_URL = "https://reway-app.vercel.app";
 export const MAX_NAME_LENGTH = 18;
 
 export function isDashboardUrl(url, baseUrl = DEFAULT_BASE_URL) {

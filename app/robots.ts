@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: ["/", "/api/og"],
       disallow: ["/api/"],
     },
-    sitemap: "https://reway.vercel.app/sitemap.xml",
+    sitemap: "https://reway-app.vercel.app/sitemap.xml",
   };
 }
