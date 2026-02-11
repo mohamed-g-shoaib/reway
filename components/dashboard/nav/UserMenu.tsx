@@ -5,8 +5,10 @@ import {
   Settings01Icon,
   FileImportIcon,
   FileExportIcon,
+  Download02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useFormStatus } from "react-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +41,28 @@ export function UserMenu({
   onOpenImportDialog,
   onOpenExportDialog,
 }: UserMenuProps) {
+  const LogoutItem = () => {
+    const { pending } = useFormStatus();
+
+    return (
+      <DropdownMenuItem
+        asChild
+        onSelect={(event) => event.preventDefault()}
+        className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive w-full py-2"
+      >
+        <button
+          type="submit"
+          className="w-full flex items-center gap-2"
+          disabled={pending}
+          aria-disabled={pending ? "true" : "false"}
+        >
+          <HugeiconsIcon icon={Logout01Icon} size={16} />
+          {pending ? "Logging out..." : "Log out"}
+        </button>
+      </DropdownMenuItem>
+    );
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -166,19 +190,12 @@ export function UserMenu({
             className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
             onSelect={(event) => event.preventDefault()}
           >
+            <HugeiconsIcon icon={Download02Icon} size={16} />
             Download Extension
           </DropdownMenuItem>
         </ExtensionInstallDialog>
         <form action={signOut}>
-          <DropdownMenuItem
-            asChild
-            className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive w-full py-2"
-          >
-            <button type="submit" className="w-full flex items-center gap-2">
-              <HugeiconsIcon icon={Logout01Icon} size={16} />
-              Log out
-            </button>
-          </DropdownMenuItem>
+          <LogoutItem />
         </form>
       </DropdownMenuContent>
     </DropdownMenu>
