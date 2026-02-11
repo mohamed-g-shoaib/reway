@@ -1,45 +1,37 @@
 # Reway Browser Extension
 
-This Chrome extension allows you to quickly save bookmarks to your Reway dashboard and open groups of bookmarks.
+This Chrome extension lets you save pages (and link batches) directly into your Reway dashboard.
 
-## Installation
+## Installation (Manual)
 
-1. **Enable Developer Mode**
+1. **Download the extension ZIP**
+   - Download the ZIP file you received
+   - Unzip it into a folder (keep the folder contents intact)
+
+2. **Enable Developer Mode**
    - Open Chrome and navigate to `chrome://extensions/`
    - Toggle "Developer mode" in the top-right corner
 
-2. **Load the Extension**
+3. **Load the extension**
    - Click "Load unpacked"
-   - Select this `extension` folder
+   - Select the unzipped extension folder (the one that contains `manifest.json`)
    - The Reway icon should appear in your browser toolbar
-
-3. **Add Required Icons** (IMPORTANT)
-   - Create an `icons` folder inside this directory
-   - Add the following PNG files:
-     - `icon16.png` (16x16 pixels)
-     - `icon48.png` (48x48 pixels)
-     - `icon128.png` (128x128 pixels)
-   - These icons are required for Chrome to display the extension properly
 
 ## Setup
 
-1. **Get API Token**
-   - Open your Reway dashboard
-   - Click on your avatar → "Manage access tokens"
-   - Generate a new token
+1. **Log in to Reway**
+   - Open the Reway dashboard and log in
 
-2. **Configure Extension**
-   - Click the Reway extension icon in Chrome
-   - Enter your API token in the "Extension Token" field
-   - Enter your dashboard URL (e.g., `https://your-app.vercel.app`)
-   - Click "Save Settings"
+2. **Open the extension**
+   - Click the Reway extension icon
+   - If you’re not logged in, the extension will ask you to log in
 
 ## Features
 
-- **Save Current Page**: Quickly bookmark the current tab
-- **Auto-fill**: Automatically detects page title and description
-- **Group Selection**: Choose which group to save bookmarks to
-- **Dashboard Integration**: Seamlessly works with the Reway dashboard
+- **Save Page**: Save the current tab with title/description and an optional group
+- **Save Links**: Build a list of links and save them as a group
+- **Tab Session**: Save your current window’s tabs as a group
+- **Dashboard integration**: If the dashboard is open, the extension broadcasts new saves
 
 ## Testing
 
@@ -49,8 +41,8 @@ Open `test.html` in Chrome to verify the extension is properly installed and com
 
 - **Extension not detected**: Ensure all files are in place and developer mode is enabled
 - **Icons not showing**: Make sure the `icons` folder contains all three PNG files
-- **API errors**: Verify your token is correct and your dashboard URL is accessible
-- **Saving fails**: Check the extension popup for error messages
+- **Login required**: Open the Reway dashboard and log in first, then reopen the extension popup
+- **Saving fails**: Check the extension popup for error messages and ensure the extension has access to your Reway domain
 
 ## File Structure
 
@@ -63,7 +55,7 @@ extension/
 ├── background.js      # Service worker for tab management
 ├── content-script.js  # Page content interaction
 ├── test.html          # Installation test page
-└── icons/             # Extension icons (you need to add these)
+└── icons/             # Extension icons
     ├── icon16.png
     ├── icon48.png
     └── icon128.png
