@@ -12,21 +12,26 @@ export const DEMO_BOOKMARKS = [
     url: "https://reway-app.vercel.app/about",
     title: "About Reway",
     description: "Learn why Reway was built and the philosophy behind it.",
+    favicon_url: "https://reway-app.vercel.app/favicon.ico",
   },
   {
     url: "https://drive.google.com/file/d/10rypTtZMKT_IR53b5cS7epw7acEoC9WW/view?usp=sharing",
-    title: "Reway Extension",
+    title: "Download Reway Extension",
     description: "Our extension enables powerful features.",
+    favicon_url:
+      "https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png",
   },
   {
     url: "https://github.com/mohamed-g-shoaib/reway",
-    title: "GitHub",
+    title: "Source Code on GitHub",
     description: "View the source code and contribute to the project.",
+    favicon_url: "https://github.com/favicon.ico",
   },
   {
     url: "https://x.com/devloopsoftware",
     title: "Follow us on X",
     description: "Stay updated with Devloop.",
+    favicon_url: "https://abs.twimg.com/favicons/twitter.2.ico",
   },
 ];
 
@@ -123,6 +128,7 @@ export async function seedNewUser(
         normalized_url: normalized,
         title: bm.title,
         description: bm.description,
+        favicon_url: bm.favicon_url,
         group_id: targetGroupId, // Use the determined ID
         user_id: userId,
         status: "ready" as const,
