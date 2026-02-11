@@ -22,7 +22,7 @@ export default function LandingPage({
         <HeroSection />
         <FeaturesSection />
         <DemoVideosSection />
-        <CallToAction dashboardHref={dashboardHref} ctaLabel={ctaLabel} />
+        <CallToAction />
       </main>
       <LandingFooter />
     </div>

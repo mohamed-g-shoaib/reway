@@ -15,6 +15,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import RewayLogo from "@/components/logo";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Button } from "@/components/ui/button";
+import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
+import { Google } from "@/components/google-logo";
 
 import { useState } from "react";
 
@@ -130,6 +133,18 @@ export function HeroSection() {
             in seconds, let AI extract what matters, and move fast with search,
             groups, and view modes that match the way you think.
           </p>
+
+          <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 pt-1">
+            <ExtensionInstallDialog>
+              <Button size="lg" className="rounded-full px-8 cursor-pointer">
+                <Google className="mr-2 size-4" aria-hidden="true" focusable="false" />
+                Download Extension
+              </Button>
+            </ExtensionInstallDialog>
+            <div className="text-sm text-muted-foreground">
+              We’re not on the Chrome Web Store yet, so installation is manual.
+            </div>
+          </div>
         </motion.div>
 
         <motion.div

@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { PlayIcon, PauseIcon } from "@hugeicons/core-free-icons";
+import {
+  PlayIcon,
+  PauseIcon,
+  MaximizeScreenIcon,
+  MinimizeScreenIcon,
+} from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 
 interface DemoVideoProps {
@@ -240,7 +245,7 @@ export function DemoVideo({
         <button
           onClick={toggleFullscreen}
           className={cn(
-            "absolute right-2 top-2 sm:right-4 sm:top-4 z-20 flex h-7 sm:h-9 items-center justify-center rounded-xl sm:rounded-2xl ring-1 ring-foreground/20 bg-background/10 px-1.5 sm:px-2.5 text-foreground/40 transition-all duration-300 backdrop-blur-md cursor-pointer",
+            "absolute right-2 top-2 sm:right-4 sm:top-4 z-20 flex h-7 sm:h-9 items-center justify-center rounded-xl sm:rounded-2xl ring-1 ring-foreground/20 bg-background/10 px-1.5 sm:px-2.5 text-foreground/40 leading-none transition-all duration-300 backdrop-blur-md cursor-pointer",
             "hover:bg-background/80 hover:text-foreground hover:ring-foreground/30",
             (isHovered || showMobileFullscreen) &&
               "opacity-100 text-foreground/90 bg-background/60 ring-foreground/40",
@@ -255,37 +260,11 @@ export function DemoVideo({
                 ? "max-w-24 opacity-100 mr-1.5"
                 : "max-w-0 opacity-0 mr-0",
             )}
-            style={{ height: "100%" }}
           >
             {isFullscreen ? "Exit" : "Fullscreen"}
           </span>
           <div className="flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="size-3.5 sm:size-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              {isFullscreen ? (
-                <>
-                  <path d="M9 9H5V5" />
-                  <path d="M15 9h4V5" />
-                  <path d="M9 15H5v4" />
-                  <path d="M15 15h4v4" />
-                </>
-              ) : (
-                <>
-                  <path d="M9 5H5v4" />
-                  <path d="M15 5h4v4" />
-                  <path d="M9 19H5v-4" />
-                  <path d="M15 19h4v-4" />
-                </>
-              )}
-            </svg>
+            <HugeiconsIcon icon={isFullscreen ? MinimizeScreenIcon : MaximizeScreenIcon} size={16} />
           </div>
         </button>
       )}
