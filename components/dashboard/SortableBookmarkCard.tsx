@@ -230,7 +230,7 @@ export function SortableBookmarkCard({
                     {title}
                   </button>
                 </p>
-                <p className="truncate text-xs text-muted-foreground/70">
+                <p className="truncate text-xs text-muted-foreground">
                   <button
                     type="button"
                     className="cursor-pointer"
@@ -243,7 +243,7 @@ export function SortableBookmarkCard({
               </div>
             </div>
 
-            <div className="flex items-center justify-between text-xs text-muted-foreground/70">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="truncate max-w-[70%]">{metaLabel}</span>
               <div
                 className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:translate-y-1 md:group-hover:opacity-100 md:group-hover:translate-y-0 md:transition-[opacity,transform] md:duration-200 md:ease-out"

@@ -155,7 +155,7 @@ export function GroupListItem({
         <div className="flex items-center gap-1 opacity-0 group-hover/menu-item:opacity-100 transition-opacity absolute right-0 bg-inherit pl-2">
           <button
             type="button"
-            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground/70 hover:text-primary transition-transform active:scale-95"
+            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground hover:text-primary transition-transform active:scale-95"
             onClick={(e) => {
               e.stopPropagation();
               onEdit(group.id);
@@ -180,11 +180,11 @@ export function GroupListItem({
               size={14}
             />
           </button>
-          <span className="text-xs text-muted-foreground/50 ml-1">
+          <span className="text-xs text-muted-foreground ml-1">
             {groupCount}
           </span>
         </div>
-        <span className="text-xs text-muted-foreground/50 group-hover/menu-item:opacity-0 transition-opacity">
+        <span className="text-xs text-muted-foreground group-hover/menu-item:opacity-0 transition-opacity">
           {groupCount}
         </span>
       </div>

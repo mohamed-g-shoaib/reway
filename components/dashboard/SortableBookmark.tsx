@@ -331,7 +331,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     </TextShimmer>
                   ) : (
                     <span
-                      className="block truncate text-xs font-medium cursor-pointer text-muted-foreground/70 group-hover:text-muted-foreground"
+                      className="block truncate text-xs font-medium cursor-pointer text-muted-foreground group-hover:text-muted-foreground"
                       onClick={openInNewTab}
                     >
                       {domain}
@@ -354,7 +354,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                   Enriching...
                 </TextShimmer>
               ) : (
-                <span className="text-xs font-medium text-muted-foreground/60 transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
+                <span className="text-xs font-medium text-muted-foreground transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
                   {rowContent === "group"
                     ? (() => {
                         // If viewing a specific group and bookmark belongs to that group, show date instead

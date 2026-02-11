@@ -43,11 +43,12 @@ export function MobileActionMenu({
             className="h-9 w-9 -mr-3 rounded-xl hover:bg-muted/50 cursor-pointer"
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
+            aria-label="Open bookmark actions"
           >
             <HugeiconsIcon
               icon={MoreVerticalIcon}
               size={16}
-              className="text-muted-foreground/60"
+              className="text-muted-foreground"
             />
           </Button>
         </DropdownMenuTrigger>

@@ -64,7 +64,7 @@ export function FolderHeader({
               <span className="text-sm font-semibold text-foreground truncate">
                 {group.name}
               </span>
-              <span className="text-xs text-muted-foreground/70 tabular-nums">
+              <span className="text-xs text-muted-foreground tabular-nums">
                 {count}
               </span>
             </div>

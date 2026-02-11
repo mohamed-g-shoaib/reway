@@ -130,7 +130,7 @@ export function CommandBarInput({
                 variant="ghost"
                 size="icon"
                 onClick={onPlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground/70 transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none"
                 aria-label="Add image or file"
               >
                 <HugeiconsIcon icon={AttachmentIcon} size={16} />
@@ -158,7 +158,7 @@ export function CommandBarInput({
               ? "Search bookmarks..."
               : "Add a link, image, or search..."
           }
-          className="flex-1 min-w-0 bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground/60 selection:bg-primary/20 disabled:opacity-50"
+          className="flex-1 min-w-0 bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
           style={{ maskImage }}
           onFocus={() => onFocusChange(true)}
           onBlur={() => onFocusChange(false)}
@@ -174,7 +174,7 @@ export function CommandBarInput({
                 className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out ${
                   mode === "add"
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                 }`}
                 aria-pressed={mode === "add"}
                 aria-label="Add bookmarks"
@@ -202,7 +202,7 @@ export function CommandBarInput({
                 className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out ${
                   mode === "search"
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                 }`}
                 aria-pressed={mode === "search"}
                 aria-label="Search bookmarks"

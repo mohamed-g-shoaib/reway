@@ -119,8 +119,8 @@ export function DashboardSidebar({
   handleInlineCreateGroup,
 }: DashboardSidebarProps) {
   return (
-    <aside className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground/70">
-      <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground/60">
+    <aside className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground">
+      <div className="mb-1 flex items-center gap-2 text-[11px] text-muted-foreground">
         <KbdGroup className="gap-0.5">
           <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">Shift</Kbd>
           <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">A–Z</Kbd>
@@ -153,7 +153,7 @@ export function DashboardSidebar({
                   icon={GridIcon}
                   size={16}
                   strokeWidth={2}
-                  className="text-muted-foreground/70"
+                  className="text-muted-foreground"
                 />
                 <span className="truncate">All Bookmarks</span>
               </div>
@@ -482,7 +482,7 @@ export function DashboardSidebar({
           <button
             type="button"
             onClick={() => setIsInlineCreating(true)}
-            className="flex items-center gap-2 text-xs text-muted-foreground/70 hover:text-foreground"
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
           >
             <HugeiconsIcon icon={Add01Icon} size={14} />
             Create group

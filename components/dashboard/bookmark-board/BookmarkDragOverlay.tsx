@@ -31,12 +31,12 @@ export function BookmarkDragOverlay({
             <p className="truncate text-sm font-bold text-foreground">
               {activeBookmark.title}
             </p>
-            <p className="truncate text-xs text-muted-foreground/70">
+            <p className="truncate text-xs text-muted-foreground">
               {domain}
             </p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground/70">
+        <p className="text-xs text-muted-foreground">
           {new Date(activeBookmark.created_at).toLocaleDateString(undefined, {
             month: "short",
             day: "numeric",
@@ -80,7 +80,7 @@ export function BookmarkDragOverlay({
         </div>
       </div>
       <div className="flex shrink-0 items-center pl-6">
-        <span className="text-sm font-medium text-muted-foreground/50">
+        <span className="text-sm font-medium text-muted-foreground">
           {new Date(activeBookmark.created_at).toLocaleDateString(undefined, {
             month: "short",
             day: "numeric",

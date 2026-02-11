@@ -158,7 +158,7 @@ export function QuickGlanceDialog({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="rounded-lg text-muted-foreground/60 hover:text-foreground"
+                  className="rounded-lg text-muted-foreground hover:text-foreground"
                   onClick={() => onEdit(bookmark)}
                   aria-label="Edit bookmark"
                 >
@@ -167,7 +167,7 @@ export function QuickGlanceDialog({
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="rounded-lg text-muted-foreground/60 hover:text-destructive"
+                  className="rounded-lg text-muted-foreground hover:text-destructive"
                   onClick={handleDeleteRequest}
                   title="Delete"
                   aria-label="Delete bookmark"
@@ -204,7 +204,7 @@ export function QuickGlanceDialog({
 
             {/* Description Area */}
             {bookmark.description && (
-              <p className="text-[14px] leading-relaxed text-muted-foreground/80 font-medium line-clamp-4">
+              <p className="text-[14px] leading-relaxed text-muted-foreground font-medium line-clamp-4">
                 {bookmark.description}
               </p>
             )}

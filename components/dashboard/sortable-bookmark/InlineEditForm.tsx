@@ -97,6 +97,7 @@ export function InlineEditForm({
               <button
                 type="button"
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-background border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150 active:scale-95"
+                aria-label="Select group"
               >
                 {editGroupId === "no-group" ? (
                   <HugeiconsIcon

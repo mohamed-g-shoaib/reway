@@ -10,7 +10,7 @@ interface TableHeaderProps {
 
 export function TableHeader({ viewMode, keyboardContext, isMac }: TableHeaderProps) {
   return (
-    <div className="hidden md:flex items-center gap-6 px-5 pt-6 pb-3 text-[11px] font-medium text-muted-foreground/50">
+    <div className="hidden md:flex items-center gap-6 px-5 pt-6 pb-3 text-[11px] font-medium text-muted-foreground">
       <div className="flex items-center gap-1.5">
         <KbdGroup className="gap-0.5">
           {viewMode !== "list" ? (
