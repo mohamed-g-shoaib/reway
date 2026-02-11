@@ -5,7 +5,7 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd";
 export function NavigationDemo() {
   return (
     <div className="flex w-full justify-center">
-      <div className="grid w-fit grid-cols-3 gap-4 text-[10px] text-muted-foreground/70">
+      <div className="grid w-fit grid-cols-3 gap-4 text-[10px] text-muted-foreground">
         {[
           { label: "Switch Group", keys: ["Shift", "A–Z"] },
           { label: "Move", keys: ["↑", "↓", "←", "→"] },

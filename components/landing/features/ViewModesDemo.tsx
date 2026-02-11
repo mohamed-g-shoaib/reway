@@ -85,12 +85,12 @@ export function ViewModesDemo() {
                       <p className="text-sm font-semibold text-foreground">
                         {item.title}
                       </p>
-                      <p className="truncate text-xs text-muted-foreground/70">
+                      <p className="truncate text-xs text-muted-foreground">
                         {item.domain}
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground/70">
+                  <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
                     <span>{item.date}</span>
                     <div className="flex items-center gap-1">
                       <button
@@ -148,7 +148,7 @@ export function ViewModesDemo() {
                       {item.title}
                     </span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground/70">
+                  <span className="text-[10px] text-muted-foreground">
                     {item.date}
                   </span>
                 </div>

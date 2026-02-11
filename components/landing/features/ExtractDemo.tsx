@@ -76,7 +76,7 @@ export function ExtractDemo() {
               {typingText.slice(0, typedIndex)}
             </span>
           </span>
-          <div className="ml-auto hidden shrink-0 items-center text-[10px] text-muted-foreground/70 sm:flex">
+          <div className="ml-auto hidden shrink-0 items-center text-[10px] text-muted-foreground sm:flex">
             <Kbd className="h-4.5 min-w-4.5 px-1.5 text-[9px]">CtrlK</Kbd>
           </div>
         </div>
@@ -171,7 +171,7 @@ export function ExtractDemo() {
                         {item.title}
                       </span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground/70">
+                    <span className="text-[10px] text-muted-foreground">
                       {item.date}
                     </span>
                   </div>

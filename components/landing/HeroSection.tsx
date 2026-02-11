@@ -206,13 +206,13 @@ export function HeroSection() {
                     <HugeiconsIcon icon={Add01Icon} size={14} />
                   </span>
                   Insert a link, image, or just search...
-                  <div className="ml-auto hidden items-center text-[10px] text-muted-foreground/70 sm:flex">
+                  <div className="ml-auto hidden items-center text-[10px] text-muted-foreground sm:flex">
                     <Kbd className="h-4.5 min-w-4.5 px-1.5 text-[9px]">
                       CtrlK
                     </Kbd>
                   </div>
                 </div>
-                <div className="hidden flex-wrap items-center gap-4 text-[10px] text-muted-foreground/70 sm:flex">
+                <div className="hidden flex-wrap items-center gap-4 text-[10px] text-muted-foreground sm:flex">
                   <div className="flex items-center gap-1.5">
                     <KbdGroup className="gap-0.5">
                       <Kbd className="h-4.5 min-w-4.5 px-0.5 text-[9px]">↑</Kbd>
@@ -275,14 +275,14 @@ export function HeroSection() {
                           <p className="text-base font-semibold leading-tight text-foreground">
                             {bookmark.title}
                           </p>
-                          <p className="truncate text-xs text-muted-foreground/70">
+                          <p className="truncate text-xs text-muted-foreground">
                             {bookmark.domain}
                           </p>
                         </div>
                       </a>
-                      <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground/70">
+                      <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
                         <span>{bookmark.date}</span>
-                        <div className="flex items-center gap-1 text-muted-foreground/70">
+                        <div className="flex items-center gap-1 text-muted-foreground">
                           <button
                             type="button"
                             onClick={handleEdit}
