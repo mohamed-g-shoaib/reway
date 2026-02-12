@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
-import { Folder01Icon } from "@hugeicons/core-free-icons";
+import { Folder01Icon, Link01Icon, TextFontIcon, SubtitleIcon, CircleIcon, Group01Icon } from "@hugeicons/core-free-icons";
 
 interface BookmarkEditSheetProps {
   open: boolean;
@@ -37,6 +37,7 @@ interface BookmarkEditSheetProps {
       title: string;
       url: string;
       description?: string;
+      favicon_url?: string;
       group_id?: string;
     },
   ) => Promise<void>;
@@ -56,6 +57,7 @@ export function BookmarkEditSheet({
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [faviconUrl, setFaviconUrl] = useState("");
   const [groupId, setGroupId] = useState("no-group");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -81,6 +83,7 @@ export function BookmarkEditSheet({
     setTitle(bookmark.title || "");
     setUrl(bookmark.url || "");
     setDescription(bookmark.description || "");
+    setFaviconUrl(bookmark.favicon_url || "");
     setGroupId(bookmark.group_id || "no-group");
   }, [bookmark]);
 
@@ -99,6 +102,7 @@ export function BookmarkEditSheet({
         title: title.trim(),
         url: url.trim(),
         description: description.trim() || undefined,
+        favicon_url: faviconUrl.trim() || undefined,
         group_id: groupId === "no-group" ? undefined : groupId,
       });
       onOpenChange(false);
@@ -129,7 +133,7 @@ export function BookmarkEditSheet({
         side="right"
         className="flex w-full flex-col sm:max-w-lg p-0"
       >
-        <SheetHeader className="px-6 py-4 border-b shrink-0">
+        <SheetHeader>
           <SheetTitle>Edit Bookmark</SheetTitle>
           <SheetDescription>Update your bookmark details.</SheetDescription>
         </SheetHeader>
@@ -141,7 +145,10 @@ export function BookmarkEditSheet({
             className="space-y-5"
           >
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-url">URL *</Label>
+              <Label htmlFor="edit-sheet-url" className="flex items-center gap-2">
+                <HugeiconsIcon icon={Link01Icon} size={16} />
+                URL *
+              </Label>
               <Input
                 id="edit-sheet-url"
                 type="url"
@@ -153,7 +160,10 @@ export function BookmarkEditSheet({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-title">Title *</Label>
+              <Label htmlFor="edit-sheet-title" className="flex items-center gap-2">
+                <HugeiconsIcon icon={TextFontIcon} size={16} />
+                Title *
+              </Label>
               <Input
                 id="edit-sheet-title"
                 required
@@ -164,7 +174,10 @@ export function BookmarkEditSheet({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-description">Description</Label>
+              <Label htmlFor="edit-sheet-description" className="flex items-center gap-2">
+                <HugeiconsIcon icon={SubtitleIcon} size={16} />
+                Description
+              </Label>
               <Textarea
                 id="edit-sheet-description"
                 rows={3}
@@ -175,18 +188,35 @@ export function BookmarkEditSheet({
             </div>
 
             <div className="space-y-2">
-              <Label>Group</Label>
+              <Label htmlFor="edit-sheet-favicon" className="flex items-center gap-2">
+                <HugeiconsIcon icon={CircleIcon} size={16} />
+                Custom Favicon URL
+              </Label>
+              <Input
+                id="edit-sheet-favicon"
+                type="url"
+                value={faviconUrl}
+                onChange={(e) => setFaviconUrl(e.target.value)}
+                placeholder="https://example.com/favicon.ico"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <HugeiconsIcon icon={Group01Icon} size={16} />
+                Group
+              </Label>
               <Select
                 value={groupId}
                 onValueChange={(value) => setGroupId(value)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full cursor-pointer">
                   <SelectValue placeholder="Select group" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no-group">No Group</SelectItem>
+                  <SelectItem value="no-group" className="cursor-pointer">No Group</SelectItem>
                   {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
+                    <SelectItem key={group.id} value={group.id} className="cursor-pointer">
                       {renderGroupOption(group)}
                     </SelectItem>
                   ))}
@@ -196,16 +226,17 @@ export function BookmarkEditSheet({
           </form>
         </div>
 
-        <SheetFooter className="px-6 py-4 border-t shrink-0">
+        <SheetFooter>
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
+            className="cursor-pointer"
           >
             Cancel
           </Button>
-          <Button form="edit-bookmark-sheet" type="submit" disabled={isSaving}>
+          <Button form="edit-bookmark-sheet" type="submit" disabled={isSaving} className="cursor-pointer">
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </SheetFooter>
