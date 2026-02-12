@@ -1,6 +1,13 @@
 "use client";
 
-import React, { memo, useEffect, useId, useMemo, useRef, useState } from "react";
+import React, {
+  memo,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   DndContext,
@@ -54,6 +61,7 @@ interface FolderBoardProps {
       description?: string;
       favicon_url?: string;
       group_id?: string;
+      applyFaviconToDomain?: boolean;
     },
   ) => Promise<void>;
   selectionMode?: boolean;

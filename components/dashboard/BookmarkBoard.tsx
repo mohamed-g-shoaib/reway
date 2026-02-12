@@ -50,6 +50,7 @@ interface BookmarkBoardProps {
       description?: string;
       favicon_url?: string;
       group_id?: string;
+      applyFaviconToDomain?: boolean;
     },
   ) => Promise<void>;
   rowContent: "date" | "group";

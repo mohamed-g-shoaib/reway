@@ -350,6 +350,7 @@ export async function updateBookmark(
     description?: string;
     group_id?: string | null;
     favicon_url?: string | null;
+    apply_favicon_to_domain?: boolean;
   },
 ) {
   const supabase = await createClient();
@@ -377,6 +378,58 @@ export async function updateBookmark(
   if (error) {
     console.error("Error updating bookmark:", error);
     throw new Error("Failed to update bookmark");
+  }
+
+  if (formData.apply_favicon_to_domain) {
+    const targetDomain = (() => {
+      try {
+        return new URL(formData.url).hostname.replace("www.", "");
+      } catch {
+        return null;
+      }
+    })();
+
+    if (targetDomain) {
+      const { data: userBookmarks, error: fetchError } = await supabase
+        .from("bookmarks")
+        .select("id, url")
+        .eq("user_id", userData.user.id);
+
+      if (fetchError) {
+        console.error(
+          "Error fetching bookmarks for domain update:",
+          fetchError,
+        );
+        throw new Error("Failed to update domain bookmarks");
+      }
+
+      const matchingIds = (userBookmarks ?? [])
+        .filter((bookmark) => {
+          try {
+            const bookmarkDomain = new URL(bookmark.url).hostname.replace(
+              "www.",
+              "",
+            );
+            return bookmarkDomain === targetDomain;
+          } catch {
+            return false;
+          }
+        })
+        .map((bookmark) => bookmark.id);
+
+      if (matchingIds.length > 0) {
+        const { error: domainUpdateError } = await supabase
+          .from("bookmarks")
+          .update({ favicon_url: formData.favicon_url ?? null })
+          .eq("user_id", userData.user.id)
+          .in("id", matchingIds);
+
+        if (domainUpdateError) {
+          console.error("Error updating domain favicon:", domainUpdateError);
+          throw new Error("Failed to update domain favicon");
+        }
+      }
+    }
   }
 
   revalidatePath("/dashboard");

@@ -24,7 +24,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
-import { Folder01Icon, Link01Icon, TextFontIcon, SubtitleIcon, CircleIcon, Group01Icon } from "@hugeicons/core-free-icons";
+import {
+  Folder01Icon,
+  Link01Icon,
+  TextFontIcon,
+  SubtitleIcon,
+  CircleIcon,
+  Group01Icon,
+} from "@hugeicons/core-free-icons";
 
 interface BookmarkEditSheetProps {
   open: boolean;
@@ -39,6 +46,7 @@ interface BookmarkEditSheetProps {
       description?: string;
       favicon_url?: string;
       group_id?: string;
+      applyFaviconToDomain?: boolean;
     },
   ) => Promise<void>;
 }
@@ -58,6 +66,9 @@ export function BookmarkEditSheet({
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [faviconUrl, setFaviconUrl] = useState("");
+  const [faviconScope, setFaviconScope] = useState<"single" | "domain">(
+    "single",
+  );
   const [groupId, setGroupId] = useState("no-group");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -84,6 +95,7 @@ export function BookmarkEditSheet({
     setUrl(bookmark.url || "");
     setDescription(bookmark.description || "");
     setFaviconUrl(bookmark.favicon_url || "");
+    setFaviconScope("single");
     setGroupId(bookmark.group_id || "no-group");
   }, [bookmark]);
 
@@ -104,6 +116,8 @@ export function BookmarkEditSheet({
         description: description.trim() || undefined,
         favicon_url: faviconUrl.trim() || undefined,
         group_id: groupId === "no-group" ? undefined : groupId,
+        applyFaviconToDomain:
+          faviconUrl.trim().length > 0 && faviconScope === "domain",
       });
       onOpenChange(false);
     } catch (error) {
@@ -145,7 +159,10 @@ export function BookmarkEditSheet({
             className="space-y-5"
           >
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-url" className="flex items-center gap-2">
+              <Label
+                htmlFor="edit-sheet-url"
+                className="flex items-center gap-2"
+              >
                 <HugeiconsIcon icon={Link01Icon} size={16} />
                 URL *
               </Label>
@@ -160,7 +177,10 @@ export function BookmarkEditSheet({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-title" className="flex items-center gap-2">
+              <Label
+                htmlFor="edit-sheet-title"
+                className="flex items-center gap-2"
+              >
                 <HugeiconsIcon icon={TextFontIcon} size={16} />
                 Title *
               </Label>
@@ -174,7 +194,10 @@ export function BookmarkEditSheet({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-description" className="flex items-center gap-2">
+              <Label
+                htmlFor="edit-sheet-description"
+                className="flex items-center gap-2"
+              >
                 <HugeiconsIcon icon={SubtitleIcon} size={16} />
                 Description
               </Label>
@@ -188,7 +211,10 @@ export function BookmarkEditSheet({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-sheet-favicon" className="flex items-center gap-2">
+              <Label
+                htmlFor="edit-sheet-favicon"
+                className="flex items-center gap-2"
+              >
                 <HugeiconsIcon icon={CircleIcon} size={16} />
                 Custom Favicon URL
               </Label>
@@ -199,6 +225,37 @@ export function BookmarkEditSheet({
                 onChange={(e) => setFaviconUrl(e.target.value)}
                 placeholder="https://example.com/favicon.ico"
               />
+              {faviconUrl.trim().length > 0 && (
+                <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                  <p className="text-xs font-medium text-foreground">
+                    Apply this custom favicon to
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={
+                        faviconScope === "single" ? "default" : "outline"
+                      }
+                      className="flex-1 rounded-4xl cursor-pointer"
+                      onClick={() => setFaviconScope("single")}
+                    >
+                      This only
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={
+                        faviconScope === "domain" ? "default" : "outline"
+                      }
+                      className="flex-1 rounded-4xl cursor-pointer"
+                      onClick={() => setFaviconScope("domain")}
+                    >
+                      All bookmarks
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -214,9 +271,15 @@ export function BookmarkEditSheet({
                   <SelectValue placeholder="Select group" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no-group" className="cursor-pointer">No Group</SelectItem>
+                  <SelectItem value="no-group" className="cursor-pointer">
+                    No Group
+                  </SelectItem>
                   {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id} className="cursor-pointer">
+                    <SelectItem
+                      key={group.id}
+                      value={group.id}
+                      className="cursor-pointer"
+                    >
                       {renderGroupOption(group)}
                     </SelectItem>
                   ))}
@@ -236,7 +299,12 @@ export function BookmarkEditSheet({
           >
             Cancel
           </Button>
-          <Button form="edit-bookmark-sheet" type="submit" disabled={isSaving} className="cursor-pointer">
+          <Button
+            form="edit-bookmark-sheet"
+            type="submit"
+            disabled={isSaving}
+            className="cursor-pointer"
+          >
             {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </SheetFooter>

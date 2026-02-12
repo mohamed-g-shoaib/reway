@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
 import type { EnrichmentResult } from "./dashboard-types";
+import { getDomain } from "@/lib/utils";
 
 interface UseBookmarkActionsOptions {
   activeGroupId: string;
@@ -26,6 +27,7 @@ interface UseBookmarkActionsOptions {
       description?: string;
       group_id?: string | null;
       favicon_url?: string | null;
+      apply_favicon_to_domain?: boolean;
     },
   ) => Promise<void>;
   lastDeletedRef: React.MutableRefObject<{
@@ -62,7 +64,9 @@ export function useBookmarkActions({
           group_id: activeGroupId !== "all" ? activeGroupId : bookmark.group_id,
         };
 
-        const existingIndex = prev.findIndex((item) => item.id === newBookmark.id);
+        const existingIndex = prev.findIndex(
+          (item) => item.id === newBookmark.id,
+        );
         if (existingIndex >= 0) {
           const next = [...prev];
           next[existingIndex] = { ...next[existingIndex], ...newBookmark };
@@ -257,22 +261,42 @@ export function useBookmarkActions({
         description?: string;
         favicon_url?: string;
         group_id?: string;
+        applyFaviconToDomain?: boolean;
       },
     ) => {
-      setBookmarks((prev) =>
-        prev.map((b) =>
-          b.id === id
-            ? {
-                ...b,
-                title: data.title,
-                url: data.url,
-                description: data.description ?? null,
-                favicon_url: data.favicon_url ?? null,
-                group_id: data.group_id ?? null,
-              }
-            : b,
-        ),
-      );
+      const targetDomain = getDomain(data.url);
+
+      let snapshotBeforeUpdate: BookmarkRow[] | null = null;
+      setBookmarks((prev) => {
+        snapshotBeforeUpdate = prev;
+        return prev.map((b) => {
+          const isEditedBookmark = b.id === id;
+          const isSameDomainMatch =
+            !!data.applyFaviconToDomain &&
+            data.favicon_url !== undefined &&
+            getDomain(b.url) === targetDomain;
+
+          if (isEditedBookmark) {
+            return {
+              ...b,
+              title: data.title,
+              url: data.url,
+              description: data.description ?? null,
+              favicon_url: data.favicon_url ?? null,
+              group_id: data.group_id ?? null,
+            };
+          }
+
+          if (isSameDomainMatch) {
+            return {
+              ...b,
+              favicon_url: data.favicon_url ?? null,
+            };
+          }
+
+          return b;
+        });
+      });
 
       try {
         await updateBookmark(id, {
@@ -281,10 +305,16 @@ export function useBookmarkActions({
           description: data.description,
           group_id: data.group_id || null,
           favicon_url: data.favicon_url ?? null,
+          apply_favicon_to_domain: !!data.applyFaviconToDomain,
         });
       } catch (error) {
         console.error("Update bookmark failed:", error);
         toast.error("Failed to update bookmark");
+        if (snapshotBeforeUpdate) {
+          setBookmarks(snapshotBeforeUpdate);
+          return;
+        }
+
         setBookmarks((prev) =>
           prev.map((b) => {
             if (b.id === id) {
