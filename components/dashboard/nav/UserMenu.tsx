@@ -31,6 +31,8 @@ interface UserMenuProps {
   initials: string;
   rowContent: "date" | "group";
   onRowContentChange: (value: "date" | "group") => void;
+  showNotesTodos: boolean;
+  onShowNotesTodosChange: (value: boolean) => void;
   onOpenImportSheet: () => void;
   onOpenExportSheet: () => void;
   onOpenDuplicatesSheet: () => void;
@@ -41,6 +43,8 @@ export function UserMenu({
   initials,
   rowContent,
   onRowContentChange,
+  showNotesTodos,
+  onShowNotesTodosChange,
   onOpenImportSheet,
   onOpenExportSheet,
   onOpenDuplicatesSheet,
@@ -127,6 +131,8 @@ export function UserMenu({
         </DropdownMenuItem>
 
         <SettingsDialog
+          showNotesTodos={showNotesTodos}
+          onShowNotesTodosChange={onShowNotesTodosChange}
           rowContent={rowContent}
           onRowContentChange={onRowContentChange}
           userName={user.name}

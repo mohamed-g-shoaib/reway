@@ -139,6 +139,93 @@ export type Database = {
         };
         Relationships: [];
       };
+      notes: {
+        Row: {
+          color: string | null;
+          created_at: string;
+          id: string;
+          order_index: number | null;
+          text: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          color?: string | null;
+          created_at?: string;
+          id?: string;
+          order_index?: number | null;
+          text: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          color?: string | null;
+          created_at?: string;
+          id?: string;
+          order_index?: number | null;
+          text?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          avatar_url: string | null;
+          full_name: string | null;
+          id: string;
+          updated_at: string;
+        };
+        Insert: {
+          avatar_url?: string | null;
+          full_name?: string | null;
+          id: string;
+          updated_at?: string;
+        };
+        Update: {
+          avatar_url?: string | null;
+          full_name?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      todos: {
+        Row: {
+          completed: boolean;
+          completed_at: string | null;
+          created_at: string;
+          id: string;
+          order_index: number | null;
+          priority: string;
+          text: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          completed?: boolean;
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          order_index?: number | null;
+          priority?: string;
+          text: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          completed?: boolean;
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          order_index?: number | null;
+          priority?: string;
+          text?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

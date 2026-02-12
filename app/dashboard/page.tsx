@@ -1,7 +1,12 @@
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { getUser } from "./layout";
-import { getBookmarks, getGroups } from "@/lib/supabase/queries";
+import {
+  getBookmarks,
+  getGroups,
+  getNotes,
+  getTodos,
+} from "@/lib/supabase/queries";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { cookies } from "next/headers";
 
@@ -36,6 +41,13 @@ export default async function DashboardPage() {
     return "add";
   };
 
+  const parseShowNotesTodos = (value: string | undefined) => {
+    if (value === "false") {
+      return false;
+    }
+    return true; // Default to true (show sidebar)
+  };
+
   // Read and validate dashboard preferences from cookies
   const viewModeAll = parseViewMode(
     cookieStore.get("reway.dashboard.viewMode.all")?.value,
@@ -49,11 +61,16 @@ export default async function DashboardPage() {
   const commandMode = parseCommandMode(
     cookieStore.get("reway.dashboard.commandMode")?.value,
   );
+  const showNotesTodos = parseShowNotesTodos(
+    cookieStore.get("reway.dashboard.showNotesTodos")?.value,
+  );
 
-  const [user, bookmarks, groups] = await Promise.all([
+  const [user, bookmarks, groups, notes, todos] = await Promise.all([
     getUser(),
     getBookmarks(),
     getGroups(),
+    getNotes(),
+    getTodos(),
   ]).catch((error) => {
     console.error("Failed to load dashboard:", error);
     throw error;
@@ -67,7 +84,10 @@ export default async function DashboardPage() {
             user={user}
             initialBookmarks={bookmarks}
             initialGroups={groups}
+            initialNotes={notes}
+            initialTodos={todos}
             initialViewModeAll={viewModeAll}
+            initialShowNotesTodos={showNotesTodos}
             initialViewModeGroups={viewModeGroups}
             initialRowContent={rowContent}
             initialCommandMode={commandMode}

@@ -46,6 +46,8 @@ interface SettingsDialogProps {
   children: React.ReactNode;
   rowContent: "date" | "group";
   onRowContentChange: (value: "date" | "group") => void;
+  showNotesTodos: boolean;
+  onShowNotesTodosChange: (value: boolean) => void;
   userName: string;
 }
 
@@ -53,12 +55,15 @@ export function SettingsDialog({
   children,
   rowContent,
   onRowContentChange,
+  showNotesTodos,
+  onShowNotesTodosChange,
   userName,
 }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [aiUsage, setAiUsage] = useState<{ used: number; limit: number } | null>(
-    null,
-  );
+  const [aiUsage, setAiUsage] = useState<{
+    used: number;
+    limit: number;
+  } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmValue, setConfirmValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -175,6 +180,36 @@ export function SettingsDialog({
               </div>
               <p className="text-xs text-muted-foreground px-1">
                 Choose what to display in the right column of your bookmarks.
+              </p>
+            </div>
+          </SheetSection>
+
+          <SheetSection>
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
+              Notes & Todos Sidebar
+            </h3>
+            <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+              <div className="flex gap-2">
+                <Button
+                  variant={showNotesTodos ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => onShowNotesTodosChange(true)}
+                >
+                  Show
+                </Button>
+                <Button
+                  variant={!showNotesTodos ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => onShowNotesTodosChange(false)}
+                >
+                  Hide
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground px-1">
+                Toggle the Notes & Todos sidebar visibility (desktop only).
               </p>
             </div>
           </SheetSection>

@@ -41,6 +41,8 @@ interface DashboardNavProps {
   onGroupOpen?: (id: string) => void;
   rowContent: "date" | "group";
   setRowContent: (value: "date" | "group") => void;
+  showNotesTodos: boolean;
+  setShowNotesTodos: (value: boolean) => void;
   viewMode: "list" | "card" | "icon" | "folders";
   setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
   exportGroupOptions: string[];
@@ -92,6 +94,8 @@ export function DashboardNav({
   onGroupOpen,
   rowContent,
   setRowContent,
+  showNotesTodos,
+  setShowNotesTodos,
   viewMode,
   setViewMode,
   exportGroupOptions,
@@ -205,12 +209,7 @@ export function DashboardNav({
         icon: newGroupIcon,
         color: folderColor,
       });
-      onGroupCreated?.(
-        groupId,
-        newGroupName.trim(),
-        newGroupIcon,
-        folderColor,
-      );
+      onGroupCreated?.(groupId, newGroupName.trim(), newGroupIcon, folderColor);
       setIsInlineCreating(false);
       setNewGroupName("");
       setNewGroupIcon("folder");
@@ -366,6 +365,8 @@ export function DashboardNav({
               initials={initials}
               rowContent={rowContent}
               onRowContentChange={setRowContent}
+              showNotesTodos={showNotesTodos}
+              onShowNotesTodosChange={setShowNotesTodos}
               onOpenImportSheet={handleOpenImportDialog}
               onOpenExportSheet={handleOpenExportDialog}
               onOpenDuplicatesSheet={handleOpenDuplicatesSheet}

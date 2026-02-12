@@ -4,12 +4,18 @@ import React, { useState, useCallback } from "react";
 import { CommandBar } from "@/components/dashboard/CommandBar";
 import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
 import { FolderBoard } from "@/components/dashboard/FolderBoard";
-import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
+import {
+  BookmarkRow,
+  GroupRow,
+  NoteRow,
+  TodoRow,
+} from "@/lib/supabase/queries";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import type { User } from "@/components/dashboard/nav/types";
 import { useIsMac } from "@/hooks/useIsMac";
 import { toast } from "sonner";
 import { DashboardSidebar } from "./content/DashboardSidebar";
+import { DashboardNotesTodosSidebar } from "./content/DashboardNotesTodosSidebar";
 import { TableHeader } from "./content/TableHeader";
 import { FloatingActionBar } from "./content/FloatingActionBar";
 import { DashboardOnboarding } from "./DashboardOnboarding";
@@ -32,10 +38,13 @@ interface DashboardContentProps {
   user: User;
   initialBookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
+  initialNotes: NoteRow[];
+  initialTodos: TodoRow[];
   initialViewModeAll?: "list" | "card" | "icon" | "folders";
   initialViewModeGroups?: "list" | "card" | "icon" | "folders";
   initialRowContent?: "date" | "group";
   initialCommandMode?: "add" | "search";
+  initialShowNotesTodos?: boolean;
 }
 
 import {
@@ -55,20 +64,44 @@ import {
   updateGroup as updateGroupAction,
 } from "@/app/dashboard/actions/groups";
 
+import {
+  createNote,
+  deleteNote,
+  deleteNotes as deleteNotesAction,
+  updateNote,
+} from "@/app/dashboard/actions/notes";
+
+import {
+  createTodo,
+  deleteTodo,
+  deleteTodos as deleteTodosAction,
+  setTodoCompleted,
+  setTodosCompleted,
+  updateTodo,
+} from "@/app/dashboard/actions/todos";
+
 export function DashboardContent({
   user,
   initialBookmarks,
   initialGroups,
+  initialNotes,
+  initialTodos,
   initialViewModeAll = "list",
   initialViewModeGroups = "list",
   initialRowContent = "date",
   initialCommandMode = "add",
+  initialShowNotesTodos = true,
 }: DashboardContentProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
+  const [notes, setNotes] = useState<NoteRow[]>(initialNotes);
+  const [todos, setTodos] = useState<TodoRow[]>(initialTodos);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
   const [rowContent, setRowContent] = useState<"date" | "group">(
     initialRowContent,
+  );
+  const [showNotesTodos, setShowNotesTodos] = useState<boolean>(
+    initialShowNotesTodos,
   );
   const [viewModeAll, setViewModeAll] = useState<
     "list" | "card" | "icon" | "folders"
@@ -172,9 +205,11 @@ export function DashboardContent({
     if (!hasInitialized.current) {
       setBookmarks(initialBookmarks);
       setGroups(sortGroups(initialGroups));
+      setNotes(initialNotes);
+      setTodos(initialTodos);
       hasInitialized.current = true;
     }
-  }, [initialBookmarks, initialGroups, sortGroups]);
+  }, [initialBookmarks, initialGroups, initialNotes, initialTodos, sortGroups]);
 
   // Migrate from localStorage to cookies on first load
   React.useEffect(() => {
@@ -193,6 +228,10 @@ export function DashboardContent({
   React.useEffect(() => {
     setPreferenceCookie("rowContent", rowContent);
   }, [rowContent]);
+
+  React.useEffect(() => {
+    setPreferenceCookie("showNotesTodos", showNotesTodos ? "true" : "false");
+  }, [showNotesTodos]);
 
   React.useEffect(() => {
     setPreferenceCookie("commandMode", commandMode);
@@ -351,6 +390,237 @@ export function DashboardContent({
     setCommandMode,
   });
 
+  const handleCreateNote = useCallback(
+    async (formData: { text: string; color?: string | null }) => {
+      const id = await createNote({
+        text: formData.text,
+        color: formData.color ?? null,
+      });
+      const now = new Date().toISOString();
+      const newNote: NoteRow = {
+        id,
+        user_id: user.id,
+        text: formData.text,
+        color: formData.color ?? null,
+        created_at: now,
+        updated_at: now,
+        order_index: null,
+      };
+      setNotes((prev) => [newNote, ...prev]);
+      return id;
+    },
+    [user.id],
+  );
+
+  const handleUpdateNote = useCallback(
+    async (id: string, formData: { text: string; color?: string | null }) => {
+      const prevNote = notes.find((n) => n.id === id);
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === id
+            ? {
+                ...n,
+                text: formData.text,
+                color: formData.color ?? null,
+                updated_at: new Date().toISOString(),
+              }
+            : n,
+        ),
+      );
+      try {
+        await updateNote(id, {
+          text: formData.text,
+          color: formData.color ?? null,
+        });
+      } catch (error) {
+        console.error("Update note failed:", error);
+        toast.error("Failed to update note");
+        if (prevNote) {
+          setNotes((prev) => prev.map((n) => (n.id === id ? prevNote : n)));
+        }
+      }
+    },
+    [notes],
+  );
+
+  const handleDeleteNote = useCallback(
+    async (id: string) => {
+      const prev = notes;
+      setNotes((p) => p.filter((n) => n.id !== id));
+      try {
+        await deleteNote(id);
+      } catch (error) {
+        console.error("Delete note failed:", error);
+        toast.error("Failed to delete note");
+        setNotes(prev);
+      }
+    },
+    [notes],
+  );
+
+  const handleDeleteNotes = useCallback(
+    async (ids: string[]) => {
+      if (!ids || ids.length === 0) return;
+      const idSet = new Set(ids);
+      const prev = notes;
+      setNotes((p) => p.filter((n) => !idSet.has(n.id)));
+      try {
+        await deleteNotesAction(ids);
+      } catch (error) {
+        console.error("Bulk delete notes failed:", error);
+        toast.error("Failed to delete notes");
+        setNotes(prev);
+      }
+    },
+    [notes],
+  );
+
+  const handleCreateTodo = useCallback(
+    async (formData: { text: string; priority: "high" | "medium" | "low" }) => {
+      const id = await createTodo({
+        text: formData.text,
+        priority: formData.priority,
+      });
+      const now = new Date().toISOString();
+      const newTodo: TodoRow = {
+        id,
+        user_id: user.id,
+        text: formData.text,
+        priority: formData.priority,
+        completed: false,
+        completed_at: null,
+        created_at: now,
+        updated_at: now,
+        order_index: null,
+      };
+      setTodos((prev) => [newTodo, ...prev]);
+      return id;
+    },
+    [user.id],
+  );
+
+  const handleUpdateTodo = useCallback(
+    async (
+      id: string,
+      formData: { text: string; priority: "high" | "medium" | "low" },
+    ) => {
+      const prevTodo = todos.find((t) => t.id === id);
+      setTodos((prev) =>
+        prev.map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                text: formData.text,
+                priority: formData.priority,
+                updated_at: new Date().toISOString(),
+              }
+            : t,
+        ),
+      );
+      try {
+        await updateTodo(id, {
+          text: formData.text,
+          priority: formData.priority,
+        });
+      } catch (error) {
+        console.error("Update todo failed:", error);
+        toast.error("Failed to update todo");
+        if (prevTodo) {
+          setTodos((prev) => prev.map((t) => (t.id === id ? prevTodo : t)));
+        }
+      }
+    },
+    [todos],
+  );
+
+  const handleSetTodoCompleted = useCallback(
+    async (id: string, completed: boolean) => {
+      const prevTodo = todos.find((t) => t.id === id);
+      setTodos((prev) =>
+        prev.map((t) =>
+          t.id === id
+            ? {
+                ...t,
+                completed,
+                completed_at: completed ? new Date().toISOString() : null,
+                updated_at: new Date().toISOString(),
+              }
+            : t,
+        ),
+      );
+      try {
+        await setTodoCompleted(id, completed);
+      } catch (error) {
+        console.error("Set todo completed failed:", error);
+        toast.error("Failed to update todo");
+        if (prevTodo) {
+          setTodos((prev) => prev.map((t) => (t.id === id ? prevTodo : t)));
+        }
+      }
+    },
+    [todos],
+  );
+
+  const handleDeleteTodo = useCallback(
+    async (id: string) => {
+      const prev = todos;
+      setTodos((p) => p.filter((t) => t.id !== id));
+      try {
+        await deleteTodo(id);
+      } catch (error) {
+        console.error("Delete todo failed:", error);
+        toast.error("Failed to delete todo");
+        setTodos(prev);
+      }
+    },
+    [todos],
+  );
+
+  const handleDeleteTodos = useCallback(
+    async (ids: string[]) => {
+      if (!ids || ids.length === 0) return;
+      const idSet = new Set(ids);
+      const prev = todos;
+      setTodos((p) => p.filter((t) => !idSet.has(t.id)));
+      try {
+        await deleteTodosAction(ids);
+      } catch (error) {
+        console.error("Bulk delete todos failed:", error);
+        toast.error("Failed to delete todos");
+        setTodos(prev);
+      }
+    },
+    [todos],
+  );
+
+  const handleSetTodosCompleted = useCallback(
+    async (ids: string[], completed: boolean) => {
+      if (!ids || ids.length === 0) return;
+      const idSet = new Set(ids);
+      const prev = todos;
+      setTodos((p) =>
+        p.map((t) =>
+          idSet.has(t.id)
+            ? {
+                ...t,
+                completed,
+                completed_at: completed ? new Date().toISOString() : null,
+                updated_at: new Date().toISOString(),
+              }
+            : t,
+        ),
+      );
+      try {
+        await setTodosCompleted(ids, completed);
+      } catch (error) {
+        console.error("Bulk set todos completed failed:", error);
+        toast.error("Failed to update todos");
+        setTodos(prev);
+      }
+    },
+    [todos],
+  );
+
   return (
     <>
       <DashboardOnboarding />
@@ -382,6 +652,22 @@ export function DashboardContent({
           isCreatingGroup={isCreatingGroup}
           handleInlineCreateGroup={handleInlineCreateGroup}
         />
+        {showNotesTodos && (
+          <DashboardNotesTodosSidebar
+            notes={notes}
+            todos={todos}
+            onCreateNote={handleCreateNote}
+            onUpdateNote={handleUpdateNote}
+            onDeleteNote={handleDeleteNote}
+            onDeleteNotes={handleDeleteNotes}
+            onCreateTodo={handleCreateTodo}
+            onUpdateTodo={handleUpdateTodo}
+            onDeleteTodo={handleDeleteTodo}
+            onDeleteTodos={handleDeleteTodos}
+            onSetTodoCompleted={handleSetTodoCompleted}
+            onSetTodosCompleted={handleSetTodosCompleted}
+          />
+        )}
         {/* Fixed Header Section */}
         <div className="flex-none z-40 bg-background px-1">
           <DashboardNav
@@ -397,6 +683,8 @@ export function DashboardContent({
             onGroupOpen={handleOpenGroup}
             rowContent={rowContent}
             setRowContent={setRowContent}
+            showNotesTodos={showNotesTodos}
+            setShowNotesTodos={setShowNotesTodos}
             viewMode={viewMode}
             setViewMode={setViewMode}
             exportGroupOptions={exportGroupOptions}
