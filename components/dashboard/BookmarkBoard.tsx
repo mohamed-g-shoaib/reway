@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useId, useMemo, useRef } from "react";
+import React, { memo, useState, useId, useMemo, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -48,6 +48,7 @@ interface BookmarkBoardProps {
       title: string;
       url: string;
       description?: string;
+      favicon_url?: string;
       group_id?: string;
     },
   ) => Promise<void>;
@@ -59,7 +60,7 @@ interface BookmarkBoardProps {
   onEnterSelectionMode?: () => void;
 }
 
-export function BookmarkBoard({
+export const BookmarkBoard = memo(function BookmarkBoard({
   bookmarks,
   initialGroups,
   activeGroupId,
@@ -107,6 +108,7 @@ export function BookmarkBoard({
       domain: getDomain(b.url),
       description: b.description || undefined,
       favicon: b.favicon_url || undefined,
+      isEnriching: Boolean(b.is_enriching),
       createdAt: new Date(b.created_at).toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
@@ -335,4 +337,4 @@ export function BookmarkBoard({
       />
     </div>
   );
-}
+});
