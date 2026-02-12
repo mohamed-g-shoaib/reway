@@ -42,6 +42,7 @@ interface SortableBookmarkIconProps {
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
   onPreview?: (id: string) => void;
+  dragDimmed?: boolean;
 }
 
 export function SortableBookmarkIcon({
@@ -59,6 +60,7 @@ export function SortableBookmarkIcon({
   onDelete,
   onEdit,
   onPreview,
+  dragDimmed = false,
 }: SortableBookmarkIconProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -134,7 +136,9 @@ export function SortableBookmarkIcon({
             data-slot="bookmark-card"
             className={`group relative flex flex-col items-center gap-3 rounded-2xl bg-muted/20 p-4 text-center ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
               isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
-            } ${isDragging ? "opacity-0" : ""}`}
+            } ${dragDimmed ? "opacity-40 saturate-0" : ""} ${
+              isDragging ? "opacity-0" : ""
+            }`}
           >
             {selectionMode ? (
               <button
