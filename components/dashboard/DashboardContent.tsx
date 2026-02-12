@@ -51,16 +51,18 @@ import {
   addBookmark,
   checkDuplicateBookmarks,
   deleteBookmark as deleteAction,
+  deleteBookmarks,
   enrichCreatedBookmark,
+  enrichBookmark,
   restoreBookmark as restoreAction,
   updateBookmark as updateBookmarkAction,
   updateBookmarksOrder,
-  updateFolderBookmarksOrder,
 } from "@/app/dashboard/actions/bookmarks";
 import {
   createGroup,
   deleteGroup as deleteGroupAction,
   restoreGroup as restoreGroupAction,
+  updateGroupsOrder,
   updateGroup as updateGroupAction,
 } from "@/app/dashboard/actions/groups";
 
@@ -190,7 +192,10 @@ export function DashboardContent({
 
   const sortGroups = useCallback((items: GroupRow[]) => {
     return items.toSorted((a, b) => {
-      // Handle cases where name might be undefined or null
+      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
+      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+
       const nameA = a.name || "";
       const nameB = b.name || "";
       return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
@@ -265,7 +270,6 @@ export function DashboardContent({
     setBookmarks,
     sortBookmarks,
     updateBookmarksOrder,
-    updateFolderBookmarksOrder,
     deleteBookmark: deleteAction,
     restoreBookmark: restoreAction,
     updateBookmark: updateBookmarkAction,
@@ -323,6 +327,32 @@ export function DashboardContent({
     isCreatingGroup,
     setIsCreatingGroup,
   });
+
+  const handleGroupsReorder = useCallback(
+    async (newOrder: GroupRow[]) => {
+      const prev = groups;
+      setGroups(
+        newOrder.map((group, index) => ({
+          ...group,
+          order_index: index,
+        })),
+      );
+
+      const updates = newOrder.map((group, index) => ({
+        id: group.id,
+        order_index: index,
+      }));
+
+      try {
+        await updateGroupsOrder(updates);
+      } catch (error) {
+        console.error("Reorder groups failed:", error);
+        toast.error("Failed to reorder groups");
+        setGroups(prev);
+      }
+    },
+    [groups],
+  );
 
   const {
     importPreview,
@@ -629,6 +659,7 @@ export function DashboardContent({
           groups={groups}
           activeGroupId={activeGroupId}
           setActiveGroupId={setActiveGroupId}
+          onReorderGroups={handleGroupsReorder}
           handleOpenGroup={handleOpenGroup}
           editingGroupId={editingGroupId}
           setEditingGroupId={setEditingGroupId}
