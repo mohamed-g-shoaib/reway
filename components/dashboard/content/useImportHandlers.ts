@@ -389,35 +389,6 @@ export function useImportHandlers({
           return;
         }
 
-        // Increment processed immediately after claiming this item
-        processed += 1;
-
-        const optimisticRow: BookmarkRow = {
-          id: optimisticId,
-          url: entry.url,
-          normalized_url: normalizedUrl,
-          title: entry.title || entry.url,
-          description: null,
-          error_reason: null,
-          favicon_url: null,
-          og_image_url: null,
-          image_url: null,
-          group_id: groupId ?? null,
-          is_enriching: true,
-          last_fetched_at: null,
-          screenshot_url: null,
-          user_id: userId,
-          created_at: new Date().toISOString(),
-          order_index: orderIndex,
-          folder_order_index: null,
-          status: "pending",
-        };
-
-        setBookmarks((prev) => {
-          if (prev.some((item) => item.id === optimisticId)) return prev;
-          return sortBookmarks([optimisticRow, ...prev]);
-        });
-
         try {
           const bookmarkId = await addBookmark({
             url: entry.url,
