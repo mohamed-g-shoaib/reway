@@ -9,15 +9,18 @@ import {
   checkDuplicateGroup,
   createGroup,
 } from "@/app/dashboard/actions/groups";
-import { ImportDialog } from "./nav/ImportDialog";
-import { ExportDialog } from "./nav/ExportDialog";
+import { ImportSheet } from "./nav/ImportSheet";
+import { ExportSheet } from "./nav/ExportSheet";
+import { DuplicatesSheet } from "./nav/DuplicatesSheet";
 import { ViewModeControls } from "./nav/ViewModeControls";
 import { UserMenu } from "./nav/UserMenu";
 import { GroupMenu } from "./nav/GroupMenu";
 import type { User } from "./nav/types";
+import type { BookmarkRow } from "@/lib/supabase/queries";
 
 interface DashboardNavProps {
   user: User;
+  bookmarks: BookmarkRow[];
   groups: GroupRow[];
   activeGroupId: string;
   groupCounts?: Record<string, number>;
@@ -54,8 +57,14 @@ interface DashboardNavProps {
   importProgress: {
     processed: number;
     total: number;
-    status: "idle" | "importing" | "done" | "error";
+    status: "idle" | "importing" | "stopping" | "done" | "error" | "stopped";
   };
+  importResult: {
+    imported: number;
+    cancelled: number;
+    total: number;
+    status: "done" | "stopped" | "error";
+  } | null;
   exportProgress: {
     processed: number;
     total: number;
@@ -67,10 +76,12 @@ interface DashboardNavProps {
   onClearImport: () => void;
   onExportBookmarks: (groups: string[]) => void;
   onResetExport?: () => void;
+  onRemoveBookmarks?: (ids: string[]) => void;
 }
 
 export function DashboardNav({
   user,
+  bookmarks,
   groups,
   activeGroupId,
   groupCounts = {},
@@ -86,6 +97,7 @@ export function DashboardNav({
   exportGroupOptions,
   importPreview,
   importProgress,
+  importResult,
   exportProgress,
   onImportFileSelected,
   onUpdateImportAction,
@@ -93,10 +105,27 @@ export function DashboardNav({
   onClearImport,
   onExportBookmarks,
   onResetExport,
+  onRemoveBookmarks,
 }: DashboardNavProps) {
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupIcon, setNewGroupIcon] = useState("folder");
+  const pickRandomGroupColor = () => {
+    const palette = [
+      "#6366f1",
+      "#8b5cf6",
+      "#ec4899",
+      "#f43f5e",
+      "#f97316",
+      "#f59e0b",
+      "#84cc16",
+      "#10b981",
+      "#06b6d4",
+      "#3b82f6",
+    ];
+    return palette[Math.floor(Math.random() * palette.length)];
+  };
+
   const [newGroupColor, setNewGroupColor] = useState<string | null>("#6366f1");
   const [isCreating, setIsCreating] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -104,8 +133,9 @@ export function DashboardNav({
   const [editGroupIcon, setEditGroupIcon] = useState("folder");
   const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [importSheetOpen, setImportSheetOpen] = useState(false);
+  const [exportSheetOpen, setExportSheetOpen] = useState(false);
+  const [duplicatesSheetOpen, setDuplicatesSheetOpen] = useState(false);
   const [selectedImportGroups, setSelectedImportGroups] = useState<string[]>(
     [],
   );
@@ -166,16 +196,20 @@ export function DashboardNav({
         onError?.();
         return;
       }
+
+      const folderColor =
+        newGroupIcon === "folder" ? pickRandomGroupColor() : newGroupColor;
+
       const groupId = await createGroup({
         name: newGroupName.trim(),
         icon: newGroupIcon,
-        color: newGroupColor,
+        color: folderColor,
       });
       onGroupCreated?.(
         groupId,
         newGroupName.trim(),
         newGroupIcon,
-        newGroupColor,
+        folderColor,
       );
       setIsInlineCreating(false);
       setNewGroupName("");
@@ -218,7 +252,7 @@ export function DashboardNav({
   };
 
   const handleOpenImportDialog = () => {
-    setImportDialogOpen(true);
+    setImportSheetOpen(true);
     if (importPreview) {
       setSelectedImportGroups(importPreview.groups.map((group) => group.name));
     } else {
@@ -226,13 +260,20 @@ export function DashboardNav({
     }
   };
 
-  const handleOpenExportDialog = () => {
-    if (!hasInitializedExportSelection.current) {
-      setSelectedExportGroups(exportGroupOptions);
-      hasInitializedExportSelection.current = true;
+  const handleImportOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedImportGroups([]);
+
+      onClearImport();
     }
+    setImportSheetOpen(open);
+  };
+
+  const handleOpenExportDialog = () => {
+    setSelectedExportGroups(exportGroupOptions);
+    hasInitializedExportSelection.current = true;
     onResetExport?.();
-    setExportDialogOpen(true);
+    setExportSheetOpen(true);
   };
 
   const handleExportOpenChange = (open: boolean) => {
@@ -240,16 +281,21 @@ export function DashboardNav({
       setSelectedExportGroups([]);
       onResetExport?.();
     }
-    setExportDialogOpen(open);
+    setExportSheetOpen(open);
+  };
+
+  const handleOpenDuplicatesSheet = () => {
+    setDuplicatesSheetOpen(true);
   };
 
   return (
     <>
-      <ImportDialog
-        open={importDialogOpen}
-        onOpenChange={setImportDialogOpen}
+      <ImportSheet
+        open={importSheetOpen}
+        onOpenChange={handleImportOpenChange}
         importPreview={importPreview}
         importProgress={importProgress}
+        importResult={importResult}
         selectedImportGroups={selectedImportGroups}
         onToggleImportGroup={handleToggleImportGroup}
         onImportFileSelected={onImportFileSelected}
@@ -258,14 +304,21 @@ export function DashboardNav({
         onClearImport={onClearImport}
       />
 
-      <ExportDialog
-        open={exportDialogOpen}
+      <ExportSheet
+        open={exportSheetOpen}
         onOpenChange={handleExportOpenChange}
         exportGroupOptions={exportGroupOptions}
         exportProgress={exportProgress}
         selectedExportGroups={selectedExportGroups}
         onToggleExportGroup={handleToggleExportGroup}
         onExportBookmarks={onExportBookmarks}
+      />
+
+      <DuplicatesSheet
+        open={duplicatesSheetOpen}
+        onOpenChange={setDuplicatesSheetOpen}
+        bookmarks={bookmarks}
+        onRemoveBookmarks={onRemoveBookmarks}
       />
 
       <nav className="z-40 mx-auto max-w-3xl transition-transform duration-200 group-data-[scrolled=true]/body:top-2">
@@ -313,8 +366,9 @@ export function DashboardNav({
               initials={initials}
               rowContent={rowContent}
               onRowContentChange={setRowContent}
-              onOpenImportDialog={handleOpenImportDialog}
-              onOpenExportDialog={handleOpenExportDialog}
+              onOpenImportSheet={handleOpenImportDialog}
+              onOpenExportSheet={handleOpenExportDialog}
+              onOpenDuplicatesSheet={handleOpenDuplicatesSheet}
             />
           </div>
         </div>
