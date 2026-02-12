@@ -9,6 +9,7 @@ import {
   Tick01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,9 +37,11 @@ export function MobileActionMenu({
   onBulkSelect,
   showBulkSelect = false,
 }: MobileActionMenuProps) {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="md:hidden">
-      <DropdownMenu modal={false}>
+      <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
@@ -115,11 +118,13 @@ export function MobileActionMenu({
               className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
               onClick={(e) => {
                 e.stopPropagation();
+                setOpen(false);
                 onBulkSelect();
               }}
               onTouchEnd={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
+                setOpen(false);
                 onBulkSelect();
               }}
             >

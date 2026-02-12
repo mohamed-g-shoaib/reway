@@ -99,8 +99,7 @@ export function BookmarkContextMenu({
         </ContextMenuItem>
       ) : null}
 
-      <ContextMenuSeparator />
-
+      
       <ContextMenuItem
         className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
         onSelect={(e) => {
