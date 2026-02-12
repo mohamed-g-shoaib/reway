@@ -110,11 +110,7 @@ export async function fetchMetadata(url: string): Promise<MetadataResult> {
   if (favicon && !favicon.startsWith("http")) {
     favicon = new URL(favicon, baseUrl.origin).toString();
   } else if (!favicon) {
-    // Many modern apps (Gmail, etc.) either don't expose a traditional favicon path
-    // or return non-HTML content with complex redirects. Use a robust fallback.
-    favicon = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(
-      baseUrl.hostname,
-    )}&sz=64`;
+    favicon = `${baseUrl.origin}/favicon.ico`;
   }
 
   // 4. Extract OG Image
