@@ -208,35 +208,6 @@ export async function deleteBookmarks(ids: string[]) {
   revalidatePath("/dashboard");
 }
 
-export async function updateFolderBookmarksOrder(
-  updates: { id: string; folder_order_index: number }[],
-) {
-  const supabase = await createClient();
-
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
-    throw new Error("Unauthorized");
-  }
-
-  const updatePromises = updates.map((update) =>
-    supabase
-      .from("bookmarks")
-      .update({ folder_order_index: update.folder_order_index })
-      .eq("id", update.id)
-      .eq("user_id", userData.user.id),
-  );
-
-  const results = await Promise.all(updatePromises);
-
-  const firstError = results.find((result) => result.error)?.error;
-  if (firstError) {
-    console.error("Error updating folder order:", firstError);
-    throw new Error(`Failed to update folder order: ${firstError.message}`);
-  }
-
-  revalidatePath("/dashboard");
-}
-
 export async function restoreBookmark(bookmark: {
   id: string;
   url: string;
