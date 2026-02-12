@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import { DashboardSidebar } from "./content/DashboardSidebar";
 import { TableHeader } from "./content/TableHeader";
 import { FloatingActionBar } from "./content/FloatingActionBar";
-import { ConflictBar } from "./content/ConflictBar";
 import { DashboardOnboarding } from "./DashboardOnboarding";
 import { useDashboardRealtime } from "./content/useDashboardRealtime";
 import { useImportHandlers } from "./content/useImportHandlers";
@@ -48,8 +47,6 @@ import {
   updateGroup as updateGroupAction,
 } from "@/app/dashboard/actions/groups";
 
-import type { EnrichmentResult } from "./content/dashboard-types";
-
 export function DashboardContent({
   user,
   initialBookmarks,
@@ -58,12 +55,25 @@ export function DashboardContent({
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [rowContent, setRowContent] = useState<"date" | "group">("date");
-  const [viewMode, setViewMode] = useState<
+  const [viewModeAll, setViewModeAll] = useState<
+    "list" | "card" | "icon" | "folders"
+  >("list");
+  const [viewModeGroups, setViewModeGroups] = useState<
     "list" | "card" | "icon" | "folders"
   >("list");
   const [keyboardContext, setKeyboardContext] = useState<"folder" | "bookmark">(
     "bookmark",
+  );
+
+  const handleOptimisticRemoveBookmarks = useCallback(
+    (ids: string[]) => {
+      if (!ids || ids.length === 0) return;
+      const idSet = new Set(ids);
+      setBookmarks((prev) => prev.filter((b) => !idSet.has(b.id)));
+    },
+    [setBookmarks],
   );
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -71,6 +81,17 @@ export function DashboardContent({
   const [commandMode, setCommandMode] = useState<"add" | "search">("add");
   const isMac = useIsMac();
   const deferredSearchQuery = React.useDeferredValue(searchQuery);
+  const viewMode = activeGroupId === "all" ? viewModeAll : viewModeGroups;
+  const setViewMode = useCallback(
+    (value: "list" | "card" | "icon" | "folders") => {
+      if (activeGroupId === "all") {
+        setViewModeAll(value);
+      } else {
+        setViewModeGroups(value);
+      }
+    },
+    [activeGroupId],
+  );
   const nonFolderViewMode = viewMode === "folders" ? "list" : viewMode;
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editGroupName, setEditGroupName] = useState("");
@@ -91,10 +112,9 @@ export function DashboardContent({
   const lastBulkDeletedRef = React.useRef<
     { bookmark: BookmarkRow; index: number }[]
   >([]);
-  const [addConflicts, setAddConflicts] = useState<
-    { id: string; url: string; title: string }[] | null
-  >(null);
   const viewModeStorageKey = "reway.dashboard.viewMode";
+  const viewModeAllStorageKey = "reway.dashboard.viewMode.all";
+  const viewModeGroupsStorageKey = "reway.dashboard.viewMode.groups";
   const rowContentStorageKey = "reway.dashboard.rowContent";
   const commandModeStorageKey = "reway.dashboard.commandMode";
 
@@ -148,25 +168,51 @@ export function DashboardContent({
 
   React.useEffect(() => {
     try {
-      // 1. Load viewMode
-      const storedView = window.localStorage.getItem(viewModeStorageKey);
-      if (
-        storedView === "list" ||
-        storedView === "card" ||
-        storedView === "icon" ||
-        storedView === "folders"
-      ) {
-        setViewMode(storedView);
+      const storedAll = window.localStorage.getItem(viewModeAllStorageKey);
+      const storedGroups = window.localStorage.getItem(
+        viewModeGroupsStorageKey,
+      );
+      const legacyStoredView = window.localStorage.getItem(viewModeStorageKey);
+
+      const parseViewMode = (value: string | null) => {
+        if (
+          value === "list" ||
+          value === "card" ||
+          value === "icon" ||
+          value === "folders"
+        ) {
+          return value;
+        }
+        return null;
+      };
+
+      const parsedAll = parseViewMode(storedAll);
+      const parsedGroups = parseViewMode(storedGroups);
+      const parsedLegacy = parseViewMode(legacyStoredView);
+
+      if (parsedAll) setViewModeAll(parsedAll);
+      if (parsedGroups) setViewModeGroups(parsedGroups);
+
+      // Migrate old single preference if new keys are missing.
+      if (parsedLegacy && (!parsedAll || !parsedGroups)) {
+        if (!parsedAll) setViewModeAll(parsedLegacy);
+        if (!parsedGroups) setViewModeGroups(parsedLegacy);
+        window.localStorage.setItem(
+          viewModeAllStorageKey,
+          parsedAll ?? parsedLegacy,
+        );
+        window.localStorage.setItem(
+          viewModeGroupsStorageKey,
+          parsedGroups ?? parsedLegacy,
+        );
       }
 
-      // 2. Load rowContent
       const storedRowContent =
         window.localStorage.getItem(rowContentStorageKey);
       if (storedRowContent === "date" || storedRowContent === "group") {
         setRowContent(storedRowContent);
       }
 
-      // 3. Load commandMode
       const storedCommandMode = window.localStorage.getItem(
         commandModeStorageKey,
       );
@@ -175,16 +221,26 @@ export function DashboardContent({
       }
     } catch (error) {
       console.warn("Failed to load dashboard preferences:", error);
+    } finally {
+      setPrefsLoaded(true);
     }
   }, []);
 
   React.useEffect(() => {
     try {
-      window.localStorage.setItem(viewModeStorageKey, viewMode);
+      window.localStorage.setItem(viewModeAllStorageKey, viewModeAll);
     } catch (error) {
-      console.warn("Failed to persist view mode:", error);
+      console.warn("Failed to persist all bookmarks view mode:", error);
     }
-  }, [viewMode]);
+  }, [viewModeAll]);
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(viewModeGroupsStorageKey, viewModeGroups);
+    } catch (error) {
+      console.warn("Failed to persist groups view mode:", error);
+    }
+  }, [viewModeGroups]);
 
   React.useEffect(() => {
     try {
@@ -292,6 +348,7 @@ export function DashboardContent({
   const {
     importPreview,
     importProgress,
+    importResult,
     handleImportFileSelected,
     handleConfirmImport,
     handleClearImport,
@@ -312,76 +369,20 @@ export function DashboardContent({
     setGroups,
   });
 
-  const { exportProgress, handleExportBookmarks } = useExportHandlers({
-    bookmarks,
-    groups,
-  });
+  const { exportProgress, handleExportBookmarks, resetExportProgress } =
+    useExportHandlers({
+      bookmarks,
+      groups,
+    });
 
   const handleResolveConflicts = useCallback(
     async (action: "skip" | "override") => {
-      // 1. Handle Add Conflicts (from CommandBar)
-      if (addConflicts) {
-        const toProcess = [...addConflicts];
-        setAddConflicts(null);
-
-        if (action === "override") {
-          await Promise.all(
-            toProcess.map(async (item) => {
-              const stableId = crypto.randomUUID();
-              const optimistic = {
-                id: stableId,
-                url: item.url,
-                title: item.title || item.url,
-                favicon_url: null,
-                description: null,
-                group_id: activeGroupId !== "all" ? activeGroupId : null,
-                user_id: user.id || "",
-                created_at: new Date().toISOString(),
-                order_index: Number.MIN_SAFE_INTEGER,
-                status: "pending",
-              } as BookmarkRow;
-
-              addOptimisticBookmark(optimistic);
-
-              try {
-                const bookmarkId = await addBookmark({
-                  url: item.url,
-                  id: stableId,
-                  title: item.title,
-                  group_id: activeGroupId !== "all" ? activeGroupId : undefined,
-                });
-                if (bookmarkId) {
-                  replaceBookmarkId(stableId, bookmarkId);
-                }
-                const enrichment = (await enrichCreatedBookmark(
-                  bookmarkId ?? stableId,
-                  item.url,
-                )) as EnrichmentResult | undefined;
-                applyEnrichment(bookmarkId ?? stableId, enrichment);
-              } catch (error) {
-                console.error("Failed to add duplicate bookmark:", error);
-                toast.error(`Failed to add ${item.url}`);
-              }
-            }),
-          );
-        }
-      }
-
-      // 2. Handle Import Conflicts
+      void action;
       if (importPreview) {
         handleUpdateImportAction(action);
       }
     },
-    [
-      addConflicts,
-      importPreview,
-      handleUpdateImportAction,
-      addOptimisticBookmark,
-      applyEnrichment,
-      replaceBookmarkId,
-      user.id,
-      activeGroupId,
-    ],
+    [importPreview, handleUpdateImportAction],
   );
 
   const {
@@ -445,6 +446,7 @@ export function DashboardContent({
         <div className="flex-none z-40 bg-background px-1">
           <DashboardNav
             user={user}
+            bookmarks={bookmarks}
             groups={groups}
             activeGroupId={activeGroupId}
             groupCounts={groupCounts}
@@ -460,12 +462,15 @@ export function DashboardContent({
             exportGroupOptions={exportGroupOptions}
             importPreview={importPreview}
             importProgress={importProgress}
+            importResult={importResult}
             exportProgress={exportProgress}
             onImportFileSelected={handleImportFileSelected}
             onUpdateImportAction={handleUpdateImportAction}
             onConfirmImport={handleConfirmImport}
             onClearImport={handleClearImport}
             onExportBookmarks={handleExportBookmarks}
+            onResetExport={resetExportProgress}
+            onRemoveBookmarks={handleOptimisticRemoveBookmarks}
           />
           <div className="pt-4 md:pt-6">
             <CommandBar
@@ -477,7 +482,6 @@ export function DashboardContent({
               searchQuery={searchQuery}
               onModeChange={handleCommandModeChange}
               onSearchChange={setSearchQuery}
-              onDuplicatesDetected={setAddConflicts}
             />
           </div>
 
@@ -491,7 +495,9 @@ export function DashboardContent({
 
         {/* Scrollable Bookmarks Section */}
         <div className="flex-1 min-h-0">
-          <div className="h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
+          <div
+            className={`h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only ${!prefsLoaded ? "invisible" : "visible"}`}
+          >
             <div>
               {viewMode === "folders" ? (
                 <FolderBoard
@@ -537,10 +543,6 @@ export function DashboardContent({
             onCancelSelection={handleCancelSelection}
           />
         )}
-        <ConflictBar
-          addConflicts={addConflicts}
-          onResolve={handleResolveConflicts}
-        />
       </div>
     </>
   );
