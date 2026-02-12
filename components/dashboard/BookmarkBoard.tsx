@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
   DragStartEvent,
+  DragOverEvent,
   DragEndEvent,
   MeasuringStrategy,
 } from "@dnd-kit/core";
@@ -40,7 +41,7 @@ interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
   activeGroupId: string;
-  onReorder: (newOrder: BookmarkRow[]) => void;
+  onReorder: (groupId: string, newOrder: BookmarkRow[]) => void;
   onDeleteBookmark: (id: string) => void;
   onEditBookmark: (
     id: string,
@@ -119,6 +120,56 @@ export const BookmarkBoard = memo(function BookmarkBoard({
     }));
   }, [bookmarks]);
 
+  const orderedBookmarks = useMemo(() => {
+    if (activeGroupId !== "all") return bookmarks;
+
+    const groupOrder = new Map<string, number>();
+    initialGroups.forEach((g, index) => {
+      groupOrder.set(g.id, g.order_index ?? index);
+    });
+
+    const getGroupKey = (groupId?: string | null) => {
+      if (!groupId) return Number.POSITIVE_INFINITY;
+      return groupOrder.get(groupId) ?? Number.POSITIVE_INFINITY;
+    };
+
+    return bookmarks.toSorted((a, b) => {
+      const groupA = getGroupKey(a.group_id);
+      const groupB = getGroupKey(b.group_id);
+      if (groupA !== groupB) return groupA - groupB;
+
+      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
+      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [activeGroupId, bookmarks, initialGroups]);
+
+  const renderedBookmarks = useMemo(() => {
+    return activeGroupId === "all" ? orderedBookmarks : bookmarks;
+  }, [activeGroupId, bookmarks, orderedBookmarks]);
+
+  const renderedDisplayBookmarks = useMemo(() => {
+    return renderedBookmarks.map((b) => ({
+      id: b.id,
+      title: b.title,
+      url: b.url,
+      image_url: b.image_url || undefined,
+      og_image_url: b.og_image_url || undefined,
+      domain: getDomain(b.url),
+      description: b.description || undefined,
+      favicon: b.favicon_url || undefined,
+      isEnriching: Boolean(b.is_enriching),
+      createdAt: new Date(b.created_at).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      }),
+      groupId: b.group_id || "all",
+      status: b.status || "ready",
+    }));
+  }, [renderedBookmarks]);
+
   // Pre-calculate groups map for O(1) lookups in children
   const groupsMap = useMemo(() => {
     return new Map(initialGroups.map((g) => [g.id, g]));
@@ -144,6 +195,11 @@ export const BookmarkBoard = memo(function BookmarkBoard({
     ? (bookmarks.find((b) => b.id === activeId) ?? null)
     : null;
 
+  const activeBookmarkGroupId = activeBookmark?.group_id ?? null;
+
+  const isGroupRestrictedDragActive =
+    activeGroupId === "all" && Boolean(activeId) && Boolean(activeBookmarkGroupId);
+
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string);
   }
@@ -151,18 +207,53 @@ export const BookmarkBoard = memo(function BookmarkBoard({
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    if (activeGroupId === "all") {
+      const activeItem = bookmarks.find((b) => b.id === active.id) ?? null;
+      const overItem = bookmarks.find((b) => b.id === over.id) ?? null;
+
+      const groupId = activeItem?.group_id ?? null;
+      if (!groupId) {
+        setActiveId(null);
+        return;
+      }
+
+      if (!overItem || (overItem.group_id ?? null) !== groupId) {
+        setActiveId(null);
+        return;
+      }
+
+      if (active.id !== over.id) {
+        const groupBookmarks = orderedBookmarks.filter(
+          (b) => (b.group_id ?? null) === groupId,
+        );
+        const oldIndex = groupBookmarks.findIndex((b) => b.id === active.id);
+        const newIndex = groupBookmarks.findIndex((b) => b.id === over.id);
+        if (oldIndex >= 0 && newIndex >= 0) {
+          onReorder(groupId, arrayMove(groupBookmarks, oldIndex, newIndex));
+        }
+      }
+
+      setActiveId(null);
+      return;
+    }
+
     if (over && active.id !== over.id) {
       const oldIndex = bookmarks.findIndex((b) => b.id === active.id);
       const newIndex = bookmarks.findIndex((b) => b.id === over.id);
       const newOrder = arrayMove(bookmarks, oldIndex, newIndex);
-      onReorder(newOrder);
+      onReorder(activeGroupId, newOrder);
     }
 
     setActiveId(null);
   }
 
   const { clampedSelectedIndex } = useBookmarkKeyboardNav({
-    bookmarks,
+    bookmarks: renderedBookmarks,
     isGridView,
     gridColumns,
     onPreview: (bookmark) => {
@@ -189,7 +280,7 @@ export const BookmarkBoard = memo(function BookmarkBoard({
         modifiers={isGridView ? [] : [restrictToVerticalAxis]}
       >
         <SortableContext
-          items={displayBookmarks.map((b) => b.id)}
+          items={renderedDisplayBookmarks.map((b) => b.id)}
           strategy={
             isGridView ? rectSortingStrategy : verticalListSortingStrategy
           }
@@ -205,7 +296,7 @@ export const BookmarkBoard = memo(function BookmarkBoard({
             }
             data-slot="bookmark-board"
           >
-            {displayBookmarks.map((bookmark, index) => {
+            {renderedDisplayBookmarks.map((bookmark, index) => {
               if (viewMode === "card") {
                 return (
                   <SortableBookmarkCard
@@ -217,6 +308,11 @@ export const BookmarkBoard = memo(function BookmarkBoard({
                     onEnterSelectionMode={onEnterSelectionMode}
                     groupsMap={groupsMap}
                     activeGroupId={activeGroupId}
+                    dragDimmed={
+                      Boolean(isGroupRestrictedDragActive) &&
+                      Boolean(activeBookmarkGroupId) &&
+                      bookmark.groupId !== activeBookmarkGroupId
+                    }
                     onDelete={onDeleteBookmark}
                     onEdit={(id: string) => {
                       const target = bookmarks.find((bm) => bm.id === id);
@@ -247,6 +343,11 @@ export const BookmarkBoard = memo(function BookmarkBoard({
                     isSelectionChecked={stableSelectedIds.has(bookmark.id)}
                     onToggleSelection={onToggleSelection}
                     onEnterSelectionMode={onEnterSelectionMode}
+                    dragDimmed={
+                      Boolean(isGroupRestrictedDragActive) &&
+                      Boolean(activeBookmarkGroupId) &&
+                      bookmark.groupId !== activeBookmarkGroupId
+                    }
                     onDelete={onDeleteBookmark}
                     onEdit={(id: string) => {
                       const target = bookmarks.find((bm) => bm.id === id);
@@ -290,6 +391,11 @@ export const BookmarkBoard = memo(function BookmarkBoard({
                   rowContent={rowContent}
                   groupsMap={groupsMap}
                   selectionMode={selectionMode}
+                  dragDimmed={
+                    Boolean(isGroupRestrictedDragActive) &&
+                    Boolean(activeBookmarkGroupId) &&
+                    bookmark.groupId !== activeBookmarkGroupId
+                  }
                   isSelectionChecked={stableSelectedIds.has(bookmark.id)}
                   onToggleSelection={onToggleSelection}
                   onEnterSelectionMode={onEnterSelectionMode}
