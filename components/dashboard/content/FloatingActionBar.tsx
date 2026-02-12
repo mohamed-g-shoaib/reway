@@ -42,7 +42,7 @@ export function FloatingActionBar({
           <button
             type="button"
             onClick={onOpenSelected}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
             aria-label="Open selected bookmarks"
           >
             Open
@@ -50,7 +50,7 @@ export function FloatingActionBar({
           <button
             type="button"
             onClick={() => setDeleteDialogOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none bg-destructive/10 text-destructive hover:bg-destructive/20"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none bg-destructive/10 text-destructive hover:bg-destructive/20 cursor-pointer"
             aria-label="Delete selected bookmarks"
           >
             Delete
@@ -58,7 +58,7 @@ export function FloatingActionBar({
           <button
             type="button"
             onClick={onCancelSelection}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/50 hover:bg-muted text-foreground font-medium text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
             aria-label="Cancel selection"
           >
             Cancel
