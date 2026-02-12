@@ -182,34 +182,35 @@ export function useSelectionActions({
     setSelectionMode(false);
     setSelectedIds(new Set());
 
+    toast.error(`Bookmark${idsToDelete.length > 1 ? "s" : ""} deleted`, {
+      action: {
+        label: "Undo",
+        onClick: async () => {
+          const toRestore = lastBulkDeletedRef.current;
+          if (toRestore.length === 0) return;
+          setBookmarks((prev) => {
+            const next = [...prev];
+            const sorted = toRestore.toSorted((a, b) => a.index - b.index);
+            sorted.forEach(({ bookmark, index }) => {
+              if (next.some((b) => b.id === bookmark.id)) return;
+              next.splice(Math.min(index, next.length), 0, bookmark);
+            });
+            return next;
+          });
+          try {
+            await Promise.all(
+              toRestore.map(({ bookmark }) => restoreBookmark(bookmark)),
+            );
+          } catch (error) {
+            console.error("Restore failed:", error);
+            toast.error("Failed to restore bookmarks");
+          }
+        },
+      },
+    });
+
     try {
       await Promise.all(idsToDelete.map((id) => deleteBookmark(id)));
-      toast.error(`Bookmark${idsToDelete.length > 1 ? "s" : ""} deleted`, {
-        action: {
-          label: "Undo",
-          onClick: async () => {
-            const toRestore = lastBulkDeletedRef.current;
-            if (toRestore.length === 0) return;
-            setBookmarks((prev) => {
-              const next = [...prev];
-              const sorted = toRestore.toSorted((a, b) => a.index - b.index);
-              sorted.forEach(({ bookmark, index }) => {
-                if (next.some((b) => b.id === bookmark.id)) return;
-                next.splice(Math.min(index, next.length), 0, bookmark);
-              });
-              return next;
-            });
-            try {
-              await Promise.all(
-                toRestore.map(({ bookmark }) => restoreBookmark(bookmark)),
-              );
-            } catch (error) {
-              console.error("Restore failed:", error);
-              toast.error("Failed to restore bookmarks");
-            }
-          },
-        },
-      });
     } catch (error) {
       console.error("Bulk delete failed:", error);
       toast.error("Failed to delete some bookmarks");

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
   ArrowUpRight03Icon,
+  CheckmarkSquare02Icon,
   Delete02Icon,
   PencilEdit01Icon,
   Folder01Icon,
@@ -36,6 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
@@ -128,10 +130,40 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<GroupRow | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+
+  const selectedCount = selectedGroupIds.size;
+  const selectedGroups = useMemo(
+    () => groups.filter((g) => selectedGroupIds.has(g.id)),
+    [groups, selectedGroupIds],
+  );
 
   const openDeleteDialog = (group: GroupRow) => {
     setDeleteTarget(group);
     setDeleteDialogOpen(true);
+  };
+
+  const enterSelectionMode = () => {
+    setSelectionMode(true);
+    setSelectedGroupIds(new Set());
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedGroupIds(new Set());
+  };
+
+  const toggleSelected = (groupId: string) => {
+    setSelectedGroupIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
   };
 
   const handleDeleteConfirm = () => {
@@ -140,6 +172,18 @@ export function DashboardSidebar({
     }
     setDeleteDialogOpen(false);
     setDeleteTarget(null);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedGroups.length === 0) return;
+    setBulkDeleteDialogOpen(true);
+  };
+
+  const handleConfirmBulkDelete = () => {
+    if (selectedGroups.length === 0) return;
+    selectedGroups.forEach((g) => onDeleteGroup(g.id));
+    setBulkDeleteDialogOpen(false);
+    exitSelectionMode();
   };
 
   return (
@@ -160,7 +204,9 @@ export function DashboardSidebar({
             className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
               activeGroupId === "all"
                 ? "text-foreground font-semibold"
-                : "hover:text-foreground/80"
+                : selectionMode
+                  ? ""
+                  : "hover:text-foreground/80"
             }`}
           >
             <button
@@ -169,10 +215,14 @@ export function DashboardSidebar({
               className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
             >
               <span
-                className={`h-px transition-[width,opacity] duration-200 ease-out ${
-                  activeGroupId === "all"
-                    ? "w-12 opacity-80"
-                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                className={`h-px ${
+                  selectionMode
+                    ? "w-8 opacity-60"
+                    : `transition-[width,opacity] duration-200 ease-out ${
+                        activeGroupId === "all"
+                          ? "w-12 opacity-80"
+                          : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                      }`
                 } bg-current`}
               />
               <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -189,7 +239,11 @@ export function DashboardSidebar({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 cursor-pointer"
+                  className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
+                    selectionMode
+                      ? "opacity-0 pointer-events-none"
+                      : "opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted/50"
+                  }`}
                   aria-label="Group options"
                 >
                   <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
@@ -215,8 +269,47 @@ export function DashboardSidebar({
             <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
             Open bookmarks
           </ContextMenuItem>
+          <ContextMenuItem
+            onSelect={(event) => {
+              if (selectionMode) exitSelectionMode();
+              else enterSelectionMode();
+            }}
+            className="gap-2 text-xs cursor-pointer"
+          >
+            <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+            {selectionMode ? "Exit selection" : "Select groups"}
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
+
+      {selectionMode ? (
+        <div className="mb-2 rounded-2xl border border-border/60 bg-muted/20 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-muted-foreground">
+              {selectedCount} selected
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="h-7 px-3 text-xs rounded-4xl font-bold cursor-pointer"
+                onClick={exitSelectionMode}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="h-7 px-3 text-xs rounded-4xl cursor-pointer"
+                onClick={handleBulkDelete}
+                disabled={selectedCount === 0}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
         {groups.map((group) => {
           const GroupIcon = group.icon
@@ -310,43 +403,96 @@ export function DashboardSidebar({
                   className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
                     activeGroupId === group.id
                       ? "text-foreground font-semibold"
-                      : "hover:text-foreground/80"
+                      : selectionMode
+                        ? ""
+                        : "hover:text-foreground/80"
                   }`}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setActiveGroupId(group.id)}
-                    className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
-                  >
-                    <span
-                      className={`h-px transition-[width,opacity] duration-200 ease-out ${
-                        activeGroupId === group.id
-                          ? "w-12 opacity-80"
-                          : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                      } bg-current`}
-                    />
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      <HugeiconsIcon
-                        icon={GroupIcon || Folder01Icon}
-                        size={16}
-                        strokeWidth={2}
-                        style={{ color: group.color || undefined }}
-                        className={group.color ? "" : "text-foreground/80"}
-                      />
-                      <span className="truncate max-w-32">{group.name}</span>
+                  {selectionMode ? (
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => {
+                        toggleSelected(group.id);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          toggleSelected(group.id);
+                        }
+                      }}
+                      className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+                    >
+                      <span className="h-px w-8 opacity-60 bg-current" />
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <Checkbox
+                          checked={selectedGroupIds.has(group.id)}
+                          onClick={(event) => event.stopPropagation()}
+                          onCheckedChange={() => {
+                            toggleSelected(group.id);
+                          }}
+                        />
+                        <span className="truncate max-w-32">{group.name}</span>
+                      </div>
                     </div>
-                  </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveGroupId(group.id);
+                      }}
+                      className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+                    >
+                      <span
+                        className={`h-px ${
+                          `transition-[width,opacity] duration-200 ease-out ${
+                            activeGroupId === group.id
+                              ? "w-12 opacity-80"
+                              : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                          }`
+                        } bg-current`}
+                      />
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <HugeiconsIcon
+                          icon={GroupIcon || Folder01Icon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: group.color || undefined }}
+                          className={group.color ? "" : "text-foreground/80"}
+                        />
+                        <span className="truncate max-w-32">{group.name}</span>
+                      </div>
+                    </button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className="opacity-0 group-hover:opacity-100 text-muted-foreground/50 hover:text-foreground transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center hover:bg-muted/50 cursor-pointer"
+                        className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
+                          selectionMode
+                            ? "opacity-0 pointer-events-none"
+                            : "opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted/50"
+                        }`}
                         aria-label={`${group.name} options`}
                       >
                         <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="center" className="w-40">
+                      <DropdownMenuItem
+                        onSelect={(event) => {
+                          if (selectionMode) {
+                            toggleSelected(group.id);
+                          } else {
+                            enterSelectionMode();
+                            toggleSelected(group.id);
+                          }
+                        }}
+                        className="gap-2 text-xs cursor-pointer"
+                      >
+                        <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+                        {selectionMode ? "Toggle selection" : "Select groups"}
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleOpenGroup(group.id)}
                         className="gap-2 text-xs cursor-pointer"
@@ -380,6 +526,20 @@ export function DashboardSidebar({
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent className="w-44">
+                <ContextMenuItem
+                  onSelect={(event) => {
+                    if (selectionMode) {
+                      toggleSelected(group.id);
+                    } else {
+                      enterSelectionMode();
+                      toggleSelected(group.id);
+                    }
+                  }}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+                  {selectionMode ? "Toggle selection" : "Select groups"}
+                </ContextMenuItem>
                 <ContextMenuItem
                   onClick={() => handleOpenGroup(group.id)}
                   className="gap-2 text-xs cursor-pointer"
@@ -532,6 +692,32 @@ export function DashboardSidebar({
               variant="destructive"
               className="rounded-4xl cursor-pointer"
               onClick={handleDeleteConfirm}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={(open) => setBulkDeleteDialogOpen(open)}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete selected groups?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete {selectedCount} group{selectedCount === 1 ? "" : "s"} and their bookmarks.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-4xl cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              className="rounded-4xl cursor-pointer"
+              onClick={handleConfirmBulkDelete}
             >
               Delete
             </AlertDialogAction>

@@ -25,6 +25,7 @@ interface UseBookmarkActionsOptions {
       url: string;
       description?: string;
       group_id?: string | null;
+      favicon_url?: string | null;
     },
   ) => Promise<void>;
   lastDeletedRef: React.MutableRefObject<{
@@ -60,6 +61,14 @@ export function useBookmarkActions({
           order_index: bookmark.order_index ?? nextOrder,
           group_id: activeGroupId !== "all" ? activeGroupId : bookmark.group_id,
         };
+
+        const existingIndex = prev.findIndex((item) => item.id === newBookmark.id);
+        if (existingIndex >= 0) {
+          const next = [...prev];
+          next[existingIndex] = { ...next[existingIndex], ...newBookmark };
+          return sortBookmarks(next);
+        }
+
         return sortBookmarks([newBookmark, ...prev]);
       });
     },
@@ -246,6 +255,7 @@ export function useBookmarkActions({
         title: string;
         url: string;
         description?: string;
+        favicon_url?: string;
         group_id?: string;
       },
     ) => {
@@ -257,6 +267,7 @@ export function useBookmarkActions({
                 title: data.title,
                 url: data.url,
                 description: data.description ?? null,
+                favicon_url: data.favicon_url ?? null,
                 group_id: data.group_id ?? null,
               }
             : b,
@@ -269,6 +280,7 @@ export function useBookmarkActions({
           url: data.url,
           description: data.description,
           group_id: data.group_id || null,
+          favicon_url: data.favicon_url ?? null,
         });
       } catch (error) {
         console.error("Update bookmark failed:", error);
