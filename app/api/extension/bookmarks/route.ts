@@ -93,16 +93,6 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Failed to create bookmark:", error);
-
-      // Unique constraint violation (e.g., duplicate within the same group)
-      // Supabase/Postgres uses 23505 for unique_violation.
-      if ((error as { code?: string })?.code === "23505") {
-        return jsonResponse(
-          { error: "Bookmark already exists" },
-          { status: 409 },
-        );
-      }
-
       return jsonResponse(
         { error: "Failed to create bookmark" },
         { status: 500 },

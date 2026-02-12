@@ -4,33 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { fetchMetadata, normalizeUrl } from "@/lib/metadata";
 
-export async function checkDuplicateBookmark(url: string): Promise<{
-  exists: boolean;
-  bookmark?: { id: string; title: string; url: string };
-}> {
-  const supabase = await createClient();
-
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
-    throw new Error("Unauthorized");
-  }
-
-  const normalizedUrl = normalizeUrl(url);
-
-  const { data } = await supabase
-    .from("bookmarks")
-    .select("id, title, url")
-    .eq("user_id", userData.user.id)
-    .eq("normalized_url", normalizedUrl)
-    .limit(1)
-    .maybeSingle();
-
-  if (data) {
-    return { exists: true, bookmark: data };
-  }
-  return { exists: false };
-}
-
 export async function checkDuplicateBookmarks(urls: string[]): Promise<{
   duplicates: Record<string, { id: string; title: string; url: string }>;
 }> {
@@ -98,7 +71,7 @@ export async function addBookmark(formData: {
     .from("bookmarks")
     .insert({
       id: formData.id,
-      url: normalizedUrl,
+      url: formData.url,
       normalized_url: normalizedUrl,
       title: title,
       favicon_url: formData.favicon_url,
@@ -210,6 +183,31 @@ export async function updateBookmarksOrder(
   revalidatePath("/dashboard");
 }
 
+export async function deleteBookmarks(ids: string[]) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const uniqueIds = Array.from(new Set(ids)).filter(Boolean);
+  if (uniqueIds.length === 0) return;
+
+  const { error } = await supabase
+    .from("bookmarks")
+    .delete()
+    .in("id", uniqueIds)
+    .eq("user_id", userData.user.id);
+
+  if (error) {
+    console.error("Error deleting bookmarks:", error);
+    throw new Error("Failed to delete bookmarks");
+  }
+
+  revalidatePath("/dashboard");
+}
+
 export async function updateFolderBookmarksOrder(
   updates: { id: string; folder_order_index: number }[],
 ) {
@@ -264,7 +262,7 @@ export async function restoreBookmark(bookmark: {
   const { error } = await supabase.from("bookmarks").upsert(
     {
       id: bookmark.id,
-      url: normalizedUrl,
+      url: bookmark.url,
       normalized_url: normalizedUrl,
       title: bookmark.title,
       description: bookmark.description ?? null,
@@ -351,6 +349,7 @@ export async function updateBookmark(
     url: string;
     description?: string;
     group_id?: string | null;
+    favicon_url?: string | null;
   },
 ) {
   const supabase = await createClient();
@@ -360,13 +359,17 @@ export async function updateBookmark(
     throw new Error("Unauthorized");
   }
 
+  const normalizedUrl = normalizeUrl(formData.url);
+
   const { error } = await supabase
     .from("bookmarks")
     .update({
       title: formData.title,
       url: formData.url,
+      normalized_url: normalizedUrl,
       description: formData.description,
       group_id: formData.group_id,
+      favicon_url: formData.favicon_url,
     })
     .eq("id", id)
     .eq("user_id", userData.user.id);
