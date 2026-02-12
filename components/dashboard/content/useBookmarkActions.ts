@@ -14,9 +14,6 @@ interface UseBookmarkActionsOptions {
   updateBookmarksOrder: (
     updates: { id: string; order_index: number }[],
   ) => Promise<void>;
-  updateFolderBookmarksOrder: (
-    updates: { id: string; folder_order_index: number }[],
-  ) => Promise<void>;
   deleteBookmark: (id: string) => Promise<void>;
   restoreBookmark: (bookmark: BookmarkRow) => Promise<void>;
   updateBookmark: (
@@ -42,7 +39,6 @@ export function useBookmarkActions({
   setBookmarks,
   sortBookmarks,
   updateBookmarksOrder,
-  updateFolderBookmarksOrder,
   deleteBookmark,
   restoreBookmark,
   updateBookmark,
@@ -125,35 +121,32 @@ export function useBookmarkActions({
 
   const handleFolderReorder = useCallback(
     async (groupId: string, newOrder: BookmarkRow[]) => {
-      const orderMap = new Map<string, number>();
-      newOrder.forEach((bookmark, index) => {
-        orderMap.set(bookmark.id, index);
+      setBookmarks((prev) => {
+        const groupIds = new Set(newOrder.map((b) => b.id));
+        const other = prev.filter((b) => !groupIds.has(b.id));
+        const updatedGroup = newOrder.map((bookmark, index) => ({
+          ...bookmark,
+          order_index: index,
+        }));
+        return sortBookmarks([...updatedGroup, ...other]);
       });
-
-      setBookmarks((prev) =>
-        prev.map((bookmark) => {
-          if (!orderMap.has(bookmark.id)) return bookmark;
-          return {
-            ...bookmark,
-            folder_order_index: orderMap.get(bookmark.id) ?? 0,
-          };
-        }),
-      );
 
       const updates = newOrder.map((bookmark, index) => ({
         id: bookmark.id,
-        folder_order_index: index,
+        order_index: index,
       }));
 
       try {
-        await updateFolderBookmarksOrder(updates);
+        await updateBookmarksOrder(updates);
       } catch (error) {
         console.error("Reorder failed:", error);
         toast.error("Failed to reorder bookmarks");
         setBookmarks(initialBookmarks);
       }
+
+      void groupId;
     },
-    [initialBookmarks, setBookmarks, updateFolderBookmarksOrder],
+    [initialBookmarks, setBookmarks, sortBookmarks, updateBookmarksOrder],
   );
 
   const handleDeleteBookmark = useCallback(
@@ -224,16 +217,15 @@ export function useBookmarkActions({
   );
 
   const handleReorder = useCallback(
-    async (newOrder: BookmarkRow[]) => {
+    async (groupId: string, newOrder: BookmarkRow[]) => {
       setBookmarks((prev) => {
-        const updatedOrder = newOrder.map((bookmark, index) => ({
+        const groupIds = new Set(newOrder.map((b) => b.id));
+        const other = prev.filter((b) => !groupIds.has(b.id));
+        const updatedGroup = newOrder.map((bookmark, index) => ({
           ...bookmark,
           order_index: index,
         }));
-        const otherBookmarks = prev.filter((b) =>
-          activeGroupId === "all" ? false : b.group_id !== activeGroupId,
-        );
-        return [...updatedOrder, ...otherBookmarks];
+        return sortBookmarks([...updatedGroup, ...other]);
       });
 
       const updates = newOrder.map((bookmark, index) => ({
@@ -248,8 +240,10 @@ export function useBookmarkActions({
         toast.error("Failed to reorder bookmarks");
         setBookmarks(initialBookmarks);
       }
+
+      void groupId;
     },
-    [activeGroupId, initialBookmarks, setBookmarks, updateBookmarksOrder],
+    [initialBookmarks, setBookmarks, sortBookmarks, updateBookmarksOrder],
   );
 
   const handleEditBookmark = useCallback(
