@@ -188,16 +188,6 @@ function createTour() {
       },
     },
     {
-      element: '[data-onboarding="row-content"]',
-      popover: {
-        title: "Row content",
-        description:
-          "Choose whether rows show the bookmark’s date or its group.",
-        side: "left",
-        align: "center",
-      },
-    },
-    {
       element: '[data-onboarding="extension"]',
       popover: {
         title: "Browser extension",

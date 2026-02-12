@@ -436,7 +436,7 @@ export function DashboardContent({
         {/* Scrollable Bookmarks Section */}
         <div className="flex-1 min-h-0">
           <div className="h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
-            <div>
+            <div data-onboarding="drag-sort">
               {viewMode === "folders" ? (
                 <FolderBoard
                   bookmarks={filteredBookmarks}

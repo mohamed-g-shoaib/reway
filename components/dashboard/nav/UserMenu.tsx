@@ -118,9 +118,7 @@ export function UserMenu({
             event.preventDefault();
             setOpen(false);
             window.setTimeout(() => {
-              window.dispatchEvent(
-                new CustomEvent("reway:start-onboarding"),
-              );
+              window.dispatchEvent(new CustomEvent("reway:start-onboarding"));
             }, 50);
           }}
         >
@@ -142,29 +140,31 @@ export function UserMenu({
           </DropdownMenuItem>
         </SettingsDialog>
 
-        <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-          onSelect={(event) => {
-            event.preventDefault();
-            setOpen(false);
-            onOpenImportSheet();
-          }}
-        >
-          <HugeiconsIcon icon={FileImportIcon} size={16} />
-          Import
-        </DropdownMenuItem>
+        <div data-onboarding="import-export">
+          <DropdownMenuItem
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+            onSelect={(event) => {
+              event.preventDefault();
+              setOpen(false);
+              onOpenImportSheet();
+            }}
+          >
+            <HugeiconsIcon icon={FileImportIcon} size={16} />
+            Import
+          </DropdownMenuItem>
 
-        <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-          onSelect={(event) => {
-            event.preventDefault();
-            setOpen(false);
-            onOpenExportSheet();
-          }}
-        >
-          <HugeiconsIcon icon={FileExportIcon} size={16} />
-          Export
-        </DropdownMenuItem>
+          <DropdownMenuItem
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+            onSelect={(event) => {
+              event.preventDefault();
+              setOpen(false);
+              onOpenExportSheet();
+            }}
+          >
+            <HugeiconsIcon icon={FileExportIcon} size={16} />
+            Export
+          </DropdownMenuItem>
+        </div>
 
         <DropdownMenuItem
           className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"

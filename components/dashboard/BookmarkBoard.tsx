@@ -177,7 +177,6 @@ export const BookmarkBoard = memo(function BookmarkBoard({
     <div
       className="w-full bookmark-board-empty-space"
       data-slot="bookmark-board"
-      data-onboarding="drag-sort"
     >
       <DndContext
         id={dndContextId}
