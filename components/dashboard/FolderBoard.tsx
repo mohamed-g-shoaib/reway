@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   DndContext,
@@ -52,6 +52,7 @@ interface FolderBoardProps {
       title: string;
       url: string;
       description?: string;
+      favicon_url?: string;
       group_id?: string;
     },
   ) => Promise<void>;
@@ -65,7 +66,7 @@ interface FolderBoardProps {
 
 const COLLAPSE_STORAGE_KEY = "reway.folder.collapsed";
 
-export function FolderBoard({
+export const FolderBoard = memo(function FolderBoard({
   bookmarks,
   groups,
   activeGroupId,
@@ -467,4 +468,4 @@ export function FolderBoard({
       />
     </>
   );
-}
+});

@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Settings01Icon,
   Moon02Icon,
   Sun01Icon,
   ComputerIcon,
   Delete02Icon,
-  FileImportIcon,
-  FileExportIcon,
+  Wrench01Icon,
+  ViewSidebarRightIcon,
+  ColorsIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -23,18 +24,21 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetBody,
+  SheetDescription,
+  SheetHeader,
+  SheetSection,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useTheme } from "next-themes";
 import { deleteAccount } from "@/app/dashboard/actions/account";
+import { getAiDailyUsage } from "@/app/dashboard/actions/extract";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -43,8 +47,6 @@ interface SettingsDialogProps {
   rowContent: "date" | "group";
   onRowContentChange: (value: "date" | "group") => void;
   userName: string;
-  onOpenImportDialog: () => void;
-  onOpenExportDialog: () => void;
 }
 
 export function SettingsDialog({
@@ -52,10 +54,11 @@ export function SettingsDialog({
   rowContent,
   onRowContentChange,
   userName,
-  onOpenImportDialog,
-  onOpenExportDialog,
 }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
+  const [aiUsage, setAiUsage] = useState<{ used: number; limit: number } | null>(
+    null,
+  );
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmValue, setConfirmValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -64,6 +67,27 @@ export function SettingsDialog({
   const normalizedName = useMemo(() => userName.trim(), [userName]);
   const confirmPhrase = normalizedName || "your name";
   const isConfirmMatch = confirmValue.trim() === normalizedName;
+
+  useEffect(() => {
+    if (!open) return;
+
+    let cancelled = false;
+    setAiUsage(null);
+
+    getAiDailyUsage()
+      .then((data) => {
+        if (cancelled) return;
+        setAiUsage(data);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("Failed to load AI usage:", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   const handleDeleteAccount = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -86,112 +110,114 @@ export function SettingsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>{children}</SheetTrigger>
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col sm:max-w-md p-0"
+      >
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2 text-lg">
             <HugeiconsIcon icon={Settings01Icon} size={20} strokeWidth={2} />
             Settings
-          </DialogTitle>
-          <DialogDescription>Customize your Reway experience</DialogDescription>
-        </DialogHeader>
+          </SheetTitle>
+          <SheetDescription>Customize your Reway experience</SheetDescription>
+        </SheetHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Data & Access */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">
-              Data & Access
+        <SheetBody className="space-y-5">
+          <SheetSection>
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <HugeiconsIcon icon={Wrench01Icon} size={16} />
+              AI
             </h3>
-            <div className="grid gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start gap-2 rounded-4xl"
-                onClick={() => onOpenImportDialog()}
-              >
-                <HugeiconsIcon icon={FileImportIcon} size={16} />
-                Import bookmarks
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="justify-start gap-2 rounded-4xl"
-                onClick={() => onOpenExportDialog()}
-              >
-                <HugeiconsIcon icon={FileExportIcon} size={16} />
-                Export bookmarks
-              </Button>
+            <div className="rounded-2xl border border-border/60 bg-muted/10 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-semibold text-foreground">
+                    Daily usage
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {aiUsage
+                      ? `${aiUsage.used} / ${aiUsage.limit}`
+                      : "Loading..."}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Resets daily
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </SheetSection>
 
-          {/* Row Content Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">
+          <SheetSection>
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
               Row Content
             </h3>
-            <div className="flex gap-2">
-              <Button
-                variant={rowContent === "date" ? "default" : "outline"}
-                size="sm"
-                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={() => onRowContentChange("date")}
-              >
-                Date
-              </Button>
-              <Button
-                variant={rowContent === "group" ? "default" : "outline"}
-                size="sm"
-                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={() => onRowContentChange("group")}
-              >
-                Group
-              </Button>
+            <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+              <div className="flex gap-2">
+                <Button
+                  variant={rowContent === "date" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => onRowContentChange("date")}
+                >
+                  Date
+                </Button>
+                <Button
+                  variant={rowContent === "group" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => onRowContentChange("group")}
+                >
+                  Group
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground px-1">
+                Choose what to display in the right column of your bookmarks.
+              </p>
             </div>
+          </SheetSection>
 
-            <p className="text-xs text-muted-foreground px-1">
-              Choose what to display in the right column of your bookmarks.
-            </p>
-          </div>
-
-          {/* Appearance Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">
+          <SheetSection>
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <HugeiconsIcon icon={ColorsIcon} size={16} />
               Appearance
             </h3>
-            <div className="flex gap-2">
-              <Button
-                variant={theme === "light" ? "default" : "outline"}
-                size="sm"
-                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={() => setTheme("light")}
-              >
-                <HugeiconsIcon icon={Sun01Icon} size={16} />
-                Light
-              </Button>
-              <Button
-                variant={theme === "dark" ? "default" : "outline"}
-                size="sm"
-                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={() => setTheme("dark")}
-              >
-                <HugeiconsIcon icon={Moon02Icon} size={16} />
-                Dark
-              </Button>
-              <Button
-                variant={theme === "system" ? "default" : "outline"}
-                size="sm"
-                className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
-                onClick={() => setTheme("system")}
-              >
-                <HugeiconsIcon icon={ComputerIcon} size={16} />
-                System
-              </Button>
+            <div className="rounded-2xl border border-border/60 bg-muted/10 p-3">
+              <div className="flex gap-2">
+                <Button
+                  variant={theme === "light" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => setTheme("light")}
+                >
+                  <HugeiconsIcon icon={Sun01Icon} size={16} />
+                  Light
+                </Button>
+                <Button
+                  variant={theme === "dark" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => setTheme("dark")}
+                >
+                  <HugeiconsIcon icon={Moon02Icon} size={16} />
+                  Dark
+                </Button>
+                <Button
+                  variant={theme === "system" ? "default" : "outline"}
+                  size="sm"
+                  className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  onClick={() => setTheme("system")}
+                >
+                  <HugeiconsIcon icon={ComputerIcon} size={16} />
+                  System
+                </Button>
+              </div>
             </div>
-          </div>
+          </SheetSection>
 
-          {/* Danger Zone */}
-          <div className="space-y-3 pt-4 border-t">
+          <SheetSection className="pt-4 border-t">
             <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
               <HugeiconsIcon icon={Delete02Icon} size={18} />
               Danger Zone
@@ -202,7 +228,7 @@ export function SettingsDialog({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full rounded-4xl border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive"
+                    className="w-full rounded-4xl border-destructive/20 text-destructive hover:bg-destructive/5 hover:text-destructive cursor-pointer"
                   >
                     Delete Account
                   </Button>
@@ -251,9 +277,9 @@ export function SettingsDialog({
                 This action is irreversible. All your data will be removed.
               </p>
             </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </SheetSection>
+        </SheetBody>
+      </SheetContent>
+    </Sheet>
   );
 }

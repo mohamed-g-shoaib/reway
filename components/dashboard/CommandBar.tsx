@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { startTransition, useRef, useState } from "react";
 import { BookmarkRow } from "@/lib/supabase/queries";
 import { useIsMac } from "@/hooks/useIsMac";
 import { CommandBarInput } from "./command-bar/CommandBarInput";
@@ -16,9 +16,6 @@ interface CommandBarProps {
   searchQuery?: string;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
-  onDuplicatesDetected?: (
-    duplicates: { id: string; url: string; title: string }[],
-  ) => void;
 }
 
 export function CommandBar({
@@ -30,7 +27,6 @@ export function CommandBar({
   searchQuery = "",
   onModeChange,
   onSearchChange,
-  onDuplicatesDetected,
 }: CommandBarProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -48,7 +44,6 @@ export function CommandBar({
     onReplaceBookmarkId,
     onModeChange,
     onSearchChange,
-    onDuplicatesDetected,
     activeGroupId,
     inputRef,
     onAddStatusChange: setAddStatus,
@@ -59,10 +54,14 @@ export function CommandBar({
     if (nextMode === mode) return;
 
     if (nextMode === "search") {
-      onSearchChange?.(inputValue);
+      startTransition(() => {
+        onSearchChange?.(inputValue);
+      });
     } else if (nextMode === "add") {
       setInputValue(searchQuery);
-      onSearchChange?.("");
+      startTransition(() => {
+        onSearchChange?.("");
+      });
     }
 
     onModeChange?.(nextMode);

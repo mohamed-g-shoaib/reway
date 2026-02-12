@@ -60,30 +60,6 @@ function createTour() {
     doneBtnText: "Done",
     nextBtnText: "Next",
     prevBtnText: "Back",
-    onPopoverRender: (popover) => {
-      const prevBtn = popover.previousButton;
-      const footerButtons = popover.footerButtons;
-      if (!footerButtons || !prevBtn) return;
-
-      const existing = footerButtons.querySelector(
-        '[data-driverjs-skip-button="true"]',
-      );
-      if (existing) return;
-
-      const skipBtn = document.createElement("button");
-      skipBtn.type = "button";
-      skipBtn.innerText = "Skip";
-      skipBtn.setAttribute("data-driverjs-skip-button", "true");
-
-      // Use Driver.js default button styling by copying existing button classes.
-      skipBtn.className = prevBtn.className;
-
-      skipBtn.addEventListener("click", () => {
-        driverObj.destroy();
-      });
-
-      footerButtons.insertBefore(skipBtn, prevBtn);
-    },
     onDestroyed: () => {
       safeSet("done");
     },
@@ -127,10 +103,9 @@ function createTour() {
       },
     },
     {
-      element:
-        isSmallScreen()
-          ? '[data-onboarding="groups-mobile"]'
-          : ('[data-onboarding="groups-desktop"]' as const),
+      element: isSmallScreen()
+        ? '[data-onboarding="groups-mobile"]'
+        : ('[data-onboarding="groups-desktop"]' as const),
       popover: {
         title: "Groups",
         description: "Groups help you keep related bookmarks together.",
@@ -147,10 +122,9 @@ function createTour() {
       },
     },
     {
-      element:
-        isSmallScreen()
-          ? '[data-onboarding="create-group-mobile"]'
-          : ('[data-onboarding="create-group-desktop"]' as const),
+      element: isSmallScreen()
+        ? '[data-onboarding="create-group-mobile"]'
+        : ('[data-onboarding="create-group-desktop"]' as const),
       popover: {
         title: "Create groups",
         description:
