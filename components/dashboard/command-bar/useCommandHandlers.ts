@@ -1,16 +1,15 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow } from "@/lib/supabase/queries";
 import type { EnrichmentResult } from "../content/dashboard-types";
 import {
   addBookmark,
-  checkDuplicateBookmarks,
   enrichCreatedBookmark,
 } from "@/app/dashboard/actions/bookmarks";
 import { extractLinks } from "@/app/dashboard/actions/extract";
-import { isUrl, normalizeUrl } from "./helpers";
+import { extractUrlsFromText, isUrl } from "./helpers";
 import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
 
 interface UseCommandHandlersOptions {
@@ -19,9 +18,6 @@ interface UseCommandHandlersOptions {
   onReplaceBookmarkId?: (stableId: string, actualId: string) => void;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
-  onDuplicatesDetected?: (
-    duplicates: { id: string; url: string; title: string }[],
-  ) => void;
   activeGroupId: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onAddStatusChange?: (status: string | null) => void;
@@ -34,12 +30,13 @@ export function useCommandHandlers({
   onReplaceBookmarkId,
   onModeChange,
   onSearchChange,
-  onDuplicatesDetected,
   activeGroupId,
   inputRef,
   onAddStatusChange,
   onAddBusyChange,
 }: UseCommandHandlersOptions) {
+  const isSubmittingRef = useRef(false);
+
   const setAddStatus = useCallback(
     (status: string | null, busy?: boolean) => {
       onAddStatusChange?.(status);
@@ -52,41 +49,6 @@ export function useCommandHandlers({
 
   const processUrls = useCallback(
     async (urls: string[]) => {
-      let duplicateMap: Record<
-        string,
-        { id: string; title: string; url: string }
-      > = {};
-      try {
-        const checkUrls = [...urls];
-        urls.forEach((u) => {
-          if (!u.startsWith("http")) checkUrls.push(`https://${u}`);
-        });
-        const result = await checkDuplicateBookmarks(checkUrls);
-        duplicateMap = result.duplicates;
-      } catch (error) {
-        console.error("Failed to check for duplicates:", error);
-      }
-
-      const uniqueUrls: string[] = [];
-      const duplicateEntries: {
-        url: string;
-        existing: { id: string; title: string; url: string };
-      }[] = [];
-
-      urls.forEach((u) => {
-        const fullUrl = u.startsWith("http") ? u : `https://${u}`;
-        const normalizedFullUrl = normalizeUrl(fullUrl);
-        const existing = duplicateMap[normalizedFullUrl];
-        if (existing) {
-          duplicateEntries.push({
-            url: fullUrl,
-            existing,
-          });
-        } else {
-          uniqueUrls.push(fullUrl);
-        }
-      });
-
       const executeAdd = async (url: string) => {
         const stableId = crypto.randomUUID();
         const optimistic = {
@@ -123,32 +85,50 @@ export function useCommandHandlers({
         }
       };
 
-      await Promise.all(uniqueUrls.map(executeAdd));
+      if (urls.length === 1) {
+        const u = urls[0];
+        const fullUrl = u.startsWith("http") ? u : `https://${u}`;
+        const stableId = crypto.randomUUID();
+        const optimistic = {
+          id: stableId,
+          url: fullUrl,
+          title: fullUrl,
+          favicon_url: null,
+          description: null,
+          group_id: activeGroupId !== "all" ? activeGroupId : null,
+          user_id: "",
+          created_at: new Date().toISOString(),
+          order_index: Number.MIN_SAFE_INTEGER,
+          status: "pending",
+          is_enriching: true,
+        } as BookmarkRow;
 
-      if (duplicateEntries.length > 0) {
-        if (onDuplicatesDetected) {
-          onDuplicatesDetected(
-            duplicateEntries.map((entry) => ({
-              id: entry.existing.id,
-              url: entry.url,
-              title: entry.existing.title,
-            })),
-          );
-        } else {
-          duplicateEntries.forEach(({ url, existing }) => {
-            toast.info(`Already bookmarked: ${existing.title}`, {
-              description: "This URL already exists in your bookmarks.",
-              action: {
-                label: "Add Anyway",
-                onClick: () => executeAdd(url),
-              },
-              duration: 10000,
-            });
+        onAddBookmark(optimistic);
+
+        try {
+          const bookmarkId = await addBookmark({
+            url: fullUrl,
+            id: stableId,
+            group_id: activeGroupId !== "all" ? activeGroupId : undefined,
           });
+          if (bookmarkId) {
+            onReplaceBookmarkId?.(stableId, bookmarkId);
+          }
+          const enrichment = (await enrichCreatedBookmark(bookmarkId, fullUrl)) as
+            | EnrichmentResult
+            | undefined;
+          onApplyEnrichment?.(bookmarkId ?? stableId, enrichment);
+        } catch (error) {
+          console.error("Failed to add bookmark:", error);
+          toast.error(`Failed to add ${fullUrl}`);
         }
+        return;
       }
+
+      const fullUrls = urls.map((u) => (u.startsWith("http") ? u : `https://${u}`));
+      await Promise.all(fullUrls.map(executeAdd));
     },
-    [activeGroupId, onAddBookmark, onDuplicatesDetected],
+    [activeGroupId, onAddBookmark, onApplyEnrichment, onReplaceBookmarkId],
   );
 
   const handlePaste = useCallback(
@@ -167,10 +147,20 @@ export function useCommandHandlers({
                 try {
                   const base64 = reader.result as string;
                   const base64Data = base64.split(",")[1];
-                  const urls = await extractLinks(base64Data, true);
-                  if (urls.length > 0) {
-                    setAddStatus("Adding links from image...", true);
-                    await processUrls(urls);
+                  try {
+                    const urls = await extractLinks(base64Data, true);
+                    if (urls.length > 0) {
+                      setAddStatus("Adding links from image...", true);
+                      await processUrls(urls);
+                    } else {
+                      toast.error("No links found in the image");
+                    }
+                  } catch (error) {
+                    const message =
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to extract links from image";
+                    toast.error(message);
                   }
                 } finally {
                   setAddStatus(null, false);
@@ -225,10 +215,20 @@ export function useCommandHandlers({
             try {
               const base64 = reader.result as string;
               const base64Data = base64.split(",")[1];
-              const urls = await extractLinks(base64Data, true);
-              if (urls.length > 0) {
-                setAddStatus("Adding links from image...", true);
-                await processUrls(urls);
+              try {
+                const urls = await extractLinks(base64Data, true);
+                if (urls.length > 0) {
+                  setAddStatus("Adding links from image...", true);
+                  await processUrls(urls);
+                } else {
+                  toast.error("No links found in the image");
+                }
+              } catch (error) {
+                const message =
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to extract links from image";
+                toast.error(message);
               }
             } finally {
               setAddStatus(null, false);
@@ -236,6 +236,7 @@ export function useCommandHandlers({
           };
         } catch (error) {
           console.error("Image processing failed:", error);
+          toast.error("Failed to process image");
           setAddStatus(null, false);
         }
       }
@@ -252,6 +253,8 @@ export function useCommandHandlers({
       setInputValue: (value: string) => void,
     ) => {
       e.preventDefault();
+
+      if (isSubmittingRef.current) return;
       const value = mode === "search" ? searchQuery.trim() : inputValue.trim();
       if (!value) return;
 
@@ -264,27 +267,29 @@ export function useCommandHandlers({
       setInputValue("");
       inputRef.current?.blur();
 
+      isSubmittingRef.current = true;
+
       if (isUrl(value) && !value.includes(" ")) {
         setAddStatus("Adding link...", true);
         try {
           await processUrls([value]);
         } finally {
           setAddStatus(null, false);
+          isSubmittingRef.current = false;
         }
       } else {
         setAddStatus("Extracting links from text...", true);
         try {
-          const urls = await extractLinks(value);
+          const urls = extractUrlsFromText(value);
           if (urls.length > 0) {
             setAddStatus("Adding links from text...", true);
             await processUrls(urls);
           } else {
-            console.log("No links found by AI or just searching.");
+            toast.error("No links found");
           }
-        } catch (error) {
-          console.error("AI extraction failed:", error);
         } finally {
           setAddStatus(null, false);
+          isSubmittingRef.current = false;
         }
       }
     },

@@ -54,8 +54,12 @@ export function CommandBarInput({
   onFileChange,
   onPlusClick,
 }: CommandBarInputProps) {
-  const addPlaceholder =
-    isAddBusy && addStatus ? addStatus : "Add a link, image, or search...";
+  const StatusSpinner = () => (
+    <span
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground"
+      aria-hidden="true"
+    />
+  );
 
   return (
     <div className="relative w-full" data-onboarding="command-bar">
@@ -96,26 +100,38 @@ export function CommandBarInput({
           </Tooltip>
         </TooltipProvider>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={mode === "search" ? searchQuery : inputValue}
-          onChange={(e) => {
-            if (mode === "search") {
-              onSearchChange?.(e.target.value);
-            } else {
-              onInputValueChange(e.target.value);
+        <div className="relative flex-1 min-w-0">
+          <input
+            ref={inputRef}
+            type="text"
+            value={mode === "search" ? searchQuery : inputValue}
+            onChange={(e) => {
+              if (mode === "search") {
+                onSearchChange?.(e.target.value);
+              } else {
+                onInputValueChange(e.target.value);
+              }
+            }}
+            placeholder={
+              mode === "search"
+                ? "Search bookmarks..."
+                : mode === "add" && isAddBusy && addStatus
+                  ? ""
+                  : "Add a link, image, or search..."
             }
-          }}
-          placeholder={
-            mode === "search" ? "Search bookmarks..." : addPlaceholder
-          }
-          className="flex-1 min-w-0 bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
-          disabled={mode === "add" && isAddBusy}
-          onFocus={() => onFocusChange(true)}
-          onBlur={() => onFocusChange(false)}
-          aria-label="Search or add bookmarks"
-        />
+            className="w-full bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
+            disabled={mode === "add" && isAddBusy}
+            onFocus={() => onFocusChange(true)}
+            onBlur={() => onFocusChange(false)}
+            aria-label="Search or add bookmarks"
+          />
+          {mode === "add" && isAddBusy && addStatus ? (
+            <div className="pointer-events-none absolute inset-0 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <StatusSpinner />
+              <span className="truncate">{addStatus}</span>
+            </div>
+          ) : null}
+        </div>
 
         <div className="flex items-center gap-3">
           <Tooltip>
