@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 
-import {
-  AttachmentIcon,
-  BookmarkAdd02Icon,
-  Search02Icon,
-} from "@hugeicons/core-free-icons";
+import { AttachmentIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
@@ -65,7 +61,7 @@ export function CommandBarInput({
     <div className="relative w-full" data-onboarding="command-bar">
       <form
         onSubmit={onSubmit}
-        className={`group relative flex items-center justify-between gap-3 rounded-2xl px-4 py-1.5 ${
+        className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1.5 py-1.5 ${
           isFocused
             ? "ring-1 ring-primary/30 after:ring-white/10"
             : "ring-1 ring-foreground/8 after:ring-white/5"
@@ -88,7 +84,8 @@ export function CommandBarInput({
                 variant="ghost"
                 size="icon"
                 onClick={onPlusClick}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                disabled={mode === "search"}
+                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
                 aria-label="Add image or file"
               >
                 <HugeiconsIcon icon={AttachmentIcon} size={16} />
@@ -133,65 +130,45 @@ export function CommandBarInput({
           ) : null}
         </div>
 
-        <div className="flex items-center gap-3">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => onModeChange?.("add")}
-                data-onboarding="add-bookmarks"
-                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out cursor-pointer ${
-                  mode === "add"
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                }`}
-                aria-pressed={mode === "add"}
-                aria-label="Add bookmarks"
-              >
-                <HugeiconsIcon icon={BookmarkAdd02Icon} size={13} />
-                <KbdGroup className="hidden md:inline-flex">
-                  <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1.5">
-                    {isMac ? "⌘K" : "CtrlK"}
-                  </Kbd>
-                </KbdGroup>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent
-              className="rounded-lg font-medium hidden md:flex"
-              side="bottom"
-            >
-              Add bookmarks
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => onModeChange?.("search")}
-                data-onboarding="search-bookmarks"
-                className={`h-6 w-6 md:w-auto md:px-1.5 flex items-center justify-center md:gap-1.5 rounded-md transition-colors duration-150 ease-out cursor-pointer ${
-                  mode === "search"
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                }`}
-                aria-pressed={mode === "search"}
-                aria-label="Search bookmarks"
-              >
-                <HugeiconsIcon icon={Search02Icon} size={13} />
-                <KbdGroup className="hidden md:inline-flex">
-                  <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1.5">
-                    {isMac ? "⌘F" : "CtrlF"}
-                  </Kbd>
-                </KbdGroup>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent
-              className="rounded-lg font-medium hidden md:flex"
-              side="bottom"
-            >
-              Search bookmarks
-            </TooltipContent>
-          </Tooltip>
+        <div className="flex items-center gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-foreground/5">
+          <button
+            type="button"
+            onClick={() => onModeChange?.("add")}
+            data-onboarding="add-bookmarks"
+            className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
+              mode === "add"
+                ? "bg-background text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            aria-pressed={mode === "add"}
+            aria-label="Add bookmarks"
+          >
+            <span>Add</span>
+            <KbdGroup className="hidden md:inline-flex">
+              <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">
+                {isMac ? "⌘K" : "CtrlK"}
+              </Kbd>
+            </KbdGroup>
+          </button>
+          <button
+            type="button"
+            onClick={() => onModeChange?.("search")}
+            data-onboarding="search-bookmarks"
+            className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
+              mode === "search"
+                ? "bg-background text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            aria-pressed={mode === "search"}
+            aria-label="Search bookmarks"
+          >
+            <span>Search</span>
+            <KbdGroup className="hidden md:inline-flex">
+              <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">
+                {isMac ? "⌘F" : "CtrlF"}
+              </Kbd>
+            </KbdGroup>
+          </button>
         </div>
       </form>
 
