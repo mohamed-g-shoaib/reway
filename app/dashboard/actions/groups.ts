@@ -48,6 +48,16 @@ export async function createGroup(formData: {
     throw new Error("Unauthorized");
   }
 
+  const { data: maxOrderData } = await supabase
+    .from("groups")
+    .select("order_index")
+    .eq("user_id", userData.user.id)
+    .order("order_index", { ascending: false })
+    .limit(1)
+    .single();
+
+  const nextOrderIndex = maxOrderData ? (maxOrderData.order_index ?? 0) + 1 : 0;
+
   const { data, error } = await supabase
     .from("groups")
     .insert({
@@ -55,6 +65,7 @@ export async function createGroup(formData: {
       icon: formData.icon,
       color: formData.color ?? null,
       user_id: userData.user.id,
+      order_index: nextOrderIndex,
     })
     .select("*")
     .single();
@@ -98,6 +109,35 @@ export async function updateGroup(
     }
     console.error("Error updating group:", error);
     throw new Error("Failed to update group");
+  }
+
+  revalidatePath("/dashboard");
+}
+
+export async function updateGroupsOrder(
+  updates: { id: string; order_index: number }[],
+) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const updatePromises = updates.map((update) =>
+    supabase
+      .from("groups")
+      .update({ order_index: update.order_index })
+      .eq("id", update.id)
+      .eq("user_id", userData.user.id),
+  );
+
+  const results = await Promise.all(updatePromises);
+
+  const firstError = results.find((result) => result.error)?.error;
+  if (firstError) {
+    console.error("Error updating groups order:", firstError);
+    throw new Error(`Failed to update order: ${firstError.message}`);
   }
 
   revalidatePath("/dashboard");
