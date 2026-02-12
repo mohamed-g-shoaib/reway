@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import type { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 
 interface UseExportHandlersOptions {
@@ -21,6 +22,8 @@ export function useExportHandlers({ bookmarks, groups }: UseExportHandlersOption
 
   const handleExportBookmarks = useCallback(
     (selectedGroups: string[]) => {
+      if (exportProgress.status === "exporting") return;
+
       const allowed = new Set(selectedGroups);
       const groupNameById = new Map<string, string>();
       groups.forEach((g) => {
@@ -42,6 +45,12 @@ export function useExportHandlers({ bookmarks, groups }: UseExportHandlersOption
         total: groupNames.length,
         status: "exporting",
       });
+
+      if (groupNames.length === 0) {
+        setExportProgress({ processed: 0, total: 0, status: "idle" });
+        toast.error("No bookmarks to export for the selected groups");
+        return;
+      }
 
       const escapeHtml = (value: string) =>
         value
@@ -95,8 +104,12 @@ export function useExportHandlers({ bookmarks, groups }: UseExportHandlersOption
         total: groupNames.length,
         status: "done",
       });
+
+      toast.success(
+        `Exported ${groupNames.length} group${groupNames.length === 1 ? "" : "s"}`,
+      );
     },
-    [bookmarks, groups],
+    [bookmarks, exportProgress.status, groups],
   );
 
   return { exportProgress, handleExportBookmarks, resetExportProgress };

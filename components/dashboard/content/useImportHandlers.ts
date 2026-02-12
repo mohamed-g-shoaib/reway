@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { normalizeUrl } from "@/lib/metadata";
@@ -59,8 +59,73 @@ export function useImportHandlers({
   const [importProgress, setImportProgress] = useState({
     processed: 0,
     total: 0,
-    status: "idle" as "idle" | "importing" | "done" | "error",
+    status: "idle" as
+      | "idle"
+      | "importing"
+      | "stopping"
+      | "done"
+      | "error"
+      | "stopped",
   });
+
+  const [importResult, setImportResult] = useState<{
+    imported: number;
+    cancelled: number;
+    total: number;
+    status: "done" | "stopped" | "error";
+  } | null>(null);
+
+  const stopRequestedRef = useRef(false);
+
+  const pickRandomGroupColor = useCallback(() => {
+    const palette = [
+      "#6366f1",
+      "#8b5cf6",
+      "#ec4899",
+      "#f43f5e",
+      "#f97316",
+      "#f59e0b",
+      "#84cc16",
+      "#10b981",
+      "#06b6d4",
+      "#3b82f6",
+    ];
+    return palette[Math.floor(Math.random() * palette.length)];
+  }, []);
+
+  const runWithConcurrency = useCallback(
+    async <T>(
+      items: T[],
+      concurrency: number,
+      handler: (item: T) => Promise<void>,
+      skipStopCheck = false,
+    ) => {
+      const safeConcurrency = Math.max(1, Math.floor(concurrency));
+      let index = 0;
+
+      const worker = async () => {
+        while (true) {
+          // Check stop BEFORE claiming an index (unless skipStopCheck is true)
+          if (!skipStopCheck && stopRequestedRef.current) return;
+
+          // Claim the next index atomically
+          const current = index;
+          if (current >= items.length) return;
+          index += 1;
+
+          // Handler will check stop flag and bail if needed
+          await handler(items[current]);
+        }
+      };
+
+      const workers = Array.from(
+        { length: Math.min(safeConcurrency, items.length) },
+        () => worker(),
+      );
+      await Promise.all(workers);
+    },
+    [],
+  );
 
   const parseBookmarkHtml = useCallback(
     (content: string) => {
@@ -150,7 +215,9 @@ export function useImportHandlers({
         }
       });
 
-      const urls = rawEntries.map((entry) => normalizedByUrl.get(entry.url) || entry.url);
+      const urls = rawEntries.map(
+        (entry) => normalizedByUrl.get(entry.url) || entry.url,
+      );
       let duplicateMap: Record<
         string,
         { id: string; title: string; url: string }
@@ -204,6 +271,11 @@ export function useImportHandlers({
   const handleConfirmImport = useCallback(
     async (selectedGroups: string[]) => {
       if (!importPreview) return;
+      if (importProgress.status === "importing") return;
+
+      stopRequestedRef.current = false;
+      setImportResult(null);
+
       const allowed = new Set(
         selectedGroups.map((name) => normalizeGroupName(name)),
       );
@@ -245,16 +317,17 @@ export function useImportHandlers({
 
       const createdGroups = await Promise.all(
         groupNamesToCreate.map(async (name) => {
+          const color = pickRandomGroupColor();
           const newGroupId = await createGroup({
             name,
             icon: "folder",
-            color: "#6366f1",
+            color,
           });
           return {
             id: newGroupId,
             name,
             icon: "folder",
-            color: "#6366f1",
+            color,
             user_id: userId,
             created_at: new Date().toISOString(),
             order_index: null,
@@ -286,39 +359,65 @@ export function useImportHandlers({
           groupId,
           optimisticId: crypto.randomUUID(),
           orderIndex: startingOrder - (index + 1),
+          normalizedUrl: (() => {
+            try {
+              return normalizeUrl(entry.url);
+            } catch {
+              return entry.url;
+            }
+          })(),
         };
       });
 
-      const optimisticRows: BookmarkRow[] = pendingEntries.map((item) => ({
-        id: item.optimisticId,
-        url: item.entry.url,
-        normalized_url: item.entry.url,
-        title: item.entry.title || item.entry.url,
-        description: null,
-        error_reason: null,
-        favicon_url: null,
-        og_image_url: null,
-        image_url: null,
-        group_id: item.groupId ?? null,
-        is_enriching: true,
-        last_fetched_at: null,
-        screenshot_url: null,
-        user_id: userId,
-        created_at: new Date().toISOString(),
-        order_index: item.orderIndex,
-        folder_order_index: null,
-        status: "pending",
-      }));
-
-      setBookmarks((prev) => sortBookmarks([...optimisticRows, ...prev]));
-
       let processed = 0;
-      const handlePendingEntry = async ({
+      let importedCount = 0;
+      let failedCount = 0;
+      const enrichmentQueue: Array<{ id: string; url: string }> = [];
+
+      const CREATE_CONCURRENCY = 3;
+      const ENRICH_CONCURRENCY = 2;
+
+      const handleCreate = async ({
         entry,
         groupId,
         optimisticId,
         orderIndex,
+        normalizedUrl,
       }: (typeof pendingEntries)[number]) => {
+        // Check stop BEFORE doing ANY work (including optimistic insert)
+        if (stopRequestedRef.current) {
+          return;
+        }
+
+        // Increment processed immediately after claiming this item
+        processed += 1;
+
+        const optimisticRow: BookmarkRow = {
+          id: optimisticId,
+          url: entry.url,
+          normalized_url: normalizedUrl,
+          title: entry.title || entry.url,
+          description: null,
+          error_reason: null,
+          favicon_url: null,
+          og_image_url: null,
+          image_url: null,
+          group_id: groupId ?? null,
+          is_enriching: true,
+          last_fetched_at: null,
+          screenshot_url: null,
+          user_id: userId,
+          created_at: new Date().toISOString(),
+          order_index: orderIndex,
+          folder_order_index: null,
+          status: "pending",
+        };
+
+        setBookmarks((prev) => {
+          if (prev.some((item) => item.id === optimisticId)) return prev;
+          return sortBookmarks([optimisticRow, ...prev]);
+        });
+
         try {
           const bookmarkId = await addBookmark({
             url: entry.url,
@@ -326,6 +425,8 @@ export function useImportHandlers({
             title: entry.title,
             group_id: groupId ?? undefined,
           });
+
+          const stableId = bookmarkId ?? optimisticId;
           if (bookmarkId && bookmarkId !== optimisticId) {
             setBookmarks((prev) =>
               prev.map((item) =>
@@ -339,14 +440,51 @@ export function useImportHandlers({
               ),
             );
           }
-          const enrichment = (await enrichCreatedBookmark(
-            bookmarkId ?? optimisticId,
-            entry.url,
-          )) as EnrichmentResult | undefined;
+
+          enrichmentQueue.push({ id: stableId, url: entry.url });
+          importedCount += 1;
+        } catch (error) {
+          console.error("Import add failed:", error);
+          failedCount += 1;
+          setBookmarks((prev) =>
+            prev.map((item) =>
+              item.id === optimisticId
+                ? {
+                    ...item,
+                    status: "failed",
+                    is_enriching: false,
+                    error_reason: "Import failed",
+                  }
+                : item,
+            ),
+          );
+        }
+      };
+
+      const enrichmentWorker = async ({
+        id,
+        url,
+      }: {
+        id: string;
+        url: string;
+      }) => {
+        try {
+          // Timeout wrapper to prevent infinite pending state
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error("Enrichment timeout")), 120000); // 2 minute timeout for slow network requests
+          });
+
+          const enrichmentPromise = enrichCreatedBookmark(id, url);
+
+          const enrichment = (await Promise.race([
+            enrichmentPromise,
+            timeoutPromise,
+          ])) as EnrichmentResult | undefined;
+
           if (enrichment?.status === "ready") {
             setBookmarks((prev) =>
               prev.map((item) =>
-                item.id === optimisticId
+                item.id === id
                   ? {
                       ...item,
                       title: enrichment.title ?? item.title,
@@ -367,7 +505,7 @@ export function useImportHandlers({
           } else if (enrichment?.status === "failed") {
             setBookmarks((prev) =>
               prev.map((item) =>
-                item.id === optimisticId
+                item.id === id
                   ? {
                       ...item,
                       status: "failed",
@@ -380,36 +518,80 @@ export function useImportHandlers({
             );
           }
         } catch (error) {
-          console.error("Import add failed:", error);
+          // Handle timeout or any other error - mark as failed so it's not stuck pending
+          console.error("Enrichment worker error for", url, error);
           setBookmarks((prev) =>
             prev.map((item) =>
-              item.id === optimisticId
+              item.id === id
                 ? {
                     ...item,
                     status: "failed",
                     is_enriching: false,
-                    error_reason: "Import failed",
+                    error_reason:
+                      error instanceof Error
+                        ? error.message
+                        : "Enrichment error",
                   }
                 : item,
             ),
           );
-        } finally {
-          processed += 1;
-          setImportProgress({
-            processed,
-            total: entries.length,
-            status: "importing",
-          });
         }
       };
 
-      const CONCURRENCY = 5;
-      for (let i = 0; i < pendingEntries.length; i += CONCURRENCY) {
-        const chunk = pendingEntries.slice(i, i + CONCURRENCY);
-        await Promise.all(chunk.map(handlePendingEntry));
+      const startBackgroundEnrichment = () => {
+        if (enrichmentQueue.length === 0) return;
+        // Skip stop check for enrichment - always complete enrichment for created bookmarks
+        void runWithConcurrency(
+          [...enrichmentQueue],
+          ENRICH_CONCURRENCY,
+          enrichmentWorker,
+          true, // skipStopCheck
+        );
+      };
+
+      const progressTimer = window.setInterval(() => {
+        setImportProgress((prev) => {
+          if (prev.status !== "importing") return prev;
+          return { ...prev, processed: Math.min(processed, entries.length) };
+        });
+      }, 200);
+
+      try {
+        await runWithConcurrency(
+          pendingEntries,
+          CREATE_CONCURRENCY,
+          handleCreate,
+        );
+      } finally {
+        window.clearInterval(progressTimer);
       }
 
-      setImportProgress({ processed, total: entries.length, status: "done" });
+      setImportProgress({
+        processed: Math.min(processed, entries.length),
+        total: entries.length,
+        status: stopRequestedRef.current ? "stopped" : "done",
+      });
+
+      const cancelled = Math.max(
+        0,
+        entries.length - (importedCount + failedCount),
+      );
+      setImportResult({
+        imported: importedCount,
+        cancelled,
+        total: entries.length,
+        status: stopRequestedRef.current ? "stopped" : "done",
+      });
+
+      if (stopRequestedRef.current) {
+        startBackgroundEnrichment();
+        return;
+      }
+
+      startBackgroundEnrichment();
+      toast.success(
+        `Imported ${entries.length} bookmark${entries.length === 1 ? "" : "s"}`,
+      );
       setImportPreview(null);
     },
     [
@@ -419,7 +601,9 @@ export function useImportHandlers({
       enrichCreatedBookmark,
       groups,
       importPreview,
+      importProgress.status,
       normalizeGroupName,
+      runWithConcurrency,
       sortBookmarks,
       sortGroups,
       userId,
@@ -429,9 +613,21 @@ export function useImportHandlers({
   );
 
   const handleClearImport = useCallback(() => {
+    if (importProgress.status === "importing") {
+      stopRequestedRef.current = true;
+      setImportProgress((prev) => ({ ...prev, status: "stopping" }));
+      toast.info("Stopping import…");
+      return;
+    }
+    if (importProgress.status === "stopping") {
+      return;
+    }
+
+    stopRequestedRef.current = false;
     setImportPreview(null);
     setImportProgress({ processed: 0, total: 0, status: "idle" });
-  }, []);
+    setImportResult(null);
+  }, [importProgress.status]);
 
   const handleUpdateImportAction = useCallback(
     (action: "skip" | "override") => {
@@ -452,6 +648,7 @@ export function useImportHandlers({
   return {
     importPreview,
     importProgress,
+    importResult,
     handleImportFileSelected,
     handleConfirmImport,
     handleClearImport,
