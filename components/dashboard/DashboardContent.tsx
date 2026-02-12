@@ -23,11 +23,19 @@ import { useBookmarkActions } from "./content/useBookmarkActions";
 import { useOpenGroup } from "./content/useOpenGroup";
 import { useCommandMode } from "./content/useCommandMode";
 import { useDashboardDerived } from "./content/useDashboardDerived";
+import {
+  setPreferenceCookie,
+  migrateLocalStorageToCookies,
+} from "@/lib/cookies";
 
 interface DashboardContentProps {
   user: User;
   initialBookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
+  initialViewModeAll?: "list" | "card" | "icon" | "folders";
+  initialViewModeGroups?: "list" | "card" | "icon" | "folders";
+  initialRowContent?: "date" | "group";
+  initialCommandMode?: "add" | "search";
 }
 
 import {
@@ -51,18 +59,23 @@ export function DashboardContent({
   user,
   initialBookmarks,
   initialGroups,
+  initialViewModeAll = "list",
+  initialViewModeGroups = "list",
+  initialRowContent = "date",
+  initialCommandMode = "add",
 }: DashboardContentProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
-  const [prefsLoaded, setPrefsLoaded] = useState(false);
-  const [rowContent, setRowContent] = useState<"date" | "group">("date");
+  const [rowContent, setRowContent] = useState<"date" | "group">(
+    initialRowContent,
+  );
   const [viewModeAll, setViewModeAll] = useState<
     "list" | "card" | "icon" | "folders"
-  >("list");
+  >(initialViewModeAll);
   const [viewModeGroups, setViewModeGroups] = useState<
     "list" | "card" | "icon" | "folders"
-  >("list");
+  >(initialViewModeGroups);
   const [keyboardContext, setKeyboardContext] = useState<"folder" | "bookmark">(
     "bookmark",
   );
@@ -78,7 +91,9 @@ export function DashboardContent({
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
-  const [commandMode, setCommandMode] = useState<"add" | "search">("add");
+  const [commandMode, setCommandMode] = useState<"add" | "search">(
+    initialCommandMode,
+  );
   const isMac = useIsMac();
   const deferredSearchQuery = React.useDeferredValue(searchQuery);
   const viewMode = activeGroupId === "all" ? viewModeAll : viewModeGroups;
@@ -112,11 +127,6 @@ export function DashboardContent({
   const lastBulkDeletedRef = React.useRef<
     { bookmark: BookmarkRow; index: number }[]
   >([]);
-  const viewModeStorageKey = "reway.dashboard.viewMode";
-  const viewModeAllStorageKey = "reway.dashboard.viewMode.all";
-  const viewModeGroupsStorageKey = "reway.dashboard.viewMode.groups";
-  const rowContentStorageKey = "reway.dashboard.rowContent";
-  const commandModeStorageKey = "reway.dashboard.commandMode";
 
   const normalizeGroupName = useCallback((value?: string | null) => {
     const name = value?.trim() ?? "";
@@ -166,96 +176,26 @@ export function DashboardContent({
     }
   }, [initialBookmarks, initialGroups, sortGroups]);
 
+  // Migrate from localStorage to cookies on first load
   React.useEffect(() => {
-    try {
-      const storedAll = window.localStorage.getItem(viewModeAllStorageKey);
-      const storedGroups = window.localStorage.getItem(
-        viewModeGroupsStorageKey,
-      );
-      const legacyStoredView = window.localStorage.getItem(viewModeStorageKey);
-
-      const parseViewMode = (value: string | null) => {
-        if (
-          value === "list" ||
-          value === "card" ||
-          value === "icon" ||
-          value === "folders"
-        ) {
-          return value;
-        }
-        return null;
-      };
-
-      const parsedAll = parseViewMode(storedAll);
-      const parsedGroups = parseViewMode(storedGroups);
-      const parsedLegacy = parseViewMode(legacyStoredView);
-
-      if (parsedAll) setViewModeAll(parsedAll);
-      if (parsedGroups) setViewModeGroups(parsedGroups);
-
-      // Migrate old single preference if new keys are missing.
-      if (parsedLegacy && (!parsedAll || !parsedGroups)) {
-        if (!parsedAll) setViewModeAll(parsedLegacy);
-        if (!parsedGroups) setViewModeGroups(parsedLegacy);
-        window.localStorage.setItem(
-          viewModeAllStorageKey,
-          parsedAll ?? parsedLegacy,
-        );
-        window.localStorage.setItem(
-          viewModeGroupsStorageKey,
-          parsedGroups ?? parsedLegacy,
-        );
-      }
-
-      const storedRowContent =
-        window.localStorage.getItem(rowContentStorageKey);
-      if (storedRowContent === "date" || storedRowContent === "group") {
-        setRowContent(storedRowContent);
-      }
-
-      const storedCommandMode = window.localStorage.getItem(
-        commandModeStorageKey,
-      );
-      if (storedCommandMode === "add" || storedCommandMode === "search") {
-        setCommandMode(storedCommandMode);
-      }
-    } catch (error) {
-      console.warn("Failed to load dashboard preferences:", error);
-    } finally {
-      setPrefsLoaded(true);
-    }
+    migrateLocalStorageToCookies();
   }, []);
 
+  // Sync preferences to cookies
   React.useEffect(() => {
-    try {
-      window.localStorage.setItem(viewModeAllStorageKey, viewModeAll);
-    } catch (error) {
-      console.warn("Failed to persist all bookmarks view mode:", error);
-    }
+    setPreferenceCookie("viewMode.all", viewModeAll);
   }, [viewModeAll]);
 
   React.useEffect(() => {
-    try {
-      window.localStorage.setItem(viewModeGroupsStorageKey, viewModeGroups);
-    } catch (error) {
-      console.warn("Failed to persist groups view mode:", error);
-    }
+    setPreferenceCookie("viewMode.groups", viewModeGroups);
   }, [viewModeGroups]);
 
   React.useEffect(() => {
-    try {
-      window.localStorage.setItem(rowContentStorageKey, rowContent);
-    } catch (error) {
-      console.warn("Failed to persist row content preferences:", error);
-    }
+    setPreferenceCookie("rowContent", rowContent);
   }, [rowContent]);
 
   React.useEffect(() => {
-    try {
-      window.localStorage.setItem(commandModeStorageKey, commandMode);
-    } catch (error) {
-      console.warn("Failed to persist command mode preferences:", error);
-    }
+    setPreferenceCookie("commandMode", commandMode);
   }, [commandMode]);
 
   React.useEffect(() => {
@@ -495,9 +435,7 @@ export function DashboardContent({
 
         {/* Scrollable Bookmarks Section */}
         <div className="flex-1 min-h-0">
-          <div
-            className={`h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only ${!prefsLoaded ? "invisible" : "visible"}`}
-          >
+          <div className="h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
             <div>
               {viewMode === "folders" ? (
                 <FolderBoard
