@@ -4,6 +4,8 @@ import {
   Add01Icon,
   ArrowDown01Icon,
   ArrowUpRight03Icon,
+  Cancel01Icon,
+  CheckmarkSquare02Icon,
   Delete02Icon,
   Folder01Icon,
   PencilEdit01Icon,
@@ -30,6 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Button as UIButton } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
 import dynamic from "next/dynamic";
@@ -132,6 +135,11 @@ export function GroupMenu({
   > | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<GroupRow | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,12 +191,46 @@ export function GroupMenu({
     setDeleteDialogOpen(true);
   };
 
+  const enterSelectionMode = () => {
+    setSelectionMode(true);
+    setSelectedGroupIds(new Set());
+  };
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedGroupIds(new Set());
+  };
+
+  const toggleSelected = (groupId: string) => {
+    setSelectedGroupIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  };
+
+  const selectedCount = selectedGroupIds.size;
+
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
       onDeleteGroupClick(deleteTarget.id);
     }
     setDeleteDialogOpen(false);
     setDeleteTarget(null);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedCount === 0) return;
+    setBulkDeleteDialogOpen(true);
+  };
+
+  const handleConfirmBulkDelete = () => {
+    if (selectedGroupIds.size === 0) return;
+    Array.from(selectedGroupIds).forEach((id) => onDeleteGroupClick(id));
+    setBulkDeleteDialogOpen(false);
+    exitSelectionMode();
+    setMenuOpen(false);
   };
 
   return (
@@ -223,13 +265,62 @@ export function GroupMenu({
           align="start"
           className="w-56 p-2 animate-in slide-in-from-top-2 duration-200 motion-reduce:animate-none shadow-none"
         >
+          {selectionMode ? (
+            <div className="px-1 pb-2">
+              <div className="rounded-2xl border border-border/60 bg-muted/20 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {selectedCount} selected
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <UIButton
+                      size="sm"
+                      variant="secondary"
+                      className="h-7 w-7 p-0 rounded-4xl font-bold cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        exitSelectionMode();
+                      }}
+                      aria-label="Cancel selection"
+                    >
+                      <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    </UIButton>
+                    <UIButton
+                      size="sm"
+                      variant="destructive"
+                      className="h-7 w-7 p-0 rounded-4xl cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleBulkDelete();
+                      }}
+                      disabled={selectedCount === 0}
+                      aria-label="Delete selected groups"
+                    >
+                      <HugeiconsIcon icon={Delete02Icon} size={14} />
+                    </UIButton>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           <DropdownMenuItem
             className={`group rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${
               activeGroupId === "all"
                 ? "bg-primary/5 text-primary font-bold"
                 : "text-muted-foreground"
             }`}
-            onClick={() => onGroupSelect("all")}
+            onSelect={(event) => {
+              if (!selectionMode) return;
+              event.preventDefault();
+            }}
+            onClick={() => {
+              if (selectionMode) return;
+              onGroupSelect("all");
+              setMenuOpen(false);
+            }}
           >
             <div className="flex items-center gap-3 flex-1 min-w-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5 mt-0.5">
               <HugeiconsIcon icon={Folder01Icon} size={16} strokeWidth={2} />
@@ -347,23 +438,63 @@ export function GroupMenu({
                           ? "bg-primary/5 text-primary font-bold"
                           : "text-muted-foreground"
                       }`}
-                      onSelect={() => onGroupSelect(group.id)}
+                      onSelect={(event) => {
+                        if (!selectionMode) return;
+                        event.preventDefault();
+                      }}
                     >
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-between gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <HugeiconsIcon
-                            icon={GroupIcon}
-                            size={16}
-                            strokeWidth={2}
-                            style={{ color: group.color || undefined }}
-                            className={group.color ? "" : "text-foreground/80"}
-                          />
-                          <span className="truncate">{group.name}</span>
+                      {selectionMode ? (
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleSelected(group.id);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              toggleSelected(group.id);
+                            }
+                          }}
+                          className="flex w-full items-center justify-between gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Checkbox
+                              checked={selectedGroupIds.has(group.id)}
+                              onClick={(event) => event.stopPropagation()}
+                              onCheckedChange={() => {
+                                toggleSelected(group.id);
+                              }}
+                            />
+                            <span className="truncate">{group.name}</span>
+                          </div>
                         </div>
-                      </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onGroupSelect(group.id);
+                            setMenuOpen(false);
+                          }}
+                          className="flex w-full items-center justify-between gap-3 px-3 text-left transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <HugeiconsIcon
+                              icon={GroupIcon}
+                              size={16}
+                              strokeWidth={2}
+                              style={{ color: group.color || undefined }}
+                              className={group.color ? "" : "text-foreground/80"}
+                            />
+                            <span className="truncate">{group.name}</span>
+                          </div>
+                        </button>
+                      )}
                     </DropdownMenuItem>
 
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -374,11 +505,26 @@ export function GroupMenu({
                             className="h-11 w-11 md:h-7 md:w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-foreground transition-colors duration-200"
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`${group.name} options`}
+                            disabled={selectionMode}
                           >
                             <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center" className="w-40">
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              if (!selectionMode) {
+                                enterSelectionMode();
+                                toggleSelected(group.id);
+                              } else {
+                                toggleSelected(group.id);
+                              }
+                            }}
+                            className="gap-2 text-xs rounded-xl cursor-pointer"
+                          >
+                            <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+                            {selectionMode ? "Toggle selection" : "Select groups"}
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => onGroupOpen?.(group.id)}
                             className="gap-2 text-xs rounded-xl cursor-pointer"
@@ -547,6 +693,32 @@ export function GroupMenu({
               variant="destructive"
               className="rounded-4xl cursor-pointer"
               onClick={handleDeleteConfirm}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={(open) => setBulkDeleteDialogOpen(open)}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete selected groups?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete {selectedCount} group{selectedCount === 1 ? "" : "s"} and their bookmarks.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-4xl cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              className="rounded-4xl cursor-pointer"
+              onClick={handleConfirmBulkDelete}
             >
               Delete
             </AlertDialogAction>

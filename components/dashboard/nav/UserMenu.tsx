@@ -4,9 +4,10 @@ import {
   HelpCircleIcon,
   Logout01Icon,
   Settings01Icon,
+  Download02Icon,
   FileImportIcon,
   FileExportIcon,
-  Download02Icon,
+  Wrench01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useState } from "react";
@@ -23,7 +24,6 @@ import {
 import { SettingsDialog } from "../SettingsDialog";
 import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
-import { ThemeSwitcher } from "@/components/landing/ThemeSwitcher";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
 
 interface UserMenuProps {
@@ -31,8 +31,9 @@ interface UserMenuProps {
   initials: string;
   rowContent: "date" | "group";
   onRowContentChange: (value: "date" | "group") => void;
-  onOpenImportDialog: () => void;
-  onOpenExportDialog: () => void;
+  onOpenImportSheet: () => void;
+  onOpenExportSheet: () => void;
+  onOpenDuplicatesSheet: () => void;
 }
 
 export function UserMenu({
@@ -40,8 +41,9 @@ export function UserMenu({
   initials,
   rowContent,
   onRowContentChange,
-  onOpenImportDialog,
-  onOpenExportDialog,
+  onOpenImportSheet,
+  onOpenExportSheet,
+  onOpenDuplicatesSheet,
 }: UserMenuProps) {
   const [open, setOpen] = useState(false);
 
@@ -108,89 +110,6 @@ export function UserMenu({
           </div>
         </div>
         <DropdownMenuSeparator />
-        <div className="px-2 pb-2 space-y-3">
-          <div className="space-y-1.5">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              Data & access
-            </p>
-            <div
-              className="relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1"
-              data-onboarding="import-export"
-            >
-              <button
-                type="button"
-                onClick={() => onOpenImportDialog()}
-                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out cursor-pointer"
-                aria-label="Import bookmarks"
-              >
-                <HugeiconsIcon
-                  icon={FileImportIcon}
-                  className="relative size-3.5 text-secondary-foreground transition duration-200 ease-out group-hover:text-foreground"
-                />
-                <span className="text-secondary-foreground group-hover:text-foreground">
-                  Import
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => onOpenExportDialog()}
-                className="group relative inline-flex h-6 items-center gap-1 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out cursor-pointer"
-                aria-label="Export bookmarks"
-              >
-                <HugeiconsIcon
-                  icon={FileExportIcon}
-                  className="relative size-3.5 text-secondary-foreground transition duration-200 ease-out group-hover:text-foreground"
-                />
-                <span className="text-secondary-foreground group-hover:text-foreground">
-                  Export
-                </span>
-              </button>
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              Row content
-            </p>
-            <div
-              className="relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1"
-              data-onboarding="row-content"
-            >
-              {(
-                [
-                  { value: "date", label: "Date" },
-                  { value: "group", label: "Group" },
-                ] as const
-              ).map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => onRowContentChange(option.value)}
-                  className="group relative h-6 rounded-full px-2 text-[10px] font-medium transition duration-200 ease-out cursor-pointer"
-                >
-                  {rowContent === option.value ? (
-                    <span className="absolute inset-0 rounded-full bg-muted" />
-                  ) : null}
-                  <span
-                    className={`relative transition duration-200 ease-out ${
-                      rowContent === option.value
-                        ? "text-foreground"
-                        : "text-secondary-foreground group-hover:text-foreground"
-                    }`}
-                  >
-                    {option.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              Appearance
-            </p>
-            <ThemeSwitcher />
-          </div>
-        </div>
-        <DropdownMenuSeparator />
 
         <DropdownMenuItem
           data-onboarding="start-onboarding"
@@ -208,14 +127,11 @@ export function UserMenu({
           <HugeiconsIcon icon={HelpCircleIcon} size={16} />
           Start Onboarding
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
 
         <SettingsDialog
           rowContent={rowContent}
           onRowContentChange={onRowContentChange}
           userName={user.name}
-          onOpenImportDialog={onOpenImportDialog}
-          onOpenExportDialog={onOpenExportDialog}
         >
           <DropdownMenuItem
             className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
@@ -225,6 +141,42 @@ export function UserMenu({
             Settings
           </DropdownMenuItem>
         </SettingsDialog>
+
+        <DropdownMenuItem
+          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+          onSelect={(event) => {
+            event.preventDefault();
+            setOpen(false);
+            onOpenImportSheet();
+          }}
+        >
+          <HugeiconsIcon icon={FileImportIcon} size={16} />
+          Import
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+          onSelect={(event) => {
+            event.preventDefault();
+            setOpen(false);
+            onOpenExportSheet();
+          }}
+        >
+          <HugeiconsIcon icon={FileExportIcon} size={16} />
+          Export
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+          onSelect={(event) => {
+            event.preventDefault();
+            setOpen(false);
+            onOpenDuplicatesSheet();
+          }}
+        >
+          <HugeiconsIcon icon={Wrench01Icon} size={16} />
+          Duplicates
+        </DropdownMenuItem>
 
         <ExtensionInstallDialog>
           <DropdownMenuItem
