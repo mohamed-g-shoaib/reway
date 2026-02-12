@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, memo } from "react";
-import TextShimmer from "@/components/ui/text-shimmer";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Favicon } from "./Favicon";
@@ -29,6 +28,7 @@ interface SortableBookmarkProps {
   domain: string;
   status: string;
   favicon?: string;
+  isEnriching?: boolean;
   description?: string;
   createdAt: string;
   groupId: string;
@@ -52,6 +52,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   domain,
   status,
   favicon,
+  isEnriching = false,
   description,
   createdAt,
   groupId,
@@ -222,6 +223,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     url={favicon || ""}
                     domain={domain}
                     title={title}
+                    isEnriching={status === "pending" && isEnriching}
                     className="h-10 w-10"
                   />
                 </a>
@@ -230,13 +232,9 @@ export const SortableBookmark = memo(function SortableBookmark({
               <div className="min-w-0 flex-1">
                 <div className="w-fit max-w-full h-5">
                   {status === "pending" ? (
-                    <TextShimmer
-                      as="span"
-                      className="block truncate text-sm font-semibold"
-                      duration={2.5}
-                    >
+                    <span className="block truncate text-sm font-semibold">
                       {title || "Loading..."}
-                    </TextShimmer>
+                    </span>
                   ) : (
                     <a
                       className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
@@ -267,14 +265,9 @@ export const SortableBookmark = memo(function SortableBookmark({
                 </div>
                 <div className="w-fit max-w-full h-4">
                   {status === "pending" ? (
-                    <TextShimmer
-                      as="span"
-                      className="block truncate text-xs font-medium"
-                      duration={2.5}
-                      delay={0.2}
-                    >
-                      Fetching details...
-                    </TextShimmer>
+                    <span className="block truncate text-xs font-medium text-muted-foreground">
+                      {isEnriching ? "Fetching details..." : "Pending"}
+                    </span>
                   ) : (
                     <a
                       className="block truncate text-xs font-medium cursor-pointer text-muted-foreground group-hover:text-muted-foreground"
@@ -310,14 +303,9 @@ export const SortableBookmark = memo(function SortableBookmark({
             <div className="relative flex shrink-0 items-center min-w-28 md:min-w-48 justify-end">
               {/* Desktop Date: Fades out on hover if not mobile */}
               {status === "pending" ? (
-                <TextShimmer
-                  as="span"
-                  className="text-sm font-medium tabular-nums"
-                  duration={2.5}
-                  delay={0.4}
-                >
-                  Enriching...
-                </TextShimmer>
+                <span className="text-xs font-medium text-muted-foreground tabular-nums">
+                  {isEnriching ? "Enriching..." : "Pending"}
+                </span>
               ) : (
                 <span className="text-xs font-medium text-muted-foreground transition-opacity duration-200 tabular-nums md:block group-hover:opacity-0 max-w-20 truncate text-right">
                   {rowContent === "group"

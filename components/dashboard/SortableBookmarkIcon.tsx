@@ -33,6 +33,7 @@ interface SortableBookmarkIconProps {
   url: string;
   domain: string;
   favicon?: string;
+  isEnriching?: boolean;
   isSelected?: boolean;
   selectionMode?: boolean;
   isSelectionChecked?: boolean;
@@ -49,6 +50,7 @@ export function SortableBookmarkIcon({
   url,
   domain,
   favicon,
+  isEnriching = false,
   isSelected,
   selectionMode = false,
   isSelectionChecked = false,
@@ -201,6 +203,7 @@ export function SortableBookmarkIcon({
                   url={favicon || ""}
                   domain={domain}
                   title={title}
+                  isEnriching={isEnriching}
                   className="h-12 w-12"
                 />
               </a>

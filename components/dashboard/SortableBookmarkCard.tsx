@@ -36,6 +36,7 @@ interface SortableBookmarkCardProps {
   url: string;
   domain: string;
   favicon?: string;
+  isEnriching?: boolean;
   createdAt: string;
   groupId: string;
   rowContent?: "date" | "group";
@@ -57,6 +58,7 @@ export function SortableBookmarkCard({
   url,
   domain,
   favicon,
+  isEnriching = false,
   createdAt,
   groupId,
   rowContent = "date",
@@ -224,6 +226,7 @@ export function SortableBookmarkCard({
                     url={favicon || ""}
                     domain={domain}
                     title={title}
+                    isEnriching={isEnriching}
                     className="h-9 w-9"
                   />
                 </a>
