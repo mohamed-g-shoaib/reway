@@ -139,7 +139,7 @@ export function useCommandHandlers({
             const file = item.getAsFile();
             if (file) {
               e.preventDefault();
-              toast.error("Image link extraction is no longer supported. Paste links as text instead.");
+              toast.error("Pasting images is not supported. Paste text only.");
               return;
             }
           }

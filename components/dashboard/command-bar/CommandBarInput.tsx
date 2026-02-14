@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
 function StatusSpinner() {
@@ -53,17 +52,6 @@ export function CommandBarInput({
             : "ring-1 ring-foreground/8 after:ring-white/5"
         } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate`}
       >
-        <Button
-          type="submit"
-          variant="ghost"
-          size="icon"
-          disabled={mode === "search" || (mode === "add" && isAddBusy)}
-          className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
-          aria-label="Submit"
-        >
-          <span className="text-xs font-semibold">⏎</span>
-        </Button>
-
         <div className="relative flex-1 min-w-0">
           <input
             ref={inputRef}
@@ -83,14 +71,14 @@ export function CommandBarInput({
                   ? ""
                   : "Add a link or search..."
             }
-            className="w-full bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
+            className="w-full bg-transparent p-0 pl-1.5 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
             disabled={mode === "add" && isAddBusy}
             onFocus={() => onFocusChange(true)}
             onBlur={() => onFocusChange(false)}
             aria-label="Search or add bookmarks"
           />
           {mode === "add" && isAddBusy && addStatus ? (
-            <div className="pointer-events-none absolute inset-0 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <div className="pointer-events-none absolute inset-0 flex items-center gap-2 pl-1.5 text-sm font-medium text-muted-foreground">
               <StatusSpinner />
               <span className="truncate">{addStatus}</span>
             </div>
