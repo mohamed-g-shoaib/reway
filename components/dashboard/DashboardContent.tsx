@@ -75,6 +75,7 @@ import {
   createNote,
   deleteNote,
   deleteNotes as deleteNotesAction,
+  restoreNote,
   updateNote,
 } from "@/app/dashboard/actions/notes";
 
@@ -82,6 +83,7 @@ import {
   createTodo,
   deleteTodo,
   deleteTodos as deleteTodosAction,
+  restoreTodo,
   setTodoCompleted,
   setTodosCompleted,
   updateTodo,
@@ -170,6 +172,22 @@ export function DashboardContent({
   const lastDeletedGroupBookmarksRef = React.useRef<BookmarkRow[]>([]);
   const lastBulkDeletedRef = React.useRef<
     { bookmark: BookmarkRow; index: number }[]
+  >([]);
+
+  const lastDeletedNoteRef = React.useRef<{
+    note: NoteRow;
+    index: number;
+  } | null>(null);
+  const lastBulkDeletedNotesRef = React.useRef<
+    { note: NoteRow; index: number }[]
+  >([]);
+
+  const lastDeletedTodoRef = React.useRef<{
+    todo: TodoRow;
+    index: number;
+  } | null>(null);
+  const lastBulkDeletedTodosRef = React.useRef<
+    { todo: TodoRow; index: number }[]
   >([]);
 
   const normalizeGroupName = useCallback((value?: string | null) => {
@@ -521,34 +539,105 @@ export function DashboardContent({
 
   const handleDeleteNote = useCallback(
     async (id: string) => {
-      const prev = notes;
-      setNotes((p) => p.filter((n) => n.id !== id));
+      let deletedNote: NoteRow | undefined;
+      let deletedIndex = -1;
+
+      setNotes((prev) => {
+        deletedIndex = prev.findIndex((n) => n.id === id);
+        deletedNote = prev[deletedIndex];
+        if (deletedNote) {
+          lastDeletedNoteRef.current = { note: deletedNote, index: deletedIndex };
+        }
+        return prev.filter((n) => n.id !== id);
+      });
+
+      if (deletedNote) {
+        toast.error("Note deleted", {
+          action: {
+            label: "Undo",
+            onClick: async () => {
+              const lastDeleted = lastDeletedNoteRef.current;
+              if (!lastDeleted) return;
+              setNotes((prev) => {
+                if (prev.some((n) => n.id === lastDeleted.note.id)) return prev;
+                const next = [...prev];
+                next.splice(
+                  Math.min(lastDeleted.index, next.length),
+                  0,
+                  lastDeleted.note,
+                );
+                return next;
+              });
+              try {
+                await restoreNote(lastDeleted.note);
+              } catch (error) {
+                console.error("Restore note failed:", error);
+                toast.error("Failed to restore note");
+              }
+            },
+          },
+        });
+      }
       try {
         await deleteNote(id);
       } catch (error) {
         console.error("Delete note failed:", error);
         toast.error("Failed to delete note");
-        setNotes(prev);
+        setNotes((prev) => {
+          const deletedFromInitial = initialNotes.find((n) => n.id === id);
+          return deletedFromInitial ? [deletedFromInitial, ...prev] : prev;
+        });
       }
     },
-    [notes],
+    [initialNotes],
   );
 
   const handleDeleteNotes = useCallback(
     async (ids: string[]) => {
       if (!ids || ids.length === 0) return;
       const idSet = new Set(ids);
-      const prev = notes;
-      setNotes((p) => p.filter((n) => !idSet.has(n.id)));
+
+      const deletedNotes = notes
+        .map((note, index) => ({ note, index }))
+        .filter(({ note }) => idSet.has(note.id));
+      lastBulkDeletedNotesRef.current = deletedNotes;
+
+      setNotes((prev) => prev.filter((n) => !idSet.has(n.id)));
+
+      toast.error(`Note${ids.length > 1 ? "s" : ""} deleted`, {
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            const toRestore = lastBulkDeletedNotesRef.current;
+            if (toRestore.length === 0) return;
+            setNotes((prev) => {
+              const next = [...prev];
+              const sorted = toRestore.toSorted((a, b) => a.index - b.index);
+              sorted.forEach(({ note, index }) => {
+                if (next.some((n) => n.id === note.id)) return;
+                next.splice(Math.min(index, next.length), 0, note);
+              });
+              return next;
+            });
+            try {
+              await Promise.all(toRestore.map(({ note }) => restoreNote(note)));
+            } catch (error) {
+              console.error("Restore notes failed:", error);
+              toast.error("Failed to restore notes");
+            }
+          },
+        },
+      });
+
       try {
         await deleteNotesAction(ids);
       } catch (error) {
         console.error("Bulk delete notes failed:", error);
         toast.error("Failed to delete notes");
-        setNotes(prev);
+        setNotes(initialNotes);
       }
     },
-    [notes],
+    [initialNotes, notes],
   );
 
   const handleCreateTodo = useCallback(
@@ -639,34 +728,105 @@ export function DashboardContent({
 
   const handleDeleteTodo = useCallback(
     async (id: string) => {
-      const prev = todos;
-      setTodos((p) => p.filter((t) => t.id !== id));
+      let deletedTodo: TodoRow | undefined;
+      let deletedIndex = -1;
+
+      setTodos((prev) => {
+        deletedIndex = prev.findIndex((t) => t.id === id);
+        deletedTodo = prev[deletedIndex];
+        if (deletedTodo) {
+          lastDeletedTodoRef.current = { todo: deletedTodo, index: deletedIndex };
+        }
+        return prev.filter((t) => t.id !== id);
+      });
+
+      if (deletedTodo) {
+        toast.error("Todo deleted", {
+          action: {
+            label: "Undo",
+            onClick: async () => {
+              const lastDeleted = lastDeletedTodoRef.current;
+              if (!lastDeleted) return;
+              setTodos((prev) => {
+                if (prev.some((t) => t.id === lastDeleted.todo.id)) return prev;
+                const next = [...prev];
+                next.splice(
+                  Math.min(lastDeleted.index, next.length),
+                  0,
+                  lastDeleted.todo,
+                );
+                return next;
+              });
+              try {
+                await restoreTodo(lastDeleted.todo);
+              } catch (error) {
+                console.error("Restore todo failed:", error);
+                toast.error("Failed to restore todo");
+              }
+            },
+          },
+        });
+      }
       try {
         await deleteTodo(id);
       } catch (error) {
         console.error("Delete todo failed:", error);
         toast.error("Failed to delete todo");
-        setTodos(prev);
+        setTodos((prev) => {
+          const deletedFromInitial = initialTodos.find((t) => t.id === id);
+          return deletedFromInitial ? [deletedFromInitial, ...prev] : prev;
+        });
       }
     },
-    [todos],
+    [initialTodos],
   );
 
   const handleDeleteTodos = useCallback(
     async (ids: string[]) => {
       if (!ids || ids.length === 0) return;
       const idSet = new Set(ids);
-      const prev = todos;
-      setTodos((p) => p.filter((t) => !idSet.has(t.id)));
+
+      const deletedTodos = todos
+        .map((todo, index) => ({ todo, index }))
+        .filter(({ todo }) => idSet.has(todo.id));
+      lastBulkDeletedTodosRef.current = deletedTodos;
+
+      setTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
+
+      toast.error(`Todo${ids.length > 1 ? "s" : ""} deleted`, {
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            const toRestore = lastBulkDeletedTodosRef.current;
+            if (toRestore.length === 0) return;
+            setTodos((prev) => {
+              const next = [...prev];
+              const sorted = toRestore.toSorted((a, b) => a.index - b.index);
+              sorted.forEach(({ todo, index }) => {
+                if (next.some((t) => t.id === todo.id)) return;
+                next.splice(Math.min(index, next.length), 0, todo);
+              });
+              return next;
+            });
+            try {
+              await Promise.all(toRestore.map(({ todo }) => restoreTodo(todo)));
+            } catch (error) {
+              console.error("Restore todos failed:", error);
+              toast.error("Failed to restore todos");
+            }
+          },
+        },
+      });
+
       try {
         await deleteTodosAction(ids);
       } catch (error) {
         console.error("Bulk delete todos failed:", error);
         toast.error("Failed to delete todos");
-        setTodos(prev);
+        setTodos(initialTodos);
       }
     },
-    [todos],
+    [initialTodos, todos],
   );
 
   const handleSetTodosCompleted = useCallback(
