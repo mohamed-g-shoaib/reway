@@ -49,12 +49,14 @@ Reway solves these problems by providing a unified platform with enhanced organi
 ### Capture
 
 - Save the current tab from the browser extension.
+- Smart link extraction from pasted text (regex-based) to quickly add multiple bookmarks.
 - Extract and enrich link metadata (title, favicon, preview image) for cleaner libraries.
 - Duplicate detection and clearer duplicate actions (including allowing duplicates across different groups).
 
 ### Organize
 
 - Groups with icons/colors and an 18-character name limit with inline character counter.
+- Group reordering with drag and drop.
 - Optimistic group deletion with cascade removal of bookmarks plus undo.
 - Context menus and improved sidebar controls for fast group operations.
 
@@ -63,6 +65,16 @@ Reway solves these problems by providing a unified platform with enhanced organi
 - Keyboard-first navigation and reliable key handling (including Space/Enter behavior).
 - Multiple view modes (list/cards/icons) tuned for different density preferences.
 - Bulk selection workflows and “open selected” via extension, with safe staggered popup fallback.
+
+### Personalization
+
+- Theme system with multiple palette themes and light/dark/system modes.
+- Cookie-based dashboard preferences.
+
+### Notes and Todos
+
+- Optional Notes & Todos sidebar on desktop.
+- Restore functionality for notes and todos.
 
 ### UX, motion, and accessibility
 
@@ -185,7 +197,6 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your_actual_key_here
-GOOGLE_GENERATION_AI_API_KEY=your_actual_key_here
 ```
 
 4. Database setup:

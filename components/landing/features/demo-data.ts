@@ -1,8 +1,8 @@
 export const features = [
   {
-    title: "AI Link Extraction",
+    title: "Smart Link Extraction",
     description:
-      "Drop in messy notes or screenshots. Reway pulls every link, title, and preview without extra steps.",
+      "Drop in messy notes and Reway pulls every link fast, so you can capture multiple bookmarks in one go.",
     demo: "extract",
   },
   {

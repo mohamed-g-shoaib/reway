@@ -85,30 +85,6 @@ export type Database = {
           },
         ];
       };
-      ai_daily_usage: {
-        Row: {
-          user_id: string;
-          action: string;
-          day: string;
-          used: number;
-          updated_at: string;
-        };
-        Insert: {
-          user_id: string;
-          action: string;
-          day?: string;
-          used?: number;
-          updated_at?: string;
-        };
-        Update: {
-          user_id?: string;
-          action?: string;
-          day?: string;
-          used?: number;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
       groups: {
         Row: {
           color: string | null;
@@ -231,13 +207,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      enforce_ai_daily_limit: {
-        Args: {
-          action_name: string;
-          daily_limit: number;
-        };
-        Returns: number;
-      };
+      [_ in never]: never;
     };
     Enums: {
       [_ in never]: never;

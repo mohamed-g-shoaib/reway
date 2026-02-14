@@ -64,21 +64,21 @@ export default async function PrivacyPage() {
               </h2>
               <p className="text-muted-foreground leading-relaxed">
                 We use your data to provide and improve our services,
-                specifically for extracting metadata from your saved links using
-                AI and organizing your library. We do not sell your personal
+                specifically for extracting metadata from your saved links and
+                organizing your library. We do not sell your personal
                 information to third parties.
               </p>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
-                3. AI Processing
+                3. Metadata Processing
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                When you save a link, our AI models process the public content
-                of that URL to generate titles, descriptions, and categories.
-                This processing is automated and focused solely on providing
-                metadata for your personal use.
+                When you save a link, we may fetch public page metadata (such as
+                title and description) to keep your library readable and
+                searchable. This processing is automated and focused solely on
+                enriching your saved links for your personal use.
               </p>
             </section>
 

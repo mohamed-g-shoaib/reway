@@ -10,14 +10,14 @@ export const metadata: Metadata = {
     template: "%s | Reway",
   },
   description:
-    "Reway turns noisy links into a structured library. Capture anything in seconds, let AI extract what matters, and move fast with search, groups, and view modes that match the way you think.",
+    "Reway turns noisy links into a structured library. Capture links in seconds, extract what matters from pasted text, and move fast with search, groups, and view modes that match the way you think.",
   alternates: {
     canonical: "https://reway-app.vercel.app/",
   },
   openGraph: {
     title: "Reway | A Calm Home For Everything You Save",
     description:
-      "Reway turns noisy links into a structured library. Capture anything in seconds, let AI extract what matters, and move fast with search, groups, and view modes that match the way you think.",
+      "Reway turns noisy links into a structured library. Capture links in seconds, extract what matters from pasted text, and move fast with search, groups, and view modes that match the way you think.",
     url: "https://reway-app.vercel.app/",
     siteName: "Reway",
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Reway | A Calm Home For Everything You Save",
     description:
-      "Reway turns noisy links into a structured library. Capture anything in seconds, let AI extract what matters, and move fast with search, groups, and view modes that match the way you think.",
+      "Reway turns noisy links into a structured library. Capture links in seconds, extract what matters from pasted text, and move fast with search, groups, and view modes that match the way you think.",
   },
   icons: {
     icon: "/favicon.ico",

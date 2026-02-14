@@ -62,9 +62,9 @@ export default async function TermsPage() {
                 2. Description of Service
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Reway is an AI-powered personal bookmarking and research tool.
-                We provide features for capturing links, extracting metadata
-                with AI, and organizing knowledge in a structured library.
+                Reway is a personal bookmarking and research tool. We provide
+                features for capturing links, extracting metadata, and
+                organizing knowledge in a structured library.
               </p>
             </section>
 

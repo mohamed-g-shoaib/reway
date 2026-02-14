@@ -129,9 +129,9 @@ export function HeroSection() {
             A Calm Home For Everything You Save.
           </h1>
           <p className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-            Reway turns noisy links into a structured library. Capture anything
-            in seconds, let AI extract what matters, and move fast with search,
-            groups, and view modes that match the way you think.
+            Reway turns noisy links into a structured library. Capture links in
+            seconds, extract what matters from pasted text, and move fast with
+            search, groups, and view modes that match the way you think.
           </p>
 
           <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 pt-1">
@@ -205,7 +205,7 @@ export function HeroSection() {
                   <span className="flex size-7 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-muted/40 text-foreground">
                     <HugeiconsIcon icon={Add01Icon} size={14} />
                   </span>
-                  Insert a link, image, or just search...
+                  Insert a link, paste a list of links, or just search...
                   <div className="ml-auto hidden items-center text-[10px] text-muted-foreground sm:flex">
                     <Kbd className="h-4.5 min-w-4.5 px-1.5 text-[9px]">
                       CtrlK

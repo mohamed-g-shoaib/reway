@@ -82,7 +82,7 @@ export function LandingFooter() {
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
               Built for research, inspiration, and building. Reway sits at the
-              intersection of calm organization and powerful AI extraction.
+              intersection of calm organization and powerful workflows.
             </p>
           </div>
 

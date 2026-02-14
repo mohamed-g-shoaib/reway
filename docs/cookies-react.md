@@ -2,13 +2,13 @@
 
 [![logo](/logo.svg)](/)[
 
-CodeParrot AI
+CodeParrot
 
 ](/)
 
 ![menu](/_next/static/media/hamburger.4a24e284.svg)
 
-[Start for FreeStart for Free![Stars Icon](/_next/static/media/stars-2.f9c117b8.svg)](https://marketplace.visualstudio.com/items?itemName=CodeParrot-ai.codeParrot)
+[Start for FreeStart for Free![Stars Icon](/_next/static/media/stars-2.f9c117b8.svg)](https://marketplace.visualstudio.com/)
 
 ![Stars](/_next/static/media/stars.f74670e7.svg)
 
@@ -319,9 +319,9 @@ Back to top
 ![Code Icon](/_next/static/media/code.890d192c.svg)
 
 Fasttrack Frontend  
-Development using CodeParrot AI
+Development using CodeParrot
 
-[Let’s get startedLet’s get started![Stars Icon](/_next/static/media/stars-1.87192ba7.svg)](https://marketplace.visualstudio.com/items?itemName=CodeParrot-ai.codeParrot)
+[Let’s get startedLet’s get started![Stars Icon](/_next/static/media/stars-1.87192ba7.svg)](https://marketplace.visualstudio.com/)
 
 ![Background](/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fbg.9d37294b.png&w=3840&q=75)
 

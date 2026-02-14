@@ -7,7 +7,6 @@ import {
   Sun01Icon,
   ComputerIcon,
   Delete02Icon,
-  Wrench01Icon,
   ViewSidebarRightIcon,
   ColorsIcon,
 } from "@hugeicons/core-free-icons";
@@ -46,7 +45,6 @@ import {
 } from "@/components/ui/select";
 import { useTheme } from "next-themes";
 import { deleteAccount } from "@/app/dashboard/actions/account";
-import { getAiDailyUsage } from "@/app/dashboard/actions/extract";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { DASHBOARD_THEMES, type DashboardPaletteTheme } from "@/lib/themes";
@@ -74,10 +72,6 @@ export function SettingsDialog({
 }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [themeSelectOpen, setThemeSelectOpen] = useState(false);
-  const [aiUsage, setAiUsage] = useState<{
-    used: number;
-    limit: number;
-  } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmValue, setConfirmValue] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -119,27 +113,6 @@ export function SettingsDialog({
     };
   }, []);
 
-  useEffect(() => {
-    if (!open) return;
-
-    let cancelled = false;
-    setAiUsage(null);
-
-    getAiDailyUsage()
-      .then((data) => {
-        if (cancelled) return;
-        setAiUsage(data);
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.error("Failed to load AI usage:", error);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
-
   const handleDeleteAccount = async (
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
@@ -177,30 +150,6 @@ export function SettingsDialog({
         </SheetHeader>
 
         <SheetBody className="space-y-5">
-          <SheetSection>
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <HugeiconsIcon icon={Wrench01Icon} size={16} />
-              AI
-            </h3>
-            <div className="rounded-2xl border border-border/60 bg-muted/10 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <div className="space-y-0.5">
-                  <div className="text-xs font-semibold text-foreground">
-                    Daily usage
-                  </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {aiUsage
-                      ? `${aiUsage.used} / ${aiUsage.limit}`
-                      : "Loading..."}
-                  </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Resets daily
-                  </div>
-                </div>
-              </div>
-            </div>
-          </SheetSection>
-
           <div data-onboarding="settings-controls" className="space-y-5">
             <SheetSection>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">

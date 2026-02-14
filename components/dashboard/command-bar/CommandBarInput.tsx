@@ -74,7 +74,7 @@ export function CommandBarInput({
           className="hidden"
           accept="image/*"
           aria-label="Upload image file"
-          title="Upload image file to extract bookmarks"
+          title="Upload image file"
         />
         <TooltipProvider>
           <Tooltip>
@@ -114,7 +114,7 @@ export function CommandBarInput({
                 ? "Search bookmarks..."
                 : mode === "add" && isAddBusy && addStatus
                   ? ""
-                  : "Add a link, image, or search..."
+                  : "Add a link or search..."
             }
             className="w-full bg-transparent p-0 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
             disabled={mode === "add" && isAddBusy}

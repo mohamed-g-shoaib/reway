@@ -8,7 +8,6 @@ import {
   addBookmark,
   enrichCreatedBookmark,
 } from "@/app/dashboard/actions/bookmarks";
-import { extractLinks } from "@/app/dashboard/actions/extract";
 import { extractUrlsFromText, isUrl } from "./helpers";
 import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
 
@@ -140,32 +139,7 @@ export function useCommandHandlers({
             const file = item.getAsFile();
             if (file) {
               e.preventDefault();
-              setAddStatus("Extracting links from image...", true);
-              const reader = new FileReader();
-              reader.readAsDataURL(file);
-              reader.onload = async () => {
-                try {
-                  const base64 = reader.result as string;
-                  const base64Data = base64.split(",")[1];
-                  try {
-                    const urls = await extractLinks(base64Data, true);
-                    if (urls.length > 0) {
-                      setAddStatus("Adding links from image...", true);
-                      await processUrls(urls);
-                    } else {
-                      toast.error("No links found in the image");
-                    }
-                  } catch (error) {
-                    const message =
-                      error instanceof Error
-                        ? error.message
-                        : "Failed to extract links from image";
-                    toast.error(message);
-                  }
-                } finally {
-                  setAddStatus(null, false);
-                }
-              };
+              toast.error("Image link extraction is no longer supported. Paste links as text instead.");
               return;
             }
           }
@@ -207,38 +181,8 @@ export function useCommandHandlers({
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) {
-        try {
-          setAddStatus("Extracting links from image...", true);
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = async () => {
-            try {
-              const base64 = reader.result as string;
-              const base64Data = base64.split(",")[1];
-              try {
-                const urls = await extractLinks(base64Data, true);
-                if (urls.length > 0) {
-                  setAddStatus("Adding links from image...", true);
-                  await processUrls(urls);
-                } else {
-                  toast.error("No links found in the image");
-                }
-              } catch (error) {
-                const message =
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to extract links from image";
-                toast.error(message);
-              }
-            } finally {
-              setAddStatus(null, false);
-            }
-          };
-        } catch (error) {
-          console.error("Image processing failed:", error);
-          toast.error("Failed to process image");
-          setAddStatus(null, false);
-        }
+        toast.error("Image link extraction is no longer supported. Paste links as text instead.");
+        e.target.value = "";
       }
     },
     [processUrls, setAddStatus],
