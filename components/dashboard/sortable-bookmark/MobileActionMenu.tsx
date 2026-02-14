@@ -67,7 +67,7 @@ export function MobileActionMenu({
           onPointerDown={(e) => e.stopPropagation()}
         >
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+            className="rounded-xl flex items-center gap-2 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
@@ -81,7 +81,7 @@ export function MobileActionMenu({
             <HugeiconsIcon icon={PencilEdit01Icon} size={16} /> Edit
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+            className="rounded-xl flex items-center gap-2 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onCopyLink();
@@ -100,7 +100,7 @@ export function MobileActionMenu({
             {isCopied ? "Copied!" : "Copy Link"}
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+            className="rounded-xl flex items-center gap-2 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onOpen();
@@ -115,7 +115,7 @@ export function MobileActionMenu({
           </DropdownMenuItem>
           {showBulkSelect && onBulkSelect ? (
             <DropdownMenuItem
-              className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5"
+              className="rounded-xl flex items-center gap-2 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 setOpen(false);
@@ -132,7 +132,8 @@ export function MobileActionMenu({
             </DropdownMenuItem>
           ) : null}
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer font-medium text-destructive focus:bg-destructive/5 focus:text-destructive"
+            variant="destructive"
+            className="rounded-xl flex items-center gap-2 cursor-pointer font-medium"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();

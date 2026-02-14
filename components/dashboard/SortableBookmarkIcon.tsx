@@ -147,7 +147,7 @@ export function SortableBookmarkIcon({
                   event.stopPropagation();
                   onToggleSelection?.(id);
                 }}
-                className="size-12 flex items-center justify-center rounded-2xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-transform duration-150"
+                className="size-12 flex items-center justify-center rounded-2xl border border-border/50 hover:border-border/70 hover:bg-muted/40 transition-transform duration-150"
                 aria-label={
                   isSelectionChecked ? "Deselect bookmark" : "Select bookmark"
                 }
@@ -213,7 +213,7 @@ export function SortableBookmarkIcon({
               </a>
             )}
             <a
-              className="text-xs font-semibold text-foreground truncate w-full block cursor-pointer hover:text-primary"
+              className="text-xs font-semibold text-foreground truncate w-full block cursor-pointer hover:text-primary/90"
               style={{ textDecoration: "none" }}
               href={url}
               target="_blank"

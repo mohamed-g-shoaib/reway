@@ -43,7 +43,6 @@ interface SortableBookmarkProps {
   isSelectionChecked?: boolean;
   onToggleSelection?: (id: string) => void;
   onEnterSelectionMode?: () => void;
-  dragDimmed?: boolean;
 }
 
 export const SortableBookmark = memo(function SortableBookmark({
@@ -68,7 +67,6 @@ export const SortableBookmark = memo(function SortableBookmark({
   isSelectionChecked = false,
   onToggleSelection,
   onEnterSelectionMode,
-  dragDimmed = false,
 }: SortableBookmarkProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -147,9 +145,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                 : selectionMode
                   ? "hover:bg-muted/50 cursor-pointer"
                   : "hover:bg-muted/50 cursor-grab active:cursor-grabbing"
-            } ${dragStyle} ${
-              dragDimmed ? "opacity-40 saturate-0" : ""
-            } ${isDragging ? "opacity-0" : "opacity-100"}`}
+            } ${dragStyle} ${isDragging ? "opacity-0" : "opacity-100"}`}
             style={{ ...style, contentVisibility: "auto" }}
             {...attributes}
             {...(selectionMode ? {} : listeners)}
