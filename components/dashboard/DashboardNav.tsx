@@ -17,6 +17,7 @@ import { UserMenu } from "./nav/UserMenu";
 import { GroupMenu } from "./nav/GroupMenu";
 import type { User } from "./nav/types";
 import type { BookmarkRow } from "@/lib/supabase/queries";
+import type { DashboardPaletteTheme } from "@/lib/themes";
 
 interface DashboardNavProps {
   user: User;
@@ -43,6 +44,8 @@ interface DashboardNavProps {
   setRowContent: (value: "date" | "group") => void;
   showNotesTodos: boolean;
   setShowNotesTodos: (value: boolean) => void;
+  paletteTheme: DashboardPaletteTheme;
+  setPaletteTheme: (value: DashboardPaletteTheme) => void;
   viewMode: "list" | "card" | "icon" | "folders";
   setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
   exportGroupOptions: string[];
@@ -96,6 +99,8 @@ export function DashboardNav({
   setRowContent,
   showNotesTodos,
   setShowNotesTodos,
+  paletteTheme,
+  setPaletteTheme,
   viewMode,
   setViewMode,
   exportGroupOptions,
@@ -367,6 +372,8 @@ export function DashboardNav({
               onRowContentChange={setRowContent}
               showNotesTodos={showNotesTodos}
               onShowNotesTodosChange={setShowNotesTodos}
+              paletteTheme={paletteTheme}
+              onPaletteThemeChange={setPaletteTheme}
               onOpenImportSheet={handleOpenImportDialog}
               onOpenExportSheet={handleOpenExportDialog}
               onOpenDuplicatesSheet={handleOpenDuplicatesSheet}

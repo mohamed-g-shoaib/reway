@@ -25,6 +25,7 @@ import { SettingsDialog } from "../SettingsDialog";
 import { signOut } from "@/app/dashboard/actions/auth";
 import type { User } from "./types";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
+import type { DashboardPaletteTheme } from "@/lib/themes";
 
 interface UserMenuProps {
   user: User;
@@ -33,6 +34,8 @@ interface UserMenuProps {
   onRowContentChange: (value: "date" | "group") => void;
   showNotesTodos: boolean;
   onShowNotesTodosChange: (value: boolean) => void;
+  paletteTheme: DashboardPaletteTheme;
+  onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
   onOpenImportSheet: () => void;
   onOpenExportSheet: () => void;
   onOpenDuplicatesSheet: () => void;
@@ -45,6 +48,8 @@ export function UserMenu({
   onRowContentChange,
   showNotesTodos,
   onShowNotesTodosChange,
+  paletteTheme,
+  onPaletteThemeChange,
   onOpenImportSheet,
   onOpenExportSheet,
   onOpenDuplicatesSheet,
@@ -69,11 +74,12 @@ export function UserMenu({
       <DropdownMenuItem
         asChild
         onSelect={(event) => event.preventDefault()}
-        className="rounded-xl flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/5 focus:text-destructive w-full py-2"
+        variant="destructive"
+        className="rounded-xl flex items-center gap-2 cursor-pointer w-full py-2"
       >
         <button
           type="submit"
-          className="w-full flex items-center gap-2"
+          className="w-full text-left"
           disabled={pending}
           aria-disabled={pending ? "true" : "false"}
         >
@@ -85,119 +91,129 @@ export function UserMenu({
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          data-onboarding="user-menu"
-          className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
+    <>
+      <SettingsDialog
+        showNotesTodos={showNotesTodos}
+        onShowNotesTodosChange={onShowNotesTodosChange}
+        rowContent={rowContent}
+        onRowContentChange={onRowContentChange}
+        userName={user.name}
+        paletteTheme={paletteTheme}
+        onPaletteThemeChange={onPaletteThemeChange}
+      />
+
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            data-onboarding="user-menu"
+            className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
+          >
+            <Avatar className="h-8 w-8 transition-transform">
+              <AvatarImage src={user.avatar_url} alt={user.name} />
+              <AvatarFallback className="bg-linear-to-br from-pink-500 to-rose-500 text-white font-semibold text-xs transition-transform">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          data-onboarding="user-menu-content"
+          className="w-56 rounded-2xl p-2 ring-1 ring-foreground/8 animate-in slide-in-from-top-2 duration-200 motion-reduce:animate-none after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
         >
-          <Avatar className="h-8 w-8 transition-transform">
-            <AvatarImage src={user.avatar_url} alt={user.name} />
-            <AvatarFallback className="bg-linear-to-br from-pink-500 to-rose-500 text-white font-semibold text-xs transition-transform">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        data-onboarding="user-menu-content"
-        className="w-56 rounded-2xl p-2 ring-1 ring-foreground/8 animate-in slide-in-from-top-2 duration-200 motion-reduce:animate-none after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
-      >
-        <div className="px-2 py-1.5 font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
+          <div className="px-2 py-1.5 font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.email}
+              </p>
+            </div>
           </div>
-        </div>
-        <DropdownMenuSeparator />
+          <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          data-onboarding="start-onboarding"
-          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-          onSelect={(event) => {
-            event.preventDefault();
-            setOpen(false);
-            window.setTimeout(() => {
-              window.dispatchEvent(new CustomEvent("reway:start-onboarding"));
-            }, 50);
-          }}
-        >
-          <HugeiconsIcon icon={HelpCircleIcon} size={16} />
-          Start Onboarding
-        </DropdownMenuItem>
-
-        <SettingsDialog
-          showNotesTodos={showNotesTodos}
-          onShowNotesTodosChange={onShowNotesTodosChange}
-          rowContent={rowContent}
-          onRowContentChange={onRowContentChange}
-          userName={user.name}
-        >
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-            onSelect={(event) => event.preventDefault()}
+            data-onboarding="start-onboarding"
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-muted focus:text-foreground font-medium py-2"
+            onSelect={(event) => {
+              event.preventDefault();
+              setOpen(false);
+              window.setTimeout(() => {
+                window.dispatchEvent(new CustomEvent("reway:start-onboarding"));
+              }, 50);
+            }}
+          >
+            <HugeiconsIcon icon={HelpCircleIcon} size={16} />
+            Start Onboarding
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-muted focus:text-foreground font-medium py-2"
+            onSelect={(event) => {
+              event.preventDefault();
+              setOpen(false);
+              window.setTimeout(() => {
+                window.dispatchEvent(new CustomEvent("reway:open-settings"));
+              }, 50);
+            }}
           >
             <HugeiconsIcon icon={Settings01Icon} size={16} />
             Settings
           </DropdownMenuItem>
-        </SettingsDialog>
 
-        <div data-onboarding="import-export">
+          <div data-onboarding="import-export">
+            <DropdownMenuItem
+              className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-muted focus:text-foreground font-medium py-2"
+              onSelect={(event) => {
+                event.preventDefault();
+                setOpen(false);
+                onOpenImportSheet();
+              }}
+            >
+              <HugeiconsIcon icon={FileImportIcon} size={16} />
+              Import
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-muted focus:text-foreground font-medium py-2"
+              onSelect={(event) => {
+                event.preventDefault();
+                setOpen(false);
+                onOpenExportSheet();
+              }}
+            >
+              <HugeiconsIcon icon={FileExportIcon} size={16} />
+              Export
+            </DropdownMenuItem>
+          </div>
+
           <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
+            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-muted focus:text-foreground font-medium py-2"
             onSelect={(event) => {
               event.preventDefault();
               setOpen(false);
-              onOpenImportSheet();
+              onOpenDuplicatesSheet();
             }}
           >
-            <HugeiconsIcon icon={FileImportIcon} size={16} />
-            Import
+            <HugeiconsIcon icon={Wrench01Icon} size={16} />
+            Duplicates
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-            onSelect={(event) => {
-              event.preventDefault();
-              setOpen(false);
-              onOpenExportSheet();
-            }}
-          >
-            <HugeiconsIcon icon={FileExportIcon} size={16} />
-            Export
-          </DropdownMenuItem>
-        </div>
-
-        <DropdownMenuItem
-          className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-          onSelect={(event) => {
-            event.preventDefault();
-            setOpen(false);
-            onOpenDuplicatesSheet();
-          }}
-        >
-          <HugeiconsIcon icon={Wrench01Icon} size={16} />
-          Duplicates
-        </DropdownMenuItem>
-
-        <ExtensionInstallDialog>
-          <DropdownMenuItem
-            data-onboarding="extension"
-            className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-primary/5 font-medium py-2"
-            onSelect={(event) => event.preventDefault()}
-          >
-            <HugeiconsIcon icon={Download02Icon} size={16} />
-            Download Extension
-          </DropdownMenuItem>
-        </ExtensionInstallDialog>
-        <form action={signOut}>
-          <LogoutItem />
-        </form>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <ExtensionInstallDialog>
+            <DropdownMenuItem
+              data-onboarding="extension"
+              className="rounded-xl flex items-center gap-2 cursor-pointer focus:bg-muted focus:text-foreground font-medium py-2"
+              onSelect={(event) => event.preventDefault()}
+            >
+              <HugeiconsIcon icon={Download02Icon} size={16} />
+              Download Extension
+            </DropdownMenuItem>
+          </ExtensionInstallDialog>
+          <form action={signOut}>
+            <LogoutItem />
+          </form>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 }

@@ -80,7 +80,7 @@ export function ViewModeControls({
         >
           <DropdownMenuItem
             className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "list" ? "bg-primary/5 text-primary font-medium" : ""
+              viewMode === "list" ? "bg-muted text-foreground font-medium" : ""
             }`}
             onClick={() => setViewMode("list")}
           >
@@ -89,7 +89,7 @@ export function ViewModeControls({
           </DropdownMenuItem>
           <DropdownMenuItem
             className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "card" ? "bg-primary/5 text-primary font-medium" : ""
+              viewMode === "card" ? "bg-muted text-foreground font-medium" : ""
             }`}
             onClick={() => setViewMode("card")}
           >
@@ -98,7 +98,7 @@ export function ViewModeControls({
           </DropdownMenuItem>
           <DropdownMenuItem
             className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "icon" ? "bg-primary/5 text-primary font-medium" : ""
+              viewMode === "icon" ? "bg-muted text-foreground font-medium" : ""
             }`}
             onClick={() => setViewMode("icon")}
           >
@@ -108,7 +108,7 @@ export function ViewModeControls({
           <DropdownMenuItem
             className={`rounded-lg flex items-center gap-2 cursor-pointer ${
               viewMode === "folders"
-                ? "bg-primary/5 text-primary font-medium"
+                ? "bg-muted text-foreground font-medium"
                 : ""
             }`}
             onClick={() => setViewMode("folders")}

@@ -263,6 +263,7 @@ export function GroupMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
+          data-onboarding="groups-mobile-content"
           className="w-56 p-2 animate-in slide-in-from-top-2 duration-200 motion-reduce:animate-none shadow-none"
         >
           {selectionMode ? (
@@ -309,7 +310,7 @@ export function GroupMenu({
           <DropdownMenuItem
             className={`group rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 ${
               activeGroupId === "all"
-                ? "bg-primary/5 text-primary font-bold"
+                ? "bg-muted text-foreground font-bold"
                 : "text-muted-foreground"
             }`}
             onSelect={(event) => {
@@ -358,7 +359,7 @@ export function GroupMenu({
                         >
                           <button
                             type="button"
-                            className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
+                            className="flex items-center justify-center h-8 w-8 rounded-xl bg-muted/40 hover:bg-muted/60"
                             aria-label="Select group icon"
                           >
                             <HugeiconsIcon
@@ -435,7 +436,7 @@ export function GroupMenu({
                       asChild
                       className={`group flex-1 cursor-pointer py-2 pr-20 ${
                         activeGroupId === group.id
-                          ? "bg-primary/5 text-primary font-bold"
+                          ? "bg-muted text-foreground font-bold"
                           : "text-muted-foreground"
                       }`}
                       onSelect={(event) => {
@@ -502,7 +503,7 @@ export function GroupMenu({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className="h-11 w-11 md:h-7 md:w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-foreground transition-colors duration-200"
+                            className="h-11 w-11 md:h-7 md:w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-primary/90 transition-colors duration-200"
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`${group.name} options`}
                             disabled={selectionMode}
@@ -551,7 +552,8 @@ export function GroupMenu({
                             onSelect={() => {
                               openDeleteDialog(group);
                             }}
-                            className="gap-2 text-xs rounded-xl cursor-pointer text-destructive/80 focus:text-destructive"
+                            variant="destructive"
+                            className="gap-2 text-xs rounded-xl cursor-pointer"
                           >
                             <HugeiconsIcon icon={Delete02Icon} size={14} />
                             Delete group
@@ -581,7 +583,7 @@ export function GroupMenu({
                 >
                   <button
                     type="button"
-                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-primary/10 hover:bg-primary/20"
+                    className="flex items-center justify-center h-8 w-8 rounded-xl bg-muted/40 hover:bg-muted/60"
                     aria-label="Select group icon"
                   >
                     <HugeiconsIcon
@@ -648,7 +650,7 @@ export function GroupMenu({
           ) : (
             <DropdownMenuItem
               data-onboarding="create-group-mobile"
-              className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center justify-between gap-3 py-2"
+              className="rounded-xl text-primary font-medium cursor-pointer flex items-center justify-between gap-3 py-2"
               onSelect={(e) => {
                 e.preventDefault();
                 setIsInlineCreating(true);
