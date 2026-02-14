@@ -33,6 +33,7 @@ export function TodoRow({
   onToggleCompleted,
   onEdit,
   onDelete,
+  showActions = true,
 }: {
   todo: TodoRowType;
   expanded: boolean;
@@ -44,14 +45,13 @@ export function TodoRow({
   onToggleCompleted: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  showActions?: boolean;
 }) {
   const priority = normalizePriority(todo.priority);
   const pCfg = priorityConfig[priority];
 
-  return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
+  const Row = (
+    <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
           {selectionMode ? (
             <div
               role="button"
@@ -84,7 +84,7 @@ export function TodoRow({
                     todo.completed ? "line-through opacity-60" : "",
                     expanded
                       ? "whitespace-pre-wrap wrap-break-word"
-                      : "truncate max-w-32",
+                      : "truncate",
                   )}
                 >
                   {todo.text}
@@ -122,7 +122,7 @@ export function TodoRow({
                     todo.completed ? "line-through opacity-60" : "",
                     expanded
                       ? "whitespace-pre-wrap wrap-break-word"
-                      : "truncate max-w-32",
+                      : "truncate",
                   )}
                 >
                   {todo.text}
@@ -131,61 +131,71 @@ export function TodoRow({
             </div>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
-                  selectionMode
-                    ? "opacity-0 pointer-events-none"
-                    : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
-                )}
-                aria-label="Todo options"
-              >
-                <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-44">
-              <DropdownMenuItem
-                onSelect={() => {
-                  if (selectionMode) {
-                    onToggleSelected();
-                  } else {
-                    onEnterSelectionMode();
-                  }
-                }}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
-                {selectionMode ? "Toggle selection" : "Select todos"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={onToggleCompleted}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
-                {todo.completed ? "Mark as active" : "Mark as completed"}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={onEdit}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-                Edit todo
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={onDelete}
-                variant="destructive"
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={Delete02Icon} size={14} />
-                Delete todo
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {showActions ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
+                    selectionMode
+                      ? "opacity-0 pointer-events-none"
+                      : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
+                  )}
+                  aria-label="Todo options"
+                >
+                  <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-44">
+                <DropdownMenuItem
+                  onSelect={() => {
+                    if (selectionMode) {
+                      onToggleSelected();
+                    } else {
+                      onEnterSelectionMode();
+                    }
+                  }}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+                  {selectionMode ? "Toggle selection" : "Select todos"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={onToggleCompleted}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+                  {todo.completed ? "Mark as active" : "Mark as completed"}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={onEdit}
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+                  Edit todo
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={onDelete}
+                  variant="destructive"
+                  className="gap-2 text-xs cursor-pointer"
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={14} />
+                  Delete todo
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null}
         </div>
-      </ContextMenuTrigger>
+  );
+
+  if (!showActions) {
+    return Row;
+  }
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{Row}</ContextMenuTrigger>
 
       <ContextMenuContent className="w-44">
         <ContextMenuItem
