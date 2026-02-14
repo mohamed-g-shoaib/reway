@@ -37,6 +37,11 @@ import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { BookmarkEditSheet } from "./BookmarkEditSheet";
 import { useIsMac } from "@/hooks/useIsMac";
 
+const createdAtFormatter = new Intl.DateTimeFormat(undefined, {
+  month: "short",
+  day: "numeric",
+});
+
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
@@ -99,27 +104,6 @@ export const BookmarkBoard = memo(function BookmarkBoard({
     boardRef,
   });
 
-  // Pre-calculate and memoize transformed bookmarks to prevent unnecessary re-renders
-  const displayBookmarks = useMemo(() => {
-    return bookmarks.map((b) => ({
-      id: b.id,
-      title: b.title,
-      url: b.url,
-      image_url: b.image_url || undefined,
-      og_image_url: b.og_image_url || undefined,
-      domain: getDomain(b.url),
-      description: b.description || undefined,
-      favicon: b.favicon_url || undefined,
-      isEnriching: Boolean(b.is_enriching),
-      createdAt: new Date(b.created_at).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-      }),
-      groupId: b.group_id || "all",
-      status: b.status || "ready",
-    }));
-  }, [bookmarks]);
-
   const orderedBookmarks = useMemo(() => {
     if (activeGroupId !== "all") return bookmarks;
 
@@ -161,10 +145,7 @@ export const BookmarkBoard = memo(function BookmarkBoard({
       description: b.description || undefined,
       favicon: b.favicon_url || undefined,
       isEnriching: Boolean(b.is_enriching),
-      createdAt: new Date(b.created_at).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-      }),
+      createdAt: createdAtFormatter.format(new Date(b.created_at)),
       groupId: b.group_id || "all",
       status: b.status || "ready",
     }));
