@@ -47,124 +47,120 @@ export function NoteRow({
 }) {
   const Row = (
     <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
-          {selectionMode ? (
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={onToggleSelected}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onToggleSelected();
-                }
-              }}
-              className="flex items-start gap-3 min-w-0 flex-1 text-left cursor-pointer"
+      {selectionMode ? (
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={onToggleSelected}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onToggleSelected();
+            }
+          }}
+          className="flex items-start gap-3 min-w-0 flex-1 text-left cursor-pointer"
+        >
+          <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
+            <span className="mt-0.5">
+              <Checkbox
+                checked={selected}
+                onClick={(event) => event.stopPropagation()}
+                onCheckedChange={onToggleSelected}
+              />
+            </span>
+            <span
+              className={cn("h-2 w-2 rounded-full", "mt-1")}
+              style={{ backgroundColor: note.color ?? NOTE_COLORS[5] }}
+            />
+            <span
+              className={cn(
+                "min-w-0 flex-1",
+                expanded ? "whitespace-pre-wrap wrap-break-word" : "truncate",
+              )}
             >
-              <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
-                <span className="mt-[2px]">
-                  <Checkbox
-                    checked={selected}
-                    onClick={(event) => event.stopPropagation()}
-                    onCheckedChange={onToggleSelected}
-                  />
-                </span>
-                <span
-                  className={cn("h-2 w-2 rounded-full", "mt-2")}
-                  style={{ backgroundColor: note.color ?? NOTE_COLORS[5] }}
-                />
-                <span
-                  className={cn(
-                    "min-w-0 flex-1",
-                    expanded
-                      ? "whitespace-pre-wrap wrap-break-word"
-                      : "truncate",
-                  )}
-                >
-                  {note.text}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={onToggleExpanded}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onToggleExpanded();
-                }
-              }}
-              className="flex items-start gap-3 min-w-0 flex-1 text-left cursor-pointer"
-            >
-              <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
-                <span
-                  className={cn("h-2 w-2 rounded-full", "mt-1.5")}
-                  style={{ backgroundColor: note.color ?? NOTE_COLORS[5] }}
-                />
-                <span
-                  className={cn(
-                    "min-w-0 flex-1",
-                    expanded
-                      ? "whitespace-pre-wrap wrap-break-word"
-                      : "truncate",
-                  )}
-                >
-                  {note.text}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {showActions ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
-                    selectionMode
-                      ? "opacity-0 pointer-events-none"
-                      : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
-                  )}
-                  aria-label="Note options"
-                >
-                  <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-40">
-                <DropdownMenuItem
-                  onSelect={() => {
-                    if (selectionMode) {
-                      onToggleSelected();
-                    } else {
-                      onEnterSelectionMode();
-                    }
-                  }}
-                  className="gap-2 text-xs cursor-pointer"
-                >
-                  <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
-                  {selectionMode ? "Toggle selection" : "Select notes"}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={onEdit}
-                  className="gap-2 text-xs cursor-pointer"
-                >
-                  <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
-                  Edit note
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={onDelete}
-                  variant="destructive"
-                  className="gap-2 text-xs cursor-pointer"
-                >
-                  <HugeiconsIcon icon={Delete02Icon} size={14} />
-                  Delete note
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
+              {note.text}
+            </span>
+          </div>
         </div>
+      ) : (
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={onToggleExpanded}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onToggleExpanded();
+            }
+          }}
+          className="flex items-start gap-3 min-w-0 flex-1 text-left cursor-pointer"
+        >
+          <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
+            <span
+              className={cn("h-2 w-2 rounded-full", "mt-1")}
+              style={{ backgroundColor: note.color ?? NOTE_COLORS[5] }}
+            />
+            <span
+              className={cn(
+                "min-w-0 flex-1",
+                expanded ? "whitespace-pre-wrap wrap-break-word" : "truncate",
+              )}
+            >
+              {note.text}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {showActions ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
+                selectionMode
+                  ? "opacity-0 pointer-events-none"
+                  : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
+              )}
+              aria-label="Note options"
+            >
+              <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-40">
+            <DropdownMenuItem
+              onSelect={() => {
+                if (selectionMode) {
+                  onToggleSelected();
+                } else {
+                  onEnterSelectionMode();
+                }
+              }}
+              className="gap-2 text-xs cursor-pointer"
+            >
+              <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+              {selectionMode ? "Toggle selection" : "Select notes"}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={onEdit}
+              className="gap-2 text-xs cursor-pointer"
+            >
+              <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
+              Edit note
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={onDelete}
+              variant="destructive"
+              className="gap-2 text-xs cursor-pointer"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={14} />
+              Delete note
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
+    </div>
   );
 
   if (!showActions) {
@@ -189,7 +185,10 @@ export function NoteRow({
           <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
           {selectionMode ? "Toggle selection" : "Select notes"}
         </ContextMenuItem>
-        <ContextMenuItem onSelect={onEdit} className="gap-2 text-xs cursor-pointer">
+        <ContextMenuItem
+          onSelect={onEdit}
+          className="gap-2 text-xs cursor-pointer"
+        >
           <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
           Edit note
         </ContextMenuItem>
