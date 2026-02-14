@@ -33,6 +33,10 @@ import {
   setPreferenceCookie,
   migrateLocalStorageToCookies,
 } from "@/lib/cookies";
+import {
+  type DashboardPaletteTheme,
+  getPaletteThemeClassName,
+} from "@/lib/themes";
 
 interface DashboardContentProps {
   user: User;
@@ -45,6 +49,7 @@ interface DashboardContentProps {
   initialRowContent?: "date" | "group";
   initialCommandMode?: "add" | "search";
   initialShowNotesTodos?: boolean;
+  initialPaletteTheme?: DashboardPaletteTheme;
 }
 
 import {
@@ -93,6 +98,7 @@ export function DashboardContent({
   initialRowContent = "date",
   initialCommandMode = "add",
   initialShowNotesTodos = true,
+  initialPaletteTheme = "default",
 }: DashboardContentProps) {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
@@ -128,6 +134,9 @@ export function DashboardContent({
   const [searchQuery, setSearchQuery] = useState("");
   const [commandMode, setCommandMode] = useState<"add" | "search">(
     initialCommandMode,
+  );
+  const [paletteTheme, setPaletteTheme] = useState<DashboardPaletteTheme>(
+    initialPaletteTheme,
   );
   const isMac = useIsMac();
   const deferredSearchQuery = React.useDeferredValue(searchQuery);
@@ -241,6 +250,43 @@ export function DashboardContent({
   React.useEffect(() => {
     setPreferenceCookie("commandMode", commandMode);
   }, [commandMode]);
+
+  React.useEffect(() => {
+    setPreferenceCookie("paletteTheme", paletteTheme);
+  }, [paletteTheme]);
+
+  React.useEffect(() => {
+    const root = document.body;
+    const dashboardRoot = document.querySelector("[data-dashboard-root]");
+    const classToApply = getPaletteThemeClassName(paletteTheme);
+    const knownClasses = [
+      "theme-amber-minimal",
+      "theme-amethyst-haze",
+      "theme-claude",
+      "theme-modern-minimal",
+      "theme-notebook",
+      "theme-supabase",
+      "theme-t3-chat",
+      "theme-perplexity",
+    ];
+    root.classList.remove(...knownClasses);
+    if (dashboardRoot instanceof HTMLElement) {
+      dashboardRoot.classList.remove(...knownClasses);
+    }
+    if (classToApply) {
+      root.classList.add(classToApply);
+      if (dashboardRoot instanceof HTMLElement) {
+        dashboardRoot.classList.add(classToApply);
+      }
+    }
+
+    return () => {
+      root.classList.remove(...knownClasses);
+      if (dashboardRoot instanceof HTMLElement) {
+        dashboardRoot.classList.remove(...knownClasses);
+      }
+    };
+  }, [paletteTheme]);
 
   React.useEffect(() => {
     if (viewMode !== "folders") {
@@ -683,6 +729,7 @@ export function DashboardContent({
           isCreatingGroup={isCreatingGroup}
           handleInlineCreateGroup={handleInlineCreateGroup}
         />
+
         {showNotesTodos && (
           <DashboardNotesTodosSidebar
             notes={notes}
@@ -699,6 +746,7 @@ export function DashboardContent({
             onSetTodosCompleted={handleSetTodosCompleted}
           />
         )}
+
         {/* Fixed Header Section */}
         <div className="flex-none z-40 bg-background px-1">
           <DashboardNav
@@ -716,6 +764,8 @@ export function DashboardContent({
             setRowContent={setRowContent}
             showNotesTodos={showNotesTodos}
             setShowNotesTodos={setShowNotesTodos}
+            paletteTheme={paletteTheme}
+            setPaletteTheme={setPaletteTheme}
             viewMode={viewMode}
             setViewMode={setViewMode}
             exportGroupOptions={exportGroupOptions}
@@ -724,7 +774,7 @@ export function DashboardContent({
             importResult={importResult}
             exportProgress={exportProgress}
             onImportFileSelected={handleImportFileSelected}
-            onUpdateImportAction={handleUpdateImportAction}
+            onUpdateImportAction={handleResolveConflicts}
             onConfirmImport={handleConfirmImport}
             onClearImport={handleClearImport}
             onExportBookmarks={handleExportBookmarks}
