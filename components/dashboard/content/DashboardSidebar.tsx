@@ -294,7 +294,7 @@ export function DashboardSidebar({
         <button
           type="button"
           ref={setActivatorNodeRef}
-          className="h-6 w-6 rounded-md flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-muted/50 cursor-grab active:cursor-grabbing"
+          className="h-6 w-6 rounded-md flex items-center justify-center text-muted-foreground/60 hover:text-primary/90 hover:bg-muted/50 cursor-grab active:cursor-grabbing"
           aria-label={`Reorder ${group.name}`}
           {...listeners}
         >
@@ -377,7 +377,7 @@ export function DashboardSidebar({
                 ? "text-foreground font-semibold"
                 : selectionMode || reorderMode
                   ? ""
-                  : "hover:text-foreground/80"
+                  : "hover:text-primary/90"
             }`}
           >
             <button
@@ -416,7 +416,7 @@ export function DashboardSidebar({
                   className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
                     selectionMode || reorderMode
                       ? "opacity-0 pointer-events-none"
-                      : "opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted/50"
+                      : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50"
                   }`}
                   aria-label="Group options"
                 >
@@ -645,7 +645,7 @@ export function DashboardSidebar({
                         ? "text-foreground font-semibold"
                         : selectionMode
                           ? ""
-                          : "hover:text-foreground/80"
+                          : "hover:text-primary/90"
                     }`}
                   >
                     {selectionMode ? (
@@ -704,6 +704,7 @@ export function DashboardSidebar({
                         </div>
                       </button>
                     )}
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -711,7 +712,7 @@ export function DashboardSidebar({
                           className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
                             selectionMode
                               ? "opacity-0 pointer-events-none"
-                              : "opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted/50"
+                              : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50"
                           }`}
                           aria-label={`${group.name} options`}
                         >
@@ -730,7 +731,10 @@ export function DashboardSidebar({
                           }}
                           className="gap-2 text-xs cursor-pointer"
                         >
-                          <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
+                          <HugeiconsIcon
+                            icon={CheckmarkSquare02Icon}
+                            size={14}
+                          />
                           {selectionMode ? "Toggle selection" : "Select groups"}
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -744,7 +748,10 @@ export function DashboardSidebar({
                           onSelect={() => enterReorderMode()}
                           className="gap-2 text-xs cursor-pointer"
                         >
-                          <HugeiconsIcon icon={DragDropVerticalIcon} size={14} />
+                          <HugeiconsIcon
+                            icon={DragDropVerticalIcon}
+                            size={14}
+                          />
                           Reorder
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -763,7 +770,8 @@ export function DashboardSidebar({
                           onSelect={() => {
                             openDeleteDialog(group);
                           }}
-                          className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                          variant="destructive"
+                          className="gap-2 text-xs cursor-pointer"
                         >
                           <HugeiconsIcon icon={Delete02Icon} size={14} />
                           Delete group
@@ -818,7 +826,8 @@ export function DashboardSidebar({
                     onSelect={() => {
                       openDeleteDialog(group);
                     }}
-                    className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                    variant="destructive"
+                    className="gap-2 text-xs cursor-pointer"
                   >
                     <HugeiconsIcon icon={Delete02Icon} size={14} />
                     Delete group
@@ -917,7 +926,7 @@ export function DashboardSidebar({
             }}
             data-onboarding="create-group-desktop"
             className={`flex items-center gap-2 text-xs text-muted-foreground ${
-              reorderMode ? "opacity-50" : "hover:text-foreground"
+              reorderMode ? "opacity-50" : "hover:text-primary/90"
             } cursor-pointer`}
           >
             <HugeiconsIcon icon={Add01Icon} size={14} />

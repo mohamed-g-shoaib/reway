@@ -286,7 +286,7 @@ export function DashboardNotesTodosSidebar({
                 "h-6 px-2 text-[11px] rounded-4xl border border-border/60 cursor-pointer",
                 active
                   ? "bg-muted/40 text-foreground"
-                  : "bg-transparent text-muted-foreground hover:text-foreground",
+                  : "bg-transparent text-muted-foreground hover:text-primary/90",
               )}
               onClick={() => onChange(p)}
             >
@@ -302,7 +302,10 @@ export function DashboardNotesTodosSidebar({
   };
 
   return (
-    <aside className="hidden min-[1200px]:flex fixed right-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground">
+    <aside
+      data-onboarding="notes-todos-desktop"
+      className="hidden min-[1200px]:flex fixed right-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-foreground/5">
           <button
@@ -310,8 +313,8 @@ export function DashboardNotesTodosSidebar({
             className={cn(
               "px-2 py-1 text-[11px] rounded-lg cursor-pointer",
               activeSection === "notes"
-                ? "bg-background text-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-muted/40 text-foreground"
+                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40",
             )}
             onClick={() => setActiveSection("notes")}
           >
@@ -322,8 +325,8 @@ export function DashboardNotesTodosSidebar({
             className={cn(
               "px-2 py-1 text-[11px] rounded-lg cursor-pointer",
               activeSection === "todos"
-                ? "bg-background text-foreground"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-muted/40 text-foreground"
+                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40",
             )}
             onClick={() => setActiveSection("todos")}
           >
@@ -422,7 +425,7 @@ export function DashboardNotesTodosSidebar({
               return (
                 <ContextMenu key={note.id}>
                   <ContextMenuTrigger asChild>
-                    <div className="group flex items-start gap-3 px-2 py-1.5 transition-colors duration-200">
+                    <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
                       {isNotesSelectionMode ? (
                         <div
                           role="button"
@@ -522,7 +525,7 @@ export function DashboardNotesTodosSidebar({
                               "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
                               isNotesSelectionMode
                                 ? "opacity-0 pointer-events-none"
-                                : "opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted/50",
+                                : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
                             )}
                             aria-label="Note options"
                           >
@@ -562,7 +565,8 @@ export function DashboardNotesTodosSidebar({
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onSelect={() => void onDeleteNote(note.id)}
-                            className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                            variant="destructive"
+                            className="gap-2 text-xs cursor-pointer"
                           >
                             <HugeiconsIcon icon={Delete02Icon} size={14} />
                             Delete note
@@ -601,7 +605,8 @@ export function DashboardNotesTodosSidebar({
                     </ContextMenuItem>
                     <ContextMenuItem
                       onSelect={() => void onDeleteNote(note.id)}
-                      className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                      variant="destructive"
+                      className="gap-2 text-xs cursor-pointer"
                     >
                       <HugeiconsIcon icon={Delete02Icon} size={14} />
                       Delete note
@@ -663,7 +668,7 @@ export function DashboardNotesTodosSidebar({
               <button
                 type="button"
                 onClick={() => setCreatingNote(true)}
-                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary/90 cursor-pointer"
               >
                 <HugeiconsIcon icon={Add01Icon} size={14} />
                 Create note
@@ -795,7 +800,7 @@ export function DashboardNotesTodosSidebar({
               return (
                 <ContextMenu key={todo.id}>
                   <ContextMenuTrigger asChild>
-                    <div className="group flex items-start gap-3 px-2 py-1.5 transition-colors duration-200">
+                    <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
                       {isTodosSelectionMode ? (
                         <div
                           role="button"
@@ -917,7 +922,7 @@ export function DashboardNotesTodosSidebar({
                               "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
                               isTodosSelectionMode
                                 ? "opacity-0 pointer-events-none"
-                                : "opacity-0 group-hover:opacity-100 hover:text-foreground hover:bg-muted/50",
+                                : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
                             )}
                             aria-label="Todo options"
                           >
@@ -971,7 +976,8 @@ export function DashboardNotesTodosSidebar({
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onSelect={() => void onDeleteTodo(todo.id)}
-                            className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                            variant="destructive"
+                            className="gap-2 text-xs cursor-pointer"
                           >
                             <HugeiconsIcon icon={Delete02Icon} size={14} />
                             Delete todo
@@ -1019,7 +1025,8 @@ export function DashboardNotesTodosSidebar({
                     </ContextMenuItem>
                     <ContextMenuItem
                       onSelect={() => void onDeleteTodo(todo.id)}
-                      className="gap-2 text-xs cursor-pointer text-destructive/80 focus:text-destructive"
+                      variant="destructive"
+                      className="gap-2 text-xs cursor-pointer"
                     >
                       <HugeiconsIcon icon={Delete02Icon} size={14} />
                       Delete todo
@@ -1081,7 +1088,7 @@ export function DashboardNotesTodosSidebar({
               <button
                 type="button"
                 onClick={() => setCreatingTodo(true)}
-                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary/90 cursor-pointer"
               >
                 <HugeiconsIcon icon={Add01Icon} size={14} />
                 Create todo

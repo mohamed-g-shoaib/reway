@@ -137,8 +137,8 @@ export function CommandBarInput({
             data-onboarding="add-bookmarks"
             className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
               mode === "add"
-                ? "bg-background text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-muted/40 text-foreground"
+                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
             }`}
             aria-pressed={mode === "add"}
             aria-label="Add bookmarks"
@@ -156,8 +156,8 @@ export function CommandBarInput({
             data-onboarding="search-bookmarks"
             className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
               mode === "search"
-                ? "bg-background text-foreground"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-muted/40 text-foreground"
+                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
             }`}
             aria-pressed={mode === "search"}
             aria-label="Search bookmarks"
