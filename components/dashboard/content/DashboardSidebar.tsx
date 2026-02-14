@@ -1,55 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowUpRight03Icon,
-  CheckmarkSquare02Icon,
-  Delete02Icon,
-  DragDropVerticalIcon,
-  PencilEdit01Icon,
-  Folder01Icon,
-  MoreVerticalIcon,
-} from "@hugeicons/core-free-icons";
 import {
   DndContext,
   DragOverlay,
-  closestCenter,
-  KeyboardSensor,
-  pointerWithin,
-  type CollisionDetection,
   MeasuringStrategy,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragStartEvent,
-  type DragEndEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
 import { AllBookmarksRow } from "./sidebar/AllBookmarksRow";
@@ -66,6 +30,8 @@ import {
   BulkDeleteGroupsDialog,
   DeleteGroupDialog,
 } from "./sidebar/DeleteGroupDialogs";
+import { useGroupReorderDnd } from "./sidebar/useGroupReorderDnd";
+import { useGroupSelection } from "./sidebar/useGroupSelection";
 
 const IconPickerPopover = dynamic<IconPickerPopoverProps>(
   () => import("../IconPickerPopover").then((mod) => mod.IconPickerPopover),
@@ -136,55 +102,41 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<GroupRow | null>(null);
-  const [selectionMode, setSelectionMode] = useState(false);
-  const [reorderMode, setReorderMode] = useState(false);
-  const [activeDragGroupId, setActiveDragGroupId] = useState<string | null>(
-    null,
-  );
-  const [selectedGroupIds, setSelectedGroupIds] = useState<Set<string>>(
-    () => new Set(),
-  );
-  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
-
-  const selectedCount = selectedGroupIds.size;
-  const selectedGroups = useMemo(
-    () => groups.filter((g) => selectedGroupIds.has(g.id)),
-    [groups, selectedGroupIds],
-  );
+  const {
+    selectionMode,
+    selectedGroupIds,
+    selectedCount,
+    selectedGroups,
+    bulkDeleteDialogOpen,
+    setBulkDeleteDialogOpen,
+    enterSelectionMode,
+    exitSelectionMode,
+    toggleSelected,
+    requestBulkDelete,
+  } = useGroupSelection({ groups });
 
   const openDeleteDialog = (group: GroupRow) => {
     setDeleteTarget(group);
     setDeleteDialogOpen(true);
   };
 
-  const enterSelectionMode = () => {
-    setSelectionMode(true);
-    setSelectedGroupIds(new Set());
-  };
-
-  const exitSelectionMode = () => {
-    setSelectionMode(false);
-    setSelectedGroupIds(new Set());
-  };
-
-  const enterReorderMode = () => {
-    exitSelectionMode();
-    setEditingGroupId(null);
-    setReorderMode(true);
-  };
-
-  const exitReorderMode = () => {
-    setReorderMode(false);
-  };
-
-  const toggleSelected = (groupId: string) => {
-    setSelectedGroupIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(groupId)) next.delete(groupId);
-      else next.add(groupId);
-      return next;
-    });
-  };
+  const {
+    reorderMode,
+    enterReorderMode,
+    exitReorderMode,
+    sensors,
+    collisionDetection,
+    activeGroup,
+    handleGroupDragStart,
+    handleGroupDragEnd,
+  } = useGroupReorderDnd({
+    groups,
+    onReorderGroups,
+    onEnterReorderMode: () => {
+      exitSelectionMode();
+      setEditingGroupId(null);
+    },
+  });
 
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
@@ -194,52 +146,12 @@ export function DashboardSidebar({
     setDeleteTarget(null);
   };
 
-  const handleBulkDelete = () => {
-    if (selectedGroups.length === 0) return;
-    setBulkDeleteDialogOpen(true);
-  };
-
   const handleConfirmBulkDelete = () => {
     if (selectedGroups.length === 0) return;
     selectedGroups.forEach((g) => onDeleteGroup(g.id));
     setBulkDeleteDialogOpen(false);
     exitSelectionMode();
   };
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const handleGroupDragStart = (event: DragStartEvent) => {
-    setActiveDragGroupId(event.active.id as string);
-  };
-
-  const handleGroupDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveDragGroupId(null);
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = groups.findIndex((g) => g.id === active.id);
-    const newIndex = groups.findIndex((g) => g.id === over.id);
-    if (oldIndex < 0 || newIndex < 0) return;
-
-    onReorderGroups(arrayMove(groups, oldIndex, newIndex));
-  };
-
-  const collisionDetection: CollisionDetection = (args) => {
-    const pointerCollisions = pointerWithin(args);
-    if (pointerCollisions.length > 0) return pointerCollisions;
-    return closestCenter(args);
-  };
-
-  const activeGroup = activeDragGroupId
-    ? (groups.find((g) => g.id === activeDragGroupId) ?? null)
-    : null;
 
   return (
     <aside
@@ -282,7 +194,7 @@ export function DashboardSidebar({
         <SelectionModeBar
           selectedCount={selectedCount}
           onCancel={exitSelectionMode}
-          onDelete={handleBulkDelete}
+          onDelete={requestBulkDelete}
         />
       ) : null}
       <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
@@ -322,9 +234,6 @@ export function DashboardSidebar({
           </DndContext>
         ) : (
           groups.map((group) => {
-            const GroupIcon = group.icon
-              ? ALL_ICONS_MAP[group.icon]
-              : Folder01Icon;
             const isEditing = editingGroupId === group.id;
 
             if (isEditing) {
