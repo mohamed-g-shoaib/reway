@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ComputerIcon,
   Moon02Icon,
@@ -17,7 +17,14 @@ interface ThemeSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
-  const activeTheme = useMemo(() => theme ?? "system", [theme]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const activeTheme = useMemo(
+    () => (mounted ? (theme ?? "system") : "system"),
+    [mounted, theme],
+  );
 
   const themes = [
     { value: "system", icon: ComputerIcon, label: "Switch to system theme" },

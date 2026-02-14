@@ -5,6 +5,8 @@ import { NOTE_COLORS } from "@/components/dashboard/content/notes-todos/config";
 import type { HeroBookmark, HeroGroupId } from "./types";
 import { PREVIEW_BOOKMARKS } from "./data";
 
+const HERO_DEMO_TIMESTAMP = "2026-01-01T00:00:00.000Z";
+
 export type BookmarkSlot =
   | { kind: "bookmark"; value: HeroBookmark }
   | { kind: "placeholder"; key: string };
@@ -30,8 +32,8 @@ export function createInitialNotes(): NoteRow[] {
       user_id: "hero",
       text: "Capture pricing pages and docs before you forget where you found them.",
       color: NOTE_COLORS[2],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: HERO_DEMO_TIMESTAMP,
+      updated_at: HERO_DEMO_TIMESTAMP,
       order_index: 0,
     },
     {
@@ -39,8 +41,8 @@ export function createInitialNotes(): NoteRow[] {
       user_id: "hero",
       text: "Long notes truncate in the sidebar. Click to expand and collapse just like the dashboard.",
       color: NOTE_COLORS[5],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: HERO_DEMO_TIMESTAMP,
+      updated_at: HERO_DEMO_TIMESTAMP,
       order_index: 1,
     },
   ];
@@ -54,8 +56,8 @@ export function createInitialTodos(): TodoRow[] {
       text: "Group similar links",
       priority: "high",
       completed: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: HERO_DEMO_TIMESTAMP,
+      updated_at: HERO_DEMO_TIMESTAMP,
       completed_at: null,
       order_index: 0,
     },
@@ -65,9 +67,9 @@ export function createInitialTodos(): TodoRow[] {
       text: "Clean duplicates",
       priority: "medium",
       completed: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      completed_at: new Date().toISOString(),
+      created_at: HERO_DEMO_TIMESTAMP,
+      updated_at: HERO_DEMO_TIMESTAMP,
+      completed_at: HERO_DEMO_TIMESTAMP,
       order_index: 1,
     },
   ];
