@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string;
           description: string | null;
+          domain: string | null;
           error_reason: string | null;
           favicon_url: string | null;
           group_id: string | null;
@@ -37,6 +38,7 @@ export type Database = {
         Insert: {
           created_at?: string;
           description?: string | null;
+          domain?: string | null;
           error_reason?: string | null;
           favicon_url?: string | null;
           group_id?: string | null;
@@ -56,6 +58,7 @@ export type Database = {
         Update: {
           created_at?: string;
           description?: string | null;
+          domain?: string | null;
           error_reason?: string | null;
           favicon_url?: string | null;
           group_id?: string | null;

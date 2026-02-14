@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { fetchMetadata, normalizeUrl } from "@/lib/metadata";
+import { getDomain } from "@/lib/utils";
 
 export async function checkDuplicateBookmarks(urls: string[]): Promise<{
   duplicates: Record<string, { id: string; title: string; url: string }>;
@@ -66,6 +67,7 @@ export async function addBookmark(formData: {
 
   const normalizedUrl = normalizeUrl(formData.url);
   const title = formData.title || normalizedUrl;
+  const domain = getDomain(formData.url);
 
   const { data, error } = await supabase
     .from("bookmarks")
@@ -73,6 +75,7 @@ export async function addBookmark(formData: {
       id: formData.id,
       url: formData.url,
       normalized_url: normalizedUrl,
+      domain,
       title: title,
       favicon_url: formData.favicon_url,
       og_image_url: formData.og_image_url,
@@ -229,12 +232,14 @@ export async function restoreBookmark(bookmark: {
   }
 
   const normalizedUrl = normalizeUrl(bookmark.url);
+  const domain = getDomain(bookmark.url);
 
   const { error } = await supabase.from("bookmarks").upsert(
     {
       id: bookmark.id,
       url: bookmark.url,
       normalized_url: normalizedUrl,
+      domain,
       title: bookmark.title,
       description: bookmark.description ?? null,
       group_id: bookmark.group_id ?? null,
@@ -332,6 +337,7 @@ export async function updateBookmark(
   }
 
   const normalizedUrl = normalizeUrl(formData.url);
+  const domain = getDomain(formData.url);
 
   const { error } = await supabase
     .from("bookmarks")
@@ -339,6 +345,7 @@ export async function updateBookmark(
       title: formData.title,
       url: formData.url,
       normalized_url: normalizedUrl,
+      domain,
       description: formData.description,
       group_id: formData.group_id,
       favicon_url: formData.favicon_url,
@@ -352,53 +359,16 @@ export async function updateBookmark(
   }
 
   if (formData.apply_favicon_to_domain) {
-    const targetDomain = (() => {
-      try {
-        return new URL(formData.url).hostname.replace("www.", "");
-      } catch {
-        return null;
-      }
-    })();
-
-    if (targetDomain) {
-      const { data: userBookmarks, error: fetchError } = await supabase
+    if (domain) {
+      const { error: domainUpdateError } = await supabase
         .from("bookmarks")
-        .select("id, url")
-        .eq("user_id", userData.user.id);
+        .update({ favicon_url: formData.favicon_url ?? null })
+        .eq("user_id", userData.user.id)
+        .eq("domain", domain);
 
-      if (fetchError) {
-        console.error(
-          "Error fetching bookmarks for domain update:",
-          fetchError,
-        );
-        throw new Error("Failed to update domain bookmarks");
-      }
-
-      const matchingIds = (userBookmarks ?? [])
-        .filter((bookmark) => {
-          try {
-            const bookmarkDomain = new URL(bookmark.url).hostname.replace(
-              "www.",
-              "",
-            );
-            return bookmarkDomain === targetDomain;
-          } catch {
-            return false;
-          }
-        })
-        .map((bookmark) => bookmark.id);
-
-      if (matchingIds.length > 0) {
-        const { error: domainUpdateError } = await supabase
-          .from("bookmarks")
-          .update({ favicon_url: formData.favicon_url ?? null })
-          .eq("user_id", userData.user.id)
-          .in("id", matchingIds);
-
-        if (domainUpdateError) {
-          console.error("Error updating domain favicon:", domainUpdateError);
-          throw new Error("Failed to update domain favicon");
-        }
+      if (domainUpdateError) {
+        console.error("Error updating domain favicon:", domainUpdateError);
+        throw new Error("Failed to update domain favicon");
       }
     }
   }
