@@ -33,12 +33,11 @@ export function CommandBar({
   const [addStatus, setAddStatus] = useState<string | null>(null);
   const [isAddBusy, setIsAddBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Detect OS for keyboard shortcuts
   const isMac = useIsMac();
 
-  const { handleFileChange, handleSubmit } = useCommandHandlers({
+  const { handleSubmit } = useCommandHandlers({
     onAddBookmark,
     onApplyEnrichment,
     onReplaceBookmarkId,
@@ -77,7 +76,6 @@ export function CommandBar({
       isFocused={isFocused}
       isMac={isMac}
       inputRef={inputRef}
-      fileInputRef={fileInputRef}
       onModeChange={handleModeChange}
       onSearchChange={onSearchChange}
       onInputValueChange={setInputValue}
@@ -85,8 +83,6 @@ export function CommandBar({
       onSubmit={(e) =>
         handleSubmit(e, mode, inputValue, searchQuery, setInputValue)
       }
-      onFileChange={handleFileChange}
-      onPlusClick={() => fileInputRef.current?.click()}
     />
   );
 }

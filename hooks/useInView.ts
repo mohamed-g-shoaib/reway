@@ -12,16 +12,16 @@ export function useInView<T extends Element>({
   threshold = 0.3,
 }: UseInViewOptions = {}) {
   const ref = useRef<T | null>(null);
-  const [isInView, setIsInView] = useState(false);
+  const [isInView, setIsInView] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !("IntersectionObserver" in window);
+  });
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    if (!("IntersectionObserver" in window)) {
-      setIsInView(true);
-      return;
-    }
+    if (!("IntersectionObserver" in window)) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => setIsInView(entry.isIntersecting),

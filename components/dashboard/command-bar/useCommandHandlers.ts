@@ -177,17 +177,6 @@ export function useCommandHandlers({
 
   useGlobalKeydown(handleKeyDown);
 
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        toast.error("Image link extraction is no longer supported. Paste links as text instead.");
-        e.target.value = "";
-      }
-    },
-    [processUrls, setAddStatus],
-  );
-
   const handleSubmit = useCallback(
     async (
       e: React.FormEvent,
@@ -241,7 +230,6 @@ export function useCommandHandlers({
   );
 
   return {
-    handleFileChange,
     handleSubmit,
   };
 }

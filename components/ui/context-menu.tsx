@@ -244,6 +244,8 @@ const ContextMenuShortcut = React.forwardRef<
   />
 ));
 
+ContextMenuShortcut.displayName = "ContextMenuShortcut";
+
 export {
   ContextMenu,
   ContextMenuTrigger,

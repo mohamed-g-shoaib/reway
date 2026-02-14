@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
-
-import { AttachmentIcon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
+function StatusSpinner() {
+  return (
+    <span
+      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground"
+      aria-hidden="true"
+    />
+  );
+}
 
 interface CommandBarInputProps {
   mode: "add" | "search";
@@ -22,14 +21,11 @@ interface CommandBarInputProps {
   isFocused: boolean;
   isMac: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
   onModeChange?: (mode: "add" | "search") => void;
   onSearchChange?: (query: string) => void;
   onInputValueChange: (value: string) => void;
   onFocusChange: (focused: boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPlusClick: () => void;
 }
 
 export function CommandBarInput({
@@ -41,22 +37,12 @@ export function CommandBarInput({
   isFocused,
   isMac,
   inputRef,
-  fileInputRef,
   onModeChange,
   onSearchChange,
   onInputValueChange,
   onFocusChange,
   onSubmit,
-  onFileChange,
-  onPlusClick,
 }: CommandBarInputProps) {
-  const StatusSpinner = () => (
-    <span
-      className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground"
-      aria-hidden="true"
-    />
-  );
-
   return (
     <div className="relative w-full" data-onboarding="command-bar">
       <form
@@ -67,35 +53,16 @@ export function CommandBarInput({
             : "ring-1 ring-foreground/8 after:ring-white/5"
         } after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate`}
       >
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={onFileChange}
-          className="hidden"
-          accept="image/*"
-          aria-label="Upload image file"
-          title="Upload image file"
-        />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={onPlusClick}
-                disabled={mode === "search"}
-                className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
-                aria-label="Add image or file"
-              >
-                <HugeiconsIcon icon={AttachmentIcon} size={16} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="rounded-lg font-medium">
-              Add image or file
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          type="submit"
+          variant="ghost"
+          size="icon"
+          disabled={mode === "search" || (mode === "add" && isAddBusy)}
+          className="h-8 w-8 shrink-0 rounded-xl text-muted-foreground transition-transform duration-150 ease-out hover:bg-muted hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
+          aria-label="Submit"
+        >
+          <span className="text-xs font-semibold">⏎</span>
+        </Button>
 
         <div className="relative flex-1 min-w-0">
           <input

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   motion,
   useReducedMotion,
@@ -20,7 +20,10 @@ export function DemoVideosSection() {
   const width = useTransform(progress, (v) => `${v}%`);
   const shouldReduceMotion = useReducedMotion();
   const activeIndexRef = useRef(activeIndex);
-  activeIndexRef.current = activeIndex;
+
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
 
   const handleEnded = () => {
     setActiveIndex((current) => (current + 1) % demoVideos.length);

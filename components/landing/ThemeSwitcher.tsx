@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import {
   ComputerIcon,
   Moon02Icon,
@@ -16,30 +16,11 @@ interface ThemeSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div
-        className={cn(
-          "relative isolate inline-flex h-8 items-center rounded-full ring-1 ring-foreground/8 px-1",
-          className,
-        )}
-        {...props}
-      >
-        <div className="flex space-x-0">
-          <div className="size-6 rounded-full bg-input animate-pulse" />
-          <div className="size-6 rounded-full bg-input animate-pulse" />
-          <div className="size-6 rounded-full bg-input animate-pulse" />
-        </div>
-      </div>
-    );
-  }
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const activeTheme = useMemo(
+    () => (theme === "system" ? resolvedTheme ?? "system" : theme),
+    [resolvedTheme, theme],
+  );
 
   const themes = [
     { value: "system", icon: ComputerIcon, label: "Switch to system theme" },
@@ -64,14 +45,14 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
           onClick={() => setTheme(value)}
           className="group relative size-6 rounded-full transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
         >
-          {theme === value && (
+          {activeTheme === value && (
             <div className="-z-1 absolute inset-0 rounded-full bg-muted" />
           )}
           <HugeiconsIcon
             icon={icon}
             className={cn(
               "relative m-auto size-3.5 transition duration-200 ease-out",
-              theme === value
+              activeTheme === value
                 ? "text-foreground"
                 : "text-secondary-foreground group-hover:text-foreground group-focus-visible:text-foreground",
             )}

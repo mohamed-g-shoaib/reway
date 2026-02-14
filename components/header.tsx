@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import RewayLogo from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
@@ -18,19 +19,19 @@ import {
 export const navLinks = [
   {
     label: "Features",
-    href: "/#features",
+    href: { pathname: "/", hash: "features" },
   },
   {
     label: "Demos",
-    href: "/#demo-videos",
+    href: { pathname: "/", hash: "demo-videos" },
   },
   {
     label: "Extension",
-    href: "/#extension",
+    href: { pathname: "/", hash: "extension" },
   },
   {
     label: "About",
-    href: "/about",
+    href: { pathname: "/about" },
   },
 ];
 
@@ -105,7 +106,7 @@ export function Header() {
           },
         )}
       >
-        <a
+        <Link
           className={cn(
             "-m-2 rounded-md p-2",
             "transition-[opacity,transform] duration-200 ease-out",
@@ -124,13 +125,13 @@ export function Header() {
             />
             <span className="text-base font-bold text-foreground">Reway</span>
           </span>
-        </a>
+        </Link>
 
         <div className="hidden items-center gap-2 md:flex">
           <div>
             {navLinks.map((link) => (
               <Button asChild key={link.label} size="sm" variant="ghost">
-                <a href={link.href}>{link.label}</a>
+                <Link href={link.href}>{link.label}</Link>
               </Button>
             ))}
           </div>
@@ -142,7 +143,7 @@ export function Header() {
                 size="sm"
                 className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
               >
-                <a href="/dashboard">Dashboard</a>
+                <Link href="/dashboard">Dashboard</Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -170,7 +171,7 @@ export function Header() {
               size="sm"
               className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
             >
-              <a href="/login">Get Started</a>
+              <Link href="/login">Get Started</Link>
             </Button>
           )}
         </div>

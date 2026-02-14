@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -56,10 +56,38 @@ export function Favicon({
   isEnriching,
   className,
 }: FaviconProps) {
+  const hasValidUrl = isValidImageUrl(url);
+  const initialFallbackLevel: "primary" | "origin" | "letter" = hasValidUrl
+    ? "primary"
+    : "origin";
+
+  return (
+    <FaviconInner
+      key={`${url}::${domain}`}
+      url={url}
+      domain={domain}
+      title={title}
+      isEnriching={isEnriching}
+      className={className}
+      initialFallbackLevel={initialFallbackLevel}
+    />
+  );
+}
+
+function FaviconInner({
+  url,
+  domain,
+  title,
+  isEnriching,
+  className,
+  initialFallbackLevel,
+}: FaviconProps & {
+  initialFallbackLevel: "primary" | "origin" | "letter";
+}) {
   // Track which fallback level we're at: primary -> origin -> letter
   const [fallbackLevel, setFallbackLevel] = useState<
     "primary" | "origin" | "letter"
-  >("primary");
+  >(initialFallbackLevel);
 
   // Determine if we have a valid primary URL
   const hasValidUrl = isValidImageUrl(url);
@@ -75,11 +103,6 @@ export function Favicon({
 
   const initials = getInitial();
   const originFallbackUrl = domain ? `https://${domain}/favicon.ico` : null;
-
-  // Reset fallback level when URL changes
-  useEffect(() => {
-    setFallbackLevel(hasValidUrl ? "primary" : "origin");
-  }, [url, domain, hasValidUrl]);
 
   // Determine which image URL to show based on current fallback level
   const getCurrentImageUrl = () => {

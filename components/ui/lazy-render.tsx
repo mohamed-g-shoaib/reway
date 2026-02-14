@@ -18,7 +18,10 @@ export function LazyRender({
   className,
 }: LazyRenderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [shouldRender, setShouldRender] = useState(false);
+  const [shouldRender, setShouldRender] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !("IntersectionObserver" in window);
+  });
 
   useEffect(() => {
     if (shouldRender) return;
@@ -26,10 +29,7 @@ export function LazyRender({
     const element = containerRef.current;
     if (!element) return;
 
-    if (!("IntersectionObserver" in window)) {
-      setShouldRender(true);
-      return;
-    }
+    if (!("IntersectionObserver" in window)) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {

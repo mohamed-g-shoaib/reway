@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMotionValueEvent, useScroll as useMotionScroll } from "motion/react";
 
 export function useScroll(downThreshold: number, upThreshold?: number) {
-  const [scrolled, setScrolled] = useState(false);
   const scrollUpThreshold = upThreshold ?? downThreshold / 2;
+  const [scrolled, setScrolled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const y = window.scrollY;
+    return y > downThreshold;
+  });
 
   const { scrollY } = useMotionScroll();
 
@@ -18,17 +22,6 @@ export function useScroll(downThreshold: number, upThreshold?: number) {
       return nextY > downThreshold;
     });
   });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const y = window.scrollY;
-    setScrolled((prev) => {
-      if (prev) {
-        return y > scrollUpThreshold;
-      }
-      return y > downThreshold;
-    });
-  }, [downThreshold, scrollUpThreshold]);
 
   return scrolled;
 }

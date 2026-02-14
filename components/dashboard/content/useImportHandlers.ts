@@ -369,7 +369,7 @@ export function useImportHandlers({
         };
       });
 
-      let processed = 0;
+      const processed = 0;
       let importedCount = 0;
       let failedCount = 0;
       const enrichmentQueue: Array<{ id: string; url: string }> = [];
