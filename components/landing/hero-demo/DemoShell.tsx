@@ -23,9 +23,8 @@ export function DemoShell({ children }: { children: React.ReactNode }) {
       transition={{ duration: 0.35, ease: "easeOut" }}
     >
       <div className="mb-3 px-0 text-[11px] font-medium text-muted-foreground">
-        <span className="inline sm:hidden">Interactive demo</span>
-        <span className="hidden sm:inline">
-          Interactive demo — click around (nothing is saved)
+        <span>
+          Interactive demo, click around (nothing is saved)
         </span>
       </div>
 

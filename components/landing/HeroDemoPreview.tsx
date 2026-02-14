@@ -150,10 +150,13 @@ export function HeroDemoPreview() {
                         placeholder={
                           commandMode === "search"
                             ? "Search bookmarks..."
-                            : "Add a link or search..."
+                            : isCommandFocused
+                              ? "Sign in to add, this is a demo \ud83d\ude42"
+                              : "Add a link or search..."
                         }
                         className="w-full bg-transparent p-0 pl-1.5 text-[11px] font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20"
                         aria-label="Search or add bookmarks"
+                        readOnly={commandMode === "add"}
                       />
                     </form>
                   </div>
