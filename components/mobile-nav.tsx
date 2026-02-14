@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import React from "react";
+import Link from "next/link";
 import { Portal, PortalBackdrop } from "@/components/ui/portal";
 import { Button } from "@/components/ui/button";
 import { navLinks } from "@/components/header";
@@ -117,7 +118,7 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
                     variant="ghost"
                     onClick={() => setOpen(false)}
                   >
-                    <a href={link.href}>{link.label}</a>
+                    <Link href={link.href}>{link.label}</Link>
                   </Button>
                 ))}
               </div>
@@ -128,7 +129,7 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
                     className="w-full ring-1 ring-foreground/8"
                     onClick={() => setOpen(false)}
                   >
-                    <a href="/dashboard">Go to Dashboard</a>
+                    <Link href="/dashboard">Go to Dashboard</Link>
                   </Button>
                 ) : (
                   <Button
@@ -136,7 +137,7 @@ export function MobileNav({ user, initials = "U" }: MobileNavProps) {
                     className="w-full ring-1 ring-foreground/8"
                     onClick={() => setOpen(false)}
                   >
-                    <a href="/login">Get Started</a>
+                    <Link href="/login">Get Started</Link>
                   </Button>
                 )}
               </div>
