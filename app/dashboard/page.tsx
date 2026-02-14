@@ -9,6 +9,11 @@ import {
 } from "@/lib/supabase/queries";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { cookies } from "next/headers";
+import {
+  getPaletteThemeClassName,
+  isDashboardPaletteTheme,
+  type DashboardPaletteTheme,
+} from "@/lib/themes";
 
 export const metadata = {
   title: "Dashboard",
@@ -48,6 +53,13 @@ export default async function DashboardPage() {
     return true; // Default to true (show sidebar)
   };
 
+  const parsePaletteTheme = (value: string | undefined) => {
+    if (value && isDashboardPaletteTheme(value)) {
+      return value as DashboardPaletteTheme;
+    }
+    return "default";
+  };
+
   // Read and validate dashboard preferences from cookies
   const viewModeAll = parseViewMode(
     cookieStore.get("reway.dashboard.viewMode.all")?.value,
@@ -65,6 +77,10 @@ export default async function DashboardPage() {
     cookieStore.get("reway.dashboard.showNotesTodos")?.value,
   );
 
+  const paletteTheme = parsePaletteTheme(
+    cookieStore.get("reway.dashboard.paletteTheme")?.value,
+  );
+
   const [user, bookmarks, groups, notes, todos] = await Promise.all([
     getUser(),
     getBookmarks(),
@@ -78,7 +94,10 @@ export default async function DashboardPage() {
 
   return (
     <ErrorBoundary>
-      <div className="h-dvh overflow-hidden bg-background text-foreground">
+      <div
+        data-dashboard-root
+        className={`h-dvh overflow-hidden bg-background text-foreground ${getPaletteThemeClassName(paletteTheme)}`}
+      >
         <main className="mx-auto w-full max-w-3xl px-4 py-6">
           <DashboardContent
             user={user}
@@ -91,6 +110,7 @@ export default async function DashboardPage() {
             initialViewModeGroups={viewModeGroups}
             initialRowContent={rowContent}
             initialCommandMode={commandMode}
+            initialPaletteTheme={paletteTheme}
           />
         </main>
 
