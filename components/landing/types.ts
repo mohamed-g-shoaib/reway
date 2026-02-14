@@ -1,6 +1,12 @@
 import type { Route } from "next";
 
-export type DashboardHref = Extract<
-  Route,
-  "/login" | "/dashboard" | "/terms" | "/privacy" | "/about"
->;
+type DashboardHrefLiteral =
+  | "/login"
+  | "/dashboard"
+  | "/terms"
+  | "/privacy"
+  | "/about";
+
+export type DashboardHref = string extends Route
+  ? DashboardHrefLiteral
+  : Extract<Route, DashboardHrefLiteral>;
