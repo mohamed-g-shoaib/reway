@@ -90,94 +90,102 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 mx-auto w-full max-w-4xl border-b border-foreground/8",
-        "md:top-4 md:rounded-4xl md:border md:border-foreground/8",
-        "md:origin-top md:transform-gpu md:transition-[background-color,border-color,box-shadow,opacity,transform,top,max-width] md:duration-200 md:ease-out",
-        scrolled
-          ? "bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:top-2 md:max-w-3xl md:translate-y-0 md:scale-100"
-          : "md:translate-y-2 md:scale-[1.06]",
+        "sticky top-0 z-50 px-4 sm:px-6",
+        "md:transition-[top] md:duration-200 md:ease-out",
+        scrolled ? "md:top-2" : "md:top-4",
       )}
     >
-      <nav
+      <div
         className={cn(
-          "flex h-14 w-full items-center justify-between px-4 md:px-2 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
-          {
-            "md:px-2": scrolled,
-          },
+          "mx-auto w-full max-w-6xl border-b border-foreground/8",
+          "md:rounded-4xl md:border md:border-foreground/8",
+          "md:origin-top md:transform-gpu md:transition-[background-color,border-color,box-shadow,opacity,transform,max-width] md:duration-200 md:ease-out",
+          scrolled
+            ? "bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:max-w-5xl md:translate-y-0 md:scale-100"
+            : "md:translate-y-2 md:scale-100",
         )}
       >
-        <Link
+        <nav
           className={cn(
-            "-m-2 rounded-md p-2",
-            "transition-[opacity,transform] duration-200 ease-out",
-            "active:scale-[0.97]",
-            "motion-reduce:transition-none",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            "flex h-14 w-full items-center justify-between px-4 md:px-2 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
+            {
+              "md:px-2": scrolled,
+            },
           )}
-          aria-label="Reway Home"
-          href="/"
         >
-          <span className="flex items-center gap-2">
-            <RewayLogo
-              className="size-8"
-              aria-hidden="true"
-              focusable="false"
-            />
-            <span className="text-base font-bold text-foreground">Reway</span>
-          </span>
-        </Link>
+          <Link
+            className={cn(
+              "-m-2 rounded-md p-2",
+              "transition-[opacity,transform] duration-200 ease-out",
+              "active:scale-[0.97]",
+              "motion-reduce:transition-none",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            )}
+            aria-label="Reway Home"
+            href="/"
+          >
+            <span className="flex items-center gap-2">
+              <RewayLogo
+                className="size-8"
+                aria-hidden="true"
+                focusable="false"
+              />
+              <span className="text-base font-bold text-foreground">Reway</span>
+            </span>
+          </Link>
 
-        <div className="hidden items-center gap-2 md:flex">
-          <div>
-            {navLinks.map((link) => (
-              <Button asChild key={link.label} size="sm" variant="ghost">
-                <Link href={link.href}>{link.label}</Link>
-              </Button>
-            ))}
-          </div>
+          <div className="hidden items-center gap-2 md:flex">
+            <div>
+              {navLinks.map((link) => (
+                <Button asChild key={link.label} size="sm" variant="ghost">
+                  <Link href={link.href}>{link.label}</Link>
+                </Button>
+              ))}
+            </div>
 
-          {user ? (
-            <>
+            {user ? (
+              <>
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
+                >
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      aria-label="Open user menu"
+                    >
+                      <Avatar className="h-8 w-8 transition-transform cursor-pointer">
+                        <AvatarImage src={user.avatar_url} alt={user.name} />
+                        <AvatarFallback>{initials}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem variant="destructive" onSelect={onLogout}>
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
               <Button
                 asChild
                 size="sm"
                 className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
               >
-                <Link href="/dashboard">Dashboard</Link>
+                <Link href="/login">Get Started</Link>
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    aria-label="Open user menu"
-                  >
-                    <Avatar className="h-8 w-8 transition-transform cursor-pointer">
-                      <AvatarImage src={user.avatar_url} alt={user.name} />
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem variant="destructive" onSelect={onLogout}>
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <Button
-              asChild
-              size="sm"
-              className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
-            >
-              <Link href="/login">Get Started</Link>
-            </Button>
-          )}
-        </div>
+            )}
+          </div>
 
-        <MobileNav user={user} initials={initials} />
-      </nav>
+          <MobileNav user={user} initials={initials} />
+        </nav>
+      </div>
     </header>
   );
 }
