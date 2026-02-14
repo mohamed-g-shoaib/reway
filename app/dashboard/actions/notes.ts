@@ -73,6 +73,39 @@ export async function updateNote(
   revalidatePath("/dashboard");
 }
 
+export async function restoreNote(note: {
+  id: string;
+  text: string;
+  color?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  order_index?: number | null;
+}) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { error } = await supabase.from("notes").insert({
+    id: note.id,
+    user_id: userData.user.id,
+    text: note.text,
+    color: note.color ?? null,
+    created_at: note.created_at ?? new Date().toISOString(),
+    updated_at: note.updated_at ?? new Date().toISOString(),
+    order_index: note.order_index ?? null,
+  });
+
+  if (error) {
+    console.error("Error restoring note:", error);
+    throw new Error("Failed to restore note");
+  }
+
+  revalidatePath("/dashboard");
+}
+
 export async function deleteNote(id: string) {
   const supabase = await createClient();
 

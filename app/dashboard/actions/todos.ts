@@ -88,6 +88,45 @@ export async function updateTodo(
   revalidatePath("/dashboard");
 }
 
+export async function restoreTodo(todo: {
+  id: string;
+  text: string;
+  priority: TodoPriority | string;
+  completed: boolean;
+  completed_at?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  order_index?: number | null;
+}) {
+  const supabase = await createClient();
+
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  if (userError || !userData.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const priority = normalizePriority(todo.priority);
+
+  const { error } = await supabase.from("todos").insert({
+    id: todo.id,
+    user_id: userData.user.id,
+    text: todo.text,
+    priority,
+    completed: todo.completed,
+    completed_at: todo.completed_at ?? null,
+    created_at: todo.created_at ?? new Date().toISOString(),
+    updated_at: todo.updated_at ?? new Date().toISOString(),
+    order_index: todo.order_index ?? null,
+  });
+
+  if (error) {
+    console.error("Error restoring todo:", error);
+    throw new Error("Failed to restore todo");
+  }
+
+  revalidatePath("/dashboard");
+}
+
 export async function setTodoCompleted(id: string, completed: boolean) {
   const supabase = await createClient();
 
