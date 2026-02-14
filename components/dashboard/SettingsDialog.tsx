@@ -233,22 +233,8 @@ export function SettingsDialog({
                       data-onboarding="palette-theme-trigger"
                       className="w-full"
                     >
-                      <span className="flex items-center gap-2 min-w-0">
-                        <span
-                          className="flex items-center gap-1.5 shrink-0"
-                          aria-hidden="true"
-                        >
-                          {(selectedPaletteTheme?.dots ?? []).map((dot) => (
-                            <span
-                              key={dot}
-                              className="size-2.5 rounded-full ring-1 ring-foreground/10"
-                              style={{ backgroundColor: dot }}
-                            />
-                          ))}
-                        </span>
-                        <span className="min-w-0 truncate">
-                          <SelectValue placeholder="Theme" />
-                        </span>
+                      <span className="min-w-0 truncate">
+                        <SelectValue placeholder="Theme" />
                       </span>
                     </SelectTrigger>
                     <SelectContent
@@ -261,11 +247,11 @@ export function SettingsDialog({
                             key={themeOption.value}
                             value={themeOption.value}
                           >
-                            <span className="flex items-center justify-between gap-3 w-full">
-                              <span className="font-medium">
-                                {themeOption.label}
-                              </span>
-                              <span className="flex items-center gap-1.5">
+                            <span className="flex items-center gap-2 min-w-0">
+                              <span
+                                className="flex items-center gap-1.5 shrink-0"
+                                aria-hidden="true"
+                              >
                                 {themeOption.dots.map((dot) => (
                                   <span
                                     key={dot}
@@ -273,6 +259,9 @@ export function SettingsDialog({
                                     style={{ backgroundColor: dot }}
                                   />
                                 ))}
+                              </span>
+                              <span className="font-medium truncate">
+                                {themeOption.label}
                               </span>
                             </span>
                           </SelectItem>
