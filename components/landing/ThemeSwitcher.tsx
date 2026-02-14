@@ -16,11 +16,8 @@ interface ThemeSwitcherProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const activeTheme = useMemo(
-    () => (theme === "system" ? resolvedTheme ?? "system" : theme),
-    [resolvedTheme, theme],
-  );
+  const { theme, setTheme } = useTheme();
+  const activeTheme = useMemo(() => theme ?? "system", [theme]);
 
   const themes = [
     { value: "system", icon: ComputerIcon, label: "Switch to system theme" },
@@ -45,9 +42,12 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
           onClick={() => setTheme(value)}
           className="group relative size-6 rounded-full transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
         >
-          {activeTheme === value && (
-            <div className="-z-1 absolute inset-0 rounded-full bg-muted" />
-          )}
+          <div
+            className={cn(
+              "-z-1 absolute inset-0 rounded-full bg-muted transition-opacity duration-200 ease-out",
+              activeTheme === value ? "opacity-100" : "opacity-0",
+            )}
+          />
           <HugeiconsIcon
             icon={icon}
             className={cn(
