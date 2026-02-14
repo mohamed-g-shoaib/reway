@@ -1,366 +1,70 @@
 "use client";
 
-import { useReducedMotion } from "motion/react";
-import {
-  Folder01Icon,
-  Search01Icon,
-  BulbIcon,
-  ToolsIcon,
-} from "@hugeicons/core-free-icons";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import RewayLogo from "@/components/logo";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 
-import { useMemo, useState } from "react";
-
-import type { NoteRow, TodoRow } from "@/lib/supabase/queries";
-import type { TodoPriority } from "@/components/dashboard/content/notes-todos/types";
-import { NOTE_COLORS } from "@/components/dashboard/content/notes-todos/config";
-import { NotesSectionPreview, TodosSectionPreview } from "./hero-demo/NotesTodosPreviews";
-
-import type { HeroBookmark, HeroGroup, HeroGroupId } from "./hero-demo/types";
-import { PREVIEW_BOOKMARKS, getInitialHeroGroups } from "./hero-demo/data";
+import {
+  NotesSectionPreview,
+  TodosSectionPreview,
+} from "./hero-demo/NotesTodosPreviews";
 import { DemoShell } from "./hero-demo/DemoShell";
 import { GroupsSidebar } from "./hero-demo/GroupsSidebar";
 import { GroupsDropdown } from "./hero-demo/GroupsDropdown";
 import { BookmarksGrid } from "./hero-demo/BookmarksGrid";
 import { NotesTodosSidebar } from "./hero-demo/NotesTodosSidebar";
+import { useHeroDemoState } from "./hero-demo/useHeroDemoState";
 
 export function HeroDemoPreview() {
-  const shouldReduceMotion = useReducedMotion();
-
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const [activeGroup, setActiveGroup] = useState<HeroGroupId>("all");
-  const [commandMode, setCommandMode] = useState<"add" | "search">("add");
-  const [commandInputValue, setCommandInputValue] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCommandFocused, setIsCommandFocused] = useState(false);
-
-  const [heroBookmarks, setHeroBookmarks] = useState(() =>
-    PREVIEW_BOOKMARKS.map((b, index) => ({
-      ...b,
-      id: `seed-${index}`,
-    })),
-  );
-
-  const [notes, setNotes] = useState<NoteRow[]>(() => [
-    {
-      id: "n1",
-      user_id: "hero",
-      text: "Capture pricing pages and docs before you forget where you found them.",
-      color: NOTE_COLORS[2],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      order_index: 0,
-    },
-    {
-      id: "n2",
-      user_id: "hero",
-      text: "Long notes truncate in the sidebar. Click to expand and collapse just like the dashboard.",
-      color: NOTE_COLORS[5],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      order_index: 1,
-    },
-  ]);
-
-  const [activeNotesTodosSection, setActiveNotesTodosSection] = useState<
-    "notes" | "todos"
-  >("notes");
-
-  const [heroGroups, setHeroGroups] = useState<HeroGroup[]>(() =>
-    getInitialHeroGroups({
-      folder: Folder01Icon,
-      search: Search01Icon,
-      bulb: BulbIcon,
-      tools: ToolsIcon,
-    }),
-  );
-
-  const [creatingGroup, setCreatingGroup] = useState(false);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupIcon, setNewGroupIcon] = useState<
-    typeof Search01Icon | typeof BulbIcon | typeof ToolsIcon | typeof Folder01Icon
-  >(Folder01Icon);
-  const [newGroupColor, setNewGroupColor] = useState<string | null>(null);
-
-  const [dropdownCreatingGroup, setDropdownCreatingGroup] = useState(false);
-  const [dropdownNewGroupName, setDropdownNewGroupName] = useState("");
-
-  const [todos, setTodos] = useState<TodoRow[]>(() => [
-    {
-      id: "t1",
-      user_id: "hero",
-      text: "Group similar links",
-      priority: "high",
-      completed: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      completed_at: null,
-      order_index: 0,
-    },
-    {
-      id: "t2",
-      user_id: "hero",
-      text: "Clean duplicates",
-      priority: "medium",
-      completed: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      completed_at: new Date().toISOString(),
-      order_index: 1,
-    },
-  ]);
-
-  const makeId = () => {
-    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-      return crypto.randomUUID();
-    }
-    return Math.random().toString(16).slice(2);
-  };
-
-  const handleCreateHeroGroupFromDropdown = () => {
-    const name = dropdownNewGroupName.trim();
-    if (!name) return;
-    const id = makeId();
-
-    setHeroGroups((prev) => [
-      ...prev,
-      {
-        id,
-        label: name,
-        icon: Folder01Icon,
-        color: null,
-      },
-    ]);
-
-    setDropdownCreatingGroup(false);
-    setDropdownNewGroupName("");
-    setActiveGroup("all");
-  };
-
-  const visibleBookmarks = useMemo(() => {
-    const groupFiltered =
-      activeGroup === "all"
-        ? heroBookmarks
-        : heroBookmarks.filter((b) => b.group === activeGroup);
-
-    const q = (commandMode === "search" ? searchQuery : "").trim().toLowerCase();
-    if (!q) return groupFiltered;
-
-    return groupFiltered.filter((b) => {
-      return (
-        b.title.toLowerCase().includes(q) ||
-        b.domain.toLowerCase().includes(q) ||
-        b.url.toLowerCase().includes(q)
-      );
-    });
-  }, [activeGroup, commandMode, heroBookmarks, searchQuery]);
-
-  const stableBookmarkSlots = useMemo(() => {
-    const max = 9;
-    const slots: Array<
-      | { kind: "bookmark"; value: HeroBookmark }
-      | { kind: "placeholder"; key: string }
-    > = visibleBookmarks.slice(0, max).map((b) => ({ kind: "bookmark", value: b }));
-    while (slots.length < max) {
-      slots.push({ kind: "placeholder", key: `ph-${slots.length}` });
-    }
-    return slots;
-  }, [visibleBookmarks]);
-
-  const handleCreateHeroGroup = () => {
-    const name = newGroupName.trim();
-    if (!name) return;
-    const id = makeId();
-    const iconMap: Record<string, { icon: typeof Folder01Icon; color: string }> = {
-      Research: { icon: Search01Icon, color: "#3b82f6" },
-      Inspiration: { icon: BulbIcon, color: "#f59e0b" },
-      Build: { icon: ToolsIcon, color: "#10b981" },
-    };
-    const preset = iconMap[name] ?? null;
-
-    setHeroGroups((prev) => [
-      ...prev,
-      {
-        id,
-        label: name,
-        icon: preset?.icon ?? newGroupIcon,
-        color: preset?.color ?? newGroupColor,
-      },
-    ]);
-
-    setCreatingGroup(false);
-    setNewGroupName("");
-    setNewGroupIcon(Folder01Icon);
-    setNewGroupColor(null);
-    setActiveGroup("all");
-  };
-
-  const cancelCreateHeroGroup = () => {
-    setCreatingGroup(false);
-    setNewGroupName("");
-    setNewGroupIcon(Folder01Icon);
-    setNewGroupColor(null);
-  };
-
-  const cancelCreateHeroGroupFromDropdown = () => {
-    setDropdownCreatingGroup(false);
-    setDropdownNewGroupName("");
-  };
-
-  const handleToggleTodoCompleted = (id: string, completed: boolean) => {
-    void handleSetTodoCompleted(id, completed);
-  };
-
-  const handleCreateNote = async (formData: { text: string; color?: string | null }) => {
-    const id = makeId();
-    setNotes((prev) => [
-      {
-        id,
-        user_id: "hero",
-        text: formData.text,
-        color: formData.color ?? null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        order_index: prev.length,
-      },
-      ...prev,
-    ]);
-    return id;
-  };
-
-  const handleUpdateNote = async (
-    id: string,
-    formData: { text: string; color?: string | null },
-  ) => {
-    setNotes((prev) =>
-      prev.map((n) =>
-        n.id === id
-          ? {
-              ...n,
-              text: formData.text,
-              color: formData.color ?? null,
-              updated_at: new Date().toISOString(),
-            }
-          : n,
-      ),
-    );
-  };
-
-  const handleDeleteNote = async (id: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  const handleDeleteNotes = async (ids: string[]) => {
-    const idSet = new Set(ids);
-    setNotes((prev) => prev.filter((n) => !idSet.has(n.id)));
-  };
-
-  const handleCreateTodo = async (formData: { text: string; priority: TodoPriority }) => {
-    const id = makeId();
-    setTodos((prev) => [
-      {
-        id,
-        user_id: "hero",
-        text: formData.text,
-        priority: formData.priority,
-        completed: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        completed_at: null,
-        order_index: prev.length,
-      },
-      ...prev,
-    ]);
-    return id;
-  };
-
-  const handleUpdateTodo = async (
-    id: string,
-    formData: { text: string; priority: TodoPriority },
-  ) => {
-    setTodos((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              text: formData.text,
-              priority: formData.priority,
-              updated_at: new Date().toISOString(),
-            }
-          : t,
-      ),
-    );
-  };
-
-  const handleDeleteTodo = async (id: string) => {
-    setTodos((prev) => prev.filter((t) => t.id !== id));
-  };
-
-  const handleDeleteTodos = async (ids: string[]) => {
-    const idSet = new Set(ids);
-    setTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
-  };
-
-  const handleSetTodoCompleted = async (id: string, completed: boolean) => {
-    setTodos((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              completed,
-              completed_at: completed ? new Date().toISOString() : null,
-              updated_at: new Date().toISOString(),
-            }
-          : t,
-      ),
-    );
-  };
-
-  const handleSetTodosCompleted = async (ids: string[], completed: boolean) => {
-    const idSet = new Set(ids);
-    setTodos((prev) =>
-      prev.map((t) =>
-        idSet.has(t.id)
-          ? {
-              ...t,
-              completed,
-              completed_at: completed ? new Date().toISOString() : null,
-              updated_at: new Date().toISOString(),
-            }
-          : t,
-      ),
-    );
-  };
-
-  const handleCopy = async (
-    event: React.MouseEvent,
-    bookmarkUrl: string,
-    index: number,
-  ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(bookmarkUrl);
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
-    } catch {
-      setCopiedIndex(null);
-    }
-  };
-
-  const handleOpen = (event: React.MouseEvent, bookmarkUrl: string) => {
-    event.preventDefault();
-    event.stopPropagation();
-    window.open(bookmarkUrl, "_blank", "noopener,noreferrer");
-  };
-
-  const handleEdit = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
+  const {
+    copiedIndex,
+    activeGroup,
+    setActiveGroup,
+    commandMode,
+    setCommandMode,
+    commandInputValue,
+    setCommandInputValue,
+    searchQuery,
+    setSearchQuery,
+    isCommandFocused,
+    setIsCommandFocused,
+    stableBookmarkSlots,
+    heroGroups,
+    creatingGroup,
+    setCreatingGroup,
+    newGroupName,
+    setNewGroupName,
+    newGroupIcon,
+    setNewGroupIcon,
+    setNewGroupColor,
+    dropdownCreatingGroup,
+    setDropdownCreatingGroup,
+    dropdownNewGroupName,
+    setDropdownNewGroupName,
+    activeNotesTodosSection,
+    setActiveNotesTodosSection,
+    notes,
+    todos,
+    handleCreateHeroGroupFromDropdown,
+    handleCreateHeroGroup,
+    cancelCreateHeroGroup,
+    cancelCreateHeroGroupFromDropdown,
+    submitCommandInput,
+    handleCopy,
+    handleOpen,
+    handleEdit,
+    handleToggleTodoCompleted,
+    handleCreateNote,
+    handleUpdateNote,
+    handleDeleteNote,
+    handleDeleteNotes,
+    handleCreateTodo,
+    handleUpdateTodo,
+    handleDeleteTodo,
+    handleDeleteTodos,
+    handleSetTodoCompleted,
+    handleSetTodosCompleted,
+  } = useHeroDemoState();
 
   return (
     <div className="mx-auto mt-12 w-full max-w-350">
@@ -424,41 +128,15 @@ export function HeroDemoPreview() {
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
-                        if (commandMode !== "add") return;
-                        const value = commandInputValue.trim();
-                        if (!value) return;
-
-                        const nextGroup =
-                          activeGroup === "all" ? "Research" : activeGroup;
-                        setHeroBookmarks((prev) => [
-                          {
-                            id: makeId(),
-                            title:
-                              value.length > 28
-                                ? `${value.slice(0, 28)}…`
-                                : value,
-                            domain: "new.link",
-                            url: value.startsWith("http")
-                              ? value
-                              : `https://${value}`,
-                            date: "Now",
-                            favicon:
-                              "https://www.google.com/s2/favicons?domain=example.com&sz=64",
-                            group: nextGroup as
-                              | "Research"
-                              | "Inspiration"
-                              | "Build"
-                              | "Learn",
-                          },
-                          ...prev,
-                        ]);
-                        setCommandInputValue("");
+                        submitCommandInput();
                       }}
                     >
                       <input
                         type="text"
                         value={
-                          commandMode === "search" ? searchQuery : commandInputValue
+                          commandMode === "search"
+                            ? searchQuery
+                            : commandInputValue
                         }
                         onChange={(e) => {
                           if (commandMode === "search") {

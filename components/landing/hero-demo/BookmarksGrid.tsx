@@ -37,7 +37,7 @@ export function BookmarksGrid({
             key={slot.key}
             className={`rounded-2xl bg-muted/10 p-4 ring-1 ring-foreground/8 opacity-0 ${
               index >= 3 ? "hidden sm:block" : ""
-            } ${index >= 6 ? "sm:hidden lg:block" : ""} sm:h-26`}
+            } ${index >= 6 ? "sm:hidden lg:block" : ""} h-26`}
             aria-hidden="true"
           />
         ) : (
@@ -45,7 +45,7 @@ export function BookmarksGrid({
             key={slot.value.id}
             className={`rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 transition-colors hover:bg-muted/30 ${
               index >= 3 ? "hidden sm:block" : ""
-            } ${index >= 6 ? "sm:hidden lg:block" : ""} sm:h-26`}
+            } ${index >= 6 ? "sm:hidden lg:block" : ""} h-26`}
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
