@@ -109,7 +109,7 @@ export function QuickGlanceDialog({
               </h2>
               <button
                 onClick={() => onOpenChange(false)}
-                className="text-muted-foreground/40 hover:text-foreground p-1"
+                className="text-muted-foreground/40 hover:text-primary/90 p-1"
                 aria-label="Close dialog"
               >
                 <HugeiconsIcon icon={Cancel01Icon} size={18} />
@@ -160,7 +160,7 @@ export function QuickGlanceDialog({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="rounded-lg text-muted-foreground hover:text-foreground"
+                    className="rounded-lg text-muted-foreground hover:text-primary/90"
                     onClick={() => onEdit(bookmark)}
                     aria-label="Edit bookmark"
                   >

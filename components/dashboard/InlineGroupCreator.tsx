@@ -117,7 +117,7 @@ interface NewGroupTriggerProps {
 export function NewGroupTrigger({ onSelect }: NewGroupTriggerProps) {
   return (
     <DropdownMenuItem
-      className="rounded-xl text-primary font-medium focus:bg-primary/5 cursor-pointer flex items-center justify-between gap-3 py-2"
+      className="rounded-xl text-primary font-medium cursor-pointer flex items-center justify-between gap-3 py-2"
       onSelect={(e) => {
         e.preventDefault();
         onSelect();

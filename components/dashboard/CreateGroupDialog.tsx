@@ -120,7 +120,7 @@ export function CreateGroupDialog({
                               className={`flex h-10 w-10 items-center justify-center rounded-xl transition-transform transition-colors duration-150 ${
                                 selectedIcon === iconName
                                   ? "bg-primary text-primary-foreground scale-105"
-                                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:scale-105"
+                                  : "bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-primary/90 hover:scale-105"
                               }`}
                             >
                               <HugeiconsIcon

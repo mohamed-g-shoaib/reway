@@ -133,7 +133,7 @@ export function GroupListItem({
     <DropdownMenuItem
       className={`rounded-xl cursor-pointer flex items-center justify-between gap-3 py-2 group/menu-item ${
         isActive
-          ? "bg-primary/5 text-primary font-bold"
+          ? "bg-muted text-foreground font-bold"
           : "text-muted-foreground"
       }`}
       onSelect={(e) => {
@@ -155,7 +155,7 @@ export function GroupListItem({
         <div className="flex items-center gap-1 opacity-0 group-hover/menu-item:opacity-100 transition-opacity absolute right-0 bg-inherit pl-2">
           <button
             type="button"
-            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground hover:text-primary transition-transform active:scale-95"
+            className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted/50 cursor-pointer text-muted-foreground hover:text-primary/90 transition-transform active:scale-95"
             onClick={(e) => {
               e.stopPropagation();
               onEdit(group.id);
