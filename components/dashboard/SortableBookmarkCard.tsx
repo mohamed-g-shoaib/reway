@@ -50,6 +50,7 @@ interface SortableBookmarkCardProps {
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
   onPreview?: (id: string) => void;
+  dragDimmed?: boolean;
 }
 
 export function SortableBookmarkCard({
@@ -72,6 +73,7 @@ export function SortableBookmarkCard({
   onDelete,
   onEdit,
   onPreview,
+  dragDimmed = false,
 }: SortableBookmarkCardProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -156,7 +158,9 @@ export function SortableBookmarkCard({
             data-slot="bookmark-card"
             className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate hover:bg-muted/30 overflow-hidden cursor-grab active:cursor-grabbing ${
               isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
-            } ${isDragging ? "opacity-0" : ""}`}
+            } ${dragDimmed ? "opacity-40 saturate-0" : ""} ${
+              isDragging ? "opacity-0" : ""
+            }`}
           >
             <div className="flex items-center gap-3 min-w-0">
               {selectionMode ? (
