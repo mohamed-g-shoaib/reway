@@ -1,10 +1,30 @@
 const DEFAULT_BASE_URL = "https://reway-app.vercel.app";
 
+const REWAY_DEBUG = false;
+
 async function getSettings() {
   const { rewayBaseUrl } = await chrome.storage.local.get(["rewayBaseUrl"]);
   return {
     baseUrl: rewayBaseUrl || DEFAULT_BASE_URL,
   };
+}
+
+const __rewayWorkerLogSeen = new Map();
+
+function __rewayErrorOnce(key, ...args) {
+  const now = Date.now();
+  const last = __rewayWorkerLogSeen.get(key) || 0;
+  if (now - last < 60_000) return;
+  __rewayWorkerLogSeen.set(key, now);
+  console.error(...args);
+}
+
+function __rewayWarnOnce(key, ...args) {
+  const now = Date.now();
+  const last = __rewayWorkerLogSeen.get(key) || 0;
+  if (now - last < 60_000) return;
+  __rewayWorkerLogSeen.set(key, now);
+  console.warn(...args);
 }
 
 // ============================================
@@ -46,7 +66,7 @@ async function addGrabbedLink(
       fetchedTitle = urlObj.hostname;
       fetchedFavIcon = `${urlObj.origin}/favicon.ico`;
     } catch (error) {
-      console.warn("Failed to derive metadata:", error);
+      __rewayWarnOnce("derive-metadata-failed", "Failed to derive metadata:", error);
     }
   }
 
@@ -171,17 +191,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // Twitter bookmark handler
   if (message?.type === "twitterBookmark") {
-    console.log("Received Twitter bookmark message:", message);
+    if (REWAY_DEBUG) console.log("Received Twitter bookmark message:", message);
 
     (async () => {
       try {
         const settings = await getSettings();
-        console.log("Settings retrieved:", {
-          baseUrl: settings.baseUrl,
-        });
+        if (REWAY_DEBUG)
+          console.log("Settings retrieved:", {
+            baseUrl: settings.baseUrl,
+          });
 
         // Check if "X Bookmarks" group exists, create if not
-        console.log("Fetching groups...");
+        if (REWAY_DEBUG) console.log("Fetching groups...");
         const groupsResponse = await fetch(
           `${settings.baseUrl}/api/extension/groups`,
           { credentials: "include" },
@@ -193,7 +214,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const groupsData = await groupsResponse.json();
-        console.log("Groups fetched:", groupsData);
+        if (REWAY_DEBUG) console.log("Groups fetched:", groupsData);
 
         const { xBookmarksGroupId } = await chrome.storage.local.get([
           "xBookmarksGroupId",
@@ -214,11 +235,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         }
 
-        console.log("X Bookmarks group exists:", !!xBookmarksGroup);
+        if (REWAY_DEBUG)
+          console.log("X Bookmarks group exists:", !!xBookmarksGroup);
 
         // Create group if it doesn't exist
         if (!xBookmarksGroup) {
-          console.log("Creating X Bookmarks group...");
+          if (REWAY_DEBUG) console.log("Creating X Bookmarks group...");
           const createGroupResponse = await fetch(
             `${settings.baseUrl}/api/extension/groups`,
             {
@@ -240,7 +262,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
 
           const createGroupData = await createGroupResponse.json();
-          console.log("X Bookmarks group created:", createGroupData);
+          if (REWAY_DEBUG) console.log("X Bookmarks group created:", createGroupData);
           xBookmarksGroup = createGroupData.group;
           await chrome.storage.local.set({
             xBookmarksGroupId: xBookmarksGroup.id,
@@ -253,11 +275,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const bookmarkDescription = message.description?.trim() || "";
         const bookmarkFavicon = message.faviconUrl?.trim() || null;
 
-        console.log("Creating bookmark with:", {
-          url: message.url,
-          title: bookmarkTitle.substring(0, 100),
-          groupId: xBookmarksGroup.id,
-        });
+        if (REWAY_DEBUG)
+          console.log("Creating bookmark with:", {
+            url: message.url,
+            title: bookmarkTitle.substring(0, 100),
+            groupId: xBookmarksGroup.id,
+          });
 
         const bookmarkResponse = await fetch(
           `${settings.baseUrl}/api/extension/bookmarks`,
@@ -287,7 +310,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const bookmarkData = await bookmarkResponse.json();
-        console.log("Bookmark created successfully:", bookmarkData);
+        if (REWAY_DEBUG) console.log("Bookmark created successfully:", bookmarkData);
 
         sendResponse({ success: true });
       } catch (error) {
@@ -379,7 +402,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         sendResponse({ ok: true, count: bookmarkUrls.length });
       } catch (error) {
-        console.error("Open group failed:", error);
+        const msg = String(error?.message || "Failed");
+        __rewayErrorOnce(`open-group-failed:${msg}`, "Open group failed:", error);
         sendResponse({ ok: false, error: error?.message || "Failed" });
       }
     })();

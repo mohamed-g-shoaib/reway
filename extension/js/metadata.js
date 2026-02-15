@@ -2,6 +2,16 @@
  * Injected script for metadata retrieval.
  * We use this via chrome.scripting.executeScript for better privacy than permanent content scripts.
  */
+ const __rewayMetadataLogSeen = new Map();
+
+ function __rewayWarnOnce(key, ...args) {
+   const now = Date.now();
+   const last = __rewayMetadataLogSeen.get(key) || 0;
+   if (now - last < 60_000) return;
+   __rewayMetadataLogSeen.set(key, now);
+   console.warn(...args);
+ }
+
 function extractMetadata() {
   function getDescription() {
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -37,11 +47,18 @@ export async function fetchPageMeta(tabId) {
     }
   } catch (error) {
     const msg = String(error?.message || "");
-    if (msg.includes("must request permission") || msg.includes("Cannot access contents of url")) {
-      console.debug("Metadata extraction skipped:", msg);
+    if (
+      msg.includes("must request permission") ||
+      msg.includes("Cannot access contents of url") ||
+      msg.includes("Cannot access a chrome:// URL")
+    ) {
       return null;
     }
-    console.warn("Metadata extraction failed:", error);
+    __rewayWarnOnce(
+      `metadata-extraction-failed:${msg || "unknown"}`,
+      "Metadata extraction failed:",
+      error,
+    );
   }
   return null;
 }

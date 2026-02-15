@@ -14,6 +14,21 @@ import { loadTabSession, saveTabSession } from "./js/sessions.js";
 let selectedGroupId = "";
 let hasManualGroupSelection = false;
 
+function setPopupHeader(mode) {
+  const titleEl = document.getElementById("popup-header-title");
+  const subtitleEl = document.getElementById("popup-header-subtitle");
+  if (!titleEl || !subtitleEl) return;
+
+  if (mode === "auth") {
+    titleEl.textContent = "Hello";
+    subtitleEl.textContent = "Please log in to save to Reway";
+    return;
+  }
+
+  titleEl.textContent = "Save to Reway";
+  subtitleEl.textContent = "Choose one of the 3 options below";
+}
+
 // UI Initialization
 async function init() {
   document.querySelector(".shell").style.opacity = "1";
@@ -41,8 +56,10 @@ async function init() {
     await chrome.storage.local.set({ rewayGroups: groups });
     renderGroups(groups);
     showSection("main-section");
+    setPopupHeader("main");
   } catch {
     showSection("auth-section");
+    setPopupHeader("auth");
   } finally {
     if (loadingView) {
       loadingView.classList.add("hidden");
