@@ -131,7 +131,7 @@ export function LandingFooter() {
                 {isAuthenticated ? (
                   <button
                     type="button"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-foreground transition-colors cursor-pointer"
                     onClick={() => {
                       if (isPrimaryNavLoading) return;
                       setIsPrimaryNavLoading(true);
@@ -144,7 +144,7 @@ export function LandingFooter() {
                 ) : (
                   <Link
                     href={primaryHref}
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-foreground transition-colors cursor-pointer"
                   >
                     {primaryLabel}
                   </Link>

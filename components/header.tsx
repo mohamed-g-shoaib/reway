@@ -150,7 +150,7 @@ export function Header() {
               <>
                 <Button
                   size="sm"
-                  className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
+                  className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0 cursor-pointer"
                   onClick={() => {
                     if (isDashboardNavLoading) return;
                     setIsDashboardNavLoading(true);

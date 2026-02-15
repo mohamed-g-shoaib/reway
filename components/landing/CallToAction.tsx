@@ -95,7 +95,7 @@ export function CallToAction() {
                   {isAuthenticated ? (
                     <Button
                       size="lg"
-                      className="rounded-full px-8"
+                      className="rounded-full px-8 cursor-pointer"
                       onClick={() => {
                         if (isPrimaryNavLoading) return;
                         setIsPrimaryNavLoading(true);
@@ -113,7 +113,7 @@ export function CallToAction() {
                       ) : null}
                     </Button>
                   ) : (
-                    <Button asChild size="lg" className="rounded-full px-8">
+                    <Button asChild size="lg" className="rounded-full px-8 cursor-pointer">
                       <Link href={primaryHref}>
                         {primaryLabel}
                         <HugeiconsIcon
