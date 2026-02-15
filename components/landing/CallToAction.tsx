@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { motion, useReducedMotion, type Variants } from "motion/react";
@@ -39,6 +40,8 @@ const itemVariants: Variants = {
 export function CallToAction() {
   const shouldReduceMotion = useReducedMotion();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isPrimaryNavLoading, setIsPrimaryNavLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
@@ -89,16 +92,38 @@ export function CallToAction() {
                       : { duration: 0.16, ease: "easeOut" }
                   }
                 >
-                  <Button asChild size="lg" className="rounded-full px-8">
-                    <Link href={primaryHref}>
-                      {primaryLabel}
-                      <HugeiconsIcon
-                        icon={ArrowRight01Icon}
-                        size={20}
-                        className="ml-2"
-                      />
-                    </Link>
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button
+                      size="lg"
+                      className="rounded-full px-8"
+                      onClick={() => {
+                        if (isPrimaryNavLoading) return;
+                        setIsPrimaryNavLoading(true);
+                        router.push("/dashboard");
+                      }}
+                      disabled={isPrimaryNavLoading}
+                    >
+                      {isPrimaryNavLoading ? "Loading..." : "Dashboard"}
+                      {!isPrimaryNavLoading ? (
+                        <HugeiconsIcon
+                          icon={ArrowRight01Icon}
+                          size={20}
+                          className="ml-2"
+                        />
+                      ) : null}
+                    </Button>
+                  ) : (
+                    <Button asChild size="lg" className="rounded-full px-8">
+                      <Link href={primaryHref}>
+                        {primaryLabel}
+                        <HugeiconsIcon
+                          icon={ArrowRight01Icon}
+                          size={20}
+                          className="ml-2"
+                        />
+                      </Link>
+                    </Button>
+                  )}
                 </motion.div>
 
                 <ExtensionInstallDialog>

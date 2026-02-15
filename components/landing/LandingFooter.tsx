@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import {
@@ -18,6 +19,8 @@ import { useEffect, useMemo, useState } from "react";
 export function LandingFooter() {
   const shouldReduceMotion = useReducedMotion();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isPrimaryNavLoading, setIsPrimaryNavLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
@@ -125,12 +128,27 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
-                <Link
-                  href={primaryHref}
-                  className="hover:text-foreground transition-colors"
-                >
-                  {primaryLabel}
-                </Link>
+                {isAuthenticated ? (
+                  <button
+                    type="button"
+                    className="hover:text-foreground transition-colors"
+                    onClick={() => {
+                      if (isPrimaryNavLoading) return;
+                      setIsPrimaryNavLoading(true);
+                      router.push("/dashboard");
+                    }}
+                    disabled={isPrimaryNavLoading}
+                  >
+                    {isPrimaryNavLoading ? "Loading..." : primaryLabel}
+                  </button>
+                ) : (
+                  <Link
+                    href={primaryHref}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {primaryLabel}
+                  </Link>
+                )}
               </li>
             </ul>
           </div>

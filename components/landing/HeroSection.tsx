@@ -1,13 +1,31 @@
 "use client";
 
 import { motion, useReducedMotion, type Variants } from "motion/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
 import { Google } from "@/components/google-logo";
 import { HeroDemoPreview } from "@/components/landing/HeroDemoPreview";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
 export function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isPrimaryNavLoading, setIsPrimaryNavLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setIsAuthenticated(Boolean(data?.user)))
+      .catch(() => setIsAuthenticated(false));
+  }, []);
+
+  const primaryHref = isAuthenticated ? "/dashboard" : "/login";
+  const primaryLabel = isAuthenticated ? "Dashboard" : "Get Started";
 
   const sectionVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
@@ -39,9 +57,28 @@ export function HeroSection() {
 
           <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 pt-1">
             <div className="flex flex-col items-center gap-3 sm:flex-row">
-              <Button size="lg" className="rounded-full px-8 cursor-pointer">
-                Open Dashboard
-              </Button>
+              {isAuthenticated ? (
+                <Button
+                  size="lg"
+                  className="rounded-full px-8 cursor-pointer"
+                  onClick={() => {
+                    if (isPrimaryNavLoading) return;
+                    setIsPrimaryNavLoading(true);
+                    router.push("/dashboard");
+                  }}
+                  disabled={isPrimaryNavLoading}
+                >
+                  {isPrimaryNavLoading ? "Loading..." : "Dashboard"}
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  size="lg"
+                  className="rounded-full px-8 cursor-pointer"
+                >
+                  <Link href={primaryHref}>{primaryLabel}</Link>
+                </Button>
+              )}
 
               <ExtensionInstallDialog>
                 <Button

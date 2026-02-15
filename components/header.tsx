@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import RewayLogo from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
@@ -45,6 +46,8 @@ type HeaderUser = {
 export function Header() {
   const scrolled = useScroll(10);
   const [user, setUser] = useState<HeaderUser | null>(null);
+  const [isDashboardNavLoading, setIsDashboardNavLoading] = useState(false);
+  const router = useRouter();
 
   const onLogout = async () => {
     const supabase = createClient();
@@ -146,11 +149,16 @@ export function Header() {
             {user ? (
               <>
                 <Button
-                  asChild
                   size="sm"
                   className="bg-foreground text-background hover:bg-foreground/90 rounded-4xl transition-colors ring-0"
+                  onClick={() => {
+                    if (isDashboardNavLoading) return;
+                    setIsDashboardNavLoading(true);
+                    router.push("/dashboard");
+                  }}
+                  disabled={isDashboardNavLoading}
                 >
-                  <Link href="/dashboard">Dashboard</Link>
+                  {isDashboardNavLoading ? "Loading..." : "Dashboard"}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
