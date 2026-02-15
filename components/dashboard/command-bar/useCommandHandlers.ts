@@ -10,6 +10,7 @@ import {
 } from "@/app/dashboard/actions/bookmarks";
 import { extractUrlsFromText, isUrl } from "./helpers";
 import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
+import { isTypingTarget } from "@/lib/keyboard";
 
 interface UseCommandHandlersOptions {
   onAddBookmark: (bookmark: BookmarkRow) => void;
@@ -151,6 +152,11 @@ export function useCommandHandlers({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      const target = e.target;
+      if (isTypingTarget(target) && target !== inputRef.current) {
+        return;
+      }
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
         e.preventDefault();
         onModeChange?.("search");

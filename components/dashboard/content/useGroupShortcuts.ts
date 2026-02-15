@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useRef, useCallback } from "react";
 import type { GroupRow } from "@/lib/supabase/queries";
 import { useGlobalKeydown } from "@/hooks/useGlobalKeydown";
+import {
+  normalizeAlphaNumericKey,
+  shouldIgnoreDashboardHotkey,
+} from "@/lib/keyboard";
 
 interface UseGroupShortcutsOptions {
   groups: GroupRow[];
@@ -55,19 +59,13 @@ export function useGroupShortcuts({
     (event: KeyboardEvent) => {
       if (!event.shiftKey) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
-      if (event.key.length !== 1) return;
+      if (event.key.length !== 1 && !event.code) return;
 
-      const target = event.target;
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        target instanceof HTMLSelectElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      ) {
-        return;
-      }
+      if (shouldIgnoreDashboardHotkey(event)) return;
 
-      const letter = event.key.toLowerCase();
+      const letter = normalizeAlphaNumericKey(event);
+      if (!letter || letter.length !== 1) return;
+      if (!/[a-z]/.test(letter)) return;
       const groupIds = groupsByFirstLetter[letter];
       if (!groupIds || groupIds.length === 0) return;
 
