@@ -267,19 +267,15 @@ export function BookmarkEditSheet({
                 value={groupId}
                 onValueChange={(value) => setGroupId(value)}
               >
-                <SelectTrigger className="w-full cursor-pointer">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select group" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no-group" className="cursor-pointer">
+                  <SelectItem value="no-group">
                     No Group
                   </SelectItem>
                   {groups.map((group) => (
-                    <SelectItem
-                      key={group.id}
-                      value={group.id}
-                      className="cursor-pointer"
-                    >
+                    <SelectItem key={group.id} value={group.id}>
                       {renderGroupOption(group)}
                     </SelectItem>
                   ))}
