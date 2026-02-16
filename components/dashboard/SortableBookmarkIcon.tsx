@@ -213,7 +213,7 @@ export function SortableBookmarkIcon({
               </a>
             )}
             <a
-              className="text-xs font-semibold text-foreground truncate w-full block cursor-pointer hover:text-primary/90"
+              className="text-xs font-semibold text-foreground truncate w-full block cursor-pointer group-hover:text-primary"
               style={{ textDecoration: "none" }}
               href={url}
               target="_blank"
