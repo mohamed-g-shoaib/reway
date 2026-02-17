@@ -42,6 +42,7 @@ function AccordionTrigger({
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
+        suppressHydrationWarning
         className={cn(
           "**:data-[slot=accordion-trigger-icon]:text-muted-foreground gap-6 p-4 text-left text-sm font-medium hover:underline **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 group/accordion-trigger relative flex flex-1 items-start justify-between border border-transparent transition-[color,background-color,box-shadow] outline-none disabled:pointer-events-none disabled:opacity-50",
           className
@@ -64,6 +65,7 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
+      suppressHydrationWarning
       className={cn(
         "text-sm overflow-visible data-[state=closed]:[&>div]:opacity-0 data-[state=closed]:[&>div]:translate-y-1 data-[state=open]:[&>div]:opacity-100 data-[state=open]:[&>div]:translate-y-0 [&>div]:transition-[transform,opacity] [&>div]:duration-200 [&>div]:ease-out motion-reduce:[&>div]:transition-none",
         className,
