@@ -20,8 +20,10 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const id = window.requestAnimationFrame(() => setMounted(true));
-    return () => window.cancelAnimationFrame(id);
+    // Issue: reading client-only theme state during SSR can cause hydration mismatches.
+    // Fix: only mark as mounted after the first tick so we render a deterministic fallback on the server.
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   const activeTheme = useMemo(

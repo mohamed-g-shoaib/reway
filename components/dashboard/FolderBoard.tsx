@@ -27,13 +27,11 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { SortableBookmarkIcon } from "./SortableBookmarkIcon";
 import { getDomain } from "@/lib/utils";
 import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { BookmarkEditSheet } from "./BookmarkEditSheet";
-import { Favicon } from "./Favicon";
 import { FolderHeader } from "./folder-board/FolderHeader";
 import { EmptyFolder } from "./folder-board/EmptyFolder";
 import { FolderDragOverlay } from "./folder-board/FolderDragOverlay";
@@ -43,9 +41,7 @@ import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
 } from "@/components/ui/accordion";
-import { toast } from "sonner";
 
 interface FolderBoardProps {
   bookmarks: BookmarkRow[];
@@ -158,6 +154,8 @@ export const FolderBoard = memo(function FolderBoard({
     : null;
 
   const visibleGroups = useMemo(() => {
+    // Issue: missing dependencies in memo can lead to stale UI (e.g. filtered mode not updating).
+    // Fix: include `isFiltered` so the derived groups list updates correctly.
     if (activeGroupId !== "all") {
       return groups.filter((group) => group.id === activeGroupId);
     }
@@ -198,7 +196,7 @@ export const FolderBoard = memo(function FolderBoard({
         order_index: null,
       },
     ];
-  }, [activeGroupId, bookmarks, groups]);
+  }, [activeGroupId, bookmarks, groups, isFiltered]);
 
   const bookmarkBuckets = useBookmarkBuckets({ bookmarks, visibleGroups });
 
@@ -213,17 +211,7 @@ export const FolderBoard = memo(function FolderBoard({
   const isExtendedFolderGrid = layoutDensity === "extended";
 
   const toggleCollapse = (groupId: string) => {
-    setCollapsedGroups((prev) => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }));
-  };
-
-  const updateFolderOpenState = (groupId: string, open: boolean) => {
-    setCollapsedGroups((prev) => ({
-      ...prev,
-      [groupId]: !open,
-    }));
+    setCollapsedGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
   const handleAccordionChange = (values: string[]) => {
@@ -342,7 +330,9 @@ export const FolderBoard = memo(function FolderBoard({
       setSelectedFolderId(null);
       setSelectedBookmarkIndex(-1);
     }
-  }, [hasKeyboardFocus, selectedFolderId, visibleGroups]);
+    // Issue: missing effect deps can call an outdated callback.
+    // Fix: include `onKeyboardContextChange`.
+  }, [hasKeyboardFocus, onKeyboardContextChange, selectedFolderId, visibleGroups]);
 
   useFolderKeyboardNav({
     bookmarkBuckets,

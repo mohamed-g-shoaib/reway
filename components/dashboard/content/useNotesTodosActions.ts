@@ -77,18 +77,20 @@ export function useNotesTodosActions({
 
   const handleUpdateNote = useCallback(
     async (id: string, formData: { text: string; color?: string | null }) => {
-      const prevNote = notes.find((n) => n.id === id);
+      // Issue: capturing `notes` in callback deps causes handler churn and can introduce stale reads.
+      // Fix: derive `prevNote` from the functional state update to keep this callback stable.
+      let prevNote: NoteRow | undefined;
       setNotes((prev) =>
-        prev.map((n) =>
-          n.id === id
-            ? {
-                ...n,
-                text: formData.text,
-                color: formData.color ?? null,
-                updated_at: new Date().toISOString(),
-              }
-            : n,
-        ),
+        prev.map((n) => {
+          if (n.id !== id) return n;
+          prevNote = n;
+          return {
+            ...n,
+            text: formData.text,
+            color: formData.color ?? null,
+            updated_at: new Date().toISOString(),
+          };
+        }),
       );
       try {
         await updateNote(id, {
@@ -99,11 +101,14 @@ export function useNotesTodosActions({
         console.error("Update note failed:", error);
         toast.error("Failed to update note");
         if (prevNote) {
-          setNotes((prev) => prev.map((n) => (n.id === id ? prevNote : n)));
+          const rollbackNote = prevNote;
+          setNotes((prev) =>
+            prev.map((n) => (n.id === id ? rollbackNote : n)),
+          );
         }
       }
     },
-    [notes, setNotes],
+    [setNotes],
   );
 
   const handleDeleteNote = useCallback(
@@ -167,12 +172,13 @@ export function useNotesTodosActions({
       if (!ids || ids.length === 0) return;
       const idSet = new Set(ids);
 
-      const deletedNotes = notes
-        .map((note, index) => ({ note, index }))
-        .filter(({ note }) => idSet.has(note.id));
-      lastBulkDeletedNotesRef.current = deletedNotes;
-
-      setNotes((prev) => prev.filter((n) => !idSet.has(n.id)));
+      setNotes((prev) => {
+        const deletedNotes = prev
+          .map((note, index) => ({ note, index }))
+          .filter(({ note }) => idSet.has(note.id));
+        lastBulkDeletedNotesRef.current = deletedNotes;
+        return prev.filter((n) => !idSet.has(n.id));
+      });
 
       toast.error(`Note${ids.length > 1 ? "s" : ""} deleted`, {
         action: {
@@ -207,7 +213,7 @@ export function useNotesTodosActions({
         setNotes(initialNotes);
       }
     },
-    [initialNotes, lastBulkDeletedNotesRef, notes, setNotes],
+    [initialNotes, lastBulkDeletedNotesRef, setNotes],
   );
 
   const handleCreateTodo = useCallback(
@@ -239,18 +245,20 @@ export function useNotesTodosActions({
       id: string,
       formData: { text: string; priority: "high" | "medium" | "low" },
     ) => {
-      const prevTodo = todos.find((t) => t.id === id);
+      // Issue: capturing `todos` in callback deps causes handler churn and can introduce stale reads.
+      // Fix: derive `prevTodo` from the functional state update to keep this callback stable.
+      let prevTodo: TodoRow | undefined;
       setTodos((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                text: formData.text,
-                priority: formData.priority,
-                updated_at: new Date().toISOString(),
-              }
-            : t,
-        ),
+        prev.map((t) => {
+          if (t.id !== id) return t;
+          prevTodo = t;
+          return {
+            ...t,
+            text: formData.text,
+            priority: formData.priority,
+            updated_at: new Date().toISOString(),
+          };
+        }),
       );
       try {
         await updateTodo(id, {
@@ -261,27 +269,30 @@ export function useNotesTodosActions({
         console.error("Update todo failed:", error);
         toast.error("Failed to update todo");
         if (prevTodo) {
-          setTodos((prev) => prev.map((t) => (t.id === id ? prevTodo : t)));
+          const rollbackTodo = prevTodo;
+          setTodos((prev) =>
+            prev.map((t) => (t.id === id ? rollbackTodo : t)),
+          );
         }
       }
     },
-    [setTodos, todos],
+    [setTodos],
   );
 
   const handleSetTodoCompleted = useCallback(
     async (id: string, completed: boolean) => {
-      const prevTodo = todos.find((t) => t.id === id);
+      let prevTodo: TodoRow | undefined;
       setTodos((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                completed,
-                completed_at: completed ? new Date().toISOString() : null,
-                updated_at: new Date().toISOString(),
-              }
-            : t,
-        ),
+        prev.map((t) => {
+          if (t.id !== id) return t;
+          prevTodo = t;
+          return {
+            ...t,
+            completed,
+            completed_at: completed ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString(),
+          };
+        }),
       );
       try {
         await setTodoCompleted(id, completed);
@@ -289,11 +300,14 @@ export function useNotesTodosActions({
         console.error("Set todo completed failed:", error);
         toast.error("Failed to update todo");
         if (prevTodo) {
-          setTodos((prev) => prev.map((t) => (t.id === id ? prevTodo : t)));
+          const rollbackTodo = prevTodo;
+          setTodos((prev) =>
+            prev.map((t) => (t.id === id ? rollbackTodo : t)),
+          );
         }
       }
     },
-    [setTodos, todos],
+    [setTodos],
   );
 
   const handleSetTodosCompleted = useCallback(
@@ -301,18 +315,18 @@ export function useNotesTodosActions({
       if (!ids || ids.length === 0) return;
       const idSet = new Set(ids);
 
-      const prev = todos;
+      let prevTodos: TodoRow[] | null = null;
       setTodos((items) =>
-        items.map((t) =>
-          idSet.has(t.id)
-            ? {
-                ...t,
-                completed,
-                completed_at: completed ? new Date().toISOString() : null,
-                updated_at: new Date().toISOString(),
-              }
-            : t,
-        ),
+        items.map((t) => {
+          if (!idSet.has(t.id)) return t;
+          if (!prevTodos) prevTodos = items;
+          return {
+            ...t,
+            completed,
+            completed_at: completed ? new Date().toISOString() : null,
+            updated_at: new Date().toISOString(),
+          };
+        }),
       );
 
       try {
@@ -320,10 +334,10 @@ export function useNotesTodosActions({
       } catch (error) {
         console.error("Bulk set todos completed failed:", error);
         toast.error("Failed to update todos");
-        setTodos(prev);
+        if (prevTodos) setTodos(prevTodos);
       }
     },
-    [setTodos, todos],
+    [setTodos],
   );
 
   const handleDeleteTodo = useCallback(
@@ -387,12 +401,13 @@ export function useNotesTodosActions({
       if (!ids || ids.length === 0) return;
       const idSet = new Set(ids);
 
-      const deletedTodos = todos
-        .map((todo, index) => ({ todo, index }))
-        .filter(({ todo }) => idSet.has(todo.id));
-      lastBulkDeletedTodosRef.current = deletedTodos;
-
-      setTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
+      setTodos((prev) => {
+        const deletedTodos = prev
+          .map((todo, index) => ({ todo, index }))
+          .filter(({ todo }) => idSet.has(todo.id));
+        lastBulkDeletedTodosRef.current = deletedTodos;
+        return prev.filter((t) => !idSet.has(t.id));
+      });
 
       toast.error(`Todo${ids.length > 1 ? "s" : ""} deleted`, {
         action: {
@@ -427,7 +442,7 @@ export function useNotesTodosActions({
         setTodos(initialTodos);
       }
     },
-    [initialTodos, lastBulkDeletedTodosRef, setTodos, todos],
+    [initialTodos, lastBulkDeletedTodosRef, setTodos],
   );
 
   return {
