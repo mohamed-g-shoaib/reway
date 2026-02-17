@@ -70,6 +70,7 @@ interface FolderBoardProps {
   onEnterSelectionMode?: () => void;
   onKeyboardContextChange?: (context: "folder" | "bookmark") => void;
   isFiltered?: boolean;
+  layoutDensity?: "compact" | "extended";
 }
 
 const COLLAPSE_STORAGE_KEY = "reway.folder.collapsed";
@@ -87,6 +88,7 @@ export const FolderBoard = memo(function FolderBoard({
   onEnterSelectionMode,
   onKeyboardContextChange,
   isFiltered = false,
+  layoutDensity = "compact",
 }: FolderBoardProps) {
   const stableSelectedIds = useMemo(
     () => selectedIds ?? new Set<string>(),
@@ -101,6 +103,8 @@ export const FolderBoard = memo(function FolderBoard({
   const [selectedBookmarkIndex, setSelectedBookmarkIndex] =
     useState<number>(-1);
   const [gridColumns, setGridColumns] = useState(1);
+  const [folderGridColumns, setFolderGridColumns] = useState(1);
+  const foldersGridRef = useRef<HTMLDivElement | null>(null);
   const activeGridRef = useRef<HTMLDivElement | null>(null);
   const [hasKeyboardFocus, setHasKeyboardFocus] = useState(false);
   const dndContextBaseId = useId();
@@ -204,6 +208,8 @@ export const FolderBoard = memo(function FolderBoard({
     [collapsedGroups, visibleGroups],
   );
 
+  const isExtendedFolderGrid = layoutDensity === "extended";
+
   const toggleCollapse = (groupId: string) => {
     setCollapsedGroups((prev) => ({
       ...prev,
@@ -286,6 +292,32 @@ export const FolderBoard = memo(function FolderBoard({
   }, [selectedFolderId]);
 
   useEffect(() => {
+    if (!isExtendedFolderGrid) {
+      setFolderGridColumns(1);
+      return;
+    }
+
+    const target = foldersGridRef.current;
+    if (!target) return;
+
+    const updateColumns = () => {
+      const width = target.clientWidth || 0;
+      const gap = 24;
+      const minFolderWidth = 420;
+      const columns = Math.max(
+        1,
+        Math.floor((width + gap) / (minFolderWidth + gap)),
+      );
+      setFolderGridColumns(columns);
+    };
+
+    updateColumns();
+    const observer = new ResizeObserver(updateColumns);
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [isExtendedFolderGrid]);
+
+  useEffect(() => {
     if (visibleGroups.length === 0) {
       setSelectedFolderId(null);
       setSelectedBookmarkIndex(-1);
@@ -314,6 +346,8 @@ export const FolderBoard = memo(function FolderBoard({
     bookmarkBuckets,
     collapsedGroups,
     gridColumns,
+    folderGridColumns,
+    isFolderGrid: isExtendedFolderGrid,
     visibleGroups,
     selectedFolderId,
     setSelectedFolderId,
@@ -341,8 +375,13 @@ export const FolderBoard = memo(function FolderBoard({
           type="multiple"
           value={openFolders}
           onValueChange={handleAccordionChange}
-          className="flex flex-col gap-6 border-0 bg-transparent overflow-visible"
+          className={
+            isExtendedFolderGrid
+              ? "block border-0 bg-transparent overflow-visible columns-1 min-[900px]:columns-2 min-[1300px]:columns-3"
+              : "flex flex-col gap-6 border-0 bg-transparent overflow-visible"
+          }
           data-slot="folder-board"
+          ref={isExtendedFolderGrid ? foldersGridRef : undefined}
         >
           {visibleGroups.map((group) => {
             const groupBookmarks = bookmarkBuckets[group.id] ?? [];
@@ -358,8 +397,13 @@ export const FolderBoard = memo(function FolderBoard({
                   selectedBookmarkIndex < 0
                     ? "ring-2 ring-primary/20"
                     : ""
+                } ${
+                  isExtendedFolderGrid
+                    ? "mb-6 inline-block w-full break-inside-avoid"
+                    : ""
                 }`}
                 data-slot="folder-section"
+                data-folder-id={group.id}
               >
                 <FolderHeader
                   group={group}
