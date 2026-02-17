@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { NoteRow, TodoRow } from "@/lib/supabase/queries";
 import type { TodoPriority } from "./notes-todos/types";
@@ -34,6 +34,8 @@ interface DashboardNotesTodosSidebarProps {
   onDeleteTodos: (ids: string[]) => Promise<void>;
   onSetTodoCompleted: (id: string, completed: boolean) => Promise<void>;
   onSetTodosCompleted: (ids: string[], completed: boolean) => Promise<void>;
+
+  layoutDensity?: "compact" | "extended";
 }
 
 export function DashboardNotesTodosSidebar({
@@ -49,16 +51,53 @@ export function DashboardNotesTodosSidebar({
   onDeleteTodos,
   onSetTodoCompleted,
   onSetTodosCompleted,
+  layoutDensity = "compact",
 }: DashboardNotesTodosSidebarProps) {
+  const [viewportWidth, setViewportWidth] = useState<number>(0);
+  const [isPinnedOpen, setIsPinnedOpen] = useState(false);
+  const [isHoverOpen, setIsHoverOpen] = useState(false);
+  const closeTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const update = () => setViewportWidth(window.innerWidth);
+    update();
+    window.addEventListener("resize", update, { passive: true });
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const canPin = useMemo(() => {
+    if (layoutDensity !== "extended") return false;
+    const mainMaxWidth = 1600;
+    const sidebarWidth = 240;
+    const gutters = 24 + 24;
+    const required = mainMaxWidth + sidebarWidth * 2 + gutters;
+    return viewportWidth >= required;
+  }, [layoutDensity, viewportWidth]);
+
+  const scheduleClose = () => {
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = window.setTimeout(() => {
+      setIsHoverOpen(false);
+    }, 600);
+  };
+
+  const cancelClose = () => {
+    if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = null;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
+    };
+  }, []);
+
   const [activeSection, setActiveSection] = useState<"notes" | "todos">(
     "notes",
   );
 
-  return (
-    <aside
-      data-onboarding="notes-todos-desktop"
-      className="hidden min-[1200px]:flex fixed right-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground"
-    >
+  const sidebarBody = (
+    <>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-foreground/5">
           <button
@@ -107,6 +146,70 @@ export function DashboardNotesTodosSidebar({
           onSetTodosCompleted={onSetTodosCompleted}
         />
       )}
-    </aside>
+    </>
+  );
+
+  if (layoutDensity !== "extended") {
+    return (
+      <aside
+        data-onboarding="notes-todos-desktop"
+        className="hidden min-[1200px]:flex fixed right-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground"
+      >
+        {sidebarBody}
+      </aside>
+    );
+  }
+
+  return (
+    <>
+      <aside
+        data-onboarding="notes-todos-desktop"
+        className={`hidden min-[1200px]:flex fixed right-6 top-43 bottom-6 z-50 w-60 flex-col gap-2 text-sm text-muted-foreground ${
+          canPin ? "" : "min-[1200px]:hidden"
+        }`}
+      >
+        {sidebarBody}
+      </aside>
+
+      {!canPin ? (
+        <>
+          <button
+            type="button"
+            className="hidden min-[1200px]:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 h-14 w-7 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            aria-label="Toggle notes and todos sidebar"
+            onClick={() => {
+              setIsPinnedOpen((p) => !p);
+              setIsHoverOpen(true);
+            }}
+            onMouseEnter={() => {
+              cancelClose();
+              setIsHoverOpen(true);
+            }}
+            onMouseLeave={() => {
+              if (!isPinnedOpen) scheduleClose();
+            }}
+          >
+            N
+          </button>
+
+          <aside
+            className={`hidden min-[1200px]:block fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+              isPinnedOpen || isHoverOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+            onMouseEnter={() => {
+              cancelClose();
+              setIsHoverOpen(true);
+            }}
+            onMouseLeave={() => {
+              if (!isPinnedOpen) scheduleClose();
+            }}
+          >
+            <div className="h-full rounded-l-3xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
+              {sidebarBody}
+            </div>
+          </aside>
+        </>
+      ) : null}
+    </>
   );
 }
