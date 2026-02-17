@@ -387,7 +387,11 @@ export function DashboardSidebar({
                 if (!isPinnedOpen) scheduleClose();
               }}
             >
-              G
+              {/* Issue: single-letter handles are hard to discover.
+                  Fix: use a compact, vertical label to preserve space while being self-explanatory. */}
+              <span className="[writing-mode:vertical-rl] text-[10px] tracking-wide">
+                Groups
+              </span>
             </button>
 
             <aside
@@ -404,7 +408,7 @@ export function DashboardSidebar({
                 if (!isPinnedOpen) scheduleClose();
               }}
             >
-              <div className="h-full rounded-r-3xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="h-full rounded-r-3xl bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
                 {sidebarBody}
               </div>
             </aside>
@@ -447,7 +451,9 @@ export function DashboardSidebar({
               if (!isPinnedOpen) scheduleClose();
             }}
           >
-            G
+            <span className="[writing-mode:vertical-rl] text-[10px] tracking-wide">
+              Groups
+            </span>
           </button>
 
           <aside
@@ -462,7 +468,7 @@ export function DashboardSidebar({
               if (!isPinnedOpen) scheduleClose();
             }}
           >
-            <div className="h-full rounded-r-3xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
+            <div className="h-full rounded-r-3xl bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
               {sidebarBody}
             </div>
           </aside>

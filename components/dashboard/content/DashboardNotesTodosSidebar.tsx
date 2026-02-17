@@ -178,7 +178,11 @@ export function DashboardNotesTodosSidebar({
                 if (!isPinnedOpen) scheduleClose();
               }}
             >
-              N
+              {/* Issue: single-letter handles are hard to discover.
+                  Fix: use short, stacked labels for clarity without taking horizontal space. */}
+              <span className="[writing-mode:vertical-rl] text-[10px] tracking-wide">
+                Notes & Todos
+              </span>
             </button>
 
             <aside
@@ -195,7 +199,7 @@ export function DashboardNotesTodosSidebar({
                 if (!isPinnedOpen) scheduleClose();
               }}
             >
-              <div className="h-full rounded-l-3xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="h-full rounded-l-3xl bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
                 {sidebarBody}
               </div>
             </aside>
@@ -234,7 +238,9 @@ export function DashboardNotesTodosSidebar({
               if (!isPinnedOpen) scheduleClose();
             }}
           >
-            N
+            <span className="[writing-mode:vertical-rl] text-[10px] tracking-wide">
+              Notes & Todos
+            </span>
           </button>
 
           <aside
@@ -249,7 +255,7 @@ export function DashboardNotesTodosSidebar({
               if (!isPinnedOpen) scheduleClose();
             }}
           >
-            <div className="h-full rounded-l-3xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
+            <div className="h-full rounded-l-3xl bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
               {sidebarBody}
             </div>
           </aside>
