@@ -55,7 +55,8 @@ export function ViewModeControls({
           <Button
             variant="ghost"
             size="icon"
-            suppressHydrationWarning
+            // Issue: `suppressHydrationWarning` can hide real hydration bugs when not strictly needed.
+            // Fix: remove it here; `viewMode` is client state so this button should hydrate consistently.
             data-onboarding="view-mode-mobile"
             className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95 cursor-pointer"
             aria-label="Change view mode"

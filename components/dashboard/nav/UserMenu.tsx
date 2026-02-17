@@ -118,7 +118,8 @@ export function UserMenu({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            suppressHydrationWarning
+            // Issue: suppressing hydration warnings broadly can mask real issues.
+            // Fix: keep hydration strict here; the avatar content should be deterministic.
             data-onboarding="user-menu"
             className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
           >
