@@ -115,8 +115,7 @@ export function DashboardSidebar({
   }, []);
 
   const canPin = useMemo(() => {
-    if (layoutDensity !== "extended") return false;
-    const mainMaxWidth = 1600;
+    const mainMaxWidth = layoutDensity === "extended" ? 1600 : 768;
     const sidebarWidth = 240;
     const gutters = 24 + 24;
     const required = mainMaxWidth + sidebarWidth * 2 + gutters;
@@ -357,16 +356,61 @@ export function DashboardSidebar({
   );
 
   if (layoutDensity !== "extended") {
+    const canReveal = viewportWidth >= 900;
+
     return (
       <>
-        <aside
-          className="hidden min-[1200px]:flex fixed left-6 top-43 bottom-6 z-30 w-60 flex-col gap-2 text-sm text-muted-foreground"
-          data-onboarding="groups-desktop"
-          onKeyDown={handleKeyDown}
-          tabIndex={-1}
-        >
-          {sidebarBody}
-        </aside>
+        {canPin ? (
+          <aside
+            className="fixed left-6 top-43 bottom-6 z-30 w-60 flex flex-col gap-2 text-sm text-muted-foreground"
+            data-onboarding="groups-desktop"
+            onKeyDown={handleKeyDown}
+            tabIndex={-1}
+          >
+            {sidebarBody}
+          </aside>
+        ) : canReveal ? (
+          <>
+            <button
+              type="button"
+              className="fixed left-0 top-1/2 -translate-y-1/2 z-50 h-14 w-7 items-center justify-center rounded-r-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+              aria-label="Toggle groups sidebar"
+              onClick={() => {
+                setIsPinnedOpen((p) => !p);
+                setIsHoverOpen(true);
+              }}
+              onMouseEnter={() => {
+                cancelClose();
+                setIsHoverOpen(true);
+              }}
+              onMouseLeave={() => {
+                if (!isPinnedOpen) scheduleClose();
+              }}
+            >
+              G
+            </button>
+
+            <aside
+              className={`fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+                isPinnedOpen || isHoverOpen
+                  ? "translate-x-0"
+                  : "-translate-x-full"
+              }`}
+              onMouseEnter={() => {
+                cancelClose();
+                setIsHoverOpen(true);
+              }}
+              onMouseLeave={() => {
+                if (!isPinnedOpen) scheduleClose();
+              }}
+            >
+              <div className="h-full rounded-r-3xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70 ring-1 ring-foreground/8 px-2 py-2 flex flex-col gap-2 text-sm text-muted-foreground">
+                {sidebarBody}
+              </div>
+            </aside>
+          </>
+        ) : null}
+
         {sidebarDialogs}
       </>
     );

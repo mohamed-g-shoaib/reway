@@ -55,6 +55,7 @@ export function ViewModeControls({
           <Button
             variant="ghost"
             size="icon"
+            suppressHydrationWarning
             data-onboarding="view-mode-mobile"
             className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95 cursor-pointer"
             aria-label="Change view mode"

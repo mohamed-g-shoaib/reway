@@ -36,6 +36,8 @@ interface UserMenuProps {
   onShowNotesTodosChange: (value: boolean) => void;
   paletteTheme: DashboardPaletteTheme;
   onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  onFolderHeaderTintChange: (value: "off" | "low" | "medium" | "high") => void;
   layoutDensity: "compact" | "extended";
   onLayoutDensityChange: (value: "compact" | "extended") => void;
   onOpenImportSheet: () => void;
@@ -52,6 +54,8 @@ export function UserMenu({
   onShowNotesTodosChange,
   paletteTheme,
   onPaletteThemeChange,
+  folderHeaderTint,
+  onFolderHeaderTintChange,
   layoutDensity,
   onLayoutDensityChange,
   onOpenImportSheet,
@@ -106,12 +110,15 @@ export function UserMenu({
         userName={user.name}
         paletteTheme={paletteTheme}
         onPaletteThemeChange={onPaletteThemeChange}
+        folderHeaderTint={folderHeaderTint}
+        onFolderHeaderTintChange={onFolderHeaderTintChange}
       />
 
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
+            suppressHydrationWarning
             data-onboarding="user-menu"
             className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
           >
