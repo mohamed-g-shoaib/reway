@@ -19,7 +19,10 @@ export function ThemeSwitcher({ className, ...props }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => setMounted(true));
+    return () => window.cancelAnimationFrame(id);
+  }, []);
 
   const activeTheme = useMemo(
     () => (mounted ? (theme ?? "system") : "system"),
