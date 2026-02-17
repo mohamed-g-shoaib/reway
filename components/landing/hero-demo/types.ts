@@ -1,11 +1,8 @@
+import type { IconSvgElement } from "@hugeicons/react";
+
 export type HeroGroupId = "all" | "Research" | "Inspiration" | "Build" | "Learn";
 
-export type HeroIcon =
-  | ([string, { [key: string]: string | number }][])[]
-  | readonly (readonly [
-      string,
-      { readonly [key: string]: string | number },
-    ])[];
+export type HeroIcon = IconSvgElement;
 
 export type HeroGroup = {
   id: HeroGroupId | string;
