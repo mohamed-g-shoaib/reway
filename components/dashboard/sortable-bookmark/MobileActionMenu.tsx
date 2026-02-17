@@ -46,6 +46,7 @@ export function MobileActionMenu({
           <Button
             variant="ghost"
             size="icon"
+            suppressHydrationWarning
             className="h-9 w-9 -mr-3 rounded-xl hover:bg-muted/50 cursor-pointer"
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
