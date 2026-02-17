@@ -61,6 +61,7 @@ interface BookmarkBoardProps {
   ) => Promise<void>;
   rowContent: "date" | "group";
   viewMode: "list" | "card" | "icon";
+  layoutDensity?: "compact" | "extended";
   selectionMode?: boolean;
   selectedIds?: Set<string>;
   onToggleSelection?: (id: string) => void;
@@ -76,6 +77,7 @@ export const BookmarkBoard = memo(function BookmarkBoard({
   onEditBookmark,
   rowContent,
   viewMode,
+  layoutDensity = "compact",
   selectionMode = false,
   selectedIds,
   onToggleSelection,
@@ -96,11 +98,15 @@ export const BookmarkBoard = memo(function BookmarkBoard({
   const [editSheetBookmark, setEditSheetBookmark] =
     useState<BookmarkRow | null>(null);
   const dndContextId = useId();
-  const isGridView = viewMode !== "list";
+  const isExtendedListGrid = viewMode === "list" && layoutDensity === "extended";
+  const isGridView = viewMode !== "list" || isExtendedListGrid;
+  const minCardWidth = layoutDensity === "extended" ? 260 : 320;
   const boardRef = useRef<HTMLDivElement>(null);
   const gridColumns = useBookmarkGrid({
     viewMode,
     isGridView,
+    minItemWidth:
+      viewMode === "card" ? minCardWidth : isExtendedListGrid ? 360 : undefined,
     boardRef,
   });
 
@@ -270,9 +276,13 @@ export const BookmarkBoard = memo(function BookmarkBoard({
             ref={boardRef}
             className={
               viewMode === "list"
-                ? "flex flex-col gap-1 bookmark-board-empty-space"
+                ? isExtendedListGrid
+                  ? "grid gap-3 grid-cols-[repeat(auto-fit,minmax(360px,1fr))] bookmark-board-empty-space"
+                  : "flex flex-col gap-1 bookmark-board-empty-space"
                 : viewMode === "card"
-                  ? "grid gap-3 sm:grid-cols-2 lg:grid-cols-3 bookmark-board-empty-space"
+                  ? layoutDensity === "extended"
+                    ? "grid gap-3 grid-cols-[repeat(auto-fit,minmax(260px,1fr))] bookmark-board-empty-space"
+                    : "grid gap-3 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] bookmark-board-empty-space"
                   : "grid gap-3 grid-cols-[repeat(auto-fit,minmax(120px,1fr))] bookmark-board-empty-space"
             }
             data-slot="bookmark-board"
