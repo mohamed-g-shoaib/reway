@@ -46,6 +46,8 @@ interface DashboardNavProps {
   setShowNotesTodos: (value: boolean) => void;
   paletteTheme: DashboardPaletteTheme;
   setPaletteTheme: (value: DashboardPaletteTheme) => void;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  setFolderHeaderTint: (value: "off" | "low" | "medium" | "high") => void;
   layoutDensity: "compact" | "extended";
   setLayoutDensity: (value: "compact" | "extended") => void;
   viewMode: "list" | "card" | "icon" | "folders";
@@ -103,6 +105,8 @@ export function DashboardNav({
   setShowNotesTodos,
   paletteTheme,
   setPaletteTheme,
+  folderHeaderTint,
+  setFolderHeaderTint,
   layoutDensity,
   setLayoutDensity,
   viewMode,
@@ -382,6 +386,8 @@ export function DashboardNav({
               onShowNotesTodosChange={setShowNotesTodos}
               paletteTheme={paletteTheme}
               onPaletteThemeChange={setPaletteTheme}
+              folderHeaderTint={folderHeaderTint}
+              onFolderHeaderTintChange={setFolderHeaderTint}
               layoutDensity={layoutDensity}
               onLayoutDensityChange={setLayoutDensity}
               onOpenImportSheet={() => setImportSheetOpen(true)}

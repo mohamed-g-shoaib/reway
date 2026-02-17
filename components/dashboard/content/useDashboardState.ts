@@ -16,6 +16,7 @@ export function useDashboardState({
   initialCommandMode,
   initialShowNotesTodos,
   initialPaletteTheme,
+  initialFolderHeaderTint,
 }: {
   initialBookmarks: BookmarkRow[];
   initialGroups: GroupRow[];
@@ -28,6 +29,7 @@ export function useDashboardState({
   initialCommandMode: "add" | "search";
   initialShowNotesTodos: boolean;
   initialPaletteTheme: DashboardPaletteTheme;
+  initialFolderHeaderTint: "off" | "low" | "medium" | "high";
 }) {
   const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
   const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
@@ -67,6 +69,10 @@ export function useDashboardState({
   const [paletteTheme, setPaletteTheme] = useState<DashboardPaletteTheme>(
     initialPaletteTheme,
   );
+
+  const [folderHeaderTint, setFolderHeaderTint] = useState<
+    "off" | "low" | "medium" | "high"
+  >(initialFolderHeaderTint);
 
   const viewMode = activeGroupId === "all" ? viewModeAll : viewModeGroups;
   const setViewMode = useCallback(
@@ -193,6 +199,8 @@ export function useDashboardState({
     setCommandMode,
     paletteTheme,
     setPaletteTheme,
+    folderHeaderTint,
+    setFolderHeaderTint,
     editingGroupId,
     setEditingGroupId,
     editGroupName,

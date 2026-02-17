@@ -1,10 +1,19 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import type { BookmarkRow, GroupRow, NoteRow, TodoRow } from "@/lib/supabase/queries";
+import type {
+  BookmarkRow,
+  GroupRow,
+  NoteRow,
+  TodoRow,
+} from "@/lib/supabase/queries";
 import type { User } from "@/components/dashboard/nav/types";
 import type { DashboardPaletteTheme } from "@/lib/themes";
-import type { EnrichmentResult, ImportEntry, ImportGroupSummary } from "./content/dashboard-types";
+import type {
+  EnrichmentResult,
+  ImportEntry,
+  ImportGroupSummary,
+} from "./content/dashboard-types";
 import { DashboardOnboarding } from "./DashboardOnboarding";
 import { DashboardSidebar } from "./content/DashboardSidebar";
 import { DashboardNotesTodosSidebar } from "./content/DashboardNotesTodosSidebar";
@@ -23,6 +32,8 @@ export function DashboardLayout({
   notes,
   todos,
   user,
+  folderHeaderTint,
+  setFolderHeaderTint,
   activeGroupId,
   setActiveGroupId,
   groupCounts,
@@ -113,6 +124,8 @@ export function DashboardLayout({
   notes: NoteRow[];
   todos: TodoRow[];
   user: User;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  setFolderHeaderTint: Dispatch<SetStateAction<"off" | "low" | "medium" | "high">>;
   activeGroupId: string;
   setActiveGroupId: Dispatch<SetStateAction<string>>;
   groupCounts: Record<string, number>;
@@ -160,7 +173,10 @@ export function DashboardLayout({
     icon: string,
     color?: string | null,
   ) => Promise<void>;
-  importPreview: { groups: ImportGroupSummary[]; entries: ImportEntry[] } | null;
+  importPreview: {
+    groups: ImportGroupSummary[];
+    entries: ImportEntry[];
+  } | null;
   importProgress: {
     processed: number;
     total: number;
@@ -214,12 +230,24 @@ export function DashboardLayout({
       applyFaviconToDomain?: boolean;
     },
   ) => Promise<void>;
-  handleCreateNote: (formData: { text: string; color?: string | null }) => Promise<string>;
-  handleUpdateNote: (id: string, formData: { text: string; color?: string | null }) => Promise<void>;
+  handleCreateNote: (formData: {
+    text: string;
+    color?: string | null;
+  }) => Promise<string>;
+  handleUpdateNote: (
+    id: string,
+    formData: { text: string; color?: string | null },
+  ) => Promise<void>;
   handleDeleteNote: (id: string) => Promise<void>;
   handleDeleteNotes: (ids: string[]) => Promise<void>;
-  handleCreateTodo: (formData: { text: string; priority: "high" | "medium" | "low" }) => Promise<string>;
-  handleUpdateTodo: (id: string, formData: { text: string; priority: "high" | "medium" | "low" }) => Promise<void>;
+  handleCreateTodo: (formData: {
+    text: string;
+    priority: "high" | "medium" | "low";
+  }) => Promise<string>;
+  handleUpdateTodo: (
+    id: string,
+    formData: { text: string; priority: "high" | "medium" | "low" },
+  ) => Promise<void>;
   handleDeleteTodo: (id: string) => Promise<void>;
   handleDeleteTodos: (ids: string[]) => Promise<void>;
   handleSetTodoCompleted: (id: string, completed: boolean) => Promise<void>;
@@ -304,6 +332,8 @@ export function DashboardLayout({
               setShowNotesTodos={setShowNotesTodos}
               paletteTheme={paletteTheme}
               setPaletteTheme={setPaletteTheme}
+              folderHeaderTint={folderHeaderTint}
+              setFolderHeaderTint={setFolderHeaderTint}
               layoutDensity={layoutDensity}
               setLayoutDensity={setLayoutDensity}
               viewMode={viewMode}
@@ -334,7 +364,11 @@ export function DashboardLayout({
               />
             </div>
 
-            <TableHeader viewMode={viewMode} keyboardContext={keyboardContext} isMac={isMac} />
+            <TableHeader
+              viewMode={viewMode}
+              keyboardContext={keyboardContext}
+              isMac={isMac}
+            />
           </div>
 
           <div className="flex-1 min-h-0">
@@ -355,6 +389,7 @@ export function DashboardLayout({
                     onEnterSelectionMode={() => setSelectionMode(true)}
                     onKeyboardContextChange={setKeyboardContext}
                     layoutDensity={layoutDensity}
+                    folderHeaderTint={folderHeaderTint}
                   />
                 ) : (
                   <BookmarkBoard

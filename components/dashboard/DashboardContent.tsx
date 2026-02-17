@@ -39,6 +39,7 @@ interface DashboardContentProps {
   initialCommandMode?: "add" | "search";
   initialShowNotesTodos?: boolean;
   initialPaletteTheme?: DashboardPaletteTheme;
+  initialFolderHeaderTint?: "off" | "low" | "medium" | "high";
 }
 
 import {
@@ -73,6 +74,7 @@ export function DashboardContent({
   initialCommandMode = "add",
   initialShowNotesTodos = true,
   initialPaletteTheme = "default",
+  initialFolderHeaderTint = "medium",
 }: DashboardContentProps) {
   const dashboard = useDashboardState({
     initialBookmarks,
@@ -86,6 +88,7 @@ export function DashboardContent({
     initialCommandMode,
     initialShowNotesTodos,
     initialPaletteTheme,
+    initialFolderHeaderTint,
   });
 
   const handleOptimisticRemoveBookmarks = useCallback(
@@ -107,6 +110,7 @@ export function DashboardContent({
     layoutDensity: dashboard.layoutDensity,
     commandMode: dashboard.commandMode,
     paletteTheme: dashboard.paletteTheme,
+    folderHeaderTint: dashboard.folderHeaderTint,
   });
 
   useDashboardRealtime({

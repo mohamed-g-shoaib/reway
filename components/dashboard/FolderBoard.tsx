@@ -71,6 +71,7 @@ interface FolderBoardProps {
   onKeyboardContextChange?: (context: "folder" | "bookmark") => void;
   isFiltered?: boolean;
   layoutDensity?: "compact" | "extended";
+  folderHeaderTint?: "off" | "low" | "medium" | "high";
 }
 
 const COLLAPSE_STORAGE_KEY = "reway.folder.collapsed";
@@ -89,6 +90,7 @@ export const FolderBoard = memo(function FolderBoard({
   onKeyboardContextChange,
   isFiltered = false,
   layoutDensity = "compact",
+  folderHeaderTint = "medium",
 }: FolderBoardProps) {
   const stableSelectedIds = useMemo(
     () => selectedIds ?? new Set<string>(),
@@ -377,11 +379,16 @@ export const FolderBoard = memo(function FolderBoard({
           onValueChange={handleAccordionChange}
           className={
             isExtendedFolderGrid
-              ? "block border-0 bg-transparent overflow-visible columns-1 min-[900px]:columns-2 min-[1300px]:columns-3"
+              ? "block border-0 bg-transparent overflow-visible columns-1 [column-gap:1.5rem]"
               : "flex flex-col gap-6 border-0 bg-transparent overflow-visible"
           }
           data-slot="folder-board"
           ref={isExtendedFolderGrid ? foldersGridRef : undefined}
+          style={
+            isExtendedFolderGrid
+              ? ({ columnCount: folderGridColumns } as React.CSSProperties)
+              : undefined
+          }
         >
           {visibleGroups.map((group) => {
             const groupBookmarks = bookmarkBuckets[group.id] ?? [];
@@ -408,6 +415,7 @@ export const FolderBoard = memo(function FolderBoard({
                 <FolderHeader
                   group={group}
                   count={groupBookmarks.length}
+                  tintLevel={folderHeaderTint}
                   isSelected={
                     hasKeyboardFocus &&
                     group.id === selectedFolderId &&

@@ -67,6 +67,13 @@ export default async function DashboardPage() {
     return "compact";
   };
 
+  const parseFolderHeaderTint = (value: string | undefined) => {
+    if (value && ["off", "low", "medium", "high"].includes(value)) {
+      return value as "off" | "low" | "medium" | "high";
+    }
+    return "medium";
+  };
+
   // Read and validate dashboard preferences from cookies
   const viewModeAll = parseViewMode(
     cookieStore.get("reway.dashboard.viewMode.all")?.value,
@@ -90,6 +97,10 @@ export default async function DashboardPage() {
 
   const layoutDensity = parseLayoutDensity(
     cookieStore.get("reway.dashboard.layoutDensity")?.value,
+  );
+
+  const folderHeaderTint = parseFolderHeaderTint(
+    cookieStore.get("reway.dashboard.folderHeaderTint")?.value,
   );
 
   const [user, bookmarks, groups, notes, todos] = await Promise.all([
@@ -123,6 +134,7 @@ export default async function DashboardPage() {
             initialCommandMode={commandMode}
             initialPaletteTheme={paletteTheme}
             initialLayoutDensity={layoutDensity}
+            initialFolderHeaderTint={folderHeaderTint}
           />
         </main>
 

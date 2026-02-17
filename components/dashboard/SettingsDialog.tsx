@@ -60,6 +60,8 @@ interface SettingsDialogProps {
   userName: string;
   paletteTheme: DashboardPaletteTheme;
   onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  onFolderHeaderTintChange: (value: "off" | "low" | "medium" | "high") => void;
 }
 
 export function SettingsDialog({
@@ -73,6 +75,8 @@ export function SettingsDialog({
   userName,
   paletteTheme,
   onPaletteThemeChange,
+  folderHeaderTint,
+  onFolderHeaderTintChange,
 }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [themeSelectOpen, setThemeSelectOpen] = useState(false);
@@ -161,6 +165,9 @@ export function SettingsDialog({
                 Layout
               </h3>
               <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                <p className="text-xs text-muted-foreground px-1">
+                  Control how much content is shown on desktop screens.
+                </p>
                 <div className="flex gap-2">
                   <Button
                     variant={layoutDensity === "compact" ? "default" : "outline"}
@@ -179,9 +186,6 @@ export function SettingsDialog({
                     Extended
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground px-1">
-                  Control how much content is shown on desktop screens.
-                </p>
               </div>
             </SheetSection>
 
@@ -191,6 +195,9 @@ export function SettingsDialog({
                 Row Content
               </h3>
               <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                <p className="text-xs text-muted-foreground px-1">
+                  Choose what to display in the right column of your bookmarks.
+                </p>
                 <div className="flex gap-2">
                   <Button
                     variant={rowContent === "date" ? "default" : "outline"}
@@ -209,9 +216,6 @@ export function SettingsDialog({
                     Group
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground px-1">
-                  Choose what to display in the right column of your bookmarks.
-                </p>
               </div>
             </SheetSection>
 
@@ -221,6 +225,9 @@ export function SettingsDialog({
                 Notes & Todos Sidebar
               </h3>
               <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                <p className="text-xs text-muted-foreground px-1">
+                  Toggle the Notes & Todos sidebar visibility (desktop only).
+                </p>
                 <div className="flex gap-2">
                   <Button
                     variant={showNotesTodos ? "default" : "outline"}
@@ -239,9 +246,6 @@ export function SettingsDialog({
                     Hide
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground px-1">
-                  Toggle the Notes & Todos sidebar visibility (desktop only).
-                </p>
               </div>
             </SheetSection>
 
@@ -255,6 +259,43 @@ export function SettingsDialog({
                   data-onboarding="appearance-controls"
                   className="space-y-2"
                 >
+                  <div className="space-y-1">
+                    <Label className="px-1">Folder header color</Label>
+                    <p className="text-xs text-muted-foreground px-1">
+                      Tint folder headers using the group color in folder view.
+                    </p>
+                  </div>
+
+                  <Select
+                    value={folderHeaderTint}
+                    onValueChange={(value) =>
+                      onFolderHeaderTintChange(
+                        value as "off" | "low" | "medium" | "high",
+                      )
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <span className="min-w-0 truncate">
+                        <SelectValue placeholder="Folder header color" />
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                      <SelectGroup>
+                        <SelectItem value="off">Off</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  <div className="space-y-1 pt-2">
+                    <Label className="px-1">Dashboard theme</Label>
+                    <p className="text-xs text-muted-foreground px-1">
+                      Choose the color palette used across the dashboard.
+                    </p>
+                  </div>
+
                   <Select
                     value={paletteTheme}
                     open={themeSelectOpen}
@@ -303,6 +344,13 @@ export function SettingsDialog({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+
+                  <div className="space-y-1 pt-2">
+                    <Label className="px-1">Color mode</Label>
+                    <p className="text-xs text-muted-foreground px-1">
+                      Switch between light, dark, or system appearance.
+                    </p>
+                  </div>
 
                   <div
                     data-onboarding="color-mode-controls"

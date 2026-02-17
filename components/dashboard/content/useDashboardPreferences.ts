@@ -15,6 +15,7 @@ export function useDashboardPreferences({
   layoutDensity,
   commandMode,
   paletteTheme,
+  folderHeaderTint,
 }: {
   viewModeAll: "list" | "card" | "icon" | "folders";
   viewModeGroups: "list" | "card" | "icon" | "folders";
@@ -23,6 +24,7 @@ export function useDashboardPreferences({
   layoutDensity: "compact" | "extended";
   commandMode: "add" | "search";
   paletteTheme: DashboardPaletteTheme;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
 }) {
   useEffect(() => {
     migrateLocalStorageToCookies();
@@ -55,6 +57,10 @@ export function useDashboardPreferences({
   useEffect(() => {
     setPreferenceCookie("paletteTheme", paletteTheme);
   }, [paletteTheme]);
+
+  useEffect(() => {
+    setPreferenceCookie("folderHeaderTint", folderHeaderTint);
+  }, [folderHeaderTint]);
 
   useEffect(() => {
     const root = document.body;
