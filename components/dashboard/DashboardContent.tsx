@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   BookmarkRow,
   GroupRow,
@@ -26,6 +26,8 @@ import { useNotesTodosActions } from "./content/useNotesTodosActions";
 import { useDashboardState } from "./content/useDashboardState";
 import { DashboardLayout } from "./DashboardLayout";
 
+let didResumePendingEnrichment = false;
+
 interface DashboardContentProps {
   user: User;
   initialBookmarks: BookmarkRow[];
@@ -46,9 +48,7 @@ import {
   addBookmark,
   checkDuplicateBookmarks,
   deleteBookmark as deleteAction,
-  deleteBookmarks,
   enrichCreatedBookmark,
-  enrichBookmark,
   restoreBookmark as restoreAction,
   updateBookmark as updateBookmarkAction,
   updateBookmarksOrder,
@@ -140,6 +140,56 @@ export function DashboardContent({
     updateBookmark: updateBookmarkAction,
     lastDeletedRef: dashboard.lastDeletedRef,
   });
+
+  const inflightEnrichmentRef = useRef<Set<string>>(new Set());
+  const { bookmarks, setBookmarks } = dashboard;
+
+  useEffect(() => {
+    if (didResumePendingEnrichment) return;
+    const pending = bookmarks.filter(
+      (b) =>
+        b?.id &&
+        b?.url &&
+        (b.status === "pending" || b.is_enriching === true) &&
+        !b.last_fetched_at &&
+        !inflightEnrichmentRef.current.has(b.id),
+    );
+    if (pending.length === 0) return;
+
+    didResumePendingEnrichment = true;
+
+    const CONCURRENCY = 2;
+    let index = 0;
+
+    const worker = async () => {
+      while (index < pending.length) {
+        const current = pending[index];
+        index += 1;
+        if (!current?.id || !current.url) continue;
+        if (inflightEnrichmentRef.current.has(current.id)) continue;
+        inflightEnrichmentRef.current.add(current.id);
+
+        setBookmarks((prev) =>
+          prev.map((item) =>
+            item.id === current.id ? { ...item, is_enriching: true } : item,
+          ),
+        );
+
+        try {
+          const enrichment = await enrichCreatedBookmark(current.id, current.url);
+          applyEnrichment(current.id, enrichment);
+        } catch (error) {
+          console.error("Resume enrichment failed:", error);
+        }
+      }
+    };
+
+    void Promise.all(
+      Array.from({ length: Math.min(CONCURRENCY, pending.length) }, () =>
+        worker(),
+      ),
+    );
+  }, [applyEnrichment, bookmarks, setBookmarks]);
 
   const { filteredBookmarks, groupCounts, exportGroupOptions } =
     useDashboardDerived({

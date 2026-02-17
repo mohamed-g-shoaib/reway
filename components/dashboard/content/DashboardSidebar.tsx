@@ -437,7 +437,7 @@ export function DashboardSidebar({
         <>
           <button
             type="button"
-            className="hidden min-[1200px]:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 h-14 w-7 items-center justify-center rounded-r-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            className="hidden min-[1200px]:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 h-24 w-5 items-center justify-center rounded-r-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Toggle groups sidebar"
             onClick={() => {
               setIsPinnedOpen((p) => !p);

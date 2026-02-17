@@ -164,7 +164,7 @@ export function DashboardNotesTodosSidebar({
           <>
             <button
               type="button"
-              className="fixed right-0 top-1/2 -translate-y-1/2 z-50 h-14 w-7 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+              className="fixed right-0 top-1/2 -translate-y-1/2 z-50 h-18 w-6 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
               aria-label="Toggle notes and todos sidebar"
               onClick={() => {
                 setIsPinnedOpen((p) => !p);
@@ -180,8 +180,8 @@ export function DashboardNotesTodosSidebar({
             >
               {/* Issue: single-letter handles are hard to discover.
                   Fix: use short, stacked labels for clarity without taking horizontal space. */}
-              <span className="[writing-mode:vertical-rl] text-[10px] tracking-wide">
-                Notes & Todos
+              <span className="[writing-mode:vertical-rl] whitespace-nowrap text-[9px] tracking-wide">
+                Notes{"\u00A0"}&{"\u00A0"}Todos
               </span>
             </button>
 
@@ -224,7 +224,7 @@ export function DashboardNotesTodosSidebar({
         <>
           <button
             type="button"
-            className="hidden min-[1200px]:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 h-14 w-7 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+            className="hidden min-[1200px]:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 h-24 w-5 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Toggle notes and todos sidebar"
             onClick={() => {
               setIsPinnedOpen((p) => !p);
@@ -238,8 +238,8 @@ export function DashboardNotesTodosSidebar({
               if (!isPinnedOpen) scheduleClose();
             }}
           >
-            <span className="[writing-mode:vertical-rl] text-[10px] tracking-wide">
-              Notes & Todos
+            <span className="[writing-mode:vertical-rl] whitespace-nowrap text-[9px] tracking-wide">
+              Notes{"\u00A0"}&{"\u00A0"}Todos
             </span>
           </button>
 

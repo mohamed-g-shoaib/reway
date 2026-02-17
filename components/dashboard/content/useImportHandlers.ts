@@ -76,6 +76,7 @@ export function useImportHandlers({
   } | null>(null);
 
   const stopRequestedRef = useRef(false);
+  const processedRef = useRef(0);
 
   const pickRandomGroupColor = useCallback(() => {
     const palette = [
@@ -274,6 +275,7 @@ export function useImportHandlers({
       if (importProgress.status === "importing") return;
 
       stopRequestedRef.current = false;
+      processedRef.current = 0;
       setImportResult(null);
 
       const allowed = new Set(
@@ -369,7 +371,6 @@ export function useImportHandlers({
         };
       });
 
-      const processed = 0;
       let importedCount = 0;
       let failedCount = 0;
       const enrichmentQueue: Array<{ id: string; url: string }> = [];
@@ -390,6 +391,34 @@ export function useImportHandlers({
         }
 
         try {
+          // Issue: without optimistic rows, the UI won't show import "batches" while work is running.
+          // Fix: insert a lightweight optimistic bookmark row immediately, then update/replace it as we get a real id + enrichment.
+          setBookmarks((prev) =>
+            sortBookmarks([
+              {
+                id: optimisticId,
+                url: entry.url,
+                normalized_url: normalizedUrl,
+                domain: null,
+                title: entry.title || entry.url,
+                description: null,
+                favicon_url: null,
+                og_image_url: null,
+                image_url: null,
+                screenshot_url: null,
+                group_id: groupId,
+                user_id: userId,
+                created_at: new Date().toISOString(),
+                order_index: orderIndex,
+                status: "pending",
+                is_enriching: true,
+                last_fetched_at: null,
+                error_reason: null,
+              },
+              ...prev,
+            ]),
+          );
+
           const bookmarkId = await addBookmark({
             url: entry.url,
             id: optimisticId,
@@ -429,6 +458,15 @@ export function useImportHandlers({
                 : item,
             ),
           );
+        } finally {
+          processedRef.current += 1;
+          setImportProgress((prev) => {
+            if (prev.status !== "importing") return prev;
+            return {
+              ...prev,
+              processed: Math.min(processedRef.current, entries.length),
+            };
+          });
         }
       };
 
@@ -520,25 +558,14 @@ export function useImportHandlers({
         );
       };
 
-      const progressTimer = window.setInterval(() => {
-        setImportProgress((prev) => {
-          if (prev.status !== "importing") return prev;
-          return { ...prev, processed: Math.min(processed, entries.length) };
-        });
-      }, 200);
-
-      try {
-        await runWithConcurrency(
-          pendingEntries,
-          CREATE_CONCURRENCY,
-          handleCreate,
-        );
-      } finally {
-        window.clearInterval(progressTimer);
-      }
+      await runWithConcurrency(
+        pendingEntries,
+        CREATE_CONCURRENCY,
+        handleCreate,
+      );
 
       setImportProgress({
-        processed: Math.min(processed, entries.length),
+        processed: Math.min(processedRef.current, entries.length),
         total: entries.length,
         status: stopRequestedRef.current ? "stopped" : "done",
       });
@@ -574,6 +601,7 @@ export function useImportHandlers({
       importPreview,
       importProgress.status,
       normalizeGroupName,
+      pickRandomGroupColor,
       runWithConcurrency,
       sortBookmarks,
       sortGroups,
