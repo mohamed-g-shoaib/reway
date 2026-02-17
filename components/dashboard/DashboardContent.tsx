@@ -46,6 +46,7 @@ interface DashboardContentProps {
   initialTodos: TodoRow[];
   initialViewModeAll?: "list" | "card" | "icon" | "folders";
   initialViewModeGroups?: "list" | "card" | "icon" | "folders";
+  initialLayoutDensity?: "compact" | "extended";
   initialRowContent?: "date" | "group";
   initialCommandMode?: "add" | "search";
   initialShowNotesTodos?: boolean;
@@ -97,6 +98,7 @@ export function DashboardContent({
   initialTodos,
   initialViewModeAll = "list",
   initialViewModeGroups = "list",
+  initialLayoutDensity = "compact",
   initialRowContent = "date",
   initialCommandMode = "add",
   initialShowNotesTodos = true,
@@ -112,6 +114,9 @@ export function DashboardContent({
   );
   const [showNotesTodos, setShowNotesTodos] = useState<boolean>(
     initialShowNotesTodos,
+  );
+  const [layoutDensity, setLayoutDensity] = useState<"compact" | "extended">(
+    initialLayoutDensity,
   );
   const [viewModeAll, setViewModeAll] = useState<
     "list" | "card" | "icon" | "folders"
@@ -264,6 +269,10 @@ export function DashboardContent({
   React.useEffect(() => {
     setPreferenceCookie("showNotesTodos", showNotesTodos ? "true" : "false");
   }, [showNotesTodos]);
+
+  React.useEffect(() => {
+    setPreferenceCookie("layoutDensity", layoutDensity);
+  }, [layoutDensity]);
 
   React.useEffect(() => {
     setPreferenceCookie("commandMode", commandMode);
@@ -860,7 +869,12 @@ export function DashboardContent({
   return (
     <>
       <DashboardOnboarding />
-      <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
+      <div
+        className={`mx-auto w-full ${
+          layoutDensity === "extended" ? "max-w-[1600px]" : "max-w-3xl"
+        }`}
+      >
+        <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
         <DashboardSidebar
           groups={groups}
           activeGroupId={activeGroupId}
@@ -888,6 +902,7 @@ export function DashboardContent({
           setNewGroupColor={setNewGroupColor}
           isCreatingGroup={isCreatingGroup}
           handleInlineCreateGroup={handleInlineCreateGroup}
+          layoutDensity={layoutDensity}
         />
 
         {showNotesTodos && (
@@ -904,6 +919,7 @@ export function DashboardContent({
             onDeleteTodos={handleDeleteTodos}
             onSetTodoCompleted={handleSetTodoCompleted}
             onSetTodosCompleted={handleSetTodosCompleted}
+            layoutDensity={layoutDensity}
           />
         )}
 
@@ -926,6 +942,8 @@ export function DashboardContent({
             setShowNotesTodos={setShowNotesTodos}
             paletteTheme={paletteTheme}
             setPaletteTheme={setPaletteTheme}
+            layoutDensity={layoutDensity}
+            setLayoutDensity={setLayoutDensity}
             viewMode={viewMode}
             setViewMode={setViewMode}
             exportGroupOptions={exportGroupOptions}
@@ -980,6 +998,7 @@ export function DashboardContent({
                   onToggleSelection={handleToggleSelection}
                   onEnterSelectionMode={() => setSelectionMode(true)}
                   onKeyboardContextChange={setKeyboardContext}
+                  layoutDensity={layoutDensity}
                 />
               ) : (
                 <BookmarkBoard
@@ -995,6 +1014,7 @@ export function DashboardContent({
                   selectedIds={selectedIds}
                   onToggleSelection={handleToggleSelection}
                   onEnterSelectionMode={() => setSelectionMode(true)}
+                  layoutDensity={layoutDensity}
                 />
               )}
             </div>
@@ -1010,6 +1030,7 @@ export function DashboardContent({
             onCancelSelection={handleCancelSelection}
           />
         )}
+        </div>
       </div>
     </>
   );

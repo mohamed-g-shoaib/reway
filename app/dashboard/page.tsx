@@ -60,6 +60,13 @@ export default async function DashboardPage() {
     return "default";
   };
 
+  const parseLayoutDensity = (value: string | undefined) => {
+    if (value && ["compact", "extended"].includes(value)) {
+      return value as "compact" | "extended";
+    }
+    return "compact";
+  };
+
   // Read and validate dashboard preferences from cookies
   const viewModeAll = parseViewMode(
     cookieStore.get("reway.dashboard.viewMode.all")?.value,
@@ -81,6 +88,10 @@ export default async function DashboardPage() {
     cookieStore.get("reway.dashboard.paletteTheme")?.value,
   );
 
+  const layoutDensity = parseLayoutDensity(
+    cookieStore.get("reway.dashboard.layoutDensity")?.value,
+  );
+
   const [user, bookmarks, groups, notes, todos] = await Promise.all([
     getUser(),
     getBookmarks(),
@@ -98,7 +109,7 @@ export default async function DashboardPage() {
         data-dashboard-root
         className={`h-dvh overflow-hidden bg-background text-foreground ${getPaletteThemeClassName(paletteTheme)}`}
       >
-        <main className="mx-auto w-full max-w-3xl px-4 py-6">
+        <main className="mx-auto w-full px-4 py-6">
           <DashboardContent
             user={user}
             initialBookmarks={bookmarks}
@@ -111,6 +122,7 @@ export default async function DashboardPage() {
             initialRowContent={rowContent}
             initialCommandMode={commandMode}
             initialPaletteTheme={paletteTheme}
+            initialLayoutDensity={layoutDensity}
           />
         </main>
 

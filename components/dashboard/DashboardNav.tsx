@@ -46,6 +46,8 @@ interface DashboardNavProps {
   setShowNotesTodos: (value: boolean) => void;
   paletteTheme: DashboardPaletteTheme;
   setPaletteTheme: (value: DashboardPaletteTheme) => void;
+  layoutDensity: "compact" | "extended";
+  setLayoutDensity: (value: "compact" | "extended") => void;
   viewMode: "list" | "card" | "icon" | "folders";
   setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
   exportGroupOptions: string[];
@@ -101,6 +103,8 @@ export function DashboardNav({
   setShowNotesTodos,
   paletteTheme,
   setPaletteTheme,
+  layoutDensity,
+  setLayoutDensity,
   viewMode,
   setViewMode,
   exportGroupOptions,
@@ -325,7 +329,11 @@ export function DashboardNav({
         onRemoveBookmarks={onRemoveBookmarks}
       />
 
-      <nav className="z-40 mx-auto max-w-3xl transition-transform duration-200 group-data-[scrolled=true]/body:top-2">
+      <nav
+        className={`z-40 mx-auto ${
+          layoutDensity === "extended" ? "max-w-[1600px]" : "max-w-3xl"
+        } transition-transform duration-200 group-data-[scrolled=true]/body:top-2`}
+      >
         <div className="flex h-14 w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="hidden md:flex shrink-0 items-center">
@@ -374,9 +382,11 @@ export function DashboardNav({
               onShowNotesTodosChange={setShowNotesTodos}
               paletteTheme={paletteTheme}
               onPaletteThemeChange={setPaletteTheme}
-              onOpenImportSheet={handleOpenImportDialog}
-              onOpenExportSheet={handleOpenExportDialog}
-              onOpenDuplicatesSheet={handleOpenDuplicatesSheet}
+              layoutDensity={layoutDensity}
+              onLayoutDensityChange={setLayoutDensity}
+              onOpenImportSheet={() => setImportSheetOpen(true)}
+              onOpenExportSheet={() => setExportSheetOpen(true)}
+              onOpenDuplicatesSheet={() => setDuplicatesSheetOpen(true)}
             />
           </div>
         </div>

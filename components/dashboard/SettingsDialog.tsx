@@ -55,6 +55,8 @@ interface SettingsDialogProps {
   onRowContentChange: (value: "date" | "group") => void;
   showNotesTodos: boolean;
   onShowNotesTodosChange: (value: boolean) => void;
+  layoutDensity: "compact" | "extended";
+  onLayoutDensityChange: (value: "compact" | "extended") => void;
   userName: string;
   paletteTheme: DashboardPaletteTheme;
   onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
@@ -66,6 +68,8 @@ export function SettingsDialog({
   onRowContentChange,
   showNotesTodos,
   onShowNotesTodosChange,
+  layoutDensity,
+  onLayoutDensityChange,
   userName,
   paletteTheme,
   onPaletteThemeChange,
@@ -151,6 +155,36 @@ export function SettingsDialog({
 
         <SheetBody className="space-y-5">
           <div data-onboarding="settings-controls" className="space-y-5">
+            <SheetSection>
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
+                Layout
+              </h3>
+              <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                <div className="flex gap-2">
+                  <Button
+                    variant={layoutDensity === "compact" ? "default" : "outline"}
+                    size="sm"
+                    className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                    onClick={() => onLayoutDensityChange("compact")}
+                  >
+                    Compact
+                  </Button>
+                  <Button
+                    variant={layoutDensity === "extended" ? "default" : "outline"}
+                    size="sm"
+                    className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                    onClick={() => onLayoutDensityChange("extended")}
+                  >
+                    Extended
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground px-1">
+                  Control how much content is shown on desktop screens.
+                </p>
+              </div>
+            </SheetSection>
+
             <SheetSection>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />

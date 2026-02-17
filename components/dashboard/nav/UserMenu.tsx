@@ -36,6 +36,8 @@ interface UserMenuProps {
   onShowNotesTodosChange: (value: boolean) => void;
   paletteTheme: DashboardPaletteTheme;
   onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
+  layoutDensity: "compact" | "extended";
+  onLayoutDensityChange: (value: "compact" | "extended") => void;
   onOpenImportSheet: () => void;
   onOpenExportSheet: () => void;
   onOpenDuplicatesSheet: () => void;
@@ -50,6 +52,8 @@ export function UserMenu({
   onShowNotesTodosChange,
   paletteTheme,
   onPaletteThemeChange,
+  layoutDensity,
+  onLayoutDensityChange,
   onOpenImportSheet,
   onOpenExportSheet,
   onOpenDuplicatesSheet,
@@ -97,6 +101,8 @@ export function UserMenu({
         onShowNotesTodosChange={onShowNotesTodosChange}
         rowContent={rowContent}
         onRowContentChange={onRowContentChange}
+        layoutDensity={layoutDensity}
+        onLayoutDensityChange={onLayoutDensityChange}
         userName={user.name}
         paletteTheme={paletteTheme}
         onPaletteThemeChange={onPaletteThemeChange}
