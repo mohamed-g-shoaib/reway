@@ -16,7 +16,6 @@ export function TodosSection({
   onDeleteTodo,
   onDeleteTodos,
   onSetTodoCompleted,
-  onSetTodosCompleted: _onSetTodosCompleted,
 }: {
   todos: TodoRowType[];
   onCreateTodo: (formData: { text: string; priority: TodoPriority }) => Promise<string>;

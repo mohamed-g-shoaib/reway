@@ -63,6 +63,10 @@ export function useGlobalEvent<K extends WindowEventName>(
 ) {
   const handlerRef = useRef(handler);
 
+  const capture = options?.capture ?? false;
+  const passive = options?.passive;
+  const once = options?.once;
+
   useEffect(() => {
     handlerRef.current = handler;
   }, [handler]);
@@ -70,6 +74,6 @@ export function useGlobalEvent<K extends WindowEventName>(
   useEffect(() => {
     const wrapped: EventListener = (event) =>
       handlerRef.current(event as WindowEventMap[K]);
-    return registerHandler(type, wrapped, options);
-  }, [type, options?.capture, options?.passive]);
+    return registerHandler(type, wrapped, { capture, passive, once });
+  }, [type, capture, passive, once]);
 }

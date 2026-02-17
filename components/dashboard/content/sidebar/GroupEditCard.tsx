@@ -32,6 +32,7 @@ export function GroupEditCard({
   onCancel: () => void;
   onSave: () => void;
 }) {
+  void group;
   return (
     <div className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
       <div className="flex items-center gap-2">

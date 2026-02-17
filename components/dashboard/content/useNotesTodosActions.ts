@@ -24,9 +24,9 @@ export function useNotesTodosActions({
   userId,
   initialNotes,
   initialTodos,
-  notes,
+  notes: _notes,
   setNotes,
-  todos,
+  todos: _todos,
   setTodos,
   lastDeletedNoteRef,
   lastBulkDeletedNotesRef,
@@ -53,6 +53,8 @@ export function useNotesTodosActions({
     { todo: TodoRow; index: number }[]
   >;
 }) {
+  void _notes;
+  void _todos;
   const handleCreateNote = useCallback(
     async (formData: { text: string; color?: string | null }) => {
       const id = await createNote({

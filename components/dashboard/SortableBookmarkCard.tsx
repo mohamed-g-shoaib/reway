@@ -9,7 +9,6 @@ import {
   Delete02Icon,
   PencilEdit01Icon,
   Tick01Icon,
-  ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { toast } from "sonner";

@@ -70,6 +70,7 @@ export const SortableBookmark = memo(function SortableBookmark({
   onEnterSelectionMode,
   dragDimmed = false,
 }: SortableBookmarkProps) {
+  void description;
   const [isCopied, setIsCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 

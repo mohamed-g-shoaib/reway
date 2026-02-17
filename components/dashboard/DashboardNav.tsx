@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { GroupRow } from "@/lib/supabase/queries";
 import Link from "next/link";
@@ -159,7 +159,6 @@ export function DashboardNav({
   const [selectedExportGroups, setSelectedExportGroups] = useState<string[]>(
     [],
   );
-  const hasInitializedExportSelection = useRef(false);
 
   const initials = user.name
     .split(" ")
@@ -263,15 +262,6 @@ export function DashboardNav({
     );
   };
 
-  const handleOpenImportDialog = () => {
-    setImportSheetOpen(true);
-    if (importPreview) {
-      setSelectedImportGroups(importPreview.groups.map((group) => group.name));
-    } else {
-      setSelectedImportGroups([]);
-    }
-  };
-
   const handleImportOpenChange = (open: boolean) => {
     if (!open) {
       setSelectedImportGroups([]);
@@ -281,23 +271,12 @@ export function DashboardNav({
     setImportSheetOpen(open);
   };
 
-  const handleOpenExportDialog = () => {
-    setSelectedExportGroups(exportGroupOptions);
-    hasInitializedExportSelection.current = true;
-    onResetExport?.();
-    setExportSheetOpen(true);
-  };
-
   const handleExportOpenChange = (open: boolean) => {
     if (!open) {
       setSelectedExportGroups([]);
       onResetExport?.();
     }
     setExportSheetOpen(open);
-  };
-
-  const handleOpenDuplicatesSheet = () => {
-    setDuplicatesSheetOpen(true);
   };
 
   return (

@@ -13,7 +13,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuShortcut,
 } from "@/components/ui/context-menu";
 import { useShowShortcuts } from "@/hooks/useShowShortcuts";

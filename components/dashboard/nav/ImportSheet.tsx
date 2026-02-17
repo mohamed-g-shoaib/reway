@@ -100,10 +100,6 @@ export function ImportSheet({
     });
   };
 
-  const handleClearAllGroups = () => {
-    selectedImportGroups.forEach((name) => onToggleImportGroup(name));
-  };
-
   const resetFileSelection = () => {
     setSelectedFileName(null);
     if (fileInputRef.current) {

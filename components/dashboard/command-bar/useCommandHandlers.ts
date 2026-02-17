@@ -147,7 +147,7 @@ export function useCommandHandlers({
         }
       }
     },
-    [processUrls, setAddStatus],
+    [],
   );
 
   const handleKeyDown = useCallback(

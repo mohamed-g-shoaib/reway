@@ -88,10 +88,6 @@ export function SettingsDialog({
   const normalizedName = useMemo(() => userName.trim(), [userName]);
   const confirmPhrase = normalizedName || "your name";
   const isConfirmMatch = confirmValue.trim() === normalizedName;
-  const selectedPaletteTheme = useMemo(
-    () => DASHBOARD_THEMES.find((item) => item.value === paletteTheme),
-    [paletteTheme],
-  );
 
   useEffect(() => {
     const handleOpenSettings = () => setOpen(true);

@@ -3,14 +3,6 @@
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  ArrowUpRight03Icon,
-  Copy01Icon,
-  Delete02Icon,
-  PencilEdit01Icon,
-  ViewIcon,
-} from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { toast } from "sonner";
 
 import {
@@ -62,7 +54,6 @@ export function SortableBookmarkIcon({
   onPreview,
   dragDimmed = false,
 }: SortableBookmarkIconProps) {
-  const [isCopied, setIsCopied] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const {
@@ -90,9 +81,7 @@ export function SortableBookmarkIcon({
     e?.stopPropagation();
     try {
       await navigator.clipboard.writeText(url);
-      setIsCopied(true);
       toast.success("URL copied to clipboard");
-      setTimeout(() => setIsCopied(false), 2000);
     } catch {
       toast.error("Failed to copy URL");
     }

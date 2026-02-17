@@ -128,6 +128,7 @@ export function GroupMenu({
   onInlineCreateCancel,
   setEditingGroupId,
 }: GroupMenuProps) {
+  void groupCounts;
   const [menuOpen, setMenuOpen] = useState(false);
   const [iconsMap, setIconsMap] = useState<Record<
     string,
@@ -167,11 +168,6 @@ export function GroupMenu({
       window.removeEventListener("reway:close-groups-menu", closeHandler);
     };
   }, []);
-
-  const totalCount = Object.values(groupCounts || {}).reduce(
-    (acc, count) => acc + count,
-    0,
-  );
 
   const activeGroup =
     activeGroupId === "all"

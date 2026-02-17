@@ -22,6 +22,7 @@ export function NoteEditCard({
   onCancel: () => void;
   onSave: () => void;
 }) {
+  void note;
   return (
     <div className="relative my-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
       <div className="space-y-2">

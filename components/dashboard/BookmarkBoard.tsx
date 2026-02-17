@@ -11,7 +11,6 @@ import {
   useSensor,
   useSensors,
   DragStartEvent,
-  DragOverEvent,
   DragEndEvent,
   MeasuringStrategy,
 } from "@dnd-kit/core";

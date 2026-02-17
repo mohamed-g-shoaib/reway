@@ -2,7 +2,7 @@
 
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { Kbd } from "@/components/ui/kbd";
 
 interface EmptyStateProps {
   isMac: boolean;
