@@ -51,6 +51,7 @@ export function useCommandHandlers({
     async (urls: string[]) => {
       const executeAdd = async (url: string) => {
         const stableId = crypto.randomUUID();
+        let createdId: string | null = null;
         const optimistic = {
           id: stableId,
           url,
@@ -72,16 +73,32 @@ export function useCommandHandlers({
             id: stableId,
             group_id: activeGroupId !== "all" ? activeGroupId : undefined,
           });
+          createdId = bookmarkId ?? null;
           if (bookmarkId) {
             onReplaceBookmarkId?.(stableId, bookmarkId);
           }
-          const enrichment = (await enrichCreatedBookmark(bookmarkId, url)) as
-            | EnrichmentResult
-            | undefined;
-          onApplyEnrichment?.(bookmarkId ?? stableId, enrichment);
+          if (!bookmarkId) {
+            throw new Error("Failed to create bookmark");
+          }
+
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error("Enrichment timeout")), 30000);
+          });
+          const enrichmentPromise = enrichCreatedBookmark(bookmarkId, url);
+
+          const enrichment = (await Promise.race([
+            enrichmentPromise,
+            timeoutPromise,
+          ])) as EnrichmentResult | undefined;
+
+          onApplyEnrichment?.(bookmarkId, enrichment);
         } catch (error) {
           console.error("Failed to add bookmark:", error);
           toast.error(`Failed to add ${url}`);
+          onApplyEnrichment?.(createdId ?? stableId, {
+            status: "failed",
+            error_reason: error instanceof Error ? error.message : "Failed to add",
+          });
         }
       };
 
@@ -89,6 +106,7 @@ export function useCommandHandlers({
         const u = urls[0];
         const fullUrl = u.startsWith("http") ? u : `https://${u}`;
         const stableId = crypto.randomUUID();
+        let createdId: string | null = null;
         const optimistic = {
           id: stableId,
           url: fullUrl,
@@ -111,16 +129,32 @@ export function useCommandHandlers({
             id: stableId,
             group_id: activeGroupId !== "all" ? activeGroupId : undefined,
           });
+          createdId = bookmarkId ?? null;
           if (bookmarkId) {
             onReplaceBookmarkId?.(stableId, bookmarkId);
           }
-          const enrichment = (await enrichCreatedBookmark(bookmarkId, fullUrl)) as
-            | EnrichmentResult
-            | undefined;
-          onApplyEnrichment?.(bookmarkId ?? stableId, enrichment);
+          if (!bookmarkId) {
+            throw new Error("Failed to create bookmark");
+          }
+
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error("Enrichment timeout")), 30000);
+          });
+          const enrichmentPromise = enrichCreatedBookmark(bookmarkId, fullUrl);
+
+          const enrichment = (await Promise.race([
+            enrichmentPromise,
+            timeoutPromise,
+          ])) as EnrichmentResult | undefined;
+
+          onApplyEnrichment?.(bookmarkId, enrichment);
         } catch (error) {
           console.error("Failed to add bookmark:", error);
           toast.error(`Failed to add ${fullUrl}`);
+          onApplyEnrichment?.(createdId ?? stableId, {
+            status: "failed",
+            error_reason: error instanceof Error ? error.message : "Failed to add",
+          });
         }
         return;
       }
