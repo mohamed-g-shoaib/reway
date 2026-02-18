@@ -27,11 +27,17 @@ export function DemoShell({
       viewport={{ once: true, margin: "-120px" }}
       transition={{ duration: 0.35, ease: "easeOut" }}
     >
-      <div className="mb-3 px-0 text-[11px] font-medium text-muted-foreground text-center sm:text-left">
-        <span className="inline-block">
-          Interactive demo, click around (nothing is saved)
-        </span>
-        {controls ? <div className="mt-2 flex justify-center sm:justify-start">{controls}</div> : null}
+      <div className="mb-2 px-2 sm:px-3 text-xs font-medium text-muted-foreground">
+        <div className="flex flex-col gap-2 items-center sm:flex-row sm:items-center sm:justify-between">
+          <span className="inline-block text-center sm:text-left">
+            Interactive demo, click around (nothing is saved)
+          </span>
+          {controls ? (
+            <div className="flex justify-center sm:justify-end w-full sm:w-auto">
+              {controls}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <motion.div
