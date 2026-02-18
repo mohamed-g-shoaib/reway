@@ -72,6 +72,13 @@ function isValidCommandMode(value: string): value is "add" | "search" {
 }
 
 /**
+ * Validate a layout density value
+ */
+function isValidLayoutDensity(value: string): value is "compact" | "extended" {
+  return ["compact", "extended"].includes(value);
+}
+
+/**
  * Migrate from localStorage to cookies (one-time)
  * Validates values before migrating to prevent invalid data
  */
@@ -89,6 +96,11 @@ export function migrateLocalStorageToCookies() {
         localStorage: "reway.dashboard.viewMode.groups",
         cookie: "viewMode.groups",
         validate: isValidViewMode,
+      },
+      {
+        localStorage: "reway.dashboard.layoutDensity",
+        cookie: "layoutDensity",
+        validate: isValidLayoutDensity,
       },
       {
         localStorage: "reway.dashboard.rowContent",
