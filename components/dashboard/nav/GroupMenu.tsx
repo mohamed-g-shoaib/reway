@@ -235,22 +235,21 @@ export function GroupMenu({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            suppressHydrationWarning
             data-onboarding="groups-mobile"
-            className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-transform duration-150 active:scale-[0.98]"
+            className="h-9 gap-1.5 px-1.5 rounded-xl text-[13px] font-bold hover:bg-muted/50 transition-transform duration-150 active:scale-[0.98]"
           >
-            <div className="flex items-center justify-center h-8 w-8">
+            <div className="flex items-center justify-center h-7 w-7">
               {ActiveIcon ? (
                 <HugeiconsIcon
                   icon={ActiveIcon}
-                  size={18}
+                  size={16}
                   strokeWidth={2}
                   style={{ color: activeGroup.color || undefined }}
                   className={activeGroup.color ? "" : "text-foreground/80"}
                 />
               ) : null}
             </div>
-            <span className="truncate max-w-48">{activeGroup.name}</span>
+            <span className="truncate max-w-32">{activeGroup.name}</span>
             <HugeiconsIcon
               icon={ArrowDown01Icon}
               size={14}
@@ -339,6 +338,39 @@ export function GroupMenu({
                   ? (iconsMap?.[group.icon] ?? Folder01Icon)
                   : Folder01Icon;
                 const isEditing = editingGroupId === group.id;
+                const isNoGroup = group.id === "no-group";
+
+                if (isNoGroup) {
+                  return (
+                    <DropdownMenuItem
+                      key={group.id}
+                      className={`group rounded-xl font-medium cursor-pointer flex items-center justify-between gap-3 py-2 px-3 pr-3 ${
+                        activeGroupId === group.id
+                          ? "bg-muted text-foreground font-bold"
+                          : "text-muted-foreground"
+                      }`}
+                      onSelect={(event) => {
+                        if (!selectionMode) return;
+                        event.preventDefault();
+                      }}
+                      onClick={() => {
+                        if (selectionMode) return;
+                        onGroupSelect(group.id);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5 mt-0.5">
+                        <HugeiconsIcon
+                          icon={GroupIcon}
+                          size={16}
+                          strokeWidth={2}
+                          className="text-foreground/80"
+                        />
+                        <span>No Group</span>
+                      </div>
+                    </DropdownMenuItem>
+                  );
+                }
 
                 if (isEditing) {
                   return (

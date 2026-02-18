@@ -7,7 +7,6 @@ import {
   SquareIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +30,6 @@ export function ViewModeControls({
   viewMode,
   setViewMode,
 }: ViewModeControlsProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const activeIcon =
     viewMode === "list"
       ? Menu01Icon
@@ -50,136 +48,46 @@ export function ViewModeControls({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            // Issue: `suppressHydrationWarning` can hide real hydration bugs when not strictly needed.
-            // Fix: remove it here; `viewMode` is client state so this button should hydrate consistently.
-            data-onboarding="view-mode-mobile"
-            className="md:hidden size-8 rounded-lg hover:bg-muted/50 transition-transform duration-150 active:scale-95 cursor-pointer"
-            aria-label="Change view mode"
-          >
-            <HugeiconsIcon
-              icon={
-                viewMode === "list"
-                  ? Menu01Icon
-                  : viewMode === "card"
-                    ? SquareIcon
-                    : viewMode === "icon"
-                      ? CircleIcon
-                      : Folder01Icon
-              }
-              size={18}
-              strokeWidth={2}
-            />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="w-36 rounded-2xl p-2 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
-        >
-          <DropdownMenuItem
-            className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "list" ? "bg-muted text-foreground font-medium" : ""
-            }`}
-            onClick={() => setViewMode("list")}
-          >
-            <HugeiconsIcon icon={Menu01Icon} size={16} />
-            List
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "card" ? "bg-muted text-foreground font-medium" : ""
-            }`}
-            onClick={() => setViewMode("card")}
-          >
-            <HugeiconsIcon icon={SquareIcon} size={16} />
-            Card
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "icon" ? "bg-muted text-foreground font-medium" : ""
-            }`}
-            onClick={() => setViewMode("icon")}
-          >
-            <HugeiconsIcon icon={CircleIcon} size={16} />
-            Icon
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className={`rounded-lg flex items-center gap-2 cursor-pointer ${
-              viewMode === "folders"
-                ? "bg-muted text-foreground font-medium"
-                : ""
-            }`}
-            onClick={() => setViewMode("folders")}
-          >
-            <HugeiconsIcon icon={Folder01Icon} size={16} />
-            Folders
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
       <TooltipProvider>
-        <div className="hidden md:flex items-center">
-          <div className="relative flex items-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <Button
-                  size="icon"
                   variant="ghost"
-                  data-onboarding="view-mode-desktop"
+                  size="icon"
+                  data-onboarding="view-mode"
                   className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
-                  onClick={() => setIsOpen((prev) => !prev)}
-                  aria-label="Toggle view modes"
-                  aria-expanded={isOpen}
+                  aria-label="Change view mode"
                 >
                   <HugeiconsIcon icon={activeIcon} size={16} strokeWidth={2} />
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent className="rounded-lg font-medium" side="bottom">
-                View modes
-              </TooltipContent>
-            </Tooltip>
-            {isOpen ? (
-              <div className="absolute right-full mr-2 flex items-center gap-1 rounded-xl bg-muted/30 p-1">
-                {viewOptions.map((option) => (
-                  <Tooltip key={option.value}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant={
-                          viewMode === option.value ? "default" : "ghost"
-                        }
-                        className={`size-7 rounded-lg transition-colors duration-150 ease-out cursor-pointer ${
-                          viewMode === option.value ? "" : "hover:bg-muted/50"
-                        }`}
-                        onClick={() => {
-                          setViewMode(option.value);
-                          setIsOpen(false);
-                        }}
-                        aria-label={`${option.label} view`}
-                      >
-                        <HugeiconsIcon
-                          icon={option.icon}
-                          size={14}
-                          strokeWidth={2}
-                        />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      className="rounded-lg font-medium"
-                      side="bottom"
-                    >
-                      {option.label} view
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </div>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent className="rounded-lg font-medium" side="bottom">
+              View mode
+            </TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent
+            align="end"
+            className="w-36 rounded-2xl p-2 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"
+          >
+            {viewOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                className={`rounded-lg flex items-center gap-2 cursor-pointer ${
+                  viewMode === option.value
+                    ? "bg-muted text-foreground font-medium"
+                    : ""
+                }`}
+                onClick={() => setViewMode(option.value)}
+              >
+                <HugeiconsIcon icon={option.icon} size={16} />
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </TooltipProvider>
     </>
   );
