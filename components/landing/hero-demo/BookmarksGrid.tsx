@@ -43,11 +43,11 @@ export function BookmarksGrid({
         ) : (
           <motion.div
             key={slot.value.id}
-            className={`rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 transition-colors hover:bg-muted/30 ${
+            className={`group rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 transition-colors hover:bg-muted/30 ${
               index >= 3 ? "hidden sm:block" : ""
             } ${index >= 6 ? "sm:hidden lg:block" : ""} h-26`}
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{
               duration: 0.22,
@@ -73,7 +73,7 @@ export function BookmarksGrid({
                 />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-base font-semibold leading-tight text-foreground">
+                <p className="truncate text-base font-semibold leading-tight text-foreground group-hover:text-primary">
                   {slot.value.title}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
@@ -87,7 +87,7 @@ export function BookmarksGrid({
                 <button
                   type="button"
                   onClick={onEdit}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                   aria-label="Edit bookmark"
                 >
                   <HugeiconsIcon icon={PencilEdit01Icon} size={12} />
@@ -95,7 +95,7 @@ export function BookmarksGrid({
                 <button
                   type="button"
                   onClick={(event) => onCopy(event, slot.value.url, index)}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                   aria-label="Copy link"
                 >
                   <HugeiconsIcon
@@ -107,7 +107,7 @@ export function BookmarksGrid({
                 <button
                   type="button"
                   onClick={(event) => onOpen(event, slot.value.url)}
-                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-[background-color,transform] duration-200 ease-out hover:bg-background hover:text-primary active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                   aria-label="Open link"
                 >
                   <HugeiconsIcon icon={ArrowUpRight03Icon} size={12} />

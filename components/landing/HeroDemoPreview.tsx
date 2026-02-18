@@ -1,8 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { Moon02Icon, Sun01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import RewayLogo from "@/components/logo";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import {
+  DASHBOARD_THEMES,
+  getPaletteThemeClassName,
+  type DashboardPaletteTheme,
+} from "@/lib/themes";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 import {
   NotesSectionPreview,
@@ -16,6 +34,14 @@ import { NotesTodosSidebar } from "./hero-demo/NotesTodosSidebar";
 import { useHeroDemoState } from "./hero-demo/useHeroDemoState";
 
 export function HeroDemoPreview() {
+  const [demoTheme, setDemoTheme] = useState<DashboardPaletteTheme>("default");
+  const { resolvedTheme, setTheme } = useTheme();
+  const [isThemeResolved, setIsThemeResolved] = useState(false);
+
+  useEffect(() => {
+    setIsThemeResolved(true);
+  }, []);
+
   const {
     copiedIndex,
     activeGroup,
@@ -66,59 +92,134 @@ export function HeroDemoPreview() {
     handleSetTodosCompleted,
   } = useHeroDemoState();
 
+  const themeClassName = getPaletteThemeClassName(demoTheme);
+  const isDark = isThemeResolved && resolvedTheme === "dark";
+
+  const demoControls = (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span
+        id="hero-demo-theme-label"
+        className="text-xs font-medium text-muted-foreground"
+      >
+        Theme:
+      </span>
+      <Select
+        value={demoTheme}
+        onValueChange={(value) => setDemoTheme(value as DashboardPaletteTheme)}
+      >
+        <SelectTrigger
+          size="sm"
+          aria-labelledby="hero-demo-theme-label"
+          className="h-6 w-[148px] rounded-lg bg-background/60 px-2 text-[10px] ring-0 after:content-none hover:bg-background/60 dark:hover:bg-background/60 *:data-[slot=select-value]:overflow-visible *:data-[slot=select-value]:line-clamp-none"
+        >
+          <SelectValue placeholder="Theme" />
+        </SelectTrigger>
+        <SelectContent align="start">
+          <SelectGroup>
+            {DASHBOARD_THEMES.map((themeOption) => (
+              <SelectItem key={themeOption.value} value={themeOption.value}>
+                <span className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="flex items-center gap-1.5 shrink-0"
+                    aria-hidden="true"
+                  >
+                    {themeOption.dots.map((dot) => (
+                      <span
+                        key={dot}
+                        className="size-2.5 rounded-full ring-1 ring-foreground/10"
+                        style={{ backgroundColor: dot }}
+                      />
+                    ))}
+                  </span>
+                  <span className="font-medium truncate">{themeOption.label}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+
+      <Button
+        type="button"
+        variant={!isDark ? "default" : "outline"}
+        size="icon"
+        className="h-6 w-6 rounded-lg cursor-pointer"
+        onClick={() => setTheme("light")}
+        aria-label="Light"
+        title="Light"
+      >
+        <HugeiconsIcon icon={Sun01Icon} size={13} />
+      </Button>
+      <Button
+        type="button"
+        variant={isDark ? "default" : "outline"}
+        size="icon"
+        className="h-6 w-6 rounded-lg cursor-pointer"
+        onClick={() => setTheme("dark")}
+        aria-label="Dark"
+        title="Dark"
+      >
+        <HugeiconsIcon icon={Moon02Icon} size={13} />
+      </Button>
+    </div>
+  );
+
   return (
     <div className="mx-auto mt-12 w-full max-w-350">
-      <DemoShell>
-        <div className="flex bg-background">
-          <GroupsSidebar
-            activeGroup={activeGroup}
-            heroGroups={heroGroups}
-            creatingGroup={creatingGroup}
-            newGroupName={newGroupName}
-            newGroupIcon={newGroupIcon}
-            setNewGroupName={setNewGroupName}
-            setNewGroupIcon={setNewGroupIcon}
-            setNewGroupColor={setNewGroupColor}
-            onSelectGroup={setActiveGroup}
-            onOpenCreate={() => setCreatingGroup(true)}
-            onCancelCreate={cancelCreateHeroGroup}
-            onCreate={handleCreateHeroGroup}
-          />
+      <DemoShell controls={demoControls}>
+        <div className="flex">
+          <div className={`${themeClassName} flex flex-1 bg-background text-foreground`}>
+            <GroupsSidebar
+              activeGroup={activeGroup}
+              heroGroups={heroGroups}
+              creatingGroup={creatingGroup}
+              newGroupName={newGroupName}
+              newGroupIcon={newGroupIcon}
+              setNewGroupName={setNewGroupName}
+              setNewGroupIcon={setNewGroupIcon}
+              setNewGroupColor={setNewGroupColor}
+              onSelectGroup={setActiveGroup}
+              onOpenCreate={() => setCreatingGroup(true)}
+              onCancelCreate={cancelCreateHeroGroup}
+              onCreate={handleCreateHeroGroup}
+            />
 
-          <div className="flex-1 p-4 sm:p-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 min-w-0">
-                  <RewayLogo
-                    className="size-7"
-                    aria-hidden="true"
-                    focusable="false"
-                  />
+            <div className="flex-1 p-4 sm:p-6">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <RewayLogo
+                      className="size-7"
+                      aria-hidden="true"
+                      focusable="false"
+                    />
 
-                  <GroupsDropdown
-                    activeGroup={activeGroup}
-                    heroGroups={heroGroups}
-                    dropdownCreatingGroup={dropdownCreatingGroup}
-                    dropdownNewGroupName={dropdownNewGroupName}
-                    setDropdownNewGroupName={setDropdownNewGroupName}
-                    setDropdownCreatingGroup={setDropdownCreatingGroup}
-                    onSelectGroup={(id) => setActiveGroup(id)}
-                    onCreateGroup={handleCreateHeroGroupFromDropdown}
-                    onCancelCreate={cancelCreateHeroGroupFromDropdown}
-                  />
+                    <GroupsDropdown
+                      activeGroup={activeGroup}
+                      heroGroups={heroGroups}
+                      dropdownCreatingGroup={dropdownCreatingGroup}
+                      dropdownNewGroupName={dropdownNewGroupName}
+                      setDropdownNewGroupName={setDropdownNewGroupName}
+                      setDropdownCreatingGroup={setDropdownCreatingGroup}
+                      onSelectGroup={(id) => setActiveGroup(id)}
+                      onCreateGroup={handleCreateHeroGroupFromDropdown}
+                      onCancelCreate={cancelCreateHeroGroupFromDropdown}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Avatar className="h-7 w-7">
+                      <AvatarImage src="https://api.dicebear.com/9.x/thumbs/svg?seed=Reway" />
+                      <AvatarFallback className="bg-secondary text-[10px] text-secondary-foreground">
+                        RW
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
                 </div>
-
-                <Avatar className="h-7 w-7">
-                  <AvatarImage src="https://api.dicebear.com/9.x/thumbs/svg?seed=Reway" />
-                  <AvatarFallback className="bg-secondary text-[10px] text-secondary-foreground">
-                    RW
-                  </AvatarFallback>
-                </Avatar>
-              </div>
 
               <div className="relative w-full" data-onboarding="command-bar">
                 <div
-                  className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1.5 py-1.5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate ${
+                  className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1 py-1 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate ${
                     isCommandFocused
                       ? "ring-1 ring-primary/30 after:ring-white/10"
                       : "ring-1 ring-foreground/8 after:ring-white/5"
@@ -154,7 +255,7 @@ export function HeroDemoPreview() {
                               ? "Sign in to add, this is a demo \ud83d\ude42"
                               : "Add a link or search..."
                         }
-                        className="w-full bg-transparent p-0 pl-1.5 text-[11px] font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20"
+                        className="w-full bg-transparent p-3 pl-1.5 text-[11px] leading-none font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20"
                         aria-label="Search or add bookmarks"
                         readOnly={commandMode === "add"}
                       />
@@ -267,6 +368,7 @@ export function HeroDemoPreview() {
             onSetTodoCompleted={handleSetTodoCompleted}
             onSetTodosCompleted={handleSetTodosCompleted}
           />
+          </div>
         </div>
       </DemoShell>
     </div>

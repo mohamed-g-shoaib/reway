@@ -41,7 +41,7 @@ export function NotesTodosSidebar({
   onSetTodosCompleted: (ids: string[], completed: boolean) => Promise<void>;
 }) {
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-2 p-4 text-xs text-muted-foreground min-[1200px]:flex">
+    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[74px] text-xs text-muted-foreground min-[1200px]:flex">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-foreground/5">
           <button
