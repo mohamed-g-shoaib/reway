@@ -14,6 +14,7 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { GroupRow } from "@/lib/supabase/queries";
 import type { IconPickerPopoverProps } from "../IconPickerPopover";
 import { AllBookmarksRow } from "./sidebar/AllBookmarksRow";
@@ -22,9 +23,7 @@ import { GroupEditCard } from "./sidebar/GroupEditCard";
 import { GroupRowItem } from "./sidebar/GroupRowItem";
 import {
   GroupDragOverlayRow,
-  SortableGroupRow,
 } from "./sidebar/GroupReorderRows";
-import { ReorderModeBar } from "./sidebar/ReorderModeBar";
 import { SelectionModeBar } from "./sidebar/SelectionModeBar";
 import {
   BulkDeleteGroupsDialog,
@@ -32,6 +31,8 @@ import {
 } from "./sidebar/DeleteGroupDialogs";
 import { useGroupReorderDnd } from "./sidebar/useGroupReorderDnd";
 import { useGroupSelection } from "./sidebar/useGroupSelection";
+import { SortableGroupRowItem } from "./sidebar/SortableGroupRowItem";
+import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 
 const IconPickerPopover = dynamic<IconPickerPopoverProps>(
   () => import("../IconPickerPopover").then((mod) => mod.IconPickerPopover),
@@ -102,6 +103,8 @@ export function DashboardSidebar({
   handleInlineCreateGroup,
   layoutDensity = "compact",
 }: DashboardSidebarProps) {
+  const reorderableGroups = groups.filter((g) => g.id !== "no-group");
+
   const [viewportWidth, setViewportWidth] = useState<number>(0);
   const [isPinnedOpen, setIsPinnedOpen] = useState(false);
   const [isHoverOpen, setIsHoverOpen] = useState(false);
@@ -161,22 +164,12 @@ export function DashboardSidebar({
   };
 
   const {
-    reorderMode,
-    enterReorderMode,
-    exitReorderMode,
     sensors,
     collisionDetection,
     activeGroup,
     handleGroupDragStart,
     handleGroupDragEnd,
-  } = useGroupReorderDnd({
-    groups,
-    onReorderGroups,
-    onEnterReorderMode: () => {
-      exitSelectionMode();
-      setEditingGroupId(null);
-    },
-  });
+  } = useGroupReorderDnd({ groups: reorderableGroups, onReorderGroups });
 
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
@@ -194,10 +187,10 @@ export function DashboardSidebar({
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (!reorderMode) return;
     if (event.key === "Escape") {
       event.preventDefault();
-      exitReorderMode();
+      setEditingGroupId(null);
+      exitSelectionMode();
     }
   };
 
@@ -211,36 +204,39 @@ export function DashboardSidebar({
         <span>Switch Group</span>
       </div>
 
-      <AllBookmarksRow
-        active={activeGroupId === "all"}
-        selectionMode={selectionMode}
-        reorderMode={reorderMode}
-        onSelectAll={() => setActiveGroupId("all")}
-        onOpenAll={() => handleOpenGroup("all")}
-        onEnterReorderMode={enterReorderMode}
-        onToggleSelectionMode={() => {
-          if (selectionMode) exitSelectionMode();
-          else enterSelectionMode();
-        }}
-      />
-
-      {reorderMode ? <ReorderModeBar onDone={exitReorderMode} /> : null}
-
-      {selectionMode ? (
-        <SelectionModeBar
-          selectedCount={selectedCount}
-          onCancel={exitSelectionMode}
-          onDelete={requestBulkDelete}
+      <div className="flex flex-1 min-h-0 flex-col">
+        <AllBookmarksRow
+          active={activeGroupId === "all"}
+          selectionMode={selectionMode}
+          onSelectAll={() => setActiveGroupId("all")}
+          onOpenAll={() => handleOpenGroup("all")}
+          onToggleSelectionMode={() => {
+            if (selectionMode) exitSelectionMode();
+            else enterSelectionMode();
+          }}
         />
-      ) : null}
 
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
-        {reorderMode ? (
+        {selectionMode ? (
+          <SelectionModeBar
+            selectedCount={selectedCount}
+            onCancel={exitSelectionMode}
+            onDelete={requestBulkDelete}
+          />
+        ) : null}
+
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-hover-only">
           <DndContext
+            id="groups-sidebar-dnd"
             sensors={sensors}
             collisionDetection={collisionDetection}
-            onDragStart={handleGroupDragStart}
-            onDragEnd={handleGroupDragEnd}
+            onDragStart={(event) => {
+              if (selectionMode || editingGroupId || isInlineCreating) return;
+              handleGroupDragStart(event);
+            }}
+            onDragEnd={(event) => {
+              if (selectionMode || editingGroupId || isInlineCreating) return;
+              handleGroupDragEnd(event);
+            }}
             modifiers={[restrictToVerticalAxis]}
             measuring={{
               droppable: {
@@ -249,13 +245,109 @@ export function DashboardSidebar({
             }}
           >
             <SortableContext
-              items={groups.map((g) => g.id)}
+              items={reorderableGroups.map((g) => g.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="flex flex-col gap-1">
-                {groups.map((group) => (
-                  <SortableGroupRow key={group.id} group={group} />
-                ))}
+                {groups.map((group) => {
+                  if (group.id === "no-group") {
+                    const isActive = activeGroupId === "no-group";
+                    const NoGroupIcon =
+                      ALL_ICONS_MAP[group.icon || "folder"] ??
+                      ALL_ICONS_MAP["folder"];
+                    return (
+                      <div
+                        key={group.id}
+                        className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+                          isActive
+                            ? "text-foreground font-semibold"
+                            : selectionMode
+                              ? ""
+                              : "hover:text-primary/90"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (selectionMode) return;
+                            setActiveGroupId("no-group");
+                          }}
+                          className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+                          disabled={selectionMode}
+                        >
+                          <span
+                            className={`h-px transition-[width,opacity] duration-200 ease-out ${
+                              isActive
+                                ? "w-12 opacity-80"
+                                : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                            } bg-current`}
+                          />
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <HugeiconsIcon
+                              icon={NoGroupIcon}
+                              size={16}
+                              strokeWidth={2}
+                              className="text-foreground/80"
+                            />
+                            <span className="truncate max-w-32">No Group</span>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  const isEditing = editingGroupId === group.id;
+                  const dndDisabled =
+                    selectionMode ||
+                    isInlineCreating ||
+                    Boolean(editingGroupId) ||
+                    isEditing;
+
+                  if (isEditing) {
+                    return (
+                      <GroupEditCard
+                        key={group.id}
+                        group={group}
+                        IconPickerPopover={IconPickerPopover}
+                        editGroupName={editGroupName}
+                        setEditGroupName={setEditGroupName}
+                        editGroupIcon={editGroupIcon}
+                        setEditGroupIcon={setEditGroupIcon}
+                        editGroupColor={editGroupColor}
+                        setEditGroupColor={setEditGroupColor}
+                        isUpdatingGroup={isUpdatingGroup}
+                        onCancel={() => setEditingGroupId(null)}
+                        onSave={() => handleSidebarGroupUpdate(group.id)}
+                      />
+                    );
+                  }
+
+                  return (
+                    <SortableGroupRowItem
+                      key={group.id}
+                      id={group.id}
+                      disabled={dndDisabled}
+                    >
+                      <GroupRowItem
+                        group={group}
+                        active={activeGroupId === group.id}
+                        selectionMode={selectionMode}
+                        isSelected={selectedGroupIds.has(group.id)}
+                        onToggleSelected={() => toggleSelected(group.id)}
+                        onSelectGroup={() => setActiveGroupId(group.id)}
+                        onEnterSelectionMode={enterSelectionMode}
+                        onOpenGroup={() => handleOpenGroup(group.id)}
+                        onEdit={() => {
+                          setEditingGroupId(group.id);
+                          setEditGroupName(group.name);
+                          setEditGroupIcon(group.icon || "folder");
+                          setEditGroupColor(group.color || "#6366f1");
+                        }}
+                        onRequestDelete={() => openDeleteDialog(group)}
+                      />
+                    </SortableGroupRowItem>
+                  );
+                })}
               </div>
             </SortableContext>
 
@@ -269,56 +361,10 @@ export function DashboardSidebar({
                 document.body,
               )}
           </DndContext>
-        ) : (
-          groups.map((group) => {
-            const isEditing = editingGroupId === group.id;
-
-            if (isEditing) {
-              return (
-                <GroupEditCard
-                  key={group.id}
-                  group={group}
-                  IconPickerPopover={IconPickerPopover}
-                  editGroupName={editGroupName}
-                  setEditGroupName={setEditGroupName}
-                  editGroupIcon={editGroupIcon}
-                  setEditGroupIcon={setEditGroupIcon}
-                  editGroupColor={editGroupColor}
-                  setEditGroupColor={setEditGroupColor}
-                  isUpdatingGroup={isUpdatingGroup}
-                  onCancel={() => setEditingGroupId(null)}
-                  onSave={() => handleSidebarGroupUpdate(group.id)}
-                />
-              );
-            }
-
-            return (
-              <GroupRowItem
-                key={group.id}
-                group={group}
-                active={activeGroupId === group.id}
-                selectionMode={selectionMode}
-                isSelected={selectedGroupIds.has(group.id)}
-                onToggleSelected={() => toggleSelected(group.id)}
-                onSelectGroup={() => setActiveGroupId(group.id)}
-                onEnterSelectionMode={enterSelectionMode}
-                onOpenGroup={() => handleOpenGroup(group.id)}
-                onEnterReorderMode={enterReorderMode}
-                onEdit={() => {
-                  setEditingGroupId(group.id);
-                  setEditGroupName(group.name);
-                  setEditGroupIcon(group.icon || "folder");
-                  setEditGroupColor(group.color || "#6366f1");
-                }}
-                onRequestDelete={() => openDeleteDialog(group)}
-              />
-            );
-          })
-        )}
+        </div>
       </div>
 
       <GroupCreateCard
-        reorderMode={reorderMode}
         isInlineCreating={isInlineCreating}
         setIsInlineCreating={setIsInlineCreating}
         IconPickerPopover={IconPickerPopover}
@@ -441,11 +487,11 @@ export function DashboardSidebar({
             aria-label="Toggle groups sidebar"
             onClick={() => {
               setIsPinnedOpen((p) => !p);
-              setIsHoverOpen(true);
+              setIsHoverOpen((prev) => (prev ? prev : true));
             }}
             onMouseEnter={() => {
               cancelClose();
-              setIsHoverOpen(true);
+              setIsHoverOpen((prev) => (prev ? prev : true));
             }}
             onMouseLeave={() => {
               if (!isPinnedOpen) scheduleClose();
@@ -462,7 +508,7 @@ export function DashboardSidebar({
             }`}
             onMouseEnter={() => {
               cancelClose();
-              setIsHoverOpen(true);
+              setIsHoverOpen((prev) => (prev ? prev : true));
             }}
             onMouseLeave={() => {
               if (!isPinnedOpen) scheduleClose();
