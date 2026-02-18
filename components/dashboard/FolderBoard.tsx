@@ -113,9 +113,14 @@ export const FolderBoard = memo(function FolderBoard({
   const [previewBookmark, setPreviewBookmark] = useState<BookmarkRow | null>(
     null,
   );
+  const [mounted, setMounted] = useState(false);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
   const [editSheetBookmark, setEditSheetBookmark] =
     useState<BookmarkRow | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     try {
@@ -403,7 +408,11 @@ export const FolderBoard = memo(function FolderBoard({
           {folderColumns.map((columnGroups, columnIndex) => (
             <div
               key={`folder-col-${columnIndex}`}
-              className={isExtendedFolderGrid ? "flex flex-col gap-6" : undefined}
+              className={
+                isExtendedFolderGrid
+                  ? "flex flex-col gap-5"
+                  : "flex flex-col gap-5"
+              }
             >
               {columnGroups.map((group) => {
                 const groupBookmarks = bookmarkBuckets[group.id] ?? [];
@@ -436,7 +445,7 @@ export const FolderBoard = memo(function FolderBoard({
                     />
 
                     <AccordionContent className="px-0">
-                      <div className="px-4 pb-4 pt-4 md:px-5 bg-background/60">
+                      <div className="px-4 py-4 bg-background/60">
                         {groupBookmarks.length === 0 ? (
                           <EmptyFolder />
                         ) : (
@@ -500,21 +509,22 @@ export const FolderBoard = memo(function FolderBoard({
           ))}
         </Accordion>
 
-        {typeof document !== "undefined" &&
-          createPortal(
-            <DragOverlay
-              dropAnimation={{
-                duration: 220,
-                easing: "cubic-bezier(0.18, 1, 0.32, 1)",
-                sideEffects: defaultDropAnimationSideEffects({
-                  styles: { active: { opacity: "0" } },
-                }),
-              }}
-            >
-              <FolderDragOverlay activeBookmark={activeBookmark} />
-            </DragOverlay>,
-            document.body,
-          )}
+        {mounted
+          ? createPortal(
+              <DragOverlay
+                dropAnimation={{
+                  duration: 220,
+                  easing: "cubic-bezier(0.18, 1, 0.32, 1)",
+                  sideEffects: defaultDropAnimationSideEffects({
+                    styles: { active: { opacity: "0" } },
+                  }),
+                }}
+              >
+                <FolderDragOverlay activeBookmark={activeBookmark} />
+              </DragOverlay>,
+              document.body,
+            )
+          : null}
       </DndContext>
       <QuickGlanceDialog
         bookmark={previewBookmark}
