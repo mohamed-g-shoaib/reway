@@ -5,7 +5,8 @@ export function isDashboardUrl(url, baseUrl = DEFAULT_BASE_URL) {
   try {
     const urlObj = new URL(url);
     const baseObj = new URL(baseUrl);
-    return urlObj.hostname === baseObj.hostname;
+    if (urlObj.hostname !== baseObj.hostname) return false;
+    return urlObj.pathname === "/dashboard" || urlObj.pathname.startsWith("/dashboard/");
   } catch {
     return false;
   }
