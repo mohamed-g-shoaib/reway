@@ -7,7 +7,17 @@ export type DashboardPaletteTheme =
   | "notebook"
   | "supabase"
   | "t3-chat"
-  | "perplexity";
+  | "perplexity"
+  | "sage-green"
+  | "sunset-horizon"
+  | "cyberpunk"
+  | "kodama-grove"
+  | "crimson"
+  | "retro"
+  | "tangerine"
+  | "vercel"
+  | "vintage-paper"
+  | "bubblegum";
 
 export interface DashboardThemeDefinition {
   value: DashboardPaletteTheme;
@@ -96,6 +106,96 @@ export const DASHBOARD_THEMES: DashboardThemeDefinition[] = [
       "oklch(0.5322 0.0910 205.7465)",
       "oklch(0.9410 0.05 196.8866)",
       "oklch(0.95 0.02 205.7465)",
+    ],
+  },
+  {
+    value: "sage-green",
+    label: "Sage Green",
+    dots: [
+      "oklch(0.72 0.06 132.7370)",
+      "oklch(0.9300 0.02 134.8996)",
+      "oklch(0.93 0.01 247.8763)",
+    ],
+  },
+  {
+    value: "sunset-horizon",
+    label: "Sunset Horizon",
+    dots: [
+      "oklch(0.7357 0.1641 34.7091)",
+      "oklch(0.8278 0.1131 57.9984)",
+      "oklch(0.9856 0.0084 56.3169)",
+    ],
+  },
+  {
+    value: "cyberpunk",
+    label: "Cyberpunk",
+    dots: [
+      "oklch(0.78 0.20 88.7734)",
+      "oklch(0.7484 0.18 233.2517)",
+      "oklch(0.99 0.01 0)",
+    ],
+  },
+  {
+    value: "kodama-grove",
+    label: "Kodama Grove",
+    dots: [
+      "oklch(0.6657 0.1050 118.9078)",
+      "oklch(0.8361 0.0713 90.3269)",
+      "oklch(0.8798 0.0534 91.7893)",
+    ],
+  },
+  {
+    value: "crimson",
+    label: "Crimson",
+    dots: [
+      "oklch(0.4650 0.1470 24.9381)",
+      "oklch(0.9619 0.0580 95.6174)",
+      "oklch(0.9779 0.0042 56.3756)",
+    ],
+  },
+  {
+    value: "retro",
+    label: "Retro",
+    dots: [
+      "oklch(0.5924 0.2025 355.8943)",
+      "oklch(0.6437 0.1019 187.3840)",
+      "oklch(0.9735 0.0261 90.0953)",
+    ],
+  },
+  {
+    value: "tangerine",
+    label: "Tangerine",
+    dots: [
+      "oklch(0.6397 0.1720 36.4421)",
+      "oklch(0.9119 0.0222 243.8174)",
+      "oklch(0.9383 0.0042 236.4993)",
+    ],
+  },
+  {
+    value: "vercel",
+    label: "Vercel",
+    dots: [
+      "oklch(0 0 0)",
+      "oklch(0.9400 0 0)",
+      "oklch(0.9900 0 0)",
+    ],
+  },
+  {
+    value: "vintage-paper",
+    label: "Vintage Paper",
+    dots: [
+      "oklch(0.6180 0.0778 65.5444)",
+      "oklch(0.8348 0.0426 88.8064)",
+      "oklch(0.9582 0.0152 90.2357)",
+    ],
+  },
+  {
+    value: "bubblegum",
+    label: "Bubblegum",
+    dots: [
+      "oklch(0.6209 0.1801 348.1385)",
+      "oklch(0.9195 0.0801 87.6670)",
+      "oklch(0.9399 0.0203 345.6985)",
     ],
   },
 ];
