@@ -1,6 +1,7 @@
 "use client";
 
 import React, { memo, useState, useId, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import {
   DndContext,
   DragOverlay,
@@ -40,6 +41,8 @@ const createdAtFormatter = new Intl.DateTimeFormat(undefined, {
   month: "short",
   day: "numeric",
 });
+
+const CROSS_GROUP_DROP_TOAST_DELAY_MS = 240;
 
 interface BookmarkBoardProps {
   bookmarks: BookmarkRow[];
@@ -210,6 +213,12 @@ export const BookmarkBoard = memo(function BookmarkBoard({
 
       if (!overItem || (overItem.group_id ?? null) !== groupId) {
         setActiveId(null);
+
+        if (overItem && (overItem.group_id ?? null) !== groupId) {
+          window.setTimeout(() => {
+            toast.error("Bookmarks can’t be dragged between groups");
+          }, CROSS_GROUP_DROP_TOAST_DELAY_MS);
+        }
         return;
       }
 

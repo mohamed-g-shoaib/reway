@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { toast } from "sonner";
 import {
   DndContext,
   DragEndEvent,
@@ -71,6 +72,7 @@ interface FolderBoardProps {
 }
 
 const COLLAPSE_STORAGE_KEY = "reway.folder.collapsed";
+const CROSS_GROUP_DROP_TOAST_DELAY_MS = 240;
 
 export const FolderBoard = memo(function FolderBoard({
   bookmarks,
@@ -243,6 +245,12 @@ export const FolderBoard = memo(function FolderBoard({
 
     if (!activeGroupId || !overGroupId || activeGroupId !== overGroupId) {
       setActiveId(null);
+
+      if (activeGroupId && overGroupId && activeGroupId !== overGroupId) {
+        window.setTimeout(() => {
+          toast.error("Bookmarks can’t be dragged between groups");
+        }, CROSS_GROUP_DROP_TOAST_DELAY_MS);
+      }
       return;
     }
 
