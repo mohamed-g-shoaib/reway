@@ -154,7 +154,7 @@ export function DashboardContent({
       (b) =>
         b?.id &&
         b?.url &&
-        (b.status === "pending" || b.is_enriching === true) &&
+        b.status === "pending" &&
         !b.last_fetched_at,
     );
     if (!hasPending) return;
@@ -170,7 +170,7 @@ export function DashboardContent({
             (b) =>
               b?.id &&
               b?.url &&
-              (b.status === "pending" || b.is_enriching === true) &&
+              b.status === "pending" &&
               !b.last_fetched_at &&
               !inflightEnrichmentRef.current.has(b.id),
           );
@@ -196,13 +196,40 @@ export function DashboardContent({
               );
 
               try {
-                const enrichment = await enrichCreatedBookmark(
+                const timeoutPromise = new Promise<never>((_, reject) => {
+                  setTimeout(
+                    () => reject(new Error("Enrichment timeout")),
+                    45000,
+                  );
+                });
+                const enrichmentPromise = enrichCreatedBookmark(
                   current.id,
                   current.url,
                 );
+                const enrichment = (await Promise.race([
+                  enrichmentPromise,
+                  timeoutPromise,
+                ])) as Awaited<ReturnType<typeof enrichCreatedBookmark>>;
                 applyEnrichment(current.id, enrichment);
               } catch (error) {
                 console.error("Resume enrichment failed:", error);
+                const attemptedAt = new Date().toISOString();
+                setBookmarks((prev) =>
+                  prev.map((item) =>
+                    item.id === current.id
+                      ? {
+                          ...item,
+                          status: "failed",
+                          is_enriching: false,
+                          error_reason:
+                            error instanceof Error
+                              ? error.message
+                              : "Enrichment failed",
+                          last_fetched_at: attemptedAt,
+                        }
+                      : item,
+                  ),
+                );
               } finally {
                 inflightEnrichmentRef.current.delete(current.id);
               }
