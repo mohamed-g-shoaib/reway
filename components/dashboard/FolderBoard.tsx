@@ -202,6 +202,8 @@ export const FolderBoard = memo(function FolderBoard({
 
   const bookmarkBuckets = useBookmarkBuckets({ bookmarks, visibleGroups });
 
+  const isExtendedFolderGrid = layoutDensity === "extended";
+
   const openFolders = useMemo(
     () =>
       visibleGroups
@@ -210,7 +212,15 @@ export const FolderBoard = memo(function FolderBoard({
     [collapsedGroups, visibleGroups],
   );
 
-  const isExtendedFolderGrid = layoutDensity === "extended";
+  const folderColumns = useMemo(() => {
+    if (!isExtendedFolderGrid) return [visibleGroups];
+    const cols = Math.max(1, folderGridColumns);
+    const result: GroupRow[][] = Array.from({ length: cols }, () => []);
+    visibleGroups.forEach((group, index) => {
+      result[index % cols]?.push(group);
+    });
+    return result;
+  }, [folderGridColumns, isExtendedFolderGrid, visibleGroups]);
 
   const toggleCollapse = (groupId: string) => {
     setCollapsedGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
@@ -377,112 +387,117 @@ export const FolderBoard = memo(function FolderBoard({
           onValueChange={handleAccordionChange}
           className={
             isExtendedFolderGrid
-              ? "block border-0 bg-transparent overflow-visible columns-1 [column-gap:1.5rem]"
+              ? "grid border-0 bg-transparent overflow-visible gap-6"
               : "flex flex-col gap-6 border-0 bg-transparent overflow-visible"
           }
           data-slot="folder-board"
           ref={isExtendedFolderGrid ? foldersGridRef : undefined}
           style={
             isExtendedFolderGrid
-              ? ({ columnCount: folderGridColumns } as React.CSSProperties)
+              ? ({
+                  gridTemplateColumns: `repeat(${folderGridColumns}, minmax(0, 1fr))`,
+                } as React.CSSProperties)
               : undefined
           }
         >
-          {visibleGroups.map((group) => {
-            const groupBookmarks = bookmarkBuckets[group.id] ?? [];
-            const isSelectedFolder = group.id === selectedFolderId;
+          {folderColumns.map((columnGroups, columnIndex) => (
+            <div
+              key={`folder-col-${columnIndex}`}
+              className={isExtendedFolderGrid ? "flex flex-col gap-6" : undefined}
+            >
+              {columnGroups.map((group) => {
+                const groupBookmarks = bookmarkBuckets[group.id] ?? [];
+                const isSelectedFolder = group.id === selectedFolderId;
 
-            return (
-              <AccordionItem
-                key={group.id}
-                value={group.id}
-                className={`rounded-3xl border-0 ring-1 ring-foreground/8 bg-background/30 [content-visibility:auto] ${
-                  hasKeyboardFocus &&
-                  isSelectedFolder &&
-                  selectedBookmarkIndex < 0
-                    ? "ring-2 ring-primary/20"
-                    : ""
-                } ${
-                  isExtendedFolderGrid
-                    ? "mb-6 inline-block w-full break-inside-avoid"
-                    : ""
-                }`}
-                data-slot="folder-section"
-                data-folder-id={group.id}
-              >
-                <FolderHeader
-                  group={group}
-                  count={groupBookmarks.length}
-                  tintLevel={folderHeaderTint}
-                  isSelected={
-                    hasKeyboardFocus &&
-                    group.id === selectedFolderId &&
-                    selectedBookmarkIndex < 0
-                  }
-                  onSelect={() => setSelectedFolderId(group.id)}
-                />
+                return (
+                  <AccordionItem
+                    key={group.id}
+                    value={group.id}
+                    className={`rounded-3xl border-0 ring-1 ring-foreground/8 bg-background/30 [content-visibility:auto] ${
+                      hasKeyboardFocus &&
+                      isSelectedFolder &&
+                      selectedBookmarkIndex < 0
+                        ? "ring-2 ring-primary/20"
+                        : ""
+                    } ${isExtendedFolderGrid ? "w-full" : ""}`}
+                    data-slot="folder-section"
+                    data-folder-id={group.id}
+                  >
+                    <FolderHeader
+                      group={group}
+                      count={groupBookmarks.length}
+                      tintLevel={folderHeaderTint}
+                      isSelected={
+                        hasKeyboardFocus &&
+                        group.id === selectedFolderId &&
+                        selectedBookmarkIndex < 0
+                      }
+                      onSelect={() => setSelectedFolderId(group.id)}
+                    />
 
-                <AccordionContent className="px-0">
-                  <div className="px-4 pb-4 pt-4 md:px-5 bg-background/60">
-                    {groupBookmarks.length === 0 ? (
-                      <EmptyFolder />
-                    ) : (
-                      <SortableContext
-                        id={group.id}
-                        items={groupBookmarks.map((bookmark) => bookmark.id)}
-                        strategy={rectSortingStrategy}
-                      >
-                        <div
-                          className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]"
-                          ref={isSelectedFolder ? activeGridRef : undefined}
-                        >
-                          {groupBookmarks.map((bookmark, index) => (
-                            <SortableBookmarkIcon
-                              key={bookmark.id}
-                              id={bookmark.id}
-                              title={bookmark.title}
-                              url={bookmark.url}
-                              domain={getDomain(bookmark.url)}
-                              favicon={bookmark.favicon_url || ""}
-                              isSelected={
-                                isSelectedFolder &&
-                                selectedBookmarkIndex === index
-                              }
-                              selectionMode={selectionMode}
-                              isSelectionChecked={stableSelectedIds.has(
-                                bookmark.id,
-                              )}
-                              onToggleSelection={onToggleSelection}
-                              onEnterSelectionMode={onEnterSelectionMode}
-                              onDelete={onDeleteBookmark}
-                              onEdit={(id: string) => {
-                                const target = bookmarks.find(
-                                  (b) => b.id === id,
-                                );
-                                if (target) {
-                                  setEditSheetBookmark(target);
-                                  setIsEditSheetOpen(true);
-                                }
-                              }}
-                              onPreview={(id: string) => {
-                                const target = bookmarks.find(
-                                  (b) => b.id === id,
-                                );
-                                if (target) {
-                                  setPreviewBookmark(target);
-                                  setIsPreviewOpen(true);
-                                }
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </SortableContext>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
+                    <AccordionContent className="px-0">
+                      <div className="px-4 pb-4 pt-4 md:px-5 bg-background/60">
+                        {groupBookmarks.length === 0 ? (
+                          <EmptyFolder />
+                        ) : (
+                          <SortableContext
+                            id={group.id}
+                            items={groupBookmarks.map((bookmark) => bookmark.id)}
+                            strategy={rectSortingStrategy}
+                          >
+                            <div
+                              className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]"
+                              ref={isSelectedFolder ? activeGridRef : undefined}
+                            >
+                              {groupBookmarks.map((bookmark, index) => (
+                                <SortableBookmarkIcon
+                                  key={bookmark.id}
+                                  id={bookmark.id}
+                                  title={bookmark.title}
+                                  url={bookmark.url}
+                                  domain={getDomain(bookmark.url)}
+                                  favicon={bookmark.favicon_url || ""}
+                                  isSelected={
+                                    isSelectedFolder &&
+                                    selectedBookmarkIndex === index
+                                  }
+                                  selectionMode={selectionMode}
+                                  isSelectionChecked={stableSelectedIds.has(
+                                    bookmark.id,
+                                  )}
+                                  onToggleSelection={onToggleSelection}
+                                  onEnterSelectionMode={onEnterSelectionMode}
+                                  onDelete={onDeleteBookmark}
+                                  onEdit={(id: string) => {
+                                    const target = bookmarks.find(
+                                      (b) => b.id === id,
+                                    );
+                                    if (target) {
+                                      setEditSheetBookmark(target);
+                                      setIsEditSheetOpen(true);
+                                    }
+                                  }}
+                                  onPreview={(id: string) => {
+                                    const target = bookmarks.find(
+                                      (b) => b.id === id,
+                                    );
+                                    if (target) {
+                                      setPreviewBookmark(target);
+                                      setIsPreviewOpen(true);
+                                    }
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </SortableContext>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </div>
+          ))}
         </Accordion>
 
         {typeof document !== "undefined" &&
