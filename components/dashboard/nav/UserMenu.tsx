@@ -27,6 +27,29 @@ import type { User } from "./types";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
 import type { DashboardPaletteTheme } from "@/lib/themes";
 
+function LogoutItem() {
+  const { pending } = useFormStatus();
+
+  return (
+    <DropdownMenuItem
+      asChild
+      onSelect={(event) => event.preventDefault()}
+      variant="destructive"
+      className="rounded-xl flex items-center gap-2 cursor-pointer w-full py-2"
+    >
+      <button
+        type="submit"
+        className="w-full text-left"
+        disabled={pending}
+        aria-disabled={pending ? "true" : "false"}
+      >
+        <HugeiconsIcon icon={Logout01Icon} size={16} />
+        {pending ? "Logging out..." : "Log out"}
+      </button>
+    </DropdownMenuItem>
+  );
+}
+
 interface UserMenuProps {
   user: User;
   initials: string;
@@ -74,29 +97,6 @@ export function UserMenu({
       window.removeEventListener("reway:close-user-menu", handleCloseRequest);
     };
   }, []);
-
-  const LogoutItem = () => {
-    const { pending } = useFormStatus();
-
-    return (
-      <DropdownMenuItem
-        asChild
-        onSelect={(event) => event.preventDefault()}
-        variant="destructive"
-        className="rounded-xl flex items-center gap-2 cursor-pointer w-full py-2"
-      >
-        <button
-          type="submit"
-          className="w-full text-left"
-          disabled={pending}
-          aria-disabled={pending ? "true" : "false"}
-        >
-          <HugeiconsIcon icon={Logout01Icon} size={16} />
-          {pending ? "Logging out..." : "Log out"}
-        </button>
-      </DropdownMenuItem>
-    );
-  };
 
   return (
     <>
