@@ -26,7 +26,7 @@ import { useNotesTodosActions } from "./content/useNotesTodosActions";
 import { useDashboardState } from "./content/useDashboardState";
 import { DashboardLayout } from "./DashboardLayout";
 
-let didResumePendingEnrichment = false;
+let resumePendingEnrichmentTask: Promise<void> | null = null;
 
 interface DashboardContentProps {
   user: User;
@@ -144,51 +144,82 @@ export function DashboardContent({
   const inflightEnrichmentRef = useRef<Set<string>>(new Set());
   const { bookmarks, setBookmarks } = dashboard;
 
+  const bookmarksRef = useRef(bookmarks);
   useEffect(() => {
-    if (didResumePendingEnrichment) return;
-    const pending = bookmarks.filter(
+    bookmarksRef.current = bookmarks;
+  }, [bookmarks]);
+
+  useEffect(() => {
+    const hasPending = bookmarks.some(
       (b) =>
         b?.id &&
         b?.url &&
         (b.status === "pending" || b.is_enriching === true) &&
-        !b.last_fetched_at &&
-        !inflightEnrichmentRef.current.has(b.id),
+        !b.last_fetched_at,
     );
-    if (pending.length === 0) return;
+    if (!hasPending) return;
 
-    didResumePendingEnrichment = true;
+    if (resumePendingEnrichmentTask) return;
 
     const CONCURRENCY = 2;
-    let index = 0;
 
-    const worker = async () => {
-      while (index < pending.length) {
-        const current = pending[index];
-        index += 1;
-        if (!current?.id || !current.url) continue;
-        if (inflightEnrichmentRef.current.has(current.id)) continue;
-        inflightEnrichmentRef.current.add(current.id);
+    resumePendingEnrichmentTask = (async () => {
+      try {
+        while (true) {
+          const pendingNow = bookmarksRef.current.filter(
+            (b) =>
+              b?.id &&
+              b?.url &&
+              (b.status === "pending" || b.is_enriching === true) &&
+              !b.last_fetched_at &&
+              !inflightEnrichmentRef.current.has(b.id),
+          );
+          if (pendingNow.length === 0) return;
 
-        setBookmarks((prev) =>
-          prev.map((item) =>
-            item.id === current.id ? { ...item, is_enriching: true } : item,
-          ),
-        );
+          let index = 0;
+          const worker = async () => {
+            while (true) {
+              const current = pendingNow[index];
+              index += 1;
+              if (!current) return;
 
-        try {
-          const enrichment = await enrichCreatedBookmark(current.id, current.url);
-          applyEnrichment(current.id, enrichment);
-        } catch (error) {
-          console.error("Resume enrichment failed:", error);
+              if (!current.id || !current.url) continue;
+              if (inflightEnrichmentRef.current.has(current.id)) continue;
+              inflightEnrichmentRef.current.add(current.id);
+
+              setBookmarks((prev) =>
+                prev.map((item) =>
+                  item.id === current.id
+                    ? { ...item, is_enriching: true }
+                    : item,
+                ),
+              );
+
+              try {
+                const enrichment = await enrichCreatedBookmark(
+                  current.id,
+                  current.url,
+                );
+                applyEnrichment(current.id, enrichment);
+              } catch (error) {
+                console.error("Resume enrichment failed:", error);
+              } finally {
+                inflightEnrichmentRef.current.delete(current.id);
+              }
+            }
+          };
+
+          await Promise.all(
+            Array.from(
+              { length: Math.min(CONCURRENCY, pendingNow.length) },
+              () => worker(),
+            ),
+          );
         }
+      } finally {
+        resumePendingEnrichmentTask = null;
       }
-    };
-
-    void Promise.all(
-      Array.from({ length: Math.min(CONCURRENCY, pending.length) }, () =>
-        worker(),
-      ),
-    );
+    })();
   }, [applyEnrichment, bookmarks, setBookmarks]);
 
   const { filteredBookmarks, groupCounts, exportGroupOptions } =

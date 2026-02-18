@@ -266,7 +266,11 @@ export function DashboardNav({
     if (!open) {
       setSelectedImportGroups([]);
 
-      onClearImport();
+      // Closing the sheet should not implicitly stop an in-flight import.
+      // Allow users to close and later reopen to check progress.
+      if (importProgress.status !== "importing" && importProgress.status !== "stopping") {
+        onClearImport();
+      }
     }
     setImportSheetOpen(open);
   };
