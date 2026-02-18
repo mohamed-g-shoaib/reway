@@ -160,7 +160,10 @@ export function SettingsDialog({
                 <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
                 Layout
               </h3>
-              <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+              <div
+                data-onboarding="layout-density-controls"
+                className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3"
+              >
                 <p className="text-xs text-muted-foreground px-1">
                   Control how much content is shown on desktop screens.
                 </p>

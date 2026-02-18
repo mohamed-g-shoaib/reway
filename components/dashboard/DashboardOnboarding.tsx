@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { driver, type DriveStep } from "driver.js";
 import "driver.js/dist/driver.css";
+import { DASHBOARD_THEMES } from "@/lib/themes";
 
 const KEY = "reway.dashboard.onboarding.v1";
 
@@ -101,6 +102,7 @@ function createTour() {
   });
 
   const isMobile = isSmallScreen();
+  const themeCount = DASHBOARD_THEMES.length;
 
   const steps: DriveStep[] = [
     {
@@ -275,12 +277,7 @@ function createTour() {
         side: "bottom",
         align: "center",
         onNextClick: async () => {
-          openThemeSelect();
-          await waitForElement(
-            '[data-onboarding="palette-theme-options"]',
-            3000,
-          );
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           driverObj.moveNext();
         },
         onPrevClick: async () => {
@@ -294,11 +291,34 @@ function createTour() {
       },
     },
     {
+      element: '[data-onboarding="layout-density-controls"]',
+      popover: {
+        title: "Layout density",
+        description:
+          "Switch between Compact and Extended to control how much content is shown on desktop screens.",
+        side: "left",
+        align: "center",
+        onNextClick: async () => {
+          openThemeSelect();
+          await waitForElement(
+            '[data-onboarding="palette-theme-options"]',
+            3000,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 200));
+          driverObj.moveNext();
+        },
+        onPrevClick: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          driverObj.movePrevious();
+        },
+      },
+    },
+    {
       element: '[data-onboarding="palette-theme-options"]',
       popover: {
         title: "Available themes",
         description:
-          "Choose your preferred theme from the list of available options with dark and light mode support.",
+          `Choose your preferred theme from ${themeCount} available options with dark and light mode support.`,
         side: "left",
         align: "center",
         onNextClick: async () => {

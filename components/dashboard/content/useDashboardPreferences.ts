@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { migrateLocalStorageToCookies, setPreferenceCookie } from "@/lib/cookies";
 import {
   type DashboardPaletteTheme,
+  DASHBOARD_THEMES,
   getPaletteThemeClassName,
 } from "@/lib/themes";
 
@@ -66,16 +67,9 @@ export function useDashboardPreferences({
     const root = document.body;
     const dashboardRoot = document.querySelector("[data-dashboard-root]");
     const classToApply = getPaletteThemeClassName(paletteTheme);
-    const knownClasses = [
-      "theme-amber-minimal",
-      "theme-amethyst-haze",
-      "theme-claude",
-      "theme-modern-minimal",
-      "theme-notebook",
-      "theme-supabase",
-      "theme-t3-chat",
-      "theme-perplexity",
-    ];
+    const knownClasses = DASHBOARD_THEMES.map((theme) =>
+      getPaletteThemeClassName(theme.value),
+    ).filter(Boolean);
 
     root.classList.remove(...knownClasses);
     if (dashboardRoot instanceof HTMLElement) {
