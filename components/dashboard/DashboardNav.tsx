@@ -12,17 +12,27 @@ import {
 import { ImportSheet } from "./nav/ImportSheet";
 import { ExportSheet } from "./nav/ExportSheet";
 import { DuplicatesSheet } from "./nav/DuplicatesSheet";
+import { NotesTodosSheet } from "./nav/NotesTodosSheet";
 import { ViewModeControls } from "./nav/ViewModeControls";
+import { ThemeControls } from "./nav/ThemeControls";
 import { UserMenu } from "./nav/UserMenu";
 import { GroupMenu } from "./nav/GroupMenu";
 import type { User } from "./nav/types";
-import type { BookmarkRow } from "@/lib/supabase/queries";
+import type { BookmarkRow, NoteRow, TodoRow } from "@/lib/supabase/queries";
 import type { DashboardPaletteTheme } from "@/lib/themes";
+import type { TodoPriority } from "./content/notes-todos/types";
+import { Button } from "@/components/ui/button";
+import {
+  Note01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 interface DashboardNavProps {
   user: User;
   bookmarks: BookmarkRow[];
   groups: GroupRow[];
+  notes: NoteRow[];
+  todos: TodoRow[];
   activeGroupId: string;
   groupCounts?: Record<string, number>;
   onGroupSelect: (id: string) => void;
@@ -40,6 +50,7 @@ interface DashboardNavProps {
   ) => void;
   onGroupDelete?: (id: string) => void;
   onGroupOpen?: (id: string) => void;
+  onReorderGroups: (newOrder: GroupRow[]) => void;
   rowContent: "date" | "group";
   setRowContent: (value: "date" | "group") => void;
   showNotesTodos: boolean;
@@ -86,19 +97,39 @@ interface DashboardNavProps {
   onExportBookmarks: (groups: string[]) => void;
   onResetExport?: () => void;
   onRemoveBookmarks?: (ids: string[]) => void;
+
+  onCreateNote: (formData: { text: string; color?: string | null }) => Promise<string>;
+  onUpdateNote: (
+    id: string,
+    formData: { text: string; color?: string | null },
+  ) => Promise<void>;
+  onDeleteNote: (id: string) => Promise<void>;
+  onDeleteNotes: (ids: string[]) => Promise<void>;
+
+  onCreateTodo: (formData: { text: string; priority: TodoPriority }) => Promise<string>;
+  onUpdateTodo: (
+    id: string,
+    formData: { text: string; priority: TodoPriority },
+  ) => Promise<void>;
+  onDeleteTodo: (id: string) => Promise<void>;
+  onDeleteTodos: (ids: string[]) => Promise<void>;
+  onSetTodoCompleted: (id: string, completed: boolean) => Promise<void>;
+  onSetTodosCompleted: (ids: string[], completed: boolean) => Promise<void>;
 }
 
 export function DashboardNav({
   user,
   bookmarks,
   groups,
+  notes,
+  todos,
   activeGroupId,
-  groupCounts = {},
   onGroupSelect,
   onGroupCreated,
   onGroupUpdate,
   onGroupDelete,
   onGroupOpen,
+  onReorderGroups,
   rowContent,
   setRowContent,
   showNotesTodos,
@@ -123,7 +154,19 @@ export function DashboardNav({
   onExportBookmarks,
   onResetExport,
   onRemoveBookmarks,
+
+  onCreateNote,
+  onUpdateNote,
+  onDeleteNote,
+  onDeleteNotes,
+  onCreateTodo,
+  onUpdateTodo,
+  onDeleteTodo,
+  onDeleteTodos,
+  onSetTodoCompleted,
+  onSetTodosCompleted,
 }: DashboardNavProps) {
+  void onReorderGroups;
   const [isInlineCreating, setIsInlineCreating] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupIcon, setNewGroupIcon] = useState("folder");
@@ -153,6 +196,7 @@ export function DashboardNav({
   const [importSheetOpen, setImportSheetOpen] = useState(false);
   const [exportSheetOpen, setExportSheetOpen] = useState(false);
   const [duplicatesSheetOpen, setDuplicatesSheetOpen] = useState(false);
+  const [notesTodosSheetOpen, setNotesTodosSheetOpen] = useState(false);
   const [selectedImportGroups, setSelectedImportGroups] = useState<string[]>(
     [],
   );
@@ -239,13 +283,6 @@ export function DashboardNav({
     }
   };
 
-  const handleInlineCreateCancel = () => {
-    setIsInlineCreating(false);
-    setNewGroupName("");
-    setNewGroupIcon("folder");
-    setNewGroupColor("#6366f1");
-  };
-
   const handleToggleImportGroup = (name: string) => {
     setSelectedImportGroups((prev) =>
       prev.includes(name)
@@ -285,6 +322,23 @@ export function DashboardNav({
 
   return (
     <>
+      <NotesTodosSheet
+        open={notesTodosSheetOpen}
+        onOpenChange={setNotesTodosSheetOpen}
+        notes={notes}
+        todos={todos}
+        onCreateNote={onCreateNote}
+        onUpdateNote={onUpdateNote}
+        onDeleteNote={onDeleteNote}
+        onDeleteNotes={onDeleteNotes}
+        onCreateTodo={onCreateTodo}
+        onUpdateTodo={onUpdateTodo}
+        onDeleteTodo={onDeleteTodo}
+        onDeleteTodos={onDeleteTodos}
+        onSetTodoCompleted={onSetTodoCompleted}
+        onSetTodosCompleted={onSetTodosCompleted}
+      />
+
       <ImportSheet
         open={importSheetOpen}
         onOpenChange={handleImportOpenChange}
@@ -330,7 +384,6 @@ export function DashboardNav({
             <GroupMenu
               groups={groups}
               activeGroupId={activeGroupId}
-              groupCounts={groupCounts}
               onGroupSelect={onGroupSelect}
               onGroupOpen={onGroupOpen}
               onDeleteGroupClick={handleDeleteGroupClick}
@@ -353,13 +406,33 @@ export function DashboardNav({
               setNewGroupColor={setNewGroupColor}
               isCreating={isCreating}
               onInlineCreate={handleInlineCreate}
-              onInlineCreateCancel={handleInlineCreateCancel}
+              onInlineCreateCancel={() => {
+                setIsInlineCreating(false);
+                setNewGroupName("");
+                setNewGroupIcon("folder");
+                setNewGroupColor("#6366f1");
+              }}
               setEditingGroupId={setEditingGroupId}
             />
+
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer min-[1200px]:hidden"
+              onClick={() => setNotesTodosSheetOpen(true)}
+              aria-label="Open notes and todos"
+            >
+              <HugeiconsIcon icon={Note01Icon} size={16} strokeWidth={2} />
+            </Button>
             <ViewModeControls viewMode={viewMode} setViewMode={setViewMode} />
+            <ThemeControls
+              paletteTheme={paletteTheme}
+              setPaletteTheme={setPaletteTheme}
+            />
             <UserMenu
               user={user}
               initials={initials}
