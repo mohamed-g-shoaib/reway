@@ -128,6 +128,7 @@ export function GroupMenu({
   onInlineCreateCancel,
   setEditingGroupId,
 }: GroupMenuProps) {
+  void groupCounts;
   const [menuOpen, setMenuOpen] = useState(false);
   const [iconsMap, setIconsMap] = useState<Record<
     string,
@@ -167,11 +168,6 @@ export function GroupMenu({
       window.removeEventListener("reway:close-groups-menu", closeHandler);
     };
   }, []);
-
-  const totalCount = Object.values(groupCounts || {}).reduce(
-    (acc, count) => acc + count,
-    0,
-  );
 
   const activeGroup =
     activeGroupId === "all"
@@ -239,6 +235,7 @@ export function GroupMenu({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
+            suppressHydrationWarning
             data-onboarding="groups-mobile"
             className="h-10 gap-2 px-2 rounded-xl text-sm font-bold hover:bg-muted/50 transition-transform duration-150 active:scale-[0.98]"
           >
@@ -503,6 +500,7 @@ export function GroupMenu({
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
+                            suppressHydrationWarning
                             className="h-11 w-11 md:h-7 md:w-7 flex items-center justify-center rounded-lg hover:bg-muted/60 cursor-pointer text-muted-foreground/90 hover:text-primary/90 transition-colors duration-200"
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`${group.name} options`}

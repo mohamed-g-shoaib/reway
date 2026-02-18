@@ -166,6 +166,7 @@ function FaviconInner({
           className="text-muted-foreground/20"
         />
       ) : shouldShowImage && currentImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           key={currentImageUrl}
           src={currentImageUrl}

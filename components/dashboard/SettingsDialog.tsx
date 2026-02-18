@@ -55,9 +55,13 @@ interface SettingsDialogProps {
   onRowContentChange: (value: "date" | "group") => void;
   showNotesTodos: boolean;
   onShowNotesTodosChange: (value: boolean) => void;
+  layoutDensity: "compact" | "extended";
+  onLayoutDensityChange: (value: "compact" | "extended") => void;
   userName: string;
   paletteTheme: DashboardPaletteTheme;
   onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  onFolderHeaderTintChange: (value: "off" | "low" | "medium" | "high") => void;
 }
 
 export function SettingsDialog({
@@ -66,9 +70,13 @@ export function SettingsDialog({
   onRowContentChange,
   showNotesTodos,
   onShowNotesTodosChange,
+  layoutDensity,
+  onLayoutDensityChange,
   userName,
   paletteTheme,
   onPaletteThemeChange,
+  folderHeaderTint,
+  onFolderHeaderTintChange,
 }: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [themeSelectOpen, setThemeSelectOpen] = useState(false);
@@ -80,10 +88,6 @@ export function SettingsDialog({
   const normalizedName = useMemo(() => userName.trim(), [userName]);
   const confirmPhrase = normalizedName || "your name";
   const isConfirmMatch = confirmValue.trim() === normalizedName;
-  const selectedPaletteTheme = useMemo(
-    () => DASHBOARD_THEMES.find((item) => item.value === paletteTheme),
-    [paletteTheme],
-  );
 
   useEffect(() => {
     const handleOpenSettings = () => setOpen(true);
@@ -154,9 +158,45 @@ export function SettingsDialog({
             <SheetSection>
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
+                Layout
+              </h3>
+              <div
+                data-onboarding="layout-density-controls"
+                className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3"
+              >
+                <p className="text-xs text-muted-foreground px-1">
+                  Control how much content is shown on desktop screens.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant={layoutDensity === "compact" ? "default" : "outline"}
+                    size="sm"
+                    className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                    onClick={() => onLayoutDensityChange("compact")}
+                  >
+                    Compact
+                  </Button>
+                  <Button
+                    variant={layoutDensity === "extended" ? "default" : "outline"}
+                    size="sm"
+                    className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                    onClick={() => onLayoutDensityChange("extended")}
+                  >
+                    Extended
+                  </Button>
+                </div>
+              </div>
+            </SheetSection>
+
+            <SheetSection>
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
                 Row Content
               </h3>
               <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                <p className="text-xs text-muted-foreground px-1">
+                  Choose what to display in the right column of your bookmarks.
+                </p>
                 <div className="flex gap-2">
                   <Button
                     variant={rowContent === "date" ? "default" : "outline"}
@@ -175,9 +215,6 @@ export function SettingsDialog({
                     Group
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground px-1">
-                  Choose what to display in the right column of your bookmarks.
-                </p>
               </div>
             </SheetSection>
 
@@ -187,6 +224,9 @@ export function SettingsDialog({
                 Notes & Todos Sidebar
               </h3>
               <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/10 p-3">
+                <p className="text-xs text-muted-foreground px-1">
+                  Toggle the Notes & Todos sidebar visibility (desktop only).
+                </p>
                 <div className="flex gap-2">
                   <Button
                     variant={showNotesTodos ? "default" : "outline"}
@@ -205,9 +245,6 @@ export function SettingsDialog({
                     Hide
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground px-1">
-                  Toggle the Notes & Todos sidebar visibility (desktop only).
-                </p>
               </div>
             </SheetSection>
 
@@ -221,6 +258,43 @@ export function SettingsDialog({
                   data-onboarding="appearance-controls"
                   className="space-y-2"
                 >
+                  <div className="space-y-1">
+                    <Label className="px-1">Folder header color</Label>
+                    <p className="text-xs text-muted-foreground px-1">
+                      Tint folder headers using the group color in folder view.
+                    </p>
+                  </div>
+
+                  <Select
+                    value={folderHeaderTint}
+                    onValueChange={(value) =>
+                      onFolderHeaderTintChange(
+                        value as "off" | "low" | "medium" | "high",
+                      )
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <span className="min-w-0 truncate">
+                        <SelectValue placeholder="Folder header color" />
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                      <SelectGroup>
+                        <SelectItem value="off">Off</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+
+                  <div className="space-y-1 pt-2">
+                    <Label className="px-1">Dashboard theme</Label>
+                    <p className="text-xs text-muted-foreground px-1">
+                      Choose the color palette used across the dashboard.
+                    </p>
+                  </div>
+
                   <Select
                     value={paletteTheme}
                     open={themeSelectOpen}
@@ -269,6 +343,13 @@ export function SettingsDialog({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+
+                  <div className="space-y-1 pt-2">
+                    <Label className="px-1">Color mode</Label>
+                    <p className="text-xs text-muted-foreground px-1">
+                      Switch between light, dark, or system appearance.
+                    </p>
+                  </div>
 
                   <div
                     data-onboarding="color-mode-controls"

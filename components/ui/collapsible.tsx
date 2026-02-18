@@ -14,6 +14,8 @@ function CollapsibleTrigger({
   return (
     <CollapsiblePrimitive.CollapsibleTrigger
       data-slot="collapsible-trigger"
+      // Issue: `suppressHydrationWarning` in shared UI primitives can mask real mismatches.
+      // Fix: do not suppress here; only suppress at the specific call site that needs it.
       {...props}
     />
   )

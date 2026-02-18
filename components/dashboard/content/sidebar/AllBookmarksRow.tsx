@@ -82,6 +82,7 @@ export function AllBookmarksRow({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
+                suppressHydrationWarning
                 className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
                   selectionMode || reorderMode
                     ? "opacity-0 pointer-events-none"

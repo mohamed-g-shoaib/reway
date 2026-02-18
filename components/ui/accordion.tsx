@@ -42,6 +42,8 @@ function AccordionTrigger({
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
+        // Issue: `suppressHydrationWarning` in shared UI primitives can mask real hydration bugs.
+        // Fix: do not suppress globally here; apply suppression only at the specific call site that has an expected mismatch.
         className={cn(
           "**:data-[slot=accordion-trigger-icon]:text-muted-foreground gap-6 p-4 text-left text-sm font-medium hover:underline **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 group/accordion-trigger relative flex flex-1 items-start justify-between border border-transparent transition-[color,background-color,box-shadow] outline-none disabled:pointer-events-none disabled:opacity-50",
           className

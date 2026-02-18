@@ -1,24 +1,15 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { CommandBar } from "@/components/dashboard/CommandBar";
-import { BookmarkBoard } from "@/components/dashboard/BookmarkBoard";
-import { FolderBoard } from "@/components/dashboard/FolderBoard";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   BookmarkRow,
   GroupRow,
   NoteRow,
   TodoRow,
 } from "@/lib/supabase/queries";
-import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import type { User } from "@/components/dashboard/nav/types";
 import { useIsMac } from "@/hooks/useIsMac";
 import { toast } from "sonner";
-import { DashboardSidebar } from "./content/DashboardSidebar";
-import { DashboardNotesTodosSidebar } from "./content/DashboardNotesTodosSidebar";
-import { TableHeader } from "./content/TableHeader";
-import { FloatingActionBar } from "./content/FloatingActionBar";
-import { DashboardOnboarding } from "./DashboardOnboarding";
 import { useDashboardRealtime } from "./content/useDashboardRealtime";
 import { useImportHandlers } from "./content/useImportHandlers";
 import { useExportHandlers } from "./content/useExportHandlers";
@@ -29,14 +20,13 @@ import { useBookmarkActions } from "./content/useBookmarkActions";
 import { useOpenGroup } from "./content/useOpenGroup";
 import { useCommandMode } from "./content/useCommandMode";
 import { useDashboardDerived } from "./content/useDashboardDerived";
-import {
-  setPreferenceCookie,
-  migrateLocalStorageToCookies,
-} from "@/lib/cookies";
-import {
-  type DashboardPaletteTheme,
-  getPaletteThemeClassName,
-} from "@/lib/themes";
+import { type DashboardPaletteTheme } from "@/lib/themes";
+import { useDashboardPreferences } from "./content/useDashboardPreferences";
+import { useNotesTodosActions } from "./content/useNotesTodosActions";
+import { useDashboardState } from "./content/useDashboardState";
+import { DashboardLayout } from "./DashboardLayout";
+
+let resumePendingEnrichmentTask: Promise<void> | null = null;
 
 interface DashboardContentProps {
   user: User;
@@ -46,19 +36,19 @@ interface DashboardContentProps {
   initialTodos: TodoRow[];
   initialViewModeAll?: "list" | "card" | "icon" | "folders";
   initialViewModeGroups?: "list" | "card" | "icon" | "folders";
+  initialLayoutDensity?: "compact" | "extended";
   initialRowContent?: "date" | "group";
   initialCommandMode?: "add" | "search";
   initialShowNotesTodos?: boolean;
   initialPaletteTheme?: DashboardPaletteTheme;
+  initialFolderHeaderTint?: "off" | "low" | "medium" | "high";
 }
 
 import {
   addBookmark,
   checkDuplicateBookmarks,
   deleteBookmark as deleteAction,
-  deleteBookmarks,
   enrichCreatedBookmark,
-  enrichBookmark,
   restoreBookmark as restoreAction,
   updateBookmark as updateBookmarkAction,
   updateBookmarksOrder,
@@ -71,24 +61,6 @@ import {
   updateGroup as updateGroupAction,
 } from "@/app/dashboard/actions/groups";
 
-import {
-  createNote,
-  deleteNote,
-  deleteNotes as deleteNotesAction,
-  restoreNote,
-  updateNote,
-} from "@/app/dashboard/actions/notes";
-
-import {
-  createTodo,
-  deleteTodo,
-  deleteTodos as deleteTodosAction,
-  restoreTodo,
-  setTodoCompleted,
-  setTodosCompleted,
-  updateTodo,
-} from "@/app/dashboard/actions/todos";
-
 export function DashboardContent({
   user,
   initialBookmarks,
@@ -97,227 +69,56 @@ export function DashboardContent({
   initialTodos,
   initialViewModeAll = "list",
   initialViewModeGroups = "list",
+  initialLayoutDensity = "compact",
   initialRowContent = "date",
   initialCommandMode = "add",
   initialShowNotesTodos = true,
   initialPaletteTheme = "default",
+  initialFolderHeaderTint = "medium",
 }: DashboardContentProps) {
-  const [bookmarks, setBookmarks] = useState<BookmarkRow[]>(initialBookmarks);
-  const [groups, setGroups] = useState<GroupRow[]>(initialGroups);
-  const [notes, setNotes] = useState<NoteRow[]>(initialNotes);
-  const [todos, setTodos] = useState<TodoRow[]>(initialTodos);
-  const [activeGroupId, setActiveGroupId] = useState<string>("all");
-  const [rowContent, setRowContent] = useState<"date" | "group">(
+  const dashboard = useDashboardState({
+    initialBookmarks,
+    initialGroups,
+    initialNotes,
+    initialTodos,
+    initialViewModeAll,
+    initialViewModeGroups,
+    initialLayoutDensity,
     initialRowContent,
-  );
-  const [showNotesTodos, setShowNotesTodos] = useState<boolean>(
+    initialCommandMode,
     initialShowNotesTodos,
-  );
-  const [viewModeAll, setViewModeAll] = useState<
-    "list" | "card" | "icon" | "folders"
-  >(initialViewModeAll);
-  const [viewModeGroups, setViewModeGroups] = useState<
-    "list" | "card" | "icon" | "folders"
-  >(initialViewModeGroups);
-  const [keyboardContext, setKeyboardContext] = useState<"folder" | "bookmark">(
-    "bookmark",
-  );
+    initialPaletteTheme,
+    initialFolderHeaderTint,
+  });
 
   const handleOptimisticRemoveBookmarks = useCallback(
     (ids: string[]) => {
       if (!ids || ids.length === 0) return;
       const idSet = new Set(ids);
-      setBookmarks((prev) => prev.filter((b) => !idSet.has(b.id)));
+      dashboard.setBookmarks((prev) => prev.filter((b) => !idSet.has(b.id)));
     },
-    [setBookmarks],
+    [dashboard],
   );
-  const [selectionMode, setSelectionMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState("");
-  const [commandMode, setCommandMode] = useState<"add" | "search">(
-    initialCommandMode,
-  );
-  const [paletteTheme, setPaletteTheme] = useState<DashboardPaletteTheme>(
-    initialPaletteTheme,
-  );
+
   const isMac = useIsMac();
-  const deferredSearchQuery = React.useDeferredValue(searchQuery);
-  const viewMode = activeGroupId === "all" ? viewModeAll : viewModeGroups;
-  const setViewMode = useCallback(
-    (value: "list" | "card" | "icon" | "folders") => {
-      if (activeGroupId === "all") {
-        setViewModeAll(value);
-      } else {
-        setViewModeGroups(value);
-      }
-    },
-    [activeGroupId],
-  );
-  const nonFolderViewMode = viewMode === "folders" ? "list" : viewMode;
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
-  const [editGroupName, setEditGroupName] = useState("");
-  const [editGroupIcon, setEditGroupIcon] = useState("folder");
-  const [editGroupColor, setEditGroupColor] = useState<string | null>(null);
-  const [isUpdatingGroup, setIsUpdatingGroup] = useState(false);
-  const [isInlineCreating, setIsInlineCreating] = useState(false);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupIcon, setNewGroupIcon] = useState("folder");
-  const [newGroupColor, setNewGroupColor] = useState<string | null>("#6366f1");
-  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
-  const lastDeletedRef = React.useRef<{
-    bookmark: BookmarkRow;
-    index: number;
-  } | null>(null);
-  const lastDeletedGroupRef = React.useRef<GroupRow | null>(null);
-  const lastDeletedGroupBookmarksRef = React.useRef<BookmarkRow[]>([]);
-  const lastBulkDeletedRef = React.useRef<
-    { bookmark: BookmarkRow; index: number }[]
-  >([]);
 
-  const lastDeletedNoteRef = React.useRef<{
-    note: NoteRow;
-    index: number;
-  } | null>(null);
-  const lastBulkDeletedNotesRef = React.useRef<
-    { note: NoteRow; index: number }[]
-  >([]);
-
-  const lastDeletedTodoRef = React.useRef<{
-    todo: TodoRow;
-    index: number;
-  } | null>(null);
-  const lastBulkDeletedTodosRef = React.useRef<
-    { todo: TodoRow; index: number }[]
-  >([]);
-
-  const normalizeGroupName = useCallback((value?: string | null) => {
-    const name = value?.trim() ?? "";
-    return name.length > 0 ? name : "Ungrouped";
-  }, []);
-
-  const isValidImportUrl = useCallback((url: string) => {
-    if (!url) return false;
-    if (!/^https?:\/\//i.test(url)) return false;
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
-
-  const sortBookmarks = useCallback((items: BookmarkRow[]) => {
-    return items.toSorted((a, b) => {
-      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
-      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-      return (
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    });
-  }, []);
-
-  const sortGroups = useCallback((items: GroupRow[]) => {
-    return items.toSorted((a, b) => {
-      const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
-      const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-
-      const nameA = a.name || "";
-      const nameB = b.name || "";
-      return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
-    });
-  }, []);
-
-  // Sync state with server props on mount only
-  // Store initial data in ref to avoid re-renders on prop changes
-  const hasInitialized = React.useRef(false);
-
-  React.useEffect(() => {
-    if (!hasInitialized.current) {
-      setBookmarks(initialBookmarks);
-      setGroups(sortGroups(initialGroups));
-      setNotes(initialNotes);
-      setTodos(initialTodos);
-      hasInitialized.current = true;
-    }
-  }, [initialBookmarks, initialGroups, initialNotes, initialTodos, sortGroups]);
-
-  // Migrate from localStorage to cookies on first load
-  React.useEffect(() => {
-    migrateLocalStorageToCookies();
-  }, []);
-
-  // Sync preferences to cookies
-  React.useEffect(() => {
-    setPreferenceCookie("viewMode.all", viewModeAll);
-  }, [viewModeAll]);
-
-  React.useEffect(() => {
-    setPreferenceCookie("viewMode.groups", viewModeGroups);
-  }, [viewModeGroups]);
-
-  React.useEffect(() => {
-    setPreferenceCookie("rowContent", rowContent);
-  }, [rowContent]);
-
-  React.useEffect(() => {
-    setPreferenceCookie("showNotesTodos", showNotesTodos ? "true" : "false");
-  }, [showNotesTodos]);
-
-  React.useEffect(() => {
-    setPreferenceCookie("commandMode", commandMode);
-  }, [commandMode]);
-
-  React.useEffect(() => {
-    setPreferenceCookie("paletteTheme", paletteTheme);
-  }, [paletteTheme]);
-
-  React.useEffect(() => {
-    const root = document.body;
-    const dashboardRoot = document.querySelector("[data-dashboard-root]");
-    const classToApply = getPaletteThemeClassName(paletteTheme);
-    const knownClasses = [
-      "theme-amber-minimal",
-      "theme-amethyst-haze",
-      "theme-claude",
-      "theme-modern-minimal",
-      "theme-notebook",
-      "theme-supabase",
-      "theme-t3-chat",
-      "theme-perplexity",
-    ];
-    root.classList.remove(...knownClasses);
-    if (dashboardRoot instanceof HTMLElement) {
-      dashboardRoot.classList.remove(...knownClasses);
-    }
-    if (classToApply) {
-      root.classList.add(classToApply);
-      if (dashboardRoot instanceof HTMLElement) {
-        dashboardRoot.classList.add(classToApply);
-      }
-    }
-
-    return () => {
-      root.classList.remove(...knownClasses);
-      if (dashboardRoot instanceof HTMLElement) {
-        dashboardRoot.classList.remove(...knownClasses);
-      }
-    };
-  }, [paletteTheme]);
-
-  React.useEffect(() => {
-    if (viewMode !== "folders") {
-      setKeyboardContext("bookmark");
-    }
-  }, [viewMode]);
+  useDashboardPreferences({
+    viewModeAll: dashboard.viewModeAll,
+    viewModeGroups: dashboard.viewModeGroups,
+    rowContent: dashboard.rowContent,
+    showNotesTodos: dashboard.showNotesTodos,
+    layoutDensity: dashboard.layoutDensity,
+    commandMode: dashboard.commandMode,
+    paletteTheme: dashboard.paletteTheme,
+    folderHeaderTint: dashboard.folderHeaderTint,
+  });
 
   useDashboardRealtime({
     userId: user.id,
-    sortBookmarks,
-    sortGroups,
-    setBookmarks,
-    setGroups,
+    sortBookmarks: dashboard.sortBookmarks,
+    sortGroups: dashboard.sortGroups,
+    setBookmarks: dashboard.setBookmarks,
+    setGroups: dashboard.setGroups,
   });
 
   const {
@@ -329,27 +130,108 @@ export function DashboardContent({
     handleReorder,
     handleEditBookmark,
   } = useBookmarkActions({
-    activeGroupId,
+    activeGroupId: dashboard.activeGroupId,
     initialBookmarks,
-    setBookmarks,
-    sortBookmarks,
+    setBookmarks: dashboard.setBookmarks,
+    sortBookmarks: dashboard.sortBookmarks,
     updateBookmarksOrder,
     deleteBookmark: deleteAction,
     restoreBookmark: restoreAction,
     updateBookmark: updateBookmarkAction,
-    lastDeletedRef,
+    lastDeletedRef: dashboard.lastDeletedRef,
   });
+
+  const inflightEnrichmentRef = useRef<Set<string>>(new Set());
+  const { bookmarks, setBookmarks } = dashboard;
+
+  const bookmarksRef = useRef(bookmarks);
+  useEffect(() => {
+    bookmarksRef.current = bookmarks;
+  }, [bookmarks]);
+
+  useEffect(() => {
+    const hasPending = bookmarks.some(
+      (b) =>
+        b?.id &&
+        b?.url &&
+        (b.status === "pending" || b.is_enriching === true) &&
+        !b.last_fetched_at,
+    );
+    if (!hasPending) return;
+
+    if (resumePendingEnrichmentTask) return;
+
+    const CONCURRENCY = 2;
+
+    resumePendingEnrichmentTask = (async () => {
+      try {
+        while (true) {
+          const pendingNow = bookmarksRef.current.filter(
+            (b) =>
+              b?.id &&
+              b?.url &&
+              (b.status === "pending" || b.is_enriching === true) &&
+              !b.last_fetched_at &&
+              !inflightEnrichmentRef.current.has(b.id),
+          );
+          if (pendingNow.length === 0) return;
+
+          let index = 0;
+          const worker = async () => {
+            while (true) {
+              const current = pendingNow[index];
+              index += 1;
+              if (!current) return;
+
+              if (!current.id || !current.url) continue;
+              if (inflightEnrichmentRef.current.has(current.id)) continue;
+              inflightEnrichmentRef.current.add(current.id);
+
+              setBookmarks((prev) =>
+                prev.map((item) =>
+                  item.id === current.id
+                    ? { ...item, is_enriching: true }
+                    : item,
+                ),
+              );
+
+              try {
+                const enrichment = await enrichCreatedBookmark(
+                  current.id,
+                  current.url,
+                );
+                applyEnrichment(current.id, enrichment);
+              } catch (error) {
+                console.error("Resume enrichment failed:", error);
+              } finally {
+                inflightEnrichmentRef.current.delete(current.id);
+              }
+            }
+          };
+
+          await Promise.all(
+            Array.from(
+              { length: Math.min(CONCURRENCY, pendingNow.length) },
+              () => worker(),
+            ),
+          );
+        }
+      } finally {
+        resumePendingEnrichmentTask = null;
+      }
+    })();
+  }, [applyEnrichment, bookmarks, setBookmarks]);
 
   const { filteredBookmarks, groupCounts, exportGroupOptions } =
     useDashboardDerived({
-      bookmarks,
-      groups,
-      activeGroupId,
-      deferredSearchQuery,
+      bookmarks: dashboard.bookmarks,
+      groups: dashboard.groups,
+      activeGroupId: dashboard.activeGroupId,
+      deferredSearchQuery: dashboard.deferredSearchQuery,
     });
-  const isFilteredSearch = deferredSearchQuery.trim().length > 0;
+  const isFilteredSearch = dashboard.deferredSearchQuery.trim().length > 0;
 
-  useGroupShortcuts({ groups, setActiveGroupId });
+  useGroupShortcuts({ groups: dashboard.groups, setActiveGroupId: dashboard.setActiveGroupId });
 
   const {
     handleGroupCreated,
@@ -359,43 +241,43 @@ export function DashboardContent({
     handleInlineCreateGroup,
   } = useGroupActions({
     userId: user.id,
-    activeGroupId,
-    groups,
-    bookmarks,
-    setGroups,
-    setBookmarks,
-    sortBookmarks,
-    sortGroups,
-    setActiveGroupId,
-    editGroupName,
-    editGroupIcon,
-    editGroupColor,
-    setEditingGroupId,
-    isUpdatingGroup,
-    setIsUpdatingGroup,
-    lastDeletedGroupRef,
-    lastDeletedGroupBookmarksRef,
+    activeGroupId: dashboard.activeGroupId,
+    groups: dashboard.groups,
+    bookmarks: dashboard.bookmarks,
+    setGroups: dashboard.setGroups,
+    setBookmarks: dashboard.setBookmarks,
+    sortBookmarks: dashboard.sortBookmarks,
+    sortGroups: dashboard.sortGroups,
+    setActiveGroupId: dashboard.setActiveGroupId,
+    editGroupName: dashboard.editGroupName,
+    editGroupIcon: dashboard.editGroupIcon,
+    editGroupColor: dashboard.editGroupColor,
+    setEditingGroupId: dashboard.setEditingGroupId,
+    isUpdatingGroup: dashboard.isUpdatingGroup,
+    setIsUpdatingGroup: dashboard.setIsUpdatingGroup,
+    lastDeletedGroupRef: dashboard.lastDeletedGroupRef,
+    lastDeletedGroupBookmarksRef: dashboard.lastDeletedGroupBookmarksRef,
     createGroup,
     updateGroup: updateGroupAction,
     deleteGroup: deleteGroupAction,
     restoreGroup: restoreGroupAction,
     restoreBookmark: restoreAction,
     initialGroups,
-    newGroupName,
-    newGroupIcon,
-    newGroupColor,
-    setIsInlineCreating,
-    setNewGroupName,
-    setNewGroupIcon,
-    setNewGroupColor,
-    isCreatingGroup,
-    setIsCreatingGroup,
+    newGroupName: dashboard.newGroupName,
+    newGroupIcon: dashboard.newGroupIcon,
+    newGroupColor: dashboard.newGroupColor,
+    setIsInlineCreating: dashboard.setIsInlineCreating,
+    setNewGroupName: dashboard.setNewGroupName,
+    setNewGroupIcon: dashboard.setNewGroupIcon,
+    setNewGroupColor: dashboard.setNewGroupColor,
+    isCreatingGroup: dashboard.isCreatingGroup,
+    setIsCreatingGroup: dashboard.setIsCreatingGroup,
   });
 
   const handleGroupsReorder = useCallback(
     async (newOrder: GroupRow[]) => {
-      const prev = groups;
-      setGroups(
+      const prev = dashboard.groups;
+      dashboard.setGroups(
         newOrder.map((group, index) => ({
           ...group,
           order_index: index,
@@ -412,10 +294,10 @@ export function DashboardContent({
       } catch (error) {
         console.error("Reorder groups failed:", error);
         toast.error("Failed to reorder groups");
-        setGroups(prev);
+        dashboard.setGroups(prev);
       }
     },
-    [groups],
+    [dashboard],
   );
 
   const {
@@ -427,25 +309,25 @@ export function DashboardContent({
     handleClearImport,
     handleUpdateImportAction,
   } = useImportHandlers({
-    bookmarks,
-    groups,
+    bookmarks: dashboard.bookmarks,
+    groups: dashboard.groups,
     userId: user.id,
-    normalizeGroupName,
-    isValidImportUrl,
-    sortBookmarks,
-    sortGroups,
+    normalizeGroupName: dashboard.normalizeGroupName,
+    isValidImportUrl: dashboard.isValidImportUrl,
+    sortBookmarks: dashboard.sortBookmarks,
+    sortGroups: dashboard.sortGroups,
     addBookmark,
     createGroup,
     enrichCreatedBookmark,
     checkDuplicateBookmarks,
-    setBookmarks,
-    setGroups,
+    setBookmarks: dashboard.setBookmarks,
+    setGroups: dashboard.setGroups,
   });
 
   const { exportProgress, handleExportBookmarks, resetExportProgress } =
     useExportHandlers({
-      bookmarks,
-      groups,
+      bookmarks: dashboard.bookmarks,
+      groups: dashboard.groups,
     });
 
   const handleResolveConflicts = useCallback(
@@ -464,553 +346,102 @@ export function DashboardContent({
     handleBulkDelete,
     handleCancelSelection,
   } = useSelectionActions({
-    bookmarks,
-    selectedIds,
-    setSelectedIds,
-    setSelectionMode,
-    setBookmarks,
+    bookmarks: dashboard.bookmarks,
+    selectedIds: dashboard.selectedIds,
+    setSelectedIds: dashboard.setSelectedIds,
+    setSelectionMode: dashboard.setSelectionMode,
+    setBookmarks: dashboard.setBookmarks,
     initialBookmarks,
     deleteBookmark: deleteAction,
     restoreBookmark: restoreAction,
-    lastBulkDeletedRef,
+    lastBulkDeletedRef: dashboard.lastBulkDeletedRef,
   });
 
   const { handleOpenGroup } = useOpenGroup({
-    bookmarks,
-    deferredSearchQuery,
+    bookmarks: dashboard.bookmarks,
+    deferredSearchQuery: dashboard.deferredSearchQuery,
   });
 
   const { handleCommandModeChange } = useCommandMode({
-    setCommandMode,
+    setCommandMode: dashboard.setCommandMode,
   });
 
-  const handleCreateNote = useCallback(
-    async (formData: { text: string; color?: string | null }) => {
-      const id = await createNote({
-        text: formData.text,
-        color: formData.color ?? null,
-      });
-      const now = new Date().toISOString();
-      const newNote: NoteRow = {
-        id,
-        user_id: user.id,
-        text: formData.text,
-        color: formData.color ?? null,
-        created_at: now,
-        updated_at: now,
-        order_index: null,
-      };
-      setNotes((prev) => [newNote, ...prev]);
-      return id;
-    },
-    [user.id],
-  );
-
-  const handleUpdateNote = useCallback(
-    async (id: string, formData: { text: string; color?: string | null }) => {
-      const prevNote = notes.find((n) => n.id === id);
-      setNotes((prev) =>
-        prev.map((n) =>
-          n.id === id
-            ? {
-                ...n,
-                text: formData.text,
-                color: formData.color ?? null,
-                updated_at: new Date().toISOString(),
-              }
-            : n,
-        ),
-      );
-      try {
-        await updateNote(id, {
-          text: formData.text,
-          color: formData.color ?? null,
-        });
-      } catch (error) {
-        console.error("Update note failed:", error);
-        toast.error("Failed to update note");
-        if (prevNote) {
-          setNotes((prev) => prev.map((n) => (n.id === id ? prevNote : n)));
-        }
-      }
-    },
-    [notes],
-  );
-
-  const handleDeleteNote = useCallback(
-    async (id: string) => {
-      let deletedNote: NoteRow | undefined;
-      let deletedIndex = -1;
-
-      setNotes((prev) => {
-        deletedIndex = prev.findIndex((n) => n.id === id);
-        deletedNote = prev[deletedIndex];
-        if (deletedNote) {
-          lastDeletedNoteRef.current = { note: deletedNote, index: deletedIndex };
-        }
-        return prev.filter((n) => n.id !== id);
-      });
-
-      if (deletedNote) {
-        toast.error("Note deleted", {
-          action: {
-            label: "Undo",
-            onClick: async () => {
-              const lastDeleted = lastDeletedNoteRef.current;
-              if (!lastDeleted) return;
-              setNotes((prev) => {
-                if (prev.some((n) => n.id === lastDeleted.note.id)) return prev;
-                const next = [...prev];
-                next.splice(
-                  Math.min(lastDeleted.index, next.length),
-                  0,
-                  lastDeleted.note,
-                );
-                return next;
-              });
-              try {
-                await restoreNote(lastDeleted.note);
-              } catch (error) {
-                console.error("Restore note failed:", error);
-                toast.error("Failed to restore note");
-              }
-            },
-          },
-        });
-      }
-      try {
-        await deleteNote(id);
-      } catch (error) {
-        console.error("Delete note failed:", error);
-        toast.error("Failed to delete note");
-        setNotes((prev) => {
-          const deletedFromInitial = initialNotes.find((n) => n.id === id);
-          return deletedFromInitial ? [deletedFromInitial, ...prev] : prev;
-        });
-      }
-    },
-    [initialNotes],
-  );
-
-  const handleDeleteNotes = useCallback(
-    async (ids: string[]) => {
-      if (!ids || ids.length === 0) return;
-      const idSet = new Set(ids);
-
-      const deletedNotes = notes
-        .map((note, index) => ({ note, index }))
-        .filter(({ note }) => idSet.has(note.id));
-      lastBulkDeletedNotesRef.current = deletedNotes;
-
-      setNotes((prev) => prev.filter((n) => !idSet.has(n.id)));
-
-      toast.error(`Note${ids.length > 1 ? "s" : ""} deleted`, {
-        action: {
-          label: "Undo",
-          onClick: async () => {
-            const toRestore = lastBulkDeletedNotesRef.current;
-            if (toRestore.length === 0) return;
-            setNotes((prev) => {
-              const next = [...prev];
-              const sorted = toRestore.toSorted((a, b) => a.index - b.index);
-              sorted.forEach(({ note, index }) => {
-                if (next.some((n) => n.id === note.id)) return;
-                next.splice(Math.min(index, next.length), 0, note);
-              });
-              return next;
-            });
-            try {
-              await Promise.all(toRestore.map(({ note }) => restoreNote(note)));
-            } catch (error) {
-              console.error("Restore notes failed:", error);
-              toast.error("Failed to restore notes");
-            }
-          },
-        },
-      });
-
-      try {
-        await deleteNotesAction(ids);
-      } catch (error) {
-        console.error("Bulk delete notes failed:", error);
-        toast.error("Failed to delete notes");
-        setNotes(initialNotes);
-      }
-    },
-    [initialNotes, notes],
-  );
-
-  const handleCreateTodo = useCallback(
-    async (formData: { text: string; priority: "high" | "medium" | "low" }) => {
-      const id = await createTodo({
-        text: formData.text,
-        priority: formData.priority,
-      });
-      const now = new Date().toISOString();
-      const newTodo: TodoRow = {
-        id,
-        user_id: user.id,
-        text: formData.text,
-        priority: formData.priority,
-        completed: false,
-        completed_at: null,
-        created_at: now,
-        updated_at: now,
-        order_index: null,
-      };
-      setTodos((prev) => [newTodo, ...prev]);
-      return id;
-    },
-    [user.id],
-  );
-
-  const handleUpdateTodo = useCallback(
-    async (
-      id: string,
-      formData: { text: string; priority: "high" | "medium" | "low" },
-    ) => {
-      const prevTodo = todos.find((t) => t.id === id);
-      setTodos((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                text: formData.text,
-                priority: formData.priority,
-                updated_at: new Date().toISOString(),
-              }
-            : t,
-        ),
-      );
-      try {
-        await updateTodo(id, {
-          text: formData.text,
-          priority: formData.priority,
-        });
-      } catch (error) {
-        console.error("Update todo failed:", error);
-        toast.error("Failed to update todo");
-        if (prevTodo) {
-          setTodos((prev) => prev.map((t) => (t.id === id ? prevTodo : t)));
-        }
-      }
-    },
-    [todos],
-  );
-
-  const handleSetTodoCompleted = useCallback(
-    async (id: string, completed: boolean) => {
-      const prevTodo = todos.find((t) => t.id === id);
-      setTodos((prev) =>
-        prev.map((t) =>
-          t.id === id
-            ? {
-                ...t,
-                completed,
-                completed_at: completed ? new Date().toISOString() : null,
-                updated_at: new Date().toISOString(),
-              }
-            : t,
-        ),
-      );
-      try {
-        await setTodoCompleted(id, completed);
-      } catch (error) {
-        console.error("Set todo completed failed:", error);
-        toast.error("Failed to update todo");
-        if (prevTodo) {
-          setTodos((prev) => prev.map((t) => (t.id === id ? prevTodo : t)));
-        }
-      }
-    },
-    [todos],
-  );
-
-  const handleDeleteTodo = useCallback(
-    async (id: string) => {
-      let deletedTodo: TodoRow | undefined;
-      let deletedIndex = -1;
-
-      setTodos((prev) => {
-        deletedIndex = prev.findIndex((t) => t.id === id);
-        deletedTodo = prev[deletedIndex];
-        if (deletedTodo) {
-          lastDeletedTodoRef.current = { todo: deletedTodo, index: deletedIndex };
-        }
-        return prev.filter((t) => t.id !== id);
-      });
-
-      if (deletedTodo) {
-        toast.error("Todo deleted", {
-          action: {
-            label: "Undo",
-            onClick: async () => {
-              const lastDeleted = lastDeletedTodoRef.current;
-              if (!lastDeleted) return;
-              setTodos((prev) => {
-                if (prev.some((t) => t.id === lastDeleted.todo.id)) return prev;
-                const next = [...prev];
-                next.splice(
-                  Math.min(lastDeleted.index, next.length),
-                  0,
-                  lastDeleted.todo,
-                );
-                return next;
-              });
-              try {
-                await restoreTodo(lastDeleted.todo);
-              } catch (error) {
-                console.error("Restore todo failed:", error);
-                toast.error("Failed to restore todo");
-              }
-            },
-          },
-        });
-      }
-      try {
-        await deleteTodo(id);
-      } catch (error) {
-        console.error("Delete todo failed:", error);
-        toast.error("Failed to delete todo");
-        setTodos((prev) => {
-          const deletedFromInitial = initialTodos.find((t) => t.id === id);
-          return deletedFromInitial ? [deletedFromInitial, ...prev] : prev;
-        });
-      }
-    },
-    [initialTodos],
-  );
-
-  const handleDeleteTodos = useCallback(
-    async (ids: string[]) => {
-      if (!ids || ids.length === 0) return;
-      const idSet = new Set(ids);
-
-      const deletedTodos = todos
-        .map((todo, index) => ({ todo, index }))
-        .filter(({ todo }) => idSet.has(todo.id));
-      lastBulkDeletedTodosRef.current = deletedTodos;
-
-      setTodos((prev) => prev.filter((t) => !idSet.has(t.id)));
-
-      toast.error(`Todo${ids.length > 1 ? "s" : ""} deleted`, {
-        action: {
-          label: "Undo",
-          onClick: async () => {
-            const toRestore = lastBulkDeletedTodosRef.current;
-            if (toRestore.length === 0) return;
-            setTodos((prev) => {
-              const next = [...prev];
-              const sorted = toRestore.toSorted((a, b) => a.index - b.index);
-              sorted.forEach(({ todo, index }) => {
-                if (next.some((t) => t.id === todo.id)) return;
-                next.splice(Math.min(index, next.length), 0, todo);
-              });
-              return next;
-            });
-            try {
-              await Promise.all(toRestore.map(({ todo }) => restoreTodo(todo)));
-            } catch (error) {
-              console.error("Restore todos failed:", error);
-              toast.error("Failed to restore todos");
-            }
-          },
-        },
-      });
-
-      try {
-        await deleteTodosAction(ids);
-      } catch (error) {
-        console.error("Bulk delete todos failed:", error);
-        toast.error("Failed to delete todos");
-        setTodos(initialTodos);
-      }
-    },
-    [initialTodos, todos],
-  );
-
-  const handleSetTodosCompleted = useCallback(
-    async (ids: string[], completed: boolean) => {
-      if (!ids || ids.length === 0) return;
-      const idSet = new Set(ids);
-      const prev = todos;
-      setTodos((p) =>
-        p.map((t) =>
-          idSet.has(t.id)
-            ? {
-                ...t,
-                completed,
-                completed_at: completed ? new Date().toISOString() : null,
-                updated_at: new Date().toISOString(),
-              }
-            : t,
-        ),
-      );
-      try {
-        await setTodosCompleted(ids, completed);
-      } catch (error) {
-        console.error("Bulk set todos completed failed:", error);
-        toast.error("Failed to update todos");
-        setTodos(prev);
-      }
-    },
-    [todos],
-  );
+  const {
+    handleCreateNote,
+    handleUpdateNote,
+    handleDeleteNote,
+    handleDeleteNotes,
+    handleCreateTodo,
+    handleUpdateTodo,
+    handleDeleteTodo,
+    handleDeleteTodos,
+    handleSetTodoCompleted,
+    handleSetTodosCompleted,
+  } = useNotesTodosActions({
+    userId: user.id,
+    initialNotes,
+    initialTodos,
+    notes: dashboard.notes,
+    setNotes: dashboard.setNotes,
+    todos: dashboard.todos,
+    setTodos: dashboard.setTodos,
+    lastDeletedNoteRef: dashboard.lastDeletedNoteRef,
+    lastBulkDeletedNotesRef: dashboard.lastBulkDeletedNotesRef,
+    lastDeletedTodoRef: dashboard.lastDeletedTodoRef,
+    lastBulkDeletedTodosRef: dashboard.lastBulkDeletedTodosRef,
+  });
 
   return (
-    <>
-      <DashboardOnboarding />
-      <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
-        <DashboardSidebar
-          groups={groups}
-          activeGroupId={activeGroupId}
-          setActiveGroupId={setActiveGroupId}
-          onReorderGroups={handleGroupsReorder}
-          handleOpenGroup={handleOpenGroup}
-          editingGroupId={editingGroupId}
-          setEditingGroupId={setEditingGroupId}
-          editGroupName={editGroupName}
-          setEditGroupName={setEditGroupName}
-          editGroupIcon={editGroupIcon}
-          setEditGroupIcon={setEditGroupIcon}
-          editGroupColor={editGroupColor}
-          setEditGroupColor={setEditGroupColor}
-          isUpdatingGroup={isUpdatingGroup}
-          handleSidebarGroupUpdate={handleSidebarGroupUpdate}
-          onDeleteGroup={handleDeleteGroup}
-          isInlineCreating={isInlineCreating}
-          setIsInlineCreating={setIsInlineCreating}
-          newGroupName={newGroupName}
-          setNewGroupName={setNewGroupName}
-          newGroupIcon={newGroupIcon}
-          setNewGroupIcon={setNewGroupIcon}
-          newGroupColor={newGroupColor}
-          setNewGroupColor={setNewGroupColor}
-          isCreatingGroup={isCreatingGroup}
-          handleInlineCreateGroup={handleInlineCreateGroup}
-        />
-
-        {showNotesTodos && (
-          <DashboardNotesTodosSidebar
-            notes={notes}
-            todos={todos}
-            onCreateNote={handleCreateNote}
-            onUpdateNote={handleUpdateNote}
-            onDeleteNote={handleDeleteNote}
-            onDeleteNotes={handleDeleteNotes}
-            onCreateTodo={handleCreateTodo}
-            onUpdateTodo={handleUpdateTodo}
-            onDeleteTodo={handleDeleteTodo}
-            onDeleteTodos={handleDeleteTodos}
-            onSetTodoCompleted={handleSetTodoCompleted}
-            onSetTodosCompleted={handleSetTodosCompleted}
-          />
-        )}
-
-        {/* Fixed Header Section */}
-        <div className="flex-none z-40 bg-background px-1">
-          <DashboardNav
-            user={user}
-            bookmarks={bookmarks}
-            groups={groups}
-            activeGroupId={activeGroupId}
-            groupCounts={groupCounts}
-            onGroupSelect={setActiveGroupId}
-            onGroupCreated={handleGroupCreated}
-            onGroupUpdate={handleUpdateGroup}
-            onGroupDelete={handleDeleteGroup}
-            onGroupOpen={handleOpenGroup}
-            rowContent={rowContent}
-            setRowContent={setRowContent}
-            showNotesTodos={showNotesTodos}
-            setShowNotesTodos={setShowNotesTodos}
-            paletteTheme={paletteTheme}
-            setPaletteTheme={setPaletteTheme}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            exportGroupOptions={exportGroupOptions}
-            importPreview={importPreview}
-            importProgress={importProgress}
-            importResult={importResult}
-            exportProgress={exportProgress}
-            onImportFileSelected={handleImportFileSelected}
-            onUpdateImportAction={handleResolveConflicts}
-            onConfirmImport={handleConfirmImport}
-            onClearImport={handleClearImport}
-            onExportBookmarks={handleExportBookmarks}
-            onResetExport={resetExportProgress}
-            onRemoveBookmarks={handleOptimisticRemoveBookmarks}
-          />
-          <div className="pt-4 md:pt-6">
-            <CommandBar
-              onAddBookmark={addOptimisticBookmark}
-              onApplyEnrichment={applyEnrichment}
-              onReplaceBookmarkId={replaceBookmarkId}
-              activeGroupId={activeGroupId}
-              mode={commandMode}
-              searchQuery={searchQuery}
-              onModeChange={handleCommandModeChange}
-              onSearchChange={setSearchQuery}
-            />
-          </div>
-
-          {/* Table Header - Fixed (List view only) */}
-          <TableHeader
-            viewMode={viewMode}
-            keyboardContext={keyboardContext}
-            isMac={isMac}
-          />
-        </div>
-
-        {/* Scrollable Bookmarks Section */}
-        <div className="flex-1 min-h-0">
-          <div className="h-full overflow-y-auto overscroll-contain min-h-0 px-1 pt-3 md:pt-2 pb-6 scrollbar-hover-only">
-            <div data-onboarding="drag-sort">
-              {viewMode === "folders" ? (
-                <FolderBoard
-                  bookmarks={filteredBookmarks}
-                  groups={groups}
-                  activeGroupId={activeGroupId}
-                  onReorder={handleFolderReorder}
-                  onDeleteBookmark={handleDeleteBookmark}
-                  onEditBookmark={handleEditBookmark}
-                  isFiltered={isFilteredSearch}
-                  selectionMode={selectionMode}
-                  selectedIds={selectedIds}
-                  onToggleSelection={handleToggleSelection}
-                  onEnterSelectionMode={() => setSelectionMode(true)}
-                  onKeyboardContextChange={setKeyboardContext}
-                />
-              ) : (
-                <BookmarkBoard
-                  bookmarks={filteredBookmarks}
-                  initialGroups={groups}
-                  activeGroupId={activeGroupId}
-                  onReorder={handleReorder}
-                  onDeleteBookmark={handleDeleteBookmark}
-                  onEditBookmark={handleEditBookmark}
-                  rowContent={rowContent}
-                  viewMode={nonFolderViewMode}
-                  selectionMode={selectionMode}
-                  selectedIds={selectedIds}
-                  onToggleSelection={handleToggleSelection}
-                  onEnterSelectionMode={() => setSelectionMode(true)}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Floating Action Bar */}
-        {selectionMode && selectedIds.size > 0 && (
-          <FloatingActionBar
-            selectedCount={selectedIds.size}
-            onOpenSelected={handleOpenSelected}
-            onBulkDelete={handleBulkDelete}
-            onCancelSelection={handleCancelSelection}
-          />
-        )}
-      </div>
-    </>
+    <DashboardLayout
+      {...dashboard}
+      user={user}
+      groupCounts={groupCounts}
+      handleGroupsReorder={handleGroupsReorder}
+      handleOpenGroup={handleOpenGroup}
+      handleSidebarGroupUpdate={handleSidebarGroupUpdate}
+      handleDeleteGroup={handleDeleteGroup}
+      handleInlineCreateGroup={handleInlineCreateGroup}
+      exportGroupOptions={exportGroupOptions}
+      handleGroupCreated={handleGroupCreated}
+      handleUpdateGroup={handleUpdateGroup}
+      importPreview={importPreview}
+      importProgress={importProgress}
+      importResult={importResult}
+      exportProgress={exportProgress}
+      handleImportFileSelected={handleImportFileSelected}
+      handleResolveConflicts={handleResolveConflicts}
+      handleConfirmImport={handleConfirmImport}
+      handleClearImport={handleClearImport}
+      handleExportBookmarks={handleExportBookmarks}
+      resetExportProgress={resetExportProgress}
+      handleOptimisticRemoveBookmarks={handleOptimisticRemoveBookmarks}
+      addOptimisticBookmark={addOptimisticBookmark}
+      applyEnrichment={applyEnrichment}
+      replaceBookmarkId={replaceBookmarkId}
+      handleCommandModeChange={handleCommandModeChange}
+      isMac={isMac}
+      filteredBookmarks={filteredBookmarks}
+      handleToggleSelection={handleToggleSelection}
+      setSelectionMode={dashboard.setSelectionMode}
+      setKeyboardContext={dashboard.setKeyboardContext}
+      handleFolderReorder={handleFolderReorder}
+      handleReorder={handleReorder}
+      handleDeleteBookmark={handleDeleteBookmark}
+      handleEditBookmark={handleEditBookmark}
+      handleCreateNote={handleCreateNote}
+      handleUpdateNote={handleUpdateNote}
+      handleDeleteNote={handleDeleteNote}
+      handleDeleteNotes={handleDeleteNotes}
+      handleCreateTodo={handleCreateTodo}
+      handleUpdateTodo={handleUpdateTodo}
+      handleDeleteTodo={handleDeleteTodo}
+      handleDeleteTodos={handleDeleteTodos}
+      handleSetTodoCompleted={handleSetTodoCompleted}
+      handleSetTodosCompleted={handleSetTodosCompleted}
+      handleOpenSelected={handleOpenSelected}
+      handleBulkDelete={handleBulkDelete}
+      handleCancelSelection={handleCancelSelection}
+      isFilteredSearch={isFilteredSearch}
+    />
   );
 }

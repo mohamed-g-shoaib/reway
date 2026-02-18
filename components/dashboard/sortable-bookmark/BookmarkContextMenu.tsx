@@ -13,7 +13,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ContextMenuContent,
   ContextMenuItem,
-  ContextMenuSeparator,
   ContextMenuShortcut,
 } from "@/components/ui/context-menu";
 import { useShowShortcuts } from "@/hooks/useShowShortcuts";
@@ -69,10 +68,7 @@ export function BookmarkContextMenu({
       </ContextMenuItem>
       <ContextMenuItem
         className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
-        onSelect={(e) => {
-          e.preventDefault();
-          onCopyLink(e as unknown as React.MouseEvent<HTMLDivElement>);
-        }}
+        onClick={onCopyLink}
       >
         <HugeiconsIcon
           icon={Copy01Icon}
@@ -102,10 +98,7 @@ export function BookmarkContextMenu({
       
       <ContextMenuItem
         className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
-        onSelect={(e) => {
-          e.preventDefault();
-          onEdit(e as unknown as React.MouseEvent<HTMLDivElement>);
-        }}
+        onClick={onEdit}
       >
         <HugeiconsIcon
           icon={PencilEdit01Icon}
@@ -118,10 +111,7 @@ export function BookmarkContextMenu({
       <ContextMenuItem
         variant="destructive"
         className="rounded-xl flex items-center gap-2.5 py-2 cursor-pointer"
-        onSelect={(e) => {
-          e.preventDefault();
-          onDelete(e as unknown as React.MouseEvent<HTMLDivElement>);
-        }}
+        onClick={onDelete}
       >
         <HugeiconsIcon icon={Delete02Icon} size={16} />
         <span>Delete</span>

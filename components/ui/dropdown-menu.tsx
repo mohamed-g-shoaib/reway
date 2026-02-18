@@ -27,6 +27,8 @@ function DropdownMenuTrigger({
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
+      // Issue: `suppressHydrationWarning` in shared UI primitives can hide real hydration mismatches.
+      // Fix: keep primitives strict; apply suppression only at the exact call site that has an expected mismatch.
       {...props}
     />
   );

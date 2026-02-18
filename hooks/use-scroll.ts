@@ -5,11 +5,7 @@ import { useMotionValueEvent, useScroll as useMotionScroll } from "motion/react"
 
 export function useScroll(downThreshold: number, upThreshold?: number) {
   const scrollUpThreshold = upThreshold ?? downThreshold / 2;
-  const [scrolled, setScrolled] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const y = window.scrollY;
-    return y > downThreshold;
-  });
+  const [scrolled, setScrolled] = useState(false);
 
   const { scrollY } = useMotionScroll();
 

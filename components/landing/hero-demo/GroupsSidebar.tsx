@@ -54,7 +54,7 @@ export function GroupsSidebar({
     icon as React.ComponentProps<typeof HugeiconsIcon>["icon"];
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-2 p-4 text-xs text-muted-foreground min-[855px]:flex">
+    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[76px] text-xs text-muted-foreground min-[855px]:flex">
       {heroGroups.map((item) => {
         const isActive =
           item.id === activeGroup || (item.id === "all" && activeGroup === "all");

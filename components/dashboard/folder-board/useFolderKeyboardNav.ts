@@ -11,6 +11,8 @@ interface UseFolderKeyboardNavOptions {
   bookmarkBuckets: Record<string, BookmarkRow[]>;
   collapsedGroups: Record<string, boolean>;
   gridColumns: number;
+  folderGridColumns: number;
+  isFolderGrid: boolean;
   visibleGroups: GroupRow[];
   selectedFolderId: string | null;
   setSelectedFolderId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -26,6 +28,8 @@ export function useFolderKeyboardNav({
   bookmarkBuckets,
   collapsedGroups,
   gridColumns,
+  folderGridColumns,
+  isFolderGrid,
   visibleGroups,
   selectedFolderId,
   setSelectedFolderId,
@@ -39,6 +43,8 @@ export function useFolderKeyboardNav({
   const bookmarkBucketsRef = useRef(bookmarkBuckets);
   const collapsedGroupsRef = useRef(collapsedGroups);
   const gridColumnsRef = useRef(gridColumns);
+  const folderGridColumnsRef = useRef(folderGridColumns);
+  const isFolderGridRef = useRef(isFolderGrid);
   const visibleGroupsRef = useRef(visibleGroups);
   const selectedFolderIdRef = useRef(selectedFolderId);
   const selectedBookmarkIndexRef = useRef(selectedBookmarkIndex);
@@ -56,6 +62,14 @@ export function useFolderKeyboardNav({
   useEffect(() => {
     gridColumnsRef.current = gridColumns;
   }, [gridColumns]);
+
+  useEffect(() => {
+    folderGridColumnsRef.current = folderGridColumns;
+  }, [folderGridColumns]);
+
+  useEffect(() => {
+    isFolderGridRef.current = isFolderGrid;
+  }, [isFolderGrid]);
 
   useEffect(() => {
     visibleGroupsRef.current = visibleGroups;
@@ -77,6 +91,88 @@ export function useFolderKeyboardNav({
     onToggleCollapseRef.current = onToggleCollapse;
   }, [onToggleCollapse]);
 
+  const findFolderNeighbor = useCallback(
+    (
+      currentFolderId: string | null,
+      direction: "left" | "right" | "up" | "down",
+    ) => {
+      if (typeof document === "undefined") return null;
+
+      const nodes = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '[data-slot="folder-section"][data-state]',
+        ),
+      );
+
+      const elements = nodes
+        .map((el) => {
+          const folderId = el.getAttribute("data-folder-id");
+          return { el, folderId, rect: el.getBoundingClientRect() };
+        })
+        .filter(
+          (x): x is { el: HTMLElement; folderId: string; rect: DOMRect } =>
+            Boolean(x.folderId),
+        );
+
+      const current = currentFolderId
+        ? elements.find((e) => e.folderId === currentFolderId)
+        : undefined;
+
+      const origin = current?.rect;
+      if (!origin) {
+        return elements[0]?.folderId ?? null;
+      }
+
+      const ox = origin.left + origin.width / 2;
+      const oy = origin.top + origin.height / 2;
+
+      const candidates = elements.filter((e) => e.folderId !== currentFolderId);
+
+      const filtered = candidates
+        .map((e) => {
+          const cx = e.rect.left + e.rect.width / 2;
+          const cy = e.rect.top + e.rect.height / 2;
+          const dx = cx - ox;
+          const dy = cy - oy;
+          const inDir =
+            direction === "left"
+              ? dx < -8
+              : direction === "right"
+                ? dx > 8
+                : direction === "up"
+                  ? dy < -8
+                  : dy > 8;
+
+          if (!inDir) return null;
+
+          const primary =
+            direction === "left" || direction === "right" ? Math.abs(dx) : Math.abs(dy);
+          const secondary =
+            direction === "left" || direction === "right" ? Math.abs(dy) : Math.abs(dx);
+
+          return {
+            value: e.folderId,
+            primary,
+            secondary,
+          };
+        })
+        .filter(
+          (
+            x,
+          ): x is { value: string; primary: number; secondary: number } =>
+            Boolean(x),
+        )
+        .toSorted((a, b) =>
+          a.primary !== b.primary
+            ? a.primary - b.primary
+            : a.secondary - b.secondary,
+        );
+
+      return filtered[0]?.value ?? null;
+    },
+    [],
+  );
+
   useEffect(() => {
     onKeyboardContextChange?.(
       selectedBookmarkIndex >= 0 ? "bookmark" : "folder",
@@ -93,6 +189,7 @@ export function useFolderKeyboardNav({
       const bucketsValue = bookmarkBucketsRef.current;
       const collapsedValue = collapsedGroupsRef.current;
       const columns = gridColumnsRef.current;
+      const folderGrid = isFolderGridRef.current;
 
       const folderIndex = selectedFolderValue
         ? visibleGroupsValue.findIndex(
@@ -149,8 +246,13 @@ export function useFolderKeyboardNav({
           return;
         }
 
-        const next = Math.min(visibleGroupsValue.length - 1, folderIndex + 1);
-        setSelectedFolderId(visibleGroupsValue[next].id);
+        if (folderGrid) {
+          const nextId = findFolderNeighbor(selectedFolderValue, "down");
+          if (nextId) setSelectedFolderId(nextId);
+        } else {
+          const next = Math.min(visibleGroupsValue.length - 1, folderIndex + 1);
+          setSelectedFolderId(visibleGroupsValue[next].id);
+        }
         setSelectedBookmarkIndex(-1);
         return;
       }
@@ -173,9 +275,28 @@ export function useFolderKeyboardNav({
           return;
         }
 
-        const next = Math.max(0, folderIndex - 1);
-        setSelectedFolderId(visibleGroupsValue[next].id);
+        if (folderGrid) {
+          const nextId = findFolderNeighbor(selectedFolderValue, "up");
+          if (nextId) setSelectedFolderId(nextId);
+        } else {
+          const next = Math.max(0, folderIndex - 1);
+          setSelectedFolderId(visibleGroupsValue[next].id);
+        }
         setSelectedBookmarkIndex(-1);
+        return;
+      }
+
+      if (selectedBookmarkValue < 0 && folderGrid && e.key === "ArrowRight") {
+        e.preventDefault();
+        const nextId = findFolderNeighbor(selectedFolderValue, "right");
+        if (nextId) setSelectedFolderId(nextId);
+        return;
+      }
+
+      if (selectedBookmarkValue < 0 && folderGrid && e.key === "ArrowLeft") {
+        e.preventDefault();
+        const nextId = findFolderNeighbor(selectedFolderValue, "left");
+        if (nextId) setSelectedFolderId(nextId);
         return;
       }
 
@@ -233,7 +354,12 @@ export function useFolderKeyboardNav({
         setHasKeyboardFocus(false);
       }
     },
-    [setHasKeyboardFocus, setSelectedBookmarkIndex, setSelectedFolderId],
+    [
+      findFolderNeighbor,
+      setHasKeyboardFocus,
+      setSelectedBookmarkIndex,
+      setSelectedFolderId,
+    ],
   );
 
   useGlobalKeydown(handleKeyDown, { capture: true });

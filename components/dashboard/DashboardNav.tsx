@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { GroupRow } from "@/lib/supabase/queries";
 import Link from "next/link";
@@ -46,6 +46,10 @@ interface DashboardNavProps {
   setShowNotesTodos: (value: boolean) => void;
   paletteTheme: DashboardPaletteTheme;
   setPaletteTheme: (value: DashboardPaletteTheme) => void;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  setFolderHeaderTint: (value: "off" | "low" | "medium" | "high") => void;
+  layoutDensity: "compact" | "extended";
+  setLayoutDensity: (value: "compact" | "extended") => void;
   viewMode: "list" | "card" | "icon" | "folders";
   setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
   exportGroupOptions: string[];
@@ -101,6 +105,10 @@ export function DashboardNav({
   setShowNotesTodos,
   paletteTheme,
   setPaletteTheme,
+  folderHeaderTint,
+  setFolderHeaderTint,
+  layoutDensity,
+  setLayoutDensity,
   viewMode,
   setViewMode,
   exportGroupOptions,
@@ -151,7 +159,6 @@ export function DashboardNav({
   const [selectedExportGroups, setSelectedExportGroups] = useState<string[]>(
     [],
   );
-  const hasInitializedExportSelection = useRef(false);
 
   const initials = user.name
     .split(" ")
@@ -255,29 +262,17 @@ export function DashboardNav({
     );
   };
 
-  const handleOpenImportDialog = () => {
-    setImportSheetOpen(true);
-    if (importPreview) {
-      setSelectedImportGroups(importPreview.groups.map((group) => group.name));
-    } else {
-      setSelectedImportGroups([]);
-    }
-  };
-
   const handleImportOpenChange = (open: boolean) => {
     if (!open) {
       setSelectedImportGroups([]);
 
-      onClearImport();
+      // Closing the sheet should not implicitly stop an in-flight import.
+      // Allow users to close and later reopen to check progress.
+      if (importProgress.status !== "importing" && importProgress.status !== "stopping") {
+        onClearImport();
+      }
     }
     setImportSheetOpen(open);
-  };
-
-  const handleOpenExportDialog = () => {
-    setSelectedExportGroups(exportGroupOptions);
-    hasInitializedExportSelection.current = true;
-    onResetExport?.();
-    setExportSheetOpen(true);
   };
 
   const handleExportOpenChange = (open: boolean) => {
@@ -286,10 +281,6 @@ export function DashboardNav({
       onResetExport?.();
     }
     setExportSheetOpen(open);
-  };
-
-  const handleOpenDuplicatesSheet = () => {
-    setDuplicatesSheetOpen(true);
   };
 
   return (
@@ -325,7 +316,11 @@ export function DashboardNav({
         onRemoveBookmarks={onRemoveBookmarks}
       />
 
-      <nav className="z-40 mx-auto max-w-3xl transition-transform duration-200 group-data-[scrolled=true]/body:top-2">
+      <nav
+        className={`z-40 mx-auto ${
+          layoutDensity === "extended" ? "max-w-[1600px]" : "max-w-3xl"
+        } transition-transform duration-200 group-data-[scrolled=true]/body:top-2`}
+      >
         <div className="flex h-14 w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="hidden md:flex shrink-0 items-center">
@@ -374,9 +369,13 @@ export function DashboardNav({
               onShowNotesTodosChange={setShowNotesTodos}
               paletteTheme={paletteTheme}
               onPaletteThemeChange={setPaletteTheme}
-              onOpenImportSheet={handleOpenImportDialog}
-              onOpenExportSheet={handleOpenExportDialog}
-              onOpenDuplicatesSheet={handleOpenDuplicatesSheet}
+              folderHeaderTint={folderHeaderTint}
+              onFolderHeaderTintChange={setFolderHeaderTint}
+              layoutDensity={layoutDensity}
+              onLayoutDensityChange={setLayoutDensity}
+              onOpenImportSheet={() => setImportSheetOpen(true)}
+              onOpenExportSheet={() => setExportSheetOpen(true)}
+              onOpenDuplicatesSheet={() => setDuplicatesSheetOpen(true)}
             />
           </div>
         </div>

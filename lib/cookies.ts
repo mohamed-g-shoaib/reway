@@ -17,6 +17,7 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 export interface DashboardPreferences {
   viewModeAll: "list" | "card" | "icon" | "folders";
   viewModeGroups: "list" | "card" | "icon" | "folders";
+  layoutDensity: "compact" | "extended";
   rowContent: "date" | "group";
   commandMode: "add" | "search";
   onboarding: "done" | null;

@@ -9,7 +9,6 @@ import {
   Delete02Icon,
   PencilEdit01Icon,
   Tick01Icon,
-  ViewIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { toast } from "sonner";
@@ -239,7 +238,7 @@ export function SortableBookmarkCard({
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-foreground">
                   <a
-                    className="cursor-pointer group-hover:text-primary"
+                    className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
                     href={url}
                     target="_blank"
                     rel="noreferrer"

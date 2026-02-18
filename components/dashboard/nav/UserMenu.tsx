@@ -27,6 +27,29 @@ import type { User } from "./types";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
 import type { DashboardPaletteTheme } from "@/lib/themes";
 
+function LogoutItem() {
+  const { pending } = useFormStatus();
+
+  return (
+    <DropdownMenuItem
+      asChild
+      onSelect={(event) => event.preventDefault()}
+      variant="destructive"
+      className="rounded-xl flex items-center gap-2 cursor-pointer w-full py-2"
+    >
+      <button
+        type="submit"
+        className="w-full text-left"
+        disabled={pending}
+        aria-disabled={pending ? "true" : "false"}
+      >
+        <HugeiconsIcon icon={Logout01Icon} size={16} />
+        {pending ? "Logging out..." : "Log out"}
+      </button>
+    </DropdownMenuItem>
+  );
+}
+
 interface UserMenuProps {
   user: User;
   initials: string;
@@ -36,6 +59,10 @@ interface UserMenuProps {
   onShowNotesTodosChange: (value: boolean) => void;
   paletteTheme: DashboardPaletteTheme;
   onPaletteThemeChange: (value: DashboardPaletteTheme) => void;
+  folderHeaderTint: "off" | "low" | "medium" | "high";
+  onFolderHeaderTintChange: (value: "off" | "low" | "medium" | "high") => void;
+  layoutDensity: "compact" | "extended";
+  onLayoutDensityChange: (value: "compact" | "extended") => void;
   onOpenImportSheet: () => void;
   onOpenExportSheet: () => void;
   onOpenDuplicatesSheet: () => void;
@@ -50,6 +77,10 @@ export function UserMenu({
   onShowNotesTodosChange,
   paletteTheme,
   onPaletteThemeChange,
+  folderHeaderTint,
+  onFolderHeaderTintChange,
+  layoutDensity,
+  onLayoutDensityChange,
   onOpenImportSheet,
   onOpenExportSheet,
   onOpenDuplicatesSheet,
@@ -67,29 +98,6 @@ export function UserMenu({
     };
   }, []);
 
-  const LogoutItem = () => {
-    const { pending } = useFormStatus();
-
-    return (
-      <DropdownMenuItem
-        asChild
-        onSelect={(event) => event.preventDefault()}
-        variant="destructive"
-        className="rounded-xl flex items-center gap-2 cursor-pointer w-full py-2"
-      >
-        <button
-          type="submit"
-          className="w-full text-left"
-          disabled={pending}
-          aria-disabled={pending ? "true" : "false"}
-        >
-          <HugeiconsIcon icon={Logout01Icon} size={16} />
-          {pending ? "Logging out..." : "Log out"}
-        </button>
-      </DropdownMenuItem>
-    );
-  };
-
   return (
     <>
       <SettingsDialog
@@ -97,15 +105,21 @@ export function UserMenu({
         onShowNotesTodosChange={onShowNotesTodosChange}
         rowContent={rowContent}
         onRowContentChange={onRowContentChange}
+        layoutDensity={layoutDensity}
+        onLayoutDensityChange={onLayoutDensityChange}
         userName={user.name}
         paletteTheme={paletteTheme}
         onPaletteThemeChange={onPaletteThemeChange}
+        folderHeaderTint={folderHeaderTint}
+        onFolderHeaderTintChange={onFolderHeaderTintChange}
       />
 
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
+            // Issue: suppressing hydration warnings broadly can mask real issues.
+            // Fix: keep hydration strict here; the avatar content should be deterministic.
             data-onboarding="user-menu"
             className="h-8 w-8 rounded-full p-0 flex shrink-0 hover:bg-muted/50 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer"
           >

@@ -69,8 +69,9 @@ export function GroupsDropdown({
             className="gap-2 text-xs cursor-pointer"
           >
             <HugeiconsIcon
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              icon={g.icon as any}
+              // Issue: `g.icon` was typed as a loose SVG tuple structure, forcing `as any`.
+              // Fix: type `HeroIcon` as `IconSvgElement` so `HugeiconsIcon` receives the correct icon type.
+              icon={g.icon}
               size={14}
               strokeWidth={2}
               style={{ color: g.color || undefined }}

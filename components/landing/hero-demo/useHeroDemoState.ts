@@ -35,7 +35,7 @@ const HERO_GROUP_PRESETS: Record<
 export function useHeroDemoState() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [activeGroup, setActiveGroup] = useState<HeroGroupId>("all");
-  const [commandMode, setCommandMode] = useState<"add" | "search">("add");
+  const [commandMode, setCommandMode] = useState<"add" | "search">("search");
   const [commandInputValue, setCommandInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isCommandFocused, setIsCommandFocused] = useState(false);
