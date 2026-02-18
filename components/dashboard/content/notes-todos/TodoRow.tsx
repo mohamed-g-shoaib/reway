@@ -109,7 +109,7 @@ export function TodoRow({
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
               onClick={(event) => event.stopPropagation()}
-              className={cn("mt-0.5")}
+              className={cn("mt-[2.8px]")}
             >
               <Checkbox
                 checked={todo.completed}
@@ -120,7 +120,7 @@ export function TodoRow({
               className={cn(
                 "text-xs font-semibold leading-none",
                 pCfg.colorClass,
-                "mt-1",
+                "mt-[5.5px]",
               )}
             >
               {pCfg.letter}
@@ -148,7 +148,7 @@ export function TodoRow({
                 "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
                 selectionMode
                   ? "opacity-0 pointer-events-none"
-                  : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
+                  : "opacity-100 hover:text-primary/90 hover:bg-muted/50 md:opacity-0 md:group-hover:opacity-100",
               )}
               aria-label="Todo options"
             >
