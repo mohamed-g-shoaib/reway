@@ -419,9 +419,9 @@
 }
 
 .theme-supabase {
-  --background: oklch(0.9911 0.004 160.908);
+  --background: oklch(0.9857 0.0123 157.01);
   --foreground: oklch(0.2046 0 0);
-  --card: oklch(0.9911 0.004 160.908);
+  --card: oklch(0.9857 0.0123 157.01);
   --card-foreground: oklch(0.2046 0 0);
   --popover: oklch(0.985 0.003 160.908);
   --popover-foreground: oklch(0.4386 0 0);
@@ -443,7 +443,7 @@
   --chart-3: oklch(0.6056 0.2189 292.7172);
   --chart-4: oklch(0.7686 0.1647 70.0804);
   --chart-5: oklch(0.6959 0.1491 162.4796);
-  --sidebar: oklch(0.9911 0.004 160.908);
+  --sidebar: oklch(0.9857 0.0123 157.01);
   --sidebar-foreground: oklch(0.5452 0 0);
   --sidebar-primary: oklch(0.66 0.215 160.908);
   --sidebar-primary-foreground: oklch(0.1822 0 0);
@@ -769,7 +769,7 @@
 }
 
 .theme-sunset-horizon {
-  --background: oklch(0.9545 0.0202 53.26);
+  --background: oklch(0.9626 0.016 52.56);
   --foreground: oklch(0.3353 0.0132 2.7676);
   --card: oklch(1.0000 0 0);
   --card-foreground: oklch(0.3353 0.0132 2.7676);
@@ -909,7 +909,7 @@
 }
 
 .theme-kodama-grove {
-  --background: oklch(0.8798 0.0534 91.7893);
+  --background: oklch(0.8945 0.0332 91.69);
   --foreground: oklch(0.4265 0.0360 59.2153);
   --card: oklch(0.8937 0.0395 87.5676);
   --card-foreground: oklch(0.4265 0.0360 59.2153);
@@ -1049,7 +1049,7 @@
 }
 
 .theme-retro {
-  --background: oklch(0.9735 0.0261 90.0953);
+  --background: oklch(0.9765 0.022 89.79);
   --foreground: oklch(0.3092 0.0518 219.6516);
   --card: oklch(0.9306 0.0260 92.4020);
   --card-foreground: oklch(0.3092 0.0518 219.6516);
@@ -1073,7 +1073,7 @@
   --chart-3: oklch(0.5924 0.2025 355.8943);
   --chart-4: oklch(0.5808 0.1732 39.5003);
   --chart-5: oklch(0.5863 0.2064 27.1172);
-  --sidebar: oklch(0.9735 0.0261 90.0953);
+  --sidebar: oklch(0.9765 0.022 89.79);
   --sidebar-foreground: oklch(0.3092 0.0518 219.6516);
   --sidebar-primary: oklch(0.5924 0.2025 355.8943);
   --sidebar-primary-foreground: oklch(1.0000 0 0);
@@ -1329,7 +1329,7 @@
 }
 
 .theme-bubblegum {
-  --background: oklch(0.9399 0.0203 345.6985);
+  --background: oklch(0.944 0.0177 345.63);
   --foreground: oklch(0.4712 0 0);
   --card: oklch(0.9498 0.0500 86.8891);
   --card-foreground: oklch(0.4712 0 0);
