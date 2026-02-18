@@ -87,6 +87,7 @@ export function useBookmarkActions({
               status: "failed",
               is_enriching: false,
               error_reason: enrichment.error_reason ?? "Enrichment failed",
+              last_fetched_at: enrichment.last_fetched_at ?? item.last_fetched_at,
             };
           }
           return {
