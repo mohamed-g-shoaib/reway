@@ -109,7 +109,7 @@ export function TodoRow({
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
               onClick={(event) => event.stopPropagation()}
-              className={cn("mt-0")}
+              className={cn("mt-0.5")}
             >
               <Checkbox
                 checked={todo.completed}
@@ -120,7 +120,7 @@ export function TodoRow({
               className={cn(
                 "text-xs font-semibold leading-none",
                 pCfg.colorClass,
-                "mt-0.5",
+                "mt-1",
               )}
             >
               {pCfg.letter}
