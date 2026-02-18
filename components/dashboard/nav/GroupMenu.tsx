@@ -230,7 +230,7 @@ export function GroupMenu({
   };
 
   return (
-    <div className="md:hidden">
+    <div className="min-[1200px]:hidden">
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button
