@@ -5,28 +5,17 @@ import React, {
   useEffect,
   useId,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { toast } from "sonner";
 import {
   DndContext,
-  DragEndEvent,
   DragOverlay,
-  DragStartEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
   defaultDropAnimationSideEffects,
-  closestCenter,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   rectSortingStrategy,
   SortableContext,
-  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { SortableBookmarkIcon } from "./SortableBookmarkIcon";
@@ -38,6 +27,10 @@ import { EmptyFolder } from "./folder-board/EmptyFolder";
 import { FolderDragOverlay } from "./folder-board/FolderDragOverlay";
 import { useBookmarkBuckets } from "./folder-board/useBookmarkBuckets";
 import { useFolderKeyboardNav } from "./folder-board/useFolderKeyboardNav";
+import { getVisibleGroups } from "./folder-board/getVisibleGroups";
+import { useFolderCollapseState } from "./folder-board/useFolderCollapseState";
+import { useFolderGridColumns } from "./folder-board/useFolderGridColumns";
+import { useFolderDnd } from "./folder-board/useFolderDnd";
 import {
   Accordion,
   AccordionContent,
@@ -71,9 +64,6 @@ interface FolderBoardProps {
   folderHeaderTint?: "off" | "low" | "medium" | "high";
 }
 
-const COLLAPSE_STORAGE_KEY = "reway.folder.collapsed";
-const CROSS_GROUP_DROP_TOAST_DELAY_MS = 240;
-
 export const FolderBoard = memo(function FolderBoard({
   bookmarks,
   groups,
@@ -95,20 +85,14 @@ export const FolderBoard = memo(function FolderBoard({
     [selectedIds],
   );
 
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [collapsedGroups, setCollapsedGroups] = useState<
-    Record<string, boolean>
-  >({});
+  const { collapsedGroups, setCollapsedGroups } = useFolderCollapseState();
+
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedBookmarkIndex, setSelectedBookmarkIndex] =
     useState<number>(-1);
-  const [gridColumns, setGridColumns] = useState(1);
-  const [folderGridColumns, setFolderGridColumns] = useState(1);
-  const foldersGridRef = useRef<HTMLDivElement | null>(null);
-  const activeGridRef = useRef<HTMLDivElement | null>(null);
+
   const [hasKeyboardFocus, setHasKeyboardFocus] = useState(false);
   const dndContextBaseId = useId();
-  const [isCollapseReady, setIsCollapseReady] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewBookmark, setPreviewBookmark] = useState<BookmarkRow | null>(
     null,
@@ -119,93 +103,41 @@ export const FolderBoard = memo(function FolderBoard({
     useState<BookmarkRow | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
-
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(COLLAPSE_STORAGE_KEY);
-      if (stored) {
-        setCollapsedGroups(JSON.parse(stored));
-      }
-    } catch (error) {
-      console.warn("Failed to load folder collapse state:", error);
-    } finally {
-      setIsCollapseReady(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isCollapseReady) return;
-    try {
-      window.localStorage.setItem(
-        COLLAPSE_STORAGE_KEY,
-        JSON.stringify(collapsedGroups),
-      );
-    } catch (error) {
-      console.warn("Failed to persist folder collapse state:", error);
-    }
-  }, [collapsedGroups, isCollapseReady]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const activeBookmark = activeId
-    ? (bookmarks.find((bookmark) => bookmark.id === activeId) ?? null)
-    : null;
 
   const visibleGroups = useMemo(() => {
-    // Issue: missing dependencies in memo can lead to stale UI (e.g. filtered mode not updating).
-    // Fix: include `isFiltered` so the derived groups list updates correctly.
-    if (activeGroupId !== "all") {
-      return groups.filter((group) => group.id === activeGroupId);
-    }
-
-    if (isFiltered) {
-      const groupIds = new Set(
-        bookmarks.map((bookmark) => bookmark.group_id ?? "no-group"),
-      );
-      const filtered = groups.filter((group) => groupIds.has(group.id));
-      if (!groupIds.has("no-group")) return filtered;
-
-      return [
-        ...filtered,
-        {
-          id: "no-group",
-          name: "No Group",
-          icon: "folder",
-          color: null,
-          user_id: "",
-          created_at: new Date().toISOString(),
-          order_index: null,
-        },
-      ];
-    }
-
-    const hasUngrouped = bookmarks.some((bookmark) => !bookmark.group_id);
-    if (!hasUngrouped) return groups;
-
-    return [
-      ...groups,
-      {
-        id: "no-group",
-        name: "No Group",
-        icon: "folder",
-        color: null,
-        user_id: "",
-        created_at: new Date().toISOString(),
-        order_index: null,
-      },
-    ];
+    return getVisibleGroups({
+      groups,
+      bookmarks,
+      activeGroupId,
+      isFiltered,
+    });
   }, [activeGroupId, bookmarks, groups, isFiltered]);
 
   const bookmarkBuckets = useBookmarkBuckets({ bookmarks, visibleGroups });
+
+  const {
+    gridColumns,
+    folderGridColumns,
+    foldersGridRef,
+    activeGridRef,
+  } = useFolderGridColumns({
+    isExtendedFolderGrid: layoutDensity === "extended",
+    selectedFolderId,
+  });
+
+  const {
+    sensors,
+    collisionDetection,
+    activeBookmark,
+    handleDragStart,
+    handleDragEnd,
+  } = useFolderDnd({
+    bookmarks,
+    bookmarkBuckets,
+    onReorder,
+  });
 
   const isExtendedFolderGrid = layoutDensity === "extended";
 
@@ -245,97 +177,14 @@ export const FolderBoard = memo(function FolderBoard({
     }
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    const activeGroupId = active.data?.current?.sortable?.containerId as
-      | string
-      | undefined;
-    const overGroupId = over?.data?.current?.sortable?.containerId as
-      | string
-      | undefined;
-
-    if (!activeGroupId || !overGroupId || activeGroupId !== overGroupId) {
-      setActiveId(null);
-
-      if (activeGroupId && overGroupId && activeGroupId !== overGroupId) {
-        window.setTimeout(() => {
-          toast.error("Bookmarks can’t be dragged between groups");
-        }, CROSS_GROUP_DROP_TOAST_DELAY_MS);
-      }
-      return;
-    }
-
-    if (over && active.id !== over.id) {
-      const groupBookmarks = bookmarkBuckets[activeGroupId] ?? [];
-      const oldIndex = groupBookmarks.findIndex((b) => b.id === active.id);
-      const newIndex = groupBookmarks.findIndex((b) => b.id === over.id);
-      const newOrder = arrayMove(groupBookmarks, oldIndex, newIndex);
-      onReorder(activeGroupId, newOrder);
-    }
-    setActiveId(null);
-  };
-
-  useEffect(() => {
-    if (!selectedFolderId) return;
-
-    const target = activeGridRef.current;
-    if (!target) return;
-
-    const updateColumns = () => {
-      const width = target.clientWidth || 0;
-      const gap = 12;
-      const minCardWidth = 120;
-      const columns = Math.max(
-        1,
-        Math.floor((width + gap) / (minCardWidth + gap)),
-      );
-      setGridColumns(columns);
-    };
-
-    updateColumns();
-    const observer = new ResizeObserver(updateColumns);
-    observer.observe(target);
-    return () => {
-      observer.disconnect();
-    };
-  }, [selectedFolderId]);
-
-  useEffect(() => {
-    if (!isExtendedFolderGrid) {
-      setFolderGridColumns(1);
-      return;
-    }
-
-    const target = foldersGridRef.current;
-    if (!target) return;
-
-    const updateColumns = () => {
-      const width = target.clientWidth || 0;
-      const gap = 24;
-      const minFolderWidth = 420;
-      const columns = Math.max(
-        1,
-        Math.floor((width + gap) / (minFolderWidth + gap)),
-      );
-      setFolderGridColumns(columns);
-    };
-
-    updateColumns();
-    const observer = new ResizeObserver(updateColumns);
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [isExtendedFolderGrid]);
-
   useEffect(() => {
     if (visibleGroups.length === 0) {
-      setSelectedFolderId(null);
-      setSelectedBookmarkIndex(-1);
-      setHasKeyboardFocus(false);
-      onKeyboardContextChange?.("folder");
+      queueMicrotask(() => {
+        setSelectedFolderId(null);
+        setSelectedBookmarkIndex(-1);
+        setHasKeyboardFocus(false);
+        onKeyboardContextChange?.("folder");
+      });
       return;
     }
 
@@ -347,11 +196,15 @@ export const FolderBoard = memo(function FolderBoard({
     }
 
     if (hasKeyboardFocus) {
-      setSelectedFolderId(visibleGroups[0]?.id ?? null);
-      setSelectedBookmarkIndex(-1);
+      queueMicrotask(() => {
+        setSelectedFolderId(visibleGroups[0]?.id ?? null);
+        setSelectedBookmarkIndex(-1);
+      });
     } else {
-      setSelectedFolderId(null);
-      setSelectedBookmarkIndex(-1);
+      queueMicrotask(() => {
+        setSelectedFolderId(null);
+        setSelectedBookmarkIndex(-1);
+      });
     }
     // Issue: missing effect deps can call an outdated callback.
     // Fix: include `onKeyboardContextChange`.
@@ -382,7 +235,7 @@ export const FolderBoard = memo(function FolderBoard({
       <DndContext
         id={dndContextBaseId}
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={collisionDetection}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
