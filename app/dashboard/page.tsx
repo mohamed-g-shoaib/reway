@@ -1,5 +1,5 @@
 import { DashboardContent } from "@/components/dashboard/DashboardContent";
-import { MobileNav } from "@/components/dashboard/MobileNav";
+
 import { getUser } from "./layout";
 import {
   getBookmarks,
@@ -140,8 +140,6 @@ export default async function DashboardPage() {
             initialFolderHeaderTint={folderHeaderTint}
           />
         </main>
-
-        <MobileNav />
       </div>
     </ErrorBoundary>
   );
