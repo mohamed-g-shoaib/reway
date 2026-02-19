@@ -8,11 +8,12 @@ import {
   Copy01Icon,
   ArrowUpRight03Icon,
   Delete02Icon,
+  Folder01Icon,
 } from "@hugeicons/core-free-icons";
 import { demoLinks } from "./demo-data";
 
 export function ViewModesDemo() {
-  const views = ["Card", "List", "Icons"];
+  const views = ["Card", "List", "Icons", "Folders"];
   const [activeView, setActiveView] = useState(0);
   const shouldReduceMotion = useReducedMotion();
 
@@ -183,6 +184,65 @@ export function ViewModesDemo() {
                   </span>
                 </div>
               ))}
+            </motion.div>
+          ) : null}
+          {activeView === 3 ? (
+            <motion.div
+              key="folders"
+              className="px-1"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+            >
+              <div className="rounded-2xl ring-1 ring-foreground/8 bg-muted/20 overflow-hidden">
+                <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/30">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <HugeiconsIcon
+                      icon={Folder01Icon}
+                      size={14}
+                      strokeWidth={1.8}
+                      className="text-foreground/80"
+                    />
+                    <span className="text-[11px] font-semibold text-foreground truncate">
+                      Research
+                    </span>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      3
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground">Folders</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 p-2">
+                  {demoLinks.slice(0, 3).map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-xl bg-background/40 ring-1 ring-foreground/8 p-2"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Image
+                          src={item.favicon}
+                          alt={`${item.title} favicon`}
+                          width={16}
+                          height={16}
+                          className="h-4 w-4 shrink-0"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate text-[10px] font-semibold text-foreground">
+                            {item.title}
+                          </p>
+                          <p className="truncate text-[9px] text-muted-foreground">
+                            {item.domain}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           ) : null}
         </AnimatePresence>
