@@ -50,24 +50,35 @@ export function ViewModeControls({
     <>
       <TooltipProvider>
         <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  data-onboarding="view-mode"
-                  className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
-                  aria-label="Change view mode"
+          <DropdownMenuTrigger asChild>
+            <div className="inline-flex">
+              {" "}
+              {/* Wrapper to prevent props collision */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    data-onboarding="view-mode"
+                    className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                    aria-label="Change view mode"
+                  >
+                    <HugeiconsIcon
+                      icon={activeIcon}
+                      size={16}
+                      strokeWidth={2}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent
+                  className="rounded-lg font-medium"
+                  side="bottom"
                 >
-                  <HugeiconsIcon icon={activeIcon} size={16} strokeWidth={2} />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent className="rounded-lg font-medium" side="bottom">
-              View mode
-            </TooltipContent>
-          </Tooltip>
+                  View mode
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
             className="w-36 rounded-2xl p-2 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none shadow-none isolate"

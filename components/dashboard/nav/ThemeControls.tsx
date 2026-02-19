@@ -16,10 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import {
-  DASHBOARD_THEMES,
-  type DashboardPaletteTheme,
-} from "@/lib/themes";
+import { DASHBOARD_THEMES, type DashboardPaletteTheme } from "@/lib/themes";
 
 interface ThemeControlsProps {
   paletteTheme: DashboardPaletteTheme;
@@ -35,23 +32,25 @@ export function ThemeControls({
   return (
     <TooltipProvider>
       <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
-                aria-label="Change dashboard theme"
-              >
-                <HugeiconsIcon icon={ColorsIcon} size={16} strokeWidth={2} />
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent className="rounded-lg font-medium" side="bottom">
-            Theme
-          </TooltipContent>
-        </Tooltip>
+        <DropdownMenuTrigger asChild>
+          <div className="inline-flex">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
+                  aria-label="Change dashboard theme"
+                >
+                  <HugeiconsIcon icon={ColorsIcon} size={16} strokeWidth={2} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="rounded-lg font-medium" side="bottom">
+                Theme
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </DropdownMenuTrigger>
 
         <DropdownMenuContent
           align="end"
