@@ -4,7 +4,7 @@ import { motion, useReducedMotion, type Variants } from "motion/react";
 import { features } from "./features/demo-data";
 import { ExtractDemo } from "./features/ExtractDemo";
 import { GroupsDemo } from "./features/GroupsDemo";
-import { NavigationDemo } from "./features/NavigationDemo";
+import { ImportExportDemo } from "./features/ImportExportDemo";
 import { ViewModesDemo } from "./features/ViewModesDemo";
 
 export function FeaturesSection() {
@@ -59,12 +59,13 @@ export function FeaturesSection() {
               <div className="flex h-46 items-center overflow-visible">
                 {feature.demo === "extract" ? <ExtractDemo /> : null}
                 {feature.demo === "groups" ? <GroupsDemo /> : null}
-                {feature.demo === "navigate" ? <NavigationDemo /> : null}
+                {feature.demo === "import-export" ? <ImportExportDemo /> : null}
                 {feature.demo === "views" ? <ViewModesDemo /> : null}
               </div>
             </article>
           ))}
         </div>
+
       </motion.div>
     </section>
   );
