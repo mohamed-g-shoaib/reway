@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: ["/"],
-      disallow: ["/api/"],
+      disallow: ["/api/", "/dashboard"],
     },
-    sitemap: "https://reway-app.vercel.app/sitemap.xml",
+    sitemap: "https://reway.page/sitemap.xml",
   };
 }
