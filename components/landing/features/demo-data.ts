@@ -12,10 +12,10 @@ export const features = [
     demo: "groups",
   },
   {
-    title: "Keyboard Navigation",
+    title: "Import & Export",
     description:
-      "Move through bookmarks with arrow keys, preview instantly, and act without touching the mouse.",
-    demo: "navigate",
+      "Bring your bookmarks in, and export any group when you need a clean backup or a migration path.",
+    demo: "import-export",
   },
   {
     title: "Flexible View Modes",
