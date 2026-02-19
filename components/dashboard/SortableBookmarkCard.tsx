@@ -238,7 +238,7 @@ export function SortableBookmarkCard({
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-foreground">
                   <a
-                    className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary"
+                    className="cursor-pointer"
                     href={url}
                     target="_blank"
                     rel="noreferrer"

@@ -155,7 +155,7 @@ export function SettingsDialog({
 
         <SheetBody className="space-y-5">
           <div data-onboarding="settings-controls" className="space-y-5">
-            <SheetSection>
+            <SheetSection className="hidden md:block">
               <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <HugeiconsIcon icon={ViewSidebarRightIcon} size={16} />
                 Layout
@@ -169,7 +169,9 @@ export function SettingsDialog({
                 </p>
                 <div className="flex gap-2">
                   <Button
-                    variant={layoutDensity === "compact" ? "default" : "outline"}
+                    variant={
+                      layoutDensity === "compact" ? "default" : "outline"
+                    }
                     size="sm"
                     className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                     onClick={() => onLayoutDensityChange("compact")}
@@ -177,7 +179,9 @@ export function SettingsDialog({
                     Compact
                   </Button>
                   <Button
-                    variant={layoutDensity === "extended" ? "default" : "outline"}
+                    variant={
+                      layoutDensity === "extended" ? "default" : "outline"
+                    }
                     size="sm"
                     className="flex-1 gap-2 rounded-4xl transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                     onClick={() => onLayoutDensityChange("extended")}

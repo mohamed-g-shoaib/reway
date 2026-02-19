@@ -9,6 +9,10 @@ import type {
   ImportEntry,
   ImportGroupSummary,
 } from "./dashboard-types";
+import { pickRandomGroupColor } from "./import/colors";
+import { runWithConcurrency } from "./import/concurrency";
+import { parseBookmarksHtml } from "./import/parse-bookmarks-html";
+import { buildImportPreview } from "./import/build-import-preview";
 
 interface UseImportHandlersOptions {
   bookmarks: BookmarkRow[];
@@ -78,123 +82,9 @@ export function useImportHandlers({
   const stopRequestedRef = useRef(false);
   const processedRef = useRef(0);
 
-  const pickRandomGroupColor = useCallback(() => {
-    const palette = [
-      "#6366f1",
-      "#8b5cf6",
-      "#ec4899",
-      "#f43f5e",
-      "#f97316",
-      "#f59e0b",
-      "#84cc16",
-      "#10b981",
-      "#06b6d4",
-      "#3b82f6",
-    ];
-    return palette[Math.floor(Math.random() * palette.length)];
-  }, []);
-
-  const runWithConcurrency = useCallback(
-    async <T>(
-      items: T[],
-      concurrency: number,
-      handler: (item: T) => Promise<void>,
-      skipStopCheck = false,
-    ) => {
-      const safeConcurrency = Math.max(1, Math.floor(concurrency));
-      let index = 0;
-
-      const worker = async () => {
-        while (true) {
-          // Check stop BEFORE claiming an index (unless skipStopCheck is true)
-          if (!skipStopCheck && stopRequestedRef.current) return;
-
-          // Claim the next index atomically
-          const current = index;
-          if (current >= items.length) return;
-          index += 1;
-
-          // Handler will check stop flag and bail if needed
-          await handler(items[current]);
-        }
-      };
-
-      const workers = Array.from(
-        { length: Math.min(safeConcurrency, items.length) },
-        () => worker(),
-      );
-      await Promise.all(workers);
-    },
-    [],
-  );
-
   const parseBookmarkHtml = useCallback(
-    (content: string) => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(content, "text/html");
-      const root = doc.querySelector("dl");
-      const entries: ImportEntry[] = [];
-
-      if (!root) return entries;
-
-      const traverse = (node: Element, stack: string[]) => {
-        const children = Array.from(node.children);
-
-        for (const child of children) {
-          const tag = child.tagName.toLowerCase();
-          if (tag === "dt") {
-            const firstChild = child.firstElementChild;
-            const folderHeading =
-              firstChild?.tagName.toLowerCase() === "h3"
-                ? firstChild
-                : child.querySelector("h3");
-            const link =
-              firstChild?.tagName.toLowerCase() === "a"
-                ? firstChild
-                : child.querySelector("a");
-
-            if (folderHeading) {
-              const folderName = folderHeading.textContent?.trim() ?? "";
-              let nestedDl = child.nextElementSibling;
-
-              if (!nestedDl || nestedDl.tagName.toLowerCase() !== "dl") {
-                nestedDl = child.querySelector("dl");
-              }
-
-              if (nestedDl && nestedDl.tagName.toLowerCase() === "dl") {
-                if (folderName.length > 0) {
-                  stack.push(folderName);
-                  traverse(nestedDl, stack);
-                  stack.pop();
-                } else {
-                  traverse(nestedDl, stack);
-                }
-              }
-              continue;
-            }
-
-            if (link) {
-              const url = link.getAttribute("href") || "";
-              const title = link.textContent?.trim() || url;
-              if (url && isValidImportUrl(url)) {
-                const groupName =
-                  stack.length > 0 ? stack[stack.length - 1] : "Ungrouped";
-                entries.push({
-                  title,
-                  url,
-                  groupName: normalizeGroupName(groupName),
-                });
-              }
-            }
-          } else {
-            traverse(child, stack);
-          }
-        }
-      };
-
-      traverse(root, []);
-      return entries;
-    },
+    (content: string) =>
+      parseBookmarksHtml({ content, isValidImportUrl, normalizeGroupName }),
     [isValidImportUrl, normalizeGroupName],
   );
 
@@ -207,64 +97,16 @@ export function useImportHandlers({
         return;
       }
 
-      const normalizedByUrl = new Map<string, string>();
-      rawEntries.forEach((entry) => {
-        try {
-          normalizedByUrl.set(entry.url, normalizeUrl(entry.url));
-        } catch {
-          normalizedByUrl.set(entry.url, entry.url);
-        }
+      const preview = await buildImportPreview({
+        rawEntries,
+        checkDuplicateBookmarks,
+        normalizeGroupName,
+        onDuplicateCheckError: (error) => {
+          console.error("Failed to check for duplicates:", error);
+        },
       });
 
-      const urls = rawEntries.map(
-        (entry) => normalizedByUrl.get(entry.url) || entry.url,
-      );
-      let duplicateMap: Record<
-        string,
-        { id: string; title: string; url: string }
-      > = {};
-
-      try {
-        const result = await checkDuplicateBookmarks(urls);
-        duplicateMap = result.duplicates;
-      } catch (error) {
-        console.error("Failed to check for duplicates:", error);
-      }
-
-      const entries: ImportEntry[] = rawEntries.map((entry) => {
-        const normalized = normalizedByUrl.get(entry.url) || entry.url;
-        const existingBookmark = duplicateMap[normalized];
-        return {
-          ...entry,
-          isDuplicate: !!existingBookmark,
-          existingBookmark,
-          action: existingBookmark ? "skip" : "add",
-        };
-      });
-
-      const counts = entries.reduce<
-        Record<string, { count: number; duplicateCount: number }>
-      >((acc, entry) => {
-        const groupName = normalizeGroupName(entry.groupName);
-        if (!acc[groupName]) {
-          acc[groupName] = { count: 0, duplicateCount: 0 };
-        }
-        acc[groupName].count += 1;
-        if (entry.isDuplicate) {
-          acc[groupName].duplicateCount += 1;
-        }
-        return acc;
-      }, {});
-
-      const groupSummaries = Object.entries(counts).map(
-        ([name, { count, duplicateCount }]) => ({
-          name,
-          count,
-          duplicateCount,
-        }),
-      );
-
-      setImportPreview({ groups: groupSummaries, entries });
+      setImportPreview({ groups: preview.groupSummaries, entries: preview.entries });
     },
     [checkDuplicateBookmarks, normalizeGroupName, parseBookmarkHtml],
   );
@@ -554,15 +396,16 @@ export function useImportHandlers({
           [...enrichmentQueue],
           ENRICH_CONCURRENCY,
           enrichmentWorker,
-          true, // skipStopCheck
+          {
+            shouldStop: () => stopRequestedRef.current,
+            skipStopCheck: true,
+          },
         );
       };
 
-      await runWithConcurrency(
-        pendingEntries,
-        CREATE_CONCURRENCY,
-        handleCreate,
-      );
+      await runWithConcurrency(pendingEntries, CREATE_CONCURRENCY, handleCreate, {
+        shouldStop: () => stopRequestedRef.current,
+      });
 
       setImportProgress({
         processed: Math.min(processedRef.current, entries.length),
@@ -601,8 +444,6 @@ export function useImportHandlers({
       importPreview,
       importProgress.status,
       normalizeGroupName,
-      pickRandomGroupColor,
-      runWithConcurrency,
       sortBookmarks,
       sortGroups,
       userId,

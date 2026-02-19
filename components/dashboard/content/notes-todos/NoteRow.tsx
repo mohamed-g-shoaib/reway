@@ -97,7 +97,7 @@ export function NoteRow({
         >
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
-              className={cn("h-2 w-2 rounded-full", "mt-1")}
+              className={cn("h-2 w-2 rounded-full", "mt-[8px]")}
               style={{ backgroundColor: note.color ?? NOTE_COLORS[5] }}
             />
             <span
@@ -122,7 +122,7 @@ export function NoteRow({
                 "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
                 selectionMode
                   ? "opacity-0 pointer-events-none"
-                  : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50",
+                  : "opacity-100 hover:text-primary/90 hover:bg-muted/50 md:opacity-0 md:group-hover:opacity-100",
               )}
               aria-label="Note options"
             >

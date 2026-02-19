@@ -3,7 +3,6 @@ import {
   ArrowUpRight03Icon,
   CheckmarkSquare02Icon,
   Delete02Icon,
-  DragDropVerticalIcon,
   Folder01Icon,
   MoreVerticalIcon,
   PencilEdit01Icon,
@@ -33,7 +32,6 @@ export function GroupRowItem({
   onSelectGroup,
   onEnterSelectionMode,
   onOpenGroup,
-  onEnterReorderMode,
   onEdit,
   onRequestDelete,
 }: {
@@ -45,7 +43,6 @@ export function GroupRowItem({
   onSelectGroup: () => void;
   onEnterSelectionMode: () => void;
   onOpenGroup: () => void;
-  onEnterReorderMode: () => void;
   onEdit: () => void;
   onRequestDelete: () => void;
 }) {
@@ -122,7 +119,7 @@ export function GroupRowItem({
                 className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
                   selectionMode
                     ? "opacity-0 pointer-events-none"
-                    : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50"
+                    : "opacity-100 hover:text-primary/90 hover:bg-muted/50 md:opacity-0 md:group-hover:opacity-100"
                 }`}
                 aria-label={`${group.name} options`}
               >
@@ -150,13 +147,6 @@ export function GroupRowItem({
               >
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
                 Open group
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={onEnterReorderMode}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={DragDropVerticalIcon} size={14} />
-                Reorder
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onEdit} className="gap-2 text-xs cursor-pointer">
                 <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
@@ -193,10 +183,6 @@ export function GroupRowItem({
         <ContextMenuItem onClick={onOpenGroup} className="gap-2 text-xs cursor-pointer">
           <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
           Open group
-        </ContextMenuItem>
-        <ContextMenuItem onSelect={onEnterReorderMode} className="gap-2 text-xs cursor-pointer">
-          <HugeiconsIcon icon={DragDropVerticalIcon} size={14} />
-          Reorder
         </ContextMenuItem>
         <ContextMenuItem onClick={onEdit} className="gap-2 text-xs cursor-pointer">
           <HugeiconsIcon icon={PencilEdit01Icon} size={14} />

@@ -2,7 +2,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ArrowUpRight03Icon,
   CheckmarkSquare02Icon,
-  DragDropVerticalIcon,
   Folder01Icon,
   MoreVerticalIcon,
 } from "@hugeicons/core-free-icons";
@@ -22,18 +21,14 @@ import {
 export function AllBookmarksRow({
   active,
   selectionMode,
-  reorderMode,
   onSelectAll,
   onOpenAll,
-  onEnterReorderMode,
   onToggleSelectionMode,
 }: {
   active: boolean;
   selectionMode: boolean;
-  reorderMode: boolean;
   onSelectAll: () => void;
   onOpenAll: () => void;
-  onEnterReorderMode: () => void;
   onToggleSelectionMode: () => void;
 }) {
   return (
@@ -43,7 +38,7 @@ export function AllBookmarksRow({
           className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
             active
               ? "text-foreground font-semibold"
-              : selectionMode || reorderMode
+              : selectionMode
                 ? ""
                 : "hover:text-primary/90"
           }`}
@@ -51,7 +46,6 @@ export function AllBookmarksRow({
           <button
             type="button"
             onClick={() => {
-              if (reorderMode) return;
               onSelectAll();
             }}
             className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
@@ -84,7 +78,7 @@ export function AllBookmarksRow({
                 type="button"
                 suppressHydrationWarning
                 className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
-                  selectionMode || reorderMode
+                  selectionMode
                     ? "opacity-0 pointer-events-none"
                     : "opacity-0 group-hover:opacity-100 hover:text-primary/90 hover:bg-muted/50"
                 }`}
@@ -101,13 +95,6 @@ export function AllBookmarksRow({
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
                 Open bookmarks
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={onEnterReorderMode}
-                className="gap-2 text-xs cursor-pointer"
-              >
-                <HugeiconsIcon icon={DragDropVerticalIcon} size={14} />
-                Reorder
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -122,15 +109,7 @@ export function AllBookmarksRow({
           Open bookmarks
         </ContextMenuItem>
         <ContextMenuItem
-          onSelect={onEnterReorderMode}
-          className="gap-2 text-xs cursor-pointer"
-        >
-          <HugeiconsIcon icon={DragDropVerticalIcon} size={14} />
-          Reorder
-        </ContextMenuItem>
-        <ContextMenuItem
           onSelect={() => {
-            if (reorderMode) return;
             onToggleSelectionMode();
           }}
           className="gap-2 text-xs cursor-pointer"

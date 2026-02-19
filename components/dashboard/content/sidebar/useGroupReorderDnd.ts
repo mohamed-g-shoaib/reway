@@ -16,25 +16,13 @@ import type { GroupRow } from "@/lib/supabase/queries";
 export function useGroupReorderDnd({
   groups,
   onReorderGroups,
-  onEnterReorderMode,
 }: {
   groups: GroupRow[];
   onReorderGroups: (newOrder: GroupRow[]) => void;
-  onEnterReorderMode: () => void;
 }) {
-  const [reorderMode, setReorderMode] = useState(false);
   const [activeDragGroupId, setActiveDragGroupId] = useState<string | null>(
     null,
   );
-
-  const enterReorderMode = () => {
-    onEnterReorderMode();
-    setReorderMode(true);
-  };
-
-  const exitReorderMode = () => {
-    setReorderMode(false);
-  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -74,9 +62,6 @@ export function useGroupReorderDnd({
   }, [activeDragGroupId, groups]);
 
   return {
-    reorderMode,
-    enterReorderMode,
-    exitReorderMode,
     sensors,
     collisionDetection,
     activeGroup,

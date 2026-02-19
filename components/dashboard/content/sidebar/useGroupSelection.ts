@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { GroupRow } from "@/lib/supabase/queries";
 
 export function useGroupSelection({ groups }: { groups: GroupRow[] }) {
@@ -15,29 +15,29 @@ export function useGroupSelection({ groups }: { groups: GroupRow[] }) {
     [groups, selectedGroupIds],
   );
 
-  const enterSelectionMode = () => {
+  const enterSelectionMode = useCallback(() => {
     setSelectionMode(true);
     setSelectedGroupIds(new Set());
-  };
+  }, []);
 
-  const exitSelectionMode = () => {
+  const exitSelectionMode = useCallback(() => {
     setSelectionMode(false);
     setSelectedGroupIds(new Set());
-  };
+  }, []);
 
-  const toggleSelected = (groupId: string) => {
+  const toggleSelected = useCallback((groupId: string) => {
     setSelectedGroupIds((prev) => {
       const next = new Set(prev);
       if (next.has(groupId)) next.delete(groupId);
       else next.add(groupId);
       return next;
     });
-  };
+  }, []);
 
-  const requestBulkDelete = () => {
+  const requestBulkDelete = useCallback(() => {
     if (selectedGroups.length === 0) return;
     setBulkDeleteDialogOpen(true);
-  };
+  }, [selectedGroups.length]);
 
   return {
     selectionMode,

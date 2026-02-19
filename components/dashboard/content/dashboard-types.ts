@@ -27,4 +27,5 @@ export type EnrichmentResult =
   | {
       status: "failed";
       error_reason?: string | null;
+      last_fetched_at?: string | null;
     };

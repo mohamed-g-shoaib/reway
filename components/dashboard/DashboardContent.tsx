@@ -154,23 +154,26 @@ export function DashboardContent({
       (b) =>
         b?.id &&
         b?.url &&
-        (b.status === "pending" || b.is_enriching === true) &&
+        b.status === "pending" &&
         !b.last_fetched_at,
     );
     if (!hasPending) return;
 
     if (resumePendingEnrichmentTask) return;
 
+    let cancelled = false;
+
     const CONCURRENCY = 2;
 
     resumePendingEnrichmentTask = (async () => {
       try {
         while (true) {
+          if (cancelled) return;
           const pendingNow = bookmarksRef.current.filter(
             (b) =>
               b?.id &&
               b?.url &&
-              (b.status === "pending" || b.is_enriching === true) &&
+              b.status === "pending" &&
               !b.last_fetched_at &&
               !inflightEnrichmentRef.current.has(b.id),
           );
@@ -179,6 +182,7 @@ export function DashboardContent({
           let index = 0;
           const worker = async () => {
             while (true) {
+              if (cancelled) return;
               const current = pendingNow[index];
               index += 1;
               if (!current) return;
@@ -187,22 +191,55 @@ export function DashboardContent({
               if (inflightEnrichmentRef.current.has(current.id)) continue;
               inflightEnrichmentRef.current.add(current.id);
 
-              setBookmarks((prev) =>
-                prev.map((item) =>
-                  item.id === current.id
-                    ? { ...item, is_enriching: true }
-                    : item,
-                ),
-              );
+              if (!cancelled) {
+                setBookmarks((prev) =>
+                  prev.map((item) =>
+                    item.id === current.id
+                      ? { ...item, is_enriching: true }
+                      : item,
+                  ),
+                );
+              }
 
               try {
-                const enrichment = await enrichCreatedBookmark(
+                const timeoutPromise = new Promise<never>((_, reject) => {
+                  setTimeout(
+                    () => reject(new Error("Enrichment timeout")),
+                    45000,
+                  );
+                });
+                const enrichmentPromise = enrichCreatedBookmark(
                   current.id,
                   current.url,
                 );
+                const enrichment = (await Promise.race([
+                  enrichmentPromise,
+                  timeoutPromise,
+                ])) as Awaited<ReturnType<typeof enrichCreatedBookmark>>;
+
+                if (cancelled) return;
                 applyEnrichment(current.id, enrichment);
               } catch (error) {
                 console.error("Resume enrichment failed:", error);
+                const attemptedAt = new Date().toISOString();
+                if (!cancelled) {
+                  setBookmarks((prev) =>
+                    prev.map((item) =>
+                      item.id === current.id
+                        ? {
+                            ...item,
+                            status: "failed",
+                            is_enriching: false,
+                            error_reason:
+                              error instanceof Error
+                                ? error.message
+                                : "Enrichment failed",
+                            last_fetched_at: attemptedAt,
+                          }
+                        : item,
+                    ),
+                  );
+                }
               } finally {
                 inflightEnrichmentRef.current.delete(current.id);
               }
@@ -220,6 +257,10 @@ export function DashboardContent({
         resumePendingEnrichmentTask = null;
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [applyEnrichment, bookmarks, setBookmarks]);
 
   const { filteredBookmarks, groupCounts, exportGroupOptions } =
@@ -276,15 +317,16 @@ export function DashboardContent({
 
   const handleGroupsReorder = useCallback(
     async (newOrder: GroupRow[]) => {
+      const reorderableOrder = newOrder.filter((g) => g.id !== "no-group");
       const prev = dashboard.groups;
       dashboard.setGroups(
-        newOrder.map((group, index) => ({
+        reorderableOrder.map((group, index) => ({
           ...group,
           order_index: index,
         })),
       );
 
-      const updates = newOrder.map((group, index) => ({
+      const updates = reorderableOrder.map((group, index) => ({
         id: group.id,
         order_index: index,
       }));

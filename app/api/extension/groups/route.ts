@@ -2,6 +2,22 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { corsHeaders, jsonResponse } from "../utils";
 
+function pickRandomGroupColor() {
+  const palette = [
+    "#6366f1",
+    "#8b5cf6",
+    "#ec4899",
+    "#f43f5e",
+    "#f97316",
+    "#f59e0b",
+    "#84cc16",
+    "#10b981",
+    "#06b6d4",
+    "#3b82f6",
+  ];
+  return palette[Math.floor(Math.random() * palette.length)];
+}
+
 export async function OPTIONS() {
   return new Response(null, { status: 204, headers: corsHeaders });
 }
@@ -56,6 +72,10 @@ export async function POST(request: Request) {
       return jsonResponse({ error: "Group name is required" }, { status: 400 });
     }
 
+    const icon = body.icon || "folder";
+    const color =
+      body.color || ((icon === "folder" || !icon) && !body.color ? pickRandomGroupColor() : null);
+
     // Check for duplicates
     const { data: existingGroup } = await supabaseAdmin
       .from("groups")
@@ -88,8 +108,8 @@ export async function POST(request: Request) {
       .from("groups")
       .insert({
         name: body.name.trim(),
-        icon: body.icon || null,
-        color: body.color || null,
+        icon,
+        color,
         user_id: userId,
         order_index: nextOrderIndex,
       })

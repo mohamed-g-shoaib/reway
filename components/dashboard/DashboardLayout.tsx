@@ -1,6 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
+import { useMemo } from "react";
 import type {
   BookmarkRow,
   GroupRow,
@@ -257,6 +258,24 @@ export function DashboardLayout({
   handleCancelSelection: () => void;
   isFilteredSearch: boolean;
 }) {
+  const groupsWithNoGroup = useMemo(() => {
+    const hasUngrouped = bookmarks.some((b) => !b.group_id);
+    if (!hasUngrouped) return groups;
+    if (groups.some((g) => g.id === "no-group")) return groups;
+    return [
+      ...groups,
+      {
+        id: "no-group",
+        name: "No Group",
+        icon: "alert-circle",
+        color: null,
+        user_id: "",
+        created_at: new Date().toISOString(),
+        order_index: null,
+      },
+    ];
+  }, [bookmarks, groups]);
+
   return (
     <>
       <DashboardOnboarding />
@@ -267,7 +286,7 @@ export function DashboardLayout({
       >
         <div className="relative flex flex-col h-[calc(100dvh-3rem)] overflow-hidden">
           <DashboardSidebar
-            groups={groups}
+            groups={groupsWithNoGroup}
             activeGroupId={activeGroupId}
             setActiveGroupId={setActiveGroupId}
             onReorderGroups={handleGroupsReorder}
@@ -318,7 +337,9 @@ export function DashboardLayout({
             <DashboardNav
               user={user}
               bookmarks={bookmarks}
-              groups={groups}
+              groups={groupsWithNoGroup}
+              notes={notes}
+              todos={todos}
               activeGroupId={activeGroupId}
               groupCounts={groupCounts}
               onGroupSelect={setActiveGroupId}
@@ -326,6 +347,7 @@ export function DashboardLayout({
               onGroupUpdate={handleUpdateGroup}
               onGroupDelete={handleDeleteGroup}
               onGroupOpen={handleOpenGroup}
+              onReorderGroups={handleGroupsReorder}
               rowContent={rowContent}
               setRowContent={setRowContent}
               showNotesTodos={showNotesTodos}
@@ -350,6 +372,17 @@ export function DashboardLayout({
               onExportBookmarks={handleExportBookmarks}
               onResetExport={resetExportProgress}
               onRemoveBookmarks={handleOptimisticRemoveBookmarks}
+
+              onCreateNote={handleCreateNote}
+              onUpdateNote={handleUpdateNote}
+              onDeleteNote={handleDeleteNote}
+              onDeleteNotes={handleDeleteNotes}
+              onCreateTodo={handleCreateTodo}
+              onUpdateTodo={handleUpdateTodo}
+              onDeleteTodo={handleDeleteTodo}
+              onDeleteTodos={handleDeleteTodos}
+              onSetTodoCompleted={handleSetTodoCompleted}
+              onSetTodosCompleted={handleSetTodosCompleted}
             />
             <div className="pt-4 md:pt-6">
               <CommandBar

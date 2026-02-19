@@ -108,16 +108,54 @@ export async function enrichCreatedBookmark(id: string, url: string) {
       throw new Error("Unauthorized");
     }
 
+    const { data: existingBookmark, error: bookmarkError } = await supabase
+      .from("bookmarks")
+      .select("id, title, url, normalized_url")
+      .eq("id", id)
+      .eq("user_id", userData.user.id)
+      .single();
+
+    if (bookmarkError || !existingBookmark) {
+      throw new Error("Failed to load bookmark for enrichment");
+    }
+
+    const nextTitle = metadata.title?.trim();
+    const nextDescription = metadata.description?.trim();
+    const nextFavicon = metadata.favicon?.trim();
+    const nextOgImage = metadata.ogImage?.trim();
+    const fetchedAt = new Date().toISOString();
+
+    const fallbackTitleFromDomain = (domain: string) => {
+      const key = domain.toLowerCase();
+      if (key === "x.com" || key === "twitter.com") return "X";
+      if (key === "tiktok.com") return "TikTok";
+      const parts = key.split(".").filter(Boolean);
+      const base = parts.length >= 2 ? parts[parts.length - 2] : parts[0] || key;
+      return base ? base.charAt(0).toUpperCase() + base.slice(1) : null;
+    };
+
+    const currentTitle = (existingBookmark.title ?? "").trim();
+    const currentUrl = (existingBookmark.url ?? "").trim();
+    const currentNormalized = (existingBookmark.normalized_url ?? "").trim();
+    const isDefaultTitle =
+      !currentTitle || currentTitle === currentUrl || currentTitle === currentNormalized;
+
+    const computedFallbackTitle =
+      !nextTitle && isDefaultTitle ? fallbackTitleFromDomain(metadata.domain) : null;
+
+    const titleToWrite = nextTitle || computedFallbackTitle || null;
+
     await supabase
       .from("bookmarks")
       .update({
-        title: metadata.title,
-        description: metadata.description,
-        favicon_url: metadata.favicon,
-        og_image_url: metadata.ogImage,
-        image_url: metadata.ogImage,
+        ...(titleToWrite ? { title: titleToWrite } : {}),
+        ...(nextDescription ? { description: nextDescription } : {}),
+        ...(nextFavicon ? { favicon_url: nextFavicon } : {}),
+        ...(nextOgImage
+          ? { og_image_url: nextOgImage, image_url: nextOgImage }
+          : {}),
         status: "ready",
-        last_fetched_at: new Date().toISOString(),
+        last_fetched_at: fetchedAt,
       })
       .eq("id", id)
       .eq("user_id", userData.user.id);
@@ -125,16 +163,17 @@ export async function enrichCreatedBookmark(id: string, url: string) {
     revalidatePath("/dashboard");
     return {
       status: "ready" as const,
-      title: metadata.title,
-      description: metadata.description,
-      favicon_url: metadata.favicon,
-      og_image_url: metadata.ogImage,
-      image_url: metadata.ogImage,
-      last_fetched_at: new Date().toISOString(),
+      title: titleToWrite || undefined,
+      description: nextDescription || undefined,
+      favicon_url: nextFavicon || undefined,
+      og_image_url: nextOgImage || undefined,
+      image_url: nextOgImage || undefined,
+      last_fetched_at: fetchedAt,
       error_reason: null,
     };
   } catch (error) {
     console.error("Enrichment failed for", url, error);
+    const attemptedAt = new Date().toISOString();
     const supabase = await createClient();
 
     const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -146,6 +185,7 @@ export async function enrichCreatedBookmark(id: string, url: string) {
       .update({
         status: "failed",
         error_reason: error instanceof Error ? error.message : "Unknown error",
+        last_fetched_at: attemptedAt,
       })
       .eq("id", id)
       .eq("user_id", userData.user.id);
@@ -153,6 +193,7 @@ export async function enrichCreatedBookmark(id: string, url: string) {
     return {
       status: "failed" as const,
       error_reason: error instanceof Error ? error.message : "Unknown error",
+      last_fetched_at: attemptedAt,
     };
   }
 }

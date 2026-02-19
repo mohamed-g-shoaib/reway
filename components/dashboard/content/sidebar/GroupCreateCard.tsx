@@ -8,7 +8,6 @@ import { CharacterCount } from "./CharacterCount";
 import { MAX_GROUP_NAME_LENGTH } from "./constants";
 
 export function GroupCreateCard({
-  reorderMode,
   isInlineCreating,
   setIsInlineCreating,
   IconPickerPopover,
@@ -21,7 +20,6 @@ export function GroupCreateCard({
   isCreatingGroup,
   onCreate,
 }: {
-  reorderMode: boolean;
   isInlineCreating: boolean;
   setIsInlineCreating: (value: boolean) => void;
   IconPickerPopover: React.ComponentType<IconPickerPopoverProps>;
@@ -110,13 +108,10 @@ export function GroupCreateCard({
         <button
           type="button"
           onClick={() => {
-            if (reorderMode) return;
             setIsInlineCreating(true);
           }}
           data-onboarding="create-group-desktop"
-          className={`flex items-center gap-2 text-xs text-muted-foreground ${
-            reorderMode ? "opacity-50" : "hover:text-primary/90"
-          } cursor-pointer`}
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary/90 cursor-pointer"
         >
           <HugeiconsIcon icon={Add01Icon} size={14} />
           Create group

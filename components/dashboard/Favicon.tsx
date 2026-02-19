@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -84,13 +84,49 @@ function FaviconInner({
 }: FaviconProps & {
   initialFallbackLevel: "primary" | "origin" | "letter";
 }) {
-  // Track which fallback level we're at: primary -> origin -> letter
   const [fallbackLevel, setFallbackLevel] = useState<
     "primary" | "origin" | "letter"
   >(initialFallbackLevel);
+  const [originStatus, setOriginStatus] = useState<
+    "unknown" | "valid" | "invalid"
+  >("unknown");
 
   // Determine if we have a valid primary URL
   const hasValidUrl = isValidImageUrl(url);
+  const originFallbackUrl = domain ? `https://${domain}/favicon.ico` : null;
+
+  // Pre-flight origin favicon to avoid 30s+ network hangs
+  useEffect(() => {
+    if (!originFallbackUrl || fallbackLevel !== "origin") return;
+    if (originStatus !== "unknown") return;
+
+    let aborted = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+      if (!aborted) setOriginStatus("invalid");
+    }, 2500); // 2.5s timeout for favicon ping
+
+    fetch(originFallbackUrl, {
+      method: "HEAD",
+      signal: controller.signal,
+      mode: "no-cors",
+    })
+      .then(() => {
+        clearTimeout(timeout);
+        if (!aborted) setOriginStatus("valid");
+      })
+      .catch(() => {
+        clearTimeout(timeout);
+        if (!aborted) setOriginStatus("invalid");
+      });
+
+    return () => {
+      aborted = true;
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [originFallbackUrl, fallbackLevel, originStatus]);
 
   // Helper to get initials and colors
   const getInitial = () => {
@@ -102,7 +138,6 @@ function FaviconInner({
   };
 
   const initials = getInitial();
-  const originFallbackUrl = domain ? `https://${domain}/favicon.ico` : null;
 
   // Determine which image URL to show based on current fallback level
   const getCurrentImageUrl = () => {
@@ -110,7 +145,7 @@ function FaviconInner({
       case "primary":
         return hasValidUrl ? url : null;
       case "origin":
-        return originFallbackUrl;
+        return originStatus === "valid" ? originFallbackUrl : null;
       case "letter":
         return null;
     }
@@ -119,33 +154,30 @@ function FaviconInner({
   const currentImageUrl = getCurrentImageUrl();
   const shouldShowImage =
     fallbackLevel !== "letter" &&
-    currentImageUrl != null &&
-    currentImageUrl.length > 0;
+    (fallbackLevel === "primary"
+      ? currentImageUrl != null
+      : originStatus === "valid");
 
   const handleImageError = () => {
-    const isSameAsOrigin =
-      !!currentImageUrl &&
-      !!originFallbackUrl &&
-      currentImageUrl === originFallbackUrl;
-
     switch (fallbackLevel) {
       case "primary":
-        // Primary failed, try origin
-        if (originFallbackUrl && !isSameAsOrigin) {
-          setFallbackLevel("origin");
-        } else {
-          setFallbackLevel("letter");
-        }
+        setFallbackLevel("origin");
         break;
       case "origin":
-        // Origin failed, show letter
+        setOriginStatus("invalid");
         setFallbackLevel("letter");
         break;
       default:
-        // Safety fallback
         setFallbackLevel("letter");
     }
   };
+
+  // If origin is determined invalid while we are on it, move to letter
+  useEffect(() => {
+    if (fallbackLevel === "origin" && originStatus === "invalid") {
+      setFallbackLevel("letter");
+    }
+  }, [fallbackLevel, originStatus]);
 
   return (
     <div

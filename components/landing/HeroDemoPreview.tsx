@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Moon02Icon, Sun01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useTheme } from "next-themes";
@@ -33,14 +33,26 @@ import { BookmarksGrid } from "./hero-demo/BookmarksGrid";
 import { NotesTodosSidebar } from "./hero-demo/NotesTodosSidebar";
 import { useHeroDemoState } from "./hero-demo/useHeroDemoState";
 
+let __heroDemoHydrated = false;
+
+function useHasHydrated() {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      if (!__heroDemoHydrated) {
+        __heroDemoHydrated = true;
+        queueMicrotask(onStoreChange);
+      }
+      return () => {};
+    },
+    () => __heroDemoHydrated,
+    () => false,
+  );
+}
+
 export function HeroDemoPreview() {
   const [demoTheme, setDemoTheme] = useState<DashboardPaletteTheme>("default");
   const { resolvedTheme, setTheme } = useTheme();
-  const [isThemeResolved, setIsThemeResolved] = useState(false);
-
-  useEffect(() => {
-    setIsThemeResolved(true);
-  }, []);
+  const hasHydrated = useHasHydrated();
 
   const {
     copiedIndex,
@@ -93,7 +105,7 @@ export function HeroDemoPreview() {
   } = useHeroDemoState();
 
   const themeClassName = getPaletteThemeClassName(demoTheme);
-  const isDark = isThemeResolved && resolvedTheme === "dark";
+  const isDark = hasHydrated && resolvedTheme === "dark";
 
   const demoControls = (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -141,23 +153,25 @@ export function HeroDemoPreview() {
 
       <Button
         type="button"
-        variant={!isDark ? "default" : "outline"}
+        variant={hasHydrated ? (!isDark ? "default" : "outline") : "outline"}
         size="icon"
         className="h-6 w-6 rounded-lg cursor-pointer"
         onClick={() => setTheme("light")}
         aria-label="Light"
         title="Light"
+        suppressHydrationWarning
       >
         <HugeiconsIcon icon={Sun01Icon} size={13} />
       </Button>
       <Button
         type="button"
-        variant={isDark ? "default" : "outline"}
+        variant={hasHydrated ? (isDark ? "default" : "outline") : "outline"}
         size="icon"
         className="h-6 w-6 rounded-lg cursor-pointer"
         onClick={() => setTheme("dark")}
         aria-label="Dark"
         title="Dark"
+        suppressHydrationWarning
       >
         <HugeiconsIcon icon={Moon02Icon} size={13} />
       </Button>

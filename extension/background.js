@@ -314,8 +314,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         sendResponse({ success: true });
       } catch (error) {
-        console.error("Twitter bookmark failed:", error);
-        sendResponse({ success: false, error: error.message });
+        const message = String(error?.message || "Failed");
+        if (REWAY_DEBUG) {
+          console.error("Twitter bookmark failed:", error);
+        } else {
+          __rewayWarnOnce(
+            `twitter-bookmark-failed:${message}`,
+            "Twitter bookmark failed:",
+            message,
+          );
+        }
+        sendResponse({ success: false, error: message });
       }
     })();
     return true;

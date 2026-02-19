@@ -20,7 +20,11 @@ export function useDashboardDerived({
     const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
     return bookmarks.filter((b) => {
       const matchesGroup =
-        activeGroupId === "all" ? true : b.group_id === activeGroupId;
+        activeGroupId === "all"
+          ? true
+          : activeGroupId === "no-group"
+            ? !b.group_id
+            : b.group_id === activeGroupId;
       if (!matchesGroup) return false;
       if (!normalizedQuery) return true;
       const haystack = [b.title, b.url, b.description]
