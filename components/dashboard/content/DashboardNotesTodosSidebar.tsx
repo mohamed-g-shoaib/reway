@@ -91,6 +91,16 @@ export function DashboardNotesTodosSidebar({
     };
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("reway:open-sidebar-notes", () => {
+      cancelClose();
+      setIsHoverOpen(true);
+    });
+    window.addEventListener("reway:close-sidebar-notes", () => {
+      setIsHoverOpen(false);
+    });
+  }, []);
+
   const [activeSection, setActiveSection] = useState<"notes" | "todos">(
     "notes",
   );
@@ -164,6 +174,7 @@ export function DashboardNotesTodosSidebar({
           <>
             <button
               type="button"
+              data-onboarding="notes-todos-trigger"
               className="fixed right-0 top-1/2 -translate-y-1/2 z-50 h-18 w-6 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
               aria-label="Toggle notes and todos sidebar"
               onClick={() => {
@@ -186,6 +197,7 @@ export function DashboardNotesTodosSidebar({
             </button>
 
             <aside
+              data-onboarding="notes-todos-desktop"
               className={`fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
                 isPinnedOpen || isHoverOpen
                   ? "translate-x-0"
@@ -224,6 +236,7 @@ export function DashboardNotesTodosSidebar({
         <>
           <button
             type="button"
+            data-onboarding="notes-todos-trigger"
             className="hidden min-[1200px]:flex fixed right-0 top-1/2 -translate-y-1/2 z-50 h-24 w-5 items-center justify-center rounded-l-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Toggle notes and todos sidebar"
             onClick={() => {
@@ -244,6 +257,7 @@ export function DashboardNotesTodosSidebar({
           </button>
 
           <aside
+            data-onboarding="notes-todos-desktop"
             className={`hidden min-[1200px]:block fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
               isPinnedOpen || isHoverOpen ? "translate-x-0" : "translate-x-full"
             }`}

@@ -3,11 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
-import {
-  DndContext,
-  DragOverlay,
-  MeasuringStrategy,
-} from "@dnd-kit/core";
+import { DndContext, DragOverlay, MeasuringStrategy } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -21,9 +17,7 @@ import { AllBookmarksRow } from "./sidebar/AllBookmarksRow";
 import { GroupCreateCard } from "./sidebar/GroupCreateCard";
 import { GroupEditCard } from "./sidebar/GroupEditCard";
 import { GroupRowItem } from "./sidebar/GroupRowItem";
-import {
-  GroupDragOverlayRow,
-} from "./sidebar/GroupReorderRows";
+import { GroupDragOverlayRow } from "./sidebar/GroupReorderRows";
 import { SelectionModeBar } from "./sidebar/SelectionModeBar";
 import {
   BulkDeleteGroupsDialog,
@@ -141,6 +135,16 @@ export function DashboardSidebar({
     return () => {
       if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
     };
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("reway:open-sidebar-groups", () => {
+      cancelClose();
+      setIsHoverOpen(true);
+    });
+    window.addEventListener("reway:close-sidebar-groups", () => {
+      setIsHoverOpen(false);
+    });
   }, []);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -419,6 +423,7 @@ export function DashboardSidebar({
           <>
             <button
               type="button"
+              data-onboarding="groups-trigger"
               className="fixed left-0 top-1/2 -translate-y-1/2 z-50 h-14 w-7 items-center justify-center rounded-r-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
               aria-label="Toggle groups sidebar"
               onClick={() => {
@@ -441,6 +446,7 @@ export function DashboardSidebar({
             </button>
 
             <aside
+              data-onboarding="groups-desktop"
               className={`fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
                 isPinnedOpen || isHoverOpen
                   ? "translate-x-0"
@@ -483,6 +489,7 @@ export function DashboardSidebar({
         <>
           <button
             type="button"
+            data-onboarding="groups-trigger"
             className="hidden min-[1200px]:flex fixed left-0 top-1/2 -translate-y-1/2 z-50 h-24 w-5 items-center justify-center rounded-r-2xl bg-muted/20 ring-1 ring-inset ring-foreground/10 text-muted-foreground text-[11px] hover:bg-muted/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Toggle groups sidebar"
             onClick={() => {
@@ -503,8 +510,11 @@ export function DashboardSidebar({
           </button>
 
           <aside
+            data-onboarding="groups-desktop"
             className={`hidden min-[1200px]:block fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
-              isPinnedOpen || isHoverOpen ? "translate-x-0" : "-translate-x-full"
+              isPinnedOpen || isHoverOpen
+                ? "translate-x-0"
+                : "-translate-x-full"
             }`}
             onMouseEnter={() => {
               cancelClose();
