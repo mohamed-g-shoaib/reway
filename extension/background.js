@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "https://reway-app.vercel.app";
+const DEFAULT_BASE_URL = "https://reway.page";
 
 const REWAY_DEBUG = false;
 

@@ -33,6 +33,7 @@ function setPopupHeader(mode) {
 async function init() {
   document.querySelector(".shell").style.opacity = "1";
   const loadingView = document.getElementById("loading-view");
+  const footerLinks = document.getElementById("footer-links");
 
   await getSettings();
   const { rewayBaseUrl } = await chrome.storage.local.get("rewayBaseUrl");
@@ -57,9 +58,19 @@ async function init() {
     renderGroups(groups);
     showSection("main-section");
     setPopupHeader("main");
+
+    const { baseUrl } = await getSettings();
+    if (elements.footerHomepage) {
+      elements.footerHomepage.setAttribute("href", `${baseUrl}/`);
+    }
+    if (elements.footerDashboard) {
+      elements.footerDashboard.setAttribute("href", `${baseUrl}/dashboard`);
+    }
+    footerLinks?.classList.remove("hidden");
   } catch {
     showSection("auth-section");
     setPopupHeader("auth");
+    footerLinks?.classList.add("hidden");
   } finally {
     if (loadingView) {
       loadingView.classList.add("hidden");

@@ -8,6 +8,8 @@ export const selectors = {
   // Common
   status: "#status",
   logo: "#extension-logo",
+  footerHomepage: "#footer-homepage-link",
+  footerDashboard: "#footer-dashboard-link",
   // Auth/Dev
   loginButton: "#login-button",
   devPanel: "#dev-mode-panel",
