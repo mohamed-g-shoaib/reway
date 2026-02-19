@@ -22,9 +22,7 @@ import type { BookmarkRow, NoteRow, TodoRow } from "@/lib/supabase/queries";
 import type { DashboardPaletteTheme } from "@/lib/themes";
 import type { TodoPriority } from "./content/notes-todos/types";
 import { Button } from "@/components/ui/button";
-import {
-  Note01Icon,
-} from "@hugeicons/core-free-icons";
+import { Note01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 interface DashboardNavProps {
@@ -98,7 +96,10 @@ interface DashboardNavProps {
   onResetExport?: () => void;
   onRemoveBookmarks?: (ids: string[]) => void;
 
-  onCreateNote: (formData: { text: string; color?: string | null }) => Promise<string>;
+  onCreateNote: (formData: {
+    text: string;
+    color?: string | null;
+  }) => Promise<string>;
   onUpdateNote: (
     id: string,
     formData: { text: string; color?: string | null },
@@ -106,7 +107,10 @@ interface DashboardNavProps {
   onDeleteNote: (id: string) => Promise<void>;
   onDeleteNotes: (ids: string[]) => Promise<void>;
 
-  onCreateTodo: (formData: { text: string; priority: TodoPriority }) => Promise<string>;
+  onCreateTodo: (formData: {
+    text: string;
+    priority: TodoPriority;
+  }) => Promise<string>;
   onUpdateTodo: (
     id: string,
     formData: { text: string; priority: TodoPriority },
@@ -305,7 +309,10 @@ export function DashboardNav({
 
       // Closing the sheet should not implicitly stop an in-flight import.
       // Allow users to close and later reopen to check progress.
-      if (importProgress.status !== "importing" && importProgress.status !== "stopping") {
+      if (
+        importProgress.status !== "importing" &&
+        importProgress.status !== "stopping"
+      ) {
         onClearImport();
       }
     }
@@ -414,25 +421,29 @@ export function DashboardNav({
               }}
               setEditingGroupId={setEditingGroupId}
             />
-
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer min-[1200px]:hidden"
-              onClick={() => setNotesTodosSheetOpen(true)}
-              aria-label="Open notes and todos"
+            <div
+              className="flex items-center gap-2"
+              data-onboarding="view-mode-controls"
             >
-              <HugeiconsIcon icon={Note01Icon} size={16} strokeWidth={2} />
-            </Button>
-            <ViewModeControls viewMode={viewMode} setViewMode={setViewMode} />
-            <ThemeControls
-              paletteTheme={paletteTheme}
-              setPaletteTheme={setPaletteTheme}
-            />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer min-[1200px]:hidden"
+                onClick={() => setNotesTodosSheetOpen(true)}
+                aria-label="Open notes and todos"
+              >
+                <HugeiconsIcon icon={Note01Icon} size={16} strokeWidth={2} />
+              </Button>
+              <ViewModeControls viewMode={viewMode} setViewMode={setViewMode} />
+              <ThemeControls
+                paletteTheme={paletteTheme}
+                setPaletteTheme={setPaletteTheme}
+              />
+            </div>
             <UserMenu
               user={user}
               initials={initials}
