@@ -242,7 +242,7 @@ export const SortableBookmark = memo(function SortableBookmark({
                     </span>
                   ) : (
                     <a
-                      className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary transition-colors duration-200"
+                      className="block truncate text-sm font-semibold cursor-pointer text-foreground group-hover:text-primary! hover:text-primary! transition-colors duration-200"
                       href={url}
                       target="_blank"
                       rel="noreferrer"

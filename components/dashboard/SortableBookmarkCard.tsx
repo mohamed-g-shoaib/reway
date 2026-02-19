@@ -236,7 +236,7 @@ export function SortableBookmarkCard({
               )}
 
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-foreground transition-colors duration-200 group-hover:text-primary">
+                <p className="truncate text-sm font-bold text-foreground transition-colors duration-200 group-hover:text-primary! hover:text-primary!">
                   <a
                     className="cursor-pointer"
                     href={url}
