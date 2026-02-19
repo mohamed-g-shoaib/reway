@@ -100,7 +100,8 @@ export const BookmarkBoard = memo(function BookmarkBoard({
   const [editSheetBookmark, setEditSheetBookmark] =
     useState<BookmarkRow | null>(null);
   const dndContextId = useId();
-  const isExtendedListGrid = viewMode === "list" && layoutDensity === "extended";
+  const isExtendedListGrid =
+    viewMode === "list" && layoutDensity === "extended";
   const isGridView = viewMode !== "list" || isExtendedListGrid;
   const minCardWidth = layoutDensity === "extended" ? 260 : 320;
   const boardRef = useRef<HTMLDivElement>(null);
@@ -134,7 +135,9 @@ export const BookmarkBoard = memo(function BookmarkBoard({
       const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
       if (aOrder !== bOrder) return aOrder - bOrder;
 
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     });
   }, [activeGroupId, bookmarks, initialGroups]);
 
@@ -187,7 +190,9 @@ export const BookmarkBoard = memo(function BookmarkBoard({
   const activeBookmarkGroupId = activeBookmark?.group_id ?? null;
 
   const isGroupRestrictedDragActive =
-    activeGroupId === "all" && Boolean(activeId) && Boolean(activeBookmarkGroupId);
+    activeGroupId === "all" &&
+    Boolean(activeId) &&
+    Boolean(activeBookmarkGroupId);
 
   function handleDragStart(event: DragStartEvent) {
     setActiveId(event.active.id as string);
@@ -285,13 +290,13 @@ export const BookmarkBoard = memo(function BookmarkBoard({
             className={
               viewMode === "list"
                 ? isExtendedListGrid
-                  ? "grid gap-3 grid-cols-[repeat(auto-fit,minmax(360px,1fr))] bookmark-board-empty-space"
+                  ? "grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] bookmark-board-empty-space"
                   : "flex flex-col gap-1 bookmark-board-empty-space"
                 : viewMode === "card"
                   ? layoutDensity === "extended"
-                    ? "grid gap-3 grid-cols-[repeat(auto-fit,minmax(260px,1fr))] bookmark-board-empty-space"
-                    : "grid gap-3 grid-cols-[repeat(auto-fit,minmax(320px,1fr))] bookmark-board-empty-space"
-                  : "grid gap-3 grid-cols-[repeat(auto-fit,minmax(120px,1fr))] bookmark-board-empty-space"
+                    ? "grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] bookmark-board-empty-space"
+                    : "grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(320px,100%),1fr))] bookmark-board-empty-space"
+                  : "grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(120px,100%),1fr))] bookmark-board-empty-space"
             }
             data-slot="bookmark-board"
           >
