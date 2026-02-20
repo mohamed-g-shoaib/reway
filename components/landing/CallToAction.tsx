@@ -70,12 +70,10 @@ export function CallToAction() {
               variants={shouldReduceMotion ? undefined : itemVariants}
             >
               <h2 className="text-balance text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
-                Ready To Replace Bookmark Chaos?
+                Organize Your Knowledge
               </h2>
               <p className="mx-auto max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-                Move from scattered links to a curated, searchable library in
-                one session. Reway keeps your knowledge readable and always
-                within reach.
+                Stop losing links to the void. Reway provides the infrastructure to capture, organize, and retrieve your research at the speed of thought. Join Reway and never lose a link again.
               </p>
             </motion.div>
 
@@ -142,7 +140,7 @@ export function CallToAction() {
                 </ExtensionInstallDialog>
               </div>
               <p className="text-xs font-medium text-muted-foreground/60">
-                Free to use. No account required to try the studio.
+                Free to use. No hidden fees.
               </p>
             </motion.div>
           </div>
