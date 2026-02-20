@@ -9,10 +9,10 @@ export const DEMO_GROUP = {
 
 export const DEMO_BOOKMARKS = [
   {
-    url: "https://reway-app.vercel.app/about",
+    url: "https://www.reway.page/about",
     title: "About Reway",
     description: "Learn why Reway was built and the philosophy behind it.",
-    favicon_url: "https://reway-app.vercel.app/favicon.ico",
+    favicon_url: "https://www.reway.page/favicon.ico",
   },
   {
     url: "https://drive.google.com/file/d/10rypTtZMKT_IR53b5cS7epw7acEoC9WW/view?usp=sharing",
