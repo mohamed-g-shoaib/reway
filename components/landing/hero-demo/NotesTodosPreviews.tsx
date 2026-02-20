@@ -15,6 +15,7 @@ export function NotesSectionPreview({ notes }: { notes: NoteRow[] }) {
         <NoteRowItem
           key={note.id}
           note={note}
+          variant="demo"
           expanded={expandedNoteId === note.id}
           onToggleExpanded={() =>
             setExpandedNoteId((prev) => (prev === note.id ? null : note.id))
@@ -47,6 +48,7 @@ export function TodosSectionPreview({
         <TodoRowItem
           key={todo.id}
           todo={todo}
+          variant="demo"
           expanded={expandedTodoId === todo.id}
           onToggleExpanded={() =>
             setExpandedTodoId((prev) => (prev === todo.id ? null : todo.id))
