@@ -93,24 +93,24 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 px-4 sm:px-6",
+        "sticky top-0 z-50",
         "md:transition-[top] md:duration-200 md:ease-out",
         scrolled ? "md:top-2" : "md:top-4",
       )}
     >
       <div
         className={cn(
-          "mx-auto w-full max-w-6xl border-b border-foreground/8",
+          "w-full border-b border-foreground/8",
           "md:rounded-4xl md:border md:border-foreground/8",
           "md:origin-top md:transform-gpu md:transition-[background-color,border-color,box-shadow,opacity,transform,max-width] md:duration-200 md:ease-out",
           scrolled
-            ? "bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:max-w-5xl md:translate-y-0 md:scale-100"
-            : "md:translate-y-2 md:scale-100",
+            ? "bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50 md:mx-auto md:max-w-5xl md:translate-y-0 md:scale-100"
+            : "md:mx-auto md:max-w-6xl md:translate-y-2 md:scale-100",
         )}
       >
         <nav
           className={cn(
-            "flex h-14 w-full items-center justify-between px-4 md:px-2 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
+            "flex h-14 w-full items-center justify-between px-4 sm:px-6 md:px-2 md:h-12 md:transition-[padding] md:duration-200 md:ease-out",
             {
               "md:px-2": scrolled,
             },
