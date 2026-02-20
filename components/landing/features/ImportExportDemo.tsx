@@ -76,7 +76,7 @@ export function ImportExportDemo() {
               <div className="text-xs font-semibold text-foreground">
                 Export group
               </div>
-              <div className="text-[10px] text-muted-foreground">JSON</div>
+              <div className="text-[10px] text-muted-foreground">Chrome HTML</div>
             </div>
           </div>
           <AnimatePresence mode="wait">
