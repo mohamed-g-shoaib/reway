@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { NOTE_COLORS } from "./config";
 import { ColorPicker } from "./pickers";
+import { useState } from "react";
 
 export function NoteCreateCard({
   creating,
@@ -25,13 +26,15 @@ export function NoteCreateCard({
   isCreating: boolean;
   onCreate: () => void;
 }) {
+  const [colorPopoverOpen, setColorPopoverOpen] = useState(false);
+
   return (
     <div className="pt-3 mt-2 border-t border-border/40">
       {creating ? (
         <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Popover>
+              <Popover open={colorPopoverOpen} onOpenChange={setColorPopoverOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -45,7 +48,13 @@ export function NoteCreateCard({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="w-auto p-3">
-                  <ColorPicker value={color} onChange={setColor} />
+                  <ColorPicker
+                    value={color}
+                    onChange={(next) => {
+                      setColor(next);
+                      setColorPopoverOpen(false);
+                    }}
+                  />
                 </PopoverContent>
               </Popover>
 

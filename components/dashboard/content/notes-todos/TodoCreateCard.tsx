@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { TodoPriority } from "./types";
 import { priorityConfig } from "./config";
 import { PriorityPicker } from "./pickers";
+import { useState } from "react";
 
 export function TodoCreateCard({
   creating,
@@ -28,6 +29,7 @@ export function TodoCreateCard({
   onCreate: () => void;
 }) {
   const priorityLabel = priorityConfig[priority];
+  const [priorityPopoverOpen, setPriorityPopoverOpen] = useState(false);
 
   return (
     <div className="pt-3 mt-2 border-t border-border/40">
@@ -35,7 +37,7 @@ export function TodoCreateCard({
         <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Popover>
+              <Popover open={priorityPopoverOpen} onOpenChange={setPriorityPopoverOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -49,7 +51,13 @@ export function TodoCreateCard({
                   </button>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="w-auto p-3">
-                  <PriorityPicker value={priority} onChange={setPriority} />
+                  <PriorityPicker
+                    value={priority}
+                    onChange={(next) => {
+                      setPriority(next);
+                      setPriorityPopoverOpen(false);
+                    }}
+                  />
                 </PopoverContent>
               </Popover>
 
