@@ -50,9 +50,7 @@ export function HeroSection() {
             A Calm Home For Everything You Save.
           </h1>
           <p className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-            Reway turns noisy links into a structured library. Capture links in
-            seconds, extract what matters from pasted text, and move fast with
-            search, groups, and view modes that match the way you think.
+            Reway turns noisy links into a structured library. Capture links from any source, extract what matters from pasted text, and move fast with keyboard-first search, groups, and view modes designed for speed.
           </p>
 
           <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 pt-1">

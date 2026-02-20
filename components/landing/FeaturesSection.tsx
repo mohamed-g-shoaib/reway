@@ -32,11 +32,10 @@ export function FeaturesSection() {
             Core Features
           </p>
           <h2 className="mt-3 text-balance text-3xl font-semibold text-foreground sm:text-4xl">
-            The Essentials, Without The Noise
+            Focus On The Link, Not The Management
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
-            Every feature reinforces the same promise: keep your knowledge
-            clean, searchable, and ready when you need it.
+            Reway is built for speed. Every interaction is optimized to keep your library clean and your research moving.
           </p>
         </div>
 

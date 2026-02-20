@@ -84,8 +84,17 @@ export function LandingFooter() {
               <span className="font-semibold">Reway</span>
             </Link>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Built for research, inspiration, and building. Reway sits at the
-              intersection of calm organization and powerful workflows.
+              Engineering-led bookmarking for people who save a lot of links. Built
+              by{" "}
+              <Link
+                href="https://devloop.software/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-foreground hover:underline underline-offset-4"
+              >
+                Devloop
+              </Link>{" "}
+              for speed, privacy, and deep work.
             </p>
           </div>
 

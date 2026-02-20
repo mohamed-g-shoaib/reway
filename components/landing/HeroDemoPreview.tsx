@@ -74,11 +74,16 @@ export function HeroDemoPreview() {
     setNewGroupName,
     newGroupIcon,
     setNewGroupIcon,
+    newGroupColor,
     setNewGroupColor,
     dropdownCreatingGroup,
     setDropdownCreatingGroup,
     dropdownNewGroupName,
     setDropdownNewGroupName,
+    dropdownNewGroupIcon,
+    setDropdownNewGroupIcon,
+    dropdownNewGroupColor,
+    setDropdownNewGroupColor,
     activeNotesTodosSection,
     setActiveNotesTodosSection,
     notes,
@@ -189,6 +194,7 @@ export function HeroDemoPreview() {
               creatingGroup={creatingGroup}
               newGroupName={newGroupName}
               newGroupIcon={newGroupIcon}
+              newGroupColor={newGroupColor}
               setNewGroupName={setNewGroupName}
               setNewGroupIcon={setNewGroupIcon}
               setNewGroupColor={setNewGroupColor}
@@ -213,8 +219,12 @@ export function HeroDemoPreview() {
                       heroGroups={heroGroups}
                       dropdownCreatingGroup={dropdownCreatingGroup}
                       dropdownNewGroupName={dropdownNewGroupName}
+                      dropdownNewGroupIcon={dropdownNewGroupIcon}
+                      dropdownNewGroupColor={dropdownNewGroupColor}
                       setDropdownNewGroupName={setDropdownNewGroupName}
                       setDropdownCreatingGroup={setDropdownCreatingGroup}
+                      setDropdownNewGroupIcon={setDropdownNewGroupIcon}
+                      setDropdownNewGroupColor={setDropdownNewGroupColor}
                       onSelectGroup={(id) => setActiveGroup(id)}
                       onCreateGroup={handleCreateHeroGroupFromDropdown}
                       onCancelCreate={cancelCreateHeroGroupFromDropdown}
