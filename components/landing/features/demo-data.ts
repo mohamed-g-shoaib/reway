@@ -2,25 +2,25 @@ export const features = [
   {
     title: "Smart Link Extraction",
     description:
-      "Drop in messy notes and Reway pulls every link fast, so you can capture multiple bookmarks in one go.",
+      "Paste raw notes or code directly into Reway. Our engine extracts every URL instantly, letting you batch-save research without the manual chore.",
     demo: "extract",
   },
   {
     title: "Groups That Stay Organized",
     description:
-      "Keep research, inspiration, and builds separated with labeled groups and smart counts.",
+      "Organize your library into dedicated groups for research, inspiration, and active builds with real-time counts and visual separators.",
     demo: "groups",
   },
   {
     title: "Import & Export",
     description:
-      "Bring your bookmarks in, and export any group when you need a clean backup or a migration path.",
+      "Export any group as a clean HTML file. We support importing from standard browser bookmarks to centralize your existing knowledge.",
     demo: "import-export",
   },
   {
     title: "Flexible View Modes",
     description:
-      "Switch between cards and list layouts, depending on how much context you need right now.",
+      "Switch between high-density lists, visual cards, and icon-only layouts. Every view is optimized for rapid scanning and clarity.",
     demo: "views",
   },
 ] as const;
@@ -30,21 +30,21 @@ export const demoLinks = [
     title: "Linear",
     domain: "linear.app",
     url: "https://linear.app",
-    date: "Sep 12",
+    group: "Research",
     favicon: "https://www.google.com/s2/favicons?domain=linear.app&sz=64",
   },
   {
     title: "Vercel",
     domain: "vercel.com",
     url: "https://vercel.com",
-    date: "Sep 10",
+    group: "Inspiration",
     favicon: "https://www.google.com/s2/favicons?domain=vercel.com&sz=64",
   },
   {
     title: "shadcn/ui",
     domain: "ui.shadcn.com",
     url: "https://ui.shadcn.com",
-    date: "Sep 09",
+    group: "Build",
     favicon: "https://www.google.com/s2/favicons?domain=ui.shadcn.com&sz=64",
   },
 ] as const;
@@ -77,7 +77,7 @@ export const demoVideos = [
   {
     title: "Manage Tab Sessions",
     description:
-      "Turn your open tabs into organized sessions. Clean up your browser without losing your research progress.",
+      "Save your current window session. Restore all tabs in one click or archive them for later.",
     src: "/assets/videos/tab-sessions.mp4",
     accentColor: "bg-highlight-sessions",
     highlights: [
@@ -89,7 +89,7 @@ export const demoVideos = [
   {
     title: "X (Twitter) Integration",
     description:
-      "Sync your X bookmarks directly into Reway. Search and organize your saved threads and tweets in a calm environment.",
+      "One-click capture from X.com. Reway extracts the tweet content and thread context automatically.",
     src: "/assets/videos/x-bookmarks.mp4",
     accentColor: "bg-highlight-x",
     highlights: [
