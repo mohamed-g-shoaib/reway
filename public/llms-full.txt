@@ -26,6 +26,10 @@ Reway helps you drop in messy notes and extracts the links automatically. The sy
 - **Animation tuning**: Shorter, stricter durations and removal of prohibited tracking utilities.
 - **Accessibility**: Improved ARIA/accessible names for icon-only controls and toggles.
 
+## Analytics
+- **Privacy-friendly tracking**: Umami analytics integrated via first-party `/metrics` rewrites so traffic metrics keep working even with common adblockers.
+- **No invasive profiling**: Basic visit and pageview statistics only, with no cross-site tracking or ad targeting.
+
 ## Social previews
 - **Dynamic OpenGraph images**: Clean per-page OG routes (for example: `/about/api/og`, `/privacy/api/og`, `/terms/api/og`).
 

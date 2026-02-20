@@ -22,6 +22,7 @@ Reway fixes this by putting everything in one place with fast search and clear v
 - **Web App**: Built with Next.js 16 and React 19. It uses a real-time database so changes show up instantly on all your open tabs.
 - **Database**: Powered by Supabase (PostgreSQL). Your data is private and only accessible by you.
 - **Extension**: A Chrome extension for saving pages, grabbing multiple links from a site, or saving your entire current window session.
+- **Analytics**: Privacy-friendly Umami analytics, proxied through Reway's own domain so basic traffic stats work even when adblockers are enabled.
 
 ## Features
 

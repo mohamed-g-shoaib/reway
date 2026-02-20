@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
@@ -61,6 +62,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased font-sans" suppressHydrationWarning>
+        <Script
+          src="/metrics/lib.js"
+          data-website-id="de7a60cf-6590-4882-a48f-9111335d620e"
+          data-host-url="/metrics"
+          strategy="lazyOnload"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

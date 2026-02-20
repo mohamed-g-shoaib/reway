@@ -16,3 +16,4 @@ Reway is a calm bookmarking workspace that turns messy links into a structured l
 - Chrome extension for instant capture and opening bookmark groups
 - Duplicate detection with clearer actions (including allowing duplicates across different groups)
 - Reduced-motion friendly UI with improved accessibility for icon-only actions
+ - Privacy-friendly Umami analytics proxied through the first-party domain to keep basic traffic stats working with adblockers
