@@ -55,22 +55,6 @@ function closeThemeSelect() {
   window.dispatchEvent(new CustomEvent("reway:close-theme-select"));
 }
 
-function openSidebarGroups() {
-  window.dispatchEvent(new CustomEvent("reway:open-sidebar-groups"));
-}
-
-function closeSidebarGroups() {
-  window.dispatchEvent(new CustomEvent("reway:close-sidebar-groups"));
-}
-
-function openSidebarNotes() {
-  window.dispatchEvent(new CustomEvent("reway:open-sidebar-notes"));
-}
-
-function closeSidebarNotes() {
-  window.dispatchEvent(new CustomEvent("reway:close-sidebar-notes"));
-}
-
 function waitForElement(selector: string, timeoutMs = 1500) {
   return new Promise<boolean>((resolve) => {
     const start = Date.now();

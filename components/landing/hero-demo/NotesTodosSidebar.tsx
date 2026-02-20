@@ -15,15 +15,7 @@ export function NotesTodosSidebar({
   NotesSectionPreview,
   TodosSectionPreview,
   onCreateNote,
-  onUpdateNote,
-  onDeleteNote,
-  onDeleteNotes,
   onCreateTodo,
-  onUpdateTodo,
-  onDeleteTodo,
-  onDeleteTodos,
-  onSetTodoCompleted,
-  onSetTodosCompleted,
 }: {
   activeNotesTodosSection: "notes" | "todos";
   setActiveNotesTodosSection: (v: "notes" | "todos") => void;
@@ -31,25 +23,26 @@ export function NotesTodosSidebar({
   todos: TodoRow[];
   NotesSectionPreview: React.ComponentType<{ notes: NoteRow[] }>;
   TodosSectionPreview: React.ComponentType<{ todos: TodoRow[] }>;
-  onCreateNote: (formData: { text: string; color?: string | null }) => Promise<string>;
-  onUpdateNote: (id: string, formData: { text: string; color?: string | null }) => Promise<void>;
-  onDeleteNote: (id: string) => Promise<void>;
-  onDeleteNotes: (ids: string[]) => Promise<void>;
-  onCreateTodo: (formData: { text: string; priority: TodoPriority }) => Promise<string>;
-  onUpdateTodo: (id: string, formData: { text: string; priority: TodoPriority }) => Promise<void>;
-  onDeleteTodo: (id: string) => Promise<void>;
-  onDeleteTodos: (ids: string[]) => Promise<void>;
-  onSetTodoCompleted: (id: string, completed: boolean) => Promise<void>;
-  onSetTodosCompleted: (ids: string[], completed: boolean) => Promise<void>;
+  onCreateNote: (formData: {
+    text: string;
+    color?: string | null;
+  }) => Promise<string>;
+  onCreateTodo: (formData: {
+    text: string;
+    priority: TodoPriority;
+  }) => Promise<string>;
 }) {
   const [creatingNote, setCreatingNote] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
-  const [newNoteColor, setNewNoteColor] = useState<string | null>(NOTE_COLORS[5]);
+  const [newNoteColor, setNewNoteColor] = useState<string | null>(
+    NOTE_COLORS[5],
+  );
   const [isCreatingNote, setIsCreatingNote] = useState(false);
 
   const [creatingTodo, setCreatingTodo] = useState(false);
   const [newTodoText, setNewTodoText] = useState("");
-  const [newTodoPriority, setNewTodoPriority] = useState<TodoPriority>("medium");
+  const [newTodoPriority, setNewTodoPriority] =
+    useState<TodoPriority>("medium");
   const [isCreatingTodo, setIsCreatingTodo] = useState(false);
 
   const handleCreateNote = async () => {
@@ -69,7 +62,10 @@ export function NotesTodosSidebar({
     if (!newTodoText.trim()) return;
     setIsCreatingTodo(true);
     try {
-      await onCreateTodo({ text: newTodoText.trim(), priority: newTodoPriority });
+      await onCreateTodo({
+        text: newTodoText.trim(),
+        priority: newTodoPriority,
+      });
       setCreatingTodo(false);
       setNewTodoText("");
       setNewTodoPriority("medium");
@@ -79,7 +75,7 @@ export function NotesTodosSidebar({
   };
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[74px] text-xs text-muted-foreground min-[1200px]:flex overflow-hidden">
+    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-18.5 text-xs text-muted-foreground min-[1200px]:flex overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-foreground/5">
           <button

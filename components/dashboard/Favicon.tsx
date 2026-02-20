@@ -104,7 +104,10 @@ function FaviconInner({
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
-      if (!aborted) setOriginStatus("invalid");
+      if (!aborted) {
+        setOriginStatus("invalid");
+        if (fallbackLevel === "origin") setFallbackLevel("letter");
+      }
     }, 2500); // 2.5s timeout for favicon ping
 
     fetch(originFallbackUrl, {
@@ -118,7 +121,10 @@ function FaviconInner({
       })
       .catch(() => {
         clearTimeout(timeout);
-        if (!aborted) setOriginStatus("invalid");
+        if (!aborted) {
+          setOriginStatus("invalid");
+          if (fallbackLevel === "origin") setFallbackLevel("letter");
+        }
       });
 
     return () => {
@@ -173,11 +179,8 @@ function FaviconInner({
   };
 
   // If origin is determined invalid while we are on it, move to letter
-  useEffect(() => {
-    if (fallbackLevel === "origin" && originStatus === "invalid") {
-      setFallbackLevel("letter");
-    }
-  }, [fallbackLevel, originStatus]);
+  // If origin is determined invalid while we are on it, move to letter
+  // (Handled directly in network/timeout logic to avoid cascading renders)
 
   return (
     <div
