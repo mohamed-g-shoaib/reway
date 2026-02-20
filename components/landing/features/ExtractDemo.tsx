@@ -172,7 +172,7 @@ export function ExtractDemo() {
                       </span>
                     </div>
                     <span className="text-[10px] text-muted-foreground">
-                      {item.date}
+                      {item.group}
                     </span>
                   </div>
                 ))}

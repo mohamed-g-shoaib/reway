@@ -92,7 +92,7 @@ export function ViewModesDemo() {
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
-                    <span>{item.date}</span>
+                    <span>{item.group}</span>
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
@@ -150,7 +150,7 @@ export function ViewModesDemo() {
                     </span>
                   </div>
                   <span className="text-[10px] text-muted-foreground">
-                    {item.date}
+                    {item.group}
                   </span>
                 </div>
               ))}
