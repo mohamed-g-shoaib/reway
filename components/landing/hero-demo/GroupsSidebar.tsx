@@ -12,6 +12,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import type { HeroGroupId, HeroGroup } from "./types";
 
@@ -21,6 +22,7 @@ export function GroupsSidebar({
   creatingGroup,
   newGroupName,
   newGroupIcon,
+  newGroupColor,
   setNewGroupName,
   setNewGroupIcon,
   setNewGroupColor,
@@ -38,6 +40,7 @@ export function GroupsSidebar({
     | typeof BulbIcon
     | typeof ToolsIcon
     | typeof Folder01Icon;
+  newGroupColor: string | null;
   setNewGroupName: (v: string) => void;
   setNewGroupIcon: (
     v: typeof Search01Icon | typeof BulbIcon | typeof ToolsIcon | typeof Folder01Icon,
@@ -54,144 +57,170 @@ export function GroupsSidebar({
     icon as React.ComponentProps<typeof HugeiconsIcon>["icon"];
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[76px] text-xs text-muted-foreground min-[855px]:flex">
-      {heroGroups.map((item) => {
-        const isActive =
-          item.id === activeGroup || (item.id === "all" && activeGroup === "all");
+    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[76px] text-xs text-muted-foreground min-[855px]:flex overflow-hidden">
+      <div className="flex flex-1 flex-col gap-2 overflow-hidden">
+        {heroGroups.map((item) => {
+          const isActive =
+            item.id === activeGroup ||
+            (item.id === "all" && activeGroup === "all");
 
-        return (
-          <div
-            key={item.id}
-            className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
-              isActive
-                ? "text-foreground font-semibold"
-                : "text-muted-foreground hover:text-primary/90"
-            }`}
-          >
-            <button
-              type="button"
-              onClick={() => {
-                if (item.id === "all") {
-                  onSelectGroup("all");
-                  return;
-                }
-                if (
-                  item.id === "Research" ||
-                  item.id === "Inspiration" ||
-                  item.id === "Build" ||
-                  item.id === "Learn"
-                ) {
-                  onSelectGroup(item.id);
-                }
-              }}
-              className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+          return (
+            <div
+              key={item.id}
+              className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+                isActive
+                  ? "text-foreground font-semibold"
+                  : "text-muted-foreground hover:text-primary/90"
+              }`}
             >
-              <span
-                className={`h-px ${
-                  `transition-[width,opacity] duration-200 ease-out ${
-                    isActive
-                      ? "w-12 opacity-80"
-                      : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                  }`
-                } bg-current`}
-              />
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <HugeiconsIcon
-                  icon={heroIcon(item.icon)}
-                  size={16}
-                  strokeWidth={2}
-                  style={{ color: item.color || undefined }}
-                  className={item.color ? "" : "text-muted-foreground"}
+              <button
+                type="button"
+                onClick={() => {
+                  if (item.id === "all") {
+                    onSelectGroup("all");
+                    return;
+                  }
+                  if (
+                    item.id === "Research" ||
+                    item.id === "Inspiration" ||
+                    item.id === "Build" ||
+                    item.id === "Learn"
+                  ) {
+                    onSelectGroup(item.id);
+                  }
+                }}
+                className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
+              >
+                <span
+                  className={`h-px ${
+                    `transition-[width,opacity] duration-200 ease-out ${
+                      isActive
+                        ? "w-12 opacity-80"
+                        : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                    }`
+                  } bg-current`}
                 />
-                <span className="truncate">{item.label}</span>
-              </div>
-            </button>
-          </div>
-        );
-      })}
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <HugeiconsIcon
+                    icon={heroIcon(item.icon)}
+                    size={16}
+                    strokeWidth={2}
+                    style={{ color: item.color || undefined }}
+                    className={item.color ? "" : "text-muted-foreground"}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </div>
+              </button>
+            </div>
+          );
+        })}
+      </div>
 
       <div className="mt-auto pt-3 border-t border-border/40">
         {creatingGroup ? (
           <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNewGroupIcon(Search01Icon);
-                    setNewGroupColor("#3b82f6");
-                  }}
-                  className={`flex h-8 w-8 items-center justify-center rounded-xl bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer ${
-                    newGroupIcon === Search01Icon
-                      ? "ring-2 ring-foreground/40"
-                      : ""
-                  }`}
-                  aria-label="Use Research icon"
-                >
-                  <HugeiconsIcon
-                    icon={Search01Icon}
-                    size={16}
-                    strokeWidth={2}
-                    style={{ color: "#3b82f6" }}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNewGroupIcon(BulbIcon);
-                    setNewGroupColor("#f59e0b");
-                  }}
-                  className={`flex h-8 w-8 items-center justify-center rounded-xl bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer ${
-                    newGroupIcon === BulbIcon
-                      ? "ring-2 ring-foreground/40"
-                      : ""
-                  }`}
-                  aria-label="Use Inspiration icon"
-                >
-                  <HugeiconsIcon
-                    icon={BulbIcon}
-                    size={16}
-                    strokeWidth={2}
-                    style={{ color: "#f59e0b" }}
-                  />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNewGroupIcon(ToolsIcon);
-                    setNewGroupColor("#10b981");
-                  }}
-                  className={`flex h-8 w-8 items-center justify-center rounded-xl bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer ${
-                    newGroupIcon === ToolsIcon
-                      ? "ring-2 ring-foreground/40"
-                      : ""
-                  }`}
-                  aria-label="Use Build icon"
-                >
-                  <HugeiconsIcon
-                    icon={ToolsIcon}
-                    size={16}
-                    strokeWidth={2}
-                    style={{ color: "#10b981" }}
-                  />
-                </button>
-              </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                        newGroupIcon !== Folder01Icon ? "" : ""
+                      }`}
+                      aria-label="Pick group icon"
+                    >
+                      <HugeiconsIcon
+                        icon={newGroupIcon}
+                        size={16}
+                        strokeWidth={2}
+                        style={{ color: newGroupColor || undefined }}
+                        className={newGroupColor ? "" : "text-muted-foreground"}
+                      />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-auto p-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewGroupIcon(Search01Icon);
+                          setNewGroupColor("#3b82f6");
+                        }}
+                        className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                          newGroupIcon === Search01Icon
+                            ? "ring-2 ring-foreground/40"
+                            : ""
+                        }`}
+                        aria-label="Use Research icon"
+                      >
+                        <HugeiconsIcon
+                          icon={Search01Icon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: "#3b82f6" }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewGroupIcon(BulbIcon);
+                          setNewGroupColor("#f59e0b");
+                        }}
+                        className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                          newGroupIcon === BulbIcon
+                            ? "ring-2 ring-foreground/40"
+                            : ""
+                        }`}
+                        aria-label="Use Inspiration icon"
+                      >
+                        <HugeiconsIcon
+                          icon={BulbIcon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: "#f59e0b" }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewGroupIcon(ToolsIcon);
+                          setNewGroupColor("#10b981");
+                        }}
+                        className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                          newGroupIcon === ToolsIcon
+                            ? "ring-2 ring-foreground/40"
+                            : ""
+                        }`}
+                        aria-label="Use Build icon"
+                      >
+                        <HugeiconsIcon
+                          icon={ToolsIcon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: "#10b981" }}
+                        />
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
-              <Input
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="New group"
-                className="h-8 text-sm rounded-xl"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    onCreate();
-                  } else if (e.key === "Escape") {
-                    onCancelCreate();
-                  }
-                }}
-              />
+                <Input
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  placeholder="New group"
+                  className="h-8 text-sm rounded-xl"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      onCreate();
+                    } else if (e.key === "Escape") {
+                      onCancelCreate();
+                    }
+                  }}
+                />
+              </div>
 
               <div className="flex items-center justify-between gap-2">
                 <Button
