@@ -41,50 +41,39 @@ export default function AboutPage() {
               About Reway
             </h1>
             <p className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
-              Reway was built to make saving useful things feel calm again.
+              Reway is an engineering-led workspace built for people who save a lot of links and need them to stay useful.
             </p>
           </header>
 
           <div className="prose prose-stone dark:prose-invert max-w-none space-y-10">
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
-                The problem
+                The Problem
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Most of us save links faster than we can return to them.
-                Bookmarks become a long list, scattered across browsers, chats,
-                and notes. The cost shows up later when you need to find a
-                source, remember why you saved it, or reuse a reference in a new
-                project.
+                Standard browser bookmarks are static, local, and hard to manage. Links are often saved across dozens of tabs, Slack messages, and notes, creating a fragmented search experience that slows down deep work.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                I wanted a place where saved items stay readable and searchable,
-                with enough structure to make the library useful without turning
-                saving into a chore.
+                We built Reway to centralize this knowledge into a single, high-performance system that enriches data automatically.
               </p>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
-                The philosophy
+                The Standards
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Reway is designed around a few simple ideas.
+                Our approach to building Reway is grounded in three principles:
               </p>
               <ul className="text-muted-foreground leading-relaxed">
                 <li>
-                  Saving should be quick, and organizing should be optional.
+                  <strong>Speed first:</strong> Capture must be instant. Navigation must be keyboard-driven.
                 </li>
                 <li>
-                  Context matters. A saved item should keep its title, summary,
-                  and the parts you care about.
+                  <strong>Data ownership:</strong> Your library is yours. We provide clean exports and never sell your data.
                 </li>
                 <li>
-                  Search should work the way you think, even when you do not
-                  remember the exact words.
-                </li>
-                <li>
-                  The interface should stay quiet. The library is the product.
+                  <strong>Zero fluff:</strong> No AI-generated noise. Just the metadata you need to find what you saved.
                 </li>
               </ul>
             </section>
