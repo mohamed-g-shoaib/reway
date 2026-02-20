@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion, type Variants } from "motion/react";
+import { useEffect, useState } from "react";
 
 export function DemoShell({
   children,
@@ -10,6 +11,11 @@ export function DemoShell({
   controls?: React.ReactNode;
 }) {
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const showcaseVariants: Variants = {
     hidden: { opacity: 0 },
@@ -19,13 +25,15 @@ export function DemoShell({
     },
   };
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <motion.div
       className="w-full"
-      initial={shouldReduceMotion ? false : { opacity: 0 }}
-      whileInView={shouldReduceMotion ? undefined : { opacity: 1 }}
+      initial={enableMotion ? { opacity: 0 } : false}
+      whileInView={enableMotion ? { opacity: 1 } : undefined}
       viewport={{ once: true, margin: "-120px" }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      transition={enableMotion ? { duration: 0.35, ease: "easeOut" } : undefined}
     >
       <div className="mb-2 px-2 sm:px-3 text-xs font-medium text-muted-foreground">
         <div className="flex flex-col gap-2 items-center sm:flex-row sm:items-center sm:justify-between">
@@ -43,10 +51,10 @@ export function DemoShell({
       <motion.div
         id="how-it-works"
         className="w-full overflow-hidden rounded-4xl ring-1 ring-foreground/8 bg-card shadow-none isolate"
-        initial={shouldReduceMotion ? false : "hidden"}
-        whileInView={shouldReduceMotion ? undefined : "visible"}
+        initial={enableMotion ? "hidden" : false}
+        whileInView={enableMotion ? "visible" : undefined}
         viewport={{ once: true, margin: "-120px" }}
-        variants={shouldReduceMotion ? undefined : showcaseVariants}
+        variants={enableMotion ? showcaseVariants : undefined}
       >
         {children}
       </motion.div>
