@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import type { DashboardHref } from "@/components/landing/types";
 import RewayLogo from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
+import { useEffect, useState } from "react";
 
 interface LandingNavProps {
   dashboardHref: DashboardHref;
@@ -15,6 +16,11 @@ interface LandingNavProps {
 export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
   const hasScrolled = useScroll(8);
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const headerVariants: Variants = {
     hidden: { opacity: 0, y: -8 },
@@ -25,12 +31,14 @@ export function LandingNav({ dashboardHref, ctaLabel }: LandingNavProps) {
     },
   };
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <motion.header
       className="sticky top-0 z-40 md:top-4"
-      initial={shouldReduceMotion ? false : "hidden"}
-      animate={shouldReduceMotion ? undefined : "visible"}
-      variants={shouldReduceMotion ? undefined : headerVariants}
+      initial={enableMotion ? "hidden" : false}
+      animate={enableMotion ? "visible" : undefined}
+      variants={enableMotion ? headerVariants : undefined}
     >
       <div className="mx-auto flex max-w-350 justify-center px-4 sm:px-6">
         <div

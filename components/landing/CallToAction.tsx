@@ -39,9 +39,14 @@ const itemVariants: Variants = {
 
 export function CallToAction() {
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isPrimaryNavLoading, setIsPrimaryNavLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -54,20 +59,22 @@ export function CallToAction() {
   const primaryHref: DashboardHref = isAuthenticated ? "/dashboard" : "/login";
   const primaryLabel = isAuthenticated ? "Dashboard" : "Get Started";
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <section className="bg-background py-16 sm:py-24">
       <motion.div
         className="mx-auto w-full max-w-350 px-4 sm:px-6"
-        initial={shouldReduceMotion ? false : "hidden"}
-        whileInView={shouldReduceMotion ? undefined : "visible"}
+        initial={enableMotion ? "hidden" : false}
+        whileInView={enableMotion ? "visible" : undefined}
         viewport={{ once: true, margin: "-100px" }}
-        variants={shouldReduceMotion ? undefined : containerVariants}
+        variants={enableMotion ? containerVariants : undefined}
       >
         <div className="relative overflow-hidden rounded-[3rem] ring-1 ring-foreground/8 bg-muted/20 px-6 py-16 shadow-none isolate sm:px-12 sm:py-24">
           <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
             <motion.div
               className="space-y-4"
-              variants={shouldReduceMotion ? undefined : itemVariants}
+              variants={enableMotion ? itemVariants : undefined}
             >
               <h2 className="text-balance text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
                 Organize Your Knowledge
@@ -79,15 +86,13 @@ export function CallToAction() {
 
             <motion.div
               className="flex flex-col items-center gap-4"
-              variants={shouldReduceMotion ? undefined : itemVariants}
+              variants={enableMotion ? itemVariants : undefined}
             >
               <div className="flex flex-col items-center gap-3 sm:flex-row">
                 <motion.div
-                  whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                  whileTap={enableMotion ? { scale: 0.97 } : undefined}
                   transition={
-                    shouldReduceMotion
-                      ? undefined
-                      : { duration: 0.16, ease: "easeOut" }
+                    enableMotion ? { duration: 0.16, ease: "easeOut" } : undefined
                   }
                 >
                   {isAuthenticated ? (

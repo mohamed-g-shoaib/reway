@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { features } from "./features/demo-data";
 import { ExtractDemo } from "./features/ExtractDemo";
@@ -9,6 +10,7 @@ import { ViewModesDemo } from "./features/ViewModesDemo";
 
 export function FeaturesSection() {
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const containerVariants: Variants = {
     hidden: { opacity: 0, y: 12 },
     visible: {
@@ -18,14 +20,20 @@ export function FeaturesSection() {
     },
   };
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <section id="features" className="border-b border-foreground/8 bg-muted/20">
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20"
-        initial={shouldReduceMotion ? false : "hidden"}
-        whileInView={shouldReduceMotion ? undefined : "visible"}
+        initial={enableMotion ? "hidden" : false}
+        whileInView={enableMotion ? "visible" : undefined}
         viewport={{ once: true, margin: "-120px" }}
-        variants={shouldReduceMotion ? undefined : containerVariants}
+        variants={enableMotion ? containerVariants : undefined}
       >
         <div className="text-center">
           <p className="text-xs font-semibold uppercase text-muted-foreground">

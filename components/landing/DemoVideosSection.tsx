@@ -16,10 +16,15 @@ import { cn } from "@/lib/utils";
 export function DemoVideosSection() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const progress = useMotionValue(0);
   const width = useTransform(progress, (v) => `${v}%`);
   const shouldReduceMotion = useReducedMotion();
   const activeIndexRef = useRef(activeIndex);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     activeIndexRef.current = activeIndex;
@@ -44,6 +49,8 @@ export function DemoVideosSection() {
     },
   };
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <section
       id="demo-videos"
@@ -51,10 +58,10 @@ export function DemoVideosSection() {
     >
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-12 px-4 py-20 sm:px-6 lg:py-32"
-        initial={shouldReduceMotion ? false : "hidden"}
-        whileInView={shouldReduceMotion ? undefined : "visible"}
+        initial={enableMotion ? "hidden" : false}
+        whileInView={enableMotion ? "visible" : undefined}
         viewport={{ once: true, margin: "-120px" }}
-        variants={shouldReduceMotion ? undefined : containerVariants}
+        variants={enableMotion ? containerVariants : undefined}
       >
         <div className="flex flex-col gap-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

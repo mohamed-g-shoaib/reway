@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   motion,
   useReducedMotion,
@@ -24,7 +24,12 @@ const installStep = {
 
 export function ExtensionInstallSection() {
   const [isHovered, setIsHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
@@ -35,14 +40,16 @@ export function ExtensionInstallSection() {
     },
   };
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <section id="extension" className="border-b border-foreground/8 bg-muted/20 overflow-hidden">
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-12 px-4 py-20 sm:px-6 lg:py-32"
-        initial={shouldReduceMotion ? false : "hidden"}
-        whileInView={shouldReduceMotion ? undefined : "visible"}
+        initial={enableMotion ? "hidden" : false}
+        whileInView={enableMotion ? "visible" : undefined}
         viewport={{ once: true, margin: "-120px" }}
-        variants={shouldReduceMotion ? undefined : containerVariants}
+        variants={enableMotion ? containerVariants : undefined}
       >
         <div className="flex flex-col gap-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">

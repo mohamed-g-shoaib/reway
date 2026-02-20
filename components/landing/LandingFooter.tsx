@@ -18,9 +18,14 @@ import { useEffect, useMemo, useState } from "react";
 
 export function LandingFooter() {
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isPrimaryNavLoading, setIsPrimaryNavLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -60,13 +65,15 @@ export function LandingFooter() {
     },
   };
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <motion.footer
       className="border-t border-foreground/8 bg-background pt-16 pb-0"
-      initial={shouldReduceMotion ? false : "hidden"}
-      whileInView={shouldReduceMotion ? undefined : "visible"}
+      initial={enableMotion ? "hidden" : false}
+      whileInView={enableMotion ? "visible" : undefined}
       viewport={{ once: true, margin: "-120px" }}
-      variants={shouldReduceMotion ? undefined : footerVariants}
+      variants={enableMotion ? footerVariants : undefined}
     >
       <div className="mx-auto w-full max-w-350 px-4 sm:px-6">
         <div className="grid grid-cols-1 gap-12 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
@@ -226,10 +233,10 @@ export function LandingFooter() {
 
         <motion.div
           className="pb-4 w-full text-muted-foreground/6"
-          initial={shouldReduceMotion ? false : "hidden"}
-          whileInView={shouldReduceMotion ? undefined : "visible"}
+          initial={enableMotion ? "hidden" : false}
+          whileInView={enableMotion ? "visible" : undefined}
           viewport={{ once: true }}
-          variants={shouldReduceMotion ? undefined : signatureVariants}
+          variants={enableMotion ? signatureVariants : undefined}
         >
           <BrandWord className="h-auto w-full select-none" />
         </motion.div>

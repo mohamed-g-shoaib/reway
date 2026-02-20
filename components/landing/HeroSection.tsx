@@ -12,9 +12,14 @@ import { useEffect, useState } from "react";
 
 export function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isPrimaryNavLoading, setIsPrimaryNavLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -36,15 +41,17 @@ export function HeroSection() {
     },
   };
 
+  const enableMotion = mounted && !shouldReduceMotion;
+
   return (
     <section className="border-b border-foreground/8 bg-background">
       <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-20">
         <motion.div
           className="space-y-6 text-center"
-          initial={shouldReduceMotion ? false : "hidden"}
-          whileInView={shouldReduceMotion ? undefined : "visible"}
+          initial={enableMotion ? "hidden" : false}
+          whileInView={enableMotion ? "visible" : undefined}
           viewport={{ once: true, margin: "-120px" }}
-          variants={shouldReduceMotion ? undefined : sectionVariants}
+          variants={enableMotion ? sectionVariants : undefined}
         >
           <h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
             A Calm Home For Everything You Save.
