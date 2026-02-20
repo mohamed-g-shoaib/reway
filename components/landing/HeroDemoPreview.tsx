@@ -239,7 +239,7 @@ export function HeroDemoPreview() {
 
                 <div className="relative w-full" data-onboarding="command-bar">
                   <div
-                    className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1 py-1 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate ${
+                    className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1.5 py-1 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate ${
                       isCommandFocused
                         ? "ring-1 ring-primary/30 after:ring-white/10"
                         : "ring-1 ring-foreground/8 after:ring-white/5"
