@@ -82,7 +82,7 @@ export function BookmarksGrid({
               </div>
             </a>
             <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>{slot.value.date}</span>
+              <span>{slot.value.group}</span>
               <div className="flex items-center gap-1 text-muted-foreground">
                 <button
                   type="button"

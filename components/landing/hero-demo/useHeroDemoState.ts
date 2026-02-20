@@ -32,6 +32,16 @@ const HERO_GROUP_PRESETS: Record<
   Build: { icon: ToolsIcon, color: "#10b981" },
 };
 
+const HERO_DEMO_SEED_TIMESTAMP = "2026-01-01T00:00:00.000Z";
+
+const HERO_DEMO_SEED_GROUP_IDS = new Set<HeroGroupId>([
+  "all",
+  "Research",
+  "Inspiration",
+  "Build",
+  "Learn",
+]);
+
 export function useHeroDemoState() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [activeGroup, setActiveGroup] = useState<HeroGroupId>("all");
@@ -68,6 +78,13 @@ export function useHeroDemoState() {
 
   const [dropdownCreatingGroup, setDropdownCreatingGroup] = useState(false);
   const [dropdownNewGroupName, setDropdownNewGroupName] = useState("");
+  const [dropdownNewGroupIcon, setDropdownNewGroupIcon] = useState<
+    | typeof Search01Icon
+    | typeof BulbIcon
+    | typeof ToolsIcon
+    | typeof Folder01Icon
+  >(Folder01Icon);
+  const [dropdownNewGroupColor, setDropdownNewGroupColor] = useState<string | null>(null);
 
   const [todos, setTodos] = useState<TodoRow[]>(createInitialTodos);
 
@@ -92,18 +109,27 @@ export function useHeroDemoState() {
     if (!name) return;
     const id = makeHeroDemoId();
 
-    setHeroGroups((prev) => [
-      ...prev,
-      {
-        id,
-        label: name,
-        icon: Folder01Icon,
-        color: null,
-      },
-    ]);
+    setHeroGroups((prev) => {
+      const seeded = prev.filter((g) => HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
+      const user = prev.filter((g) => !HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
+      const nextUser = user.length >= 3 ? [...user.slice(1)] : [...user];
+
+      return [
+        ...seeded,
+        ...nextUser,
+        {
+          id,
+          label: name,
+          icon: dropdownNewGroupIcon,
+          color: dropdownNewGroupColor,
+        },
+      ];
+    });
 
     setDropdownCreatingGroup(false);
     setDropdownNewGroupName("");
+    setDropdownNewGroupIcon(Folder01Icon);
+    setDropdownNewGroupColor(null);
     setActiveGroup("all");
   };
 
@@ -113,15 +139,22 @@ export function useHeroDemoState() {
     const id = makeHeroDemoId();
     const preset = HERO_GROUP_PRESETS[name] ?? null;
 
-    setHeroGroups((prev) => [
-      ...prev,
-      {
-        id,
-        label: name,
-        icon: preset?.icon ?? newGroupIcon,
-        color: preset?.color ?? newGroupColor,
-      },
-    ]);
+    setHeroGroups((prev) => {
+      const seeded = prev.filter((g) => HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
+      const user = prev.filter((g) => !HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
+      const nextUser = user.length >= 3 ? [...user.slice(1)] : [...user];
+
+      return [
+        ...seeded,
+        ...nextUser,
+        {
+          id,
+          label: name,
+          icon: preset?.icon ?? newGroupIcon,
+          color: preset?.color ?? newGroupColor,
+        },
+      ];
+    });
 
     setCreatingGroup(false);
     setNewGroupName("");
@@ -140,6 +173,8 @@ export function useHeroDemoState() {
   const cancelCreateHeroGroupFromDropdown = () => {
     setDropdownCreatingGroup(false);
     setDropdownNewGroupName("");
+    setDropdownNewGroupIcon(Folder01Icon);
+    setDropdownNewGroupColor(null);
   };
 
   const submitCommandInput = () => {
@@ -168,18 +203,27 @@ export function useHeroDemoState() {
   }) => {
     const id = makeHeroDemoId();
 
-    setNotes((prev) => [
-      {
-        id,
-        user_id: "hero",
-        text: formData.text,
-        color: formData.color ?? null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        order_index: prev.length,
-      },
-      ...prev,
-    ]);
+    setNotes((prev) => {
+      const seeded = prev.filter((note) => note.created_at === HERO_DEMO_SEED_TIMESTAMP);
+      const user = prev.filter((note) => note.created_at !== HERO_DEMO_SEED_TIMESTAMP);
+
+      const nextUser = user.length >= 3 ? user.slice(1) : user;
+      const created_at = new Date().toISOString();
+
+      return [
+        ...seeded,
+        ...nextUser,
+        {
+          id,
+          user_id: "hero",
+          text: formData.text,
+          color: formData.color ?? null,
+          created_at,
+          updated_at: created_at,
+          order_index: seeded.length + nextUser.length,
+        },
+      ];
+    });
 
     return id;
   };
@@ -217,20 +261,28 @@ export function useHeroDemoState() {
   }) => {
     const id = makeHeroDemoId();
 
-    setTodos((prev) => [
-      {
-        id,
-        user_id: "hero",
-        text: formData.text,
-        priority: formData.priority,
-        completed: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        completed_at: null,
-        order_index: prev.length,
-      },
-      ...prev,
-    ]);
+    setTodos((prev) => {
+      const seeded = prev.filter((todo) => todo.created_at === HERO_DEMO_SEED_TIMESTAMP);
+      const user = prev.filter((todo) => todo.created_at !== HERO_DEMO_SEED_TIMESTAMP);
+      const nextUser = user.length >= 3 ? user.slice(1) : user;
+      const created_at = new Date().toISOString();
+
+      return [
+        ...seeded,
+        ...nextUser,
+        {
+          id,
+          user_id: "hero",
+          text: formData.text,
+          priority: formData.priority,
+          completed: false,
+          created_at,
+          updated_at: created_at,
+          completed_at: null,
+          order_index: seeded.length + nextUser.length,
+        },
+      ];
+    });
 
     return id;
   };
@@ -320,11 +372,16 @@ export function useHeroDemoState() {
     setNewGroupName,
     newGroupIcon,
     setNewGroupIcon,
+    newGroupColor,
     setNewGroupColor,
     dropdownCreatingGroup,
     setDropdownCreatingGroup,
     dropdownNewGroupName,
     setDropdownNewGroupName,
+    dropdownNewGroupIcon,
+    setDropdownNewGroupIcon,
+    dropdownNewGroupColor,
+    setDropdownNewGroupColor,
     activeNotesTodosSection,
     setActiveNotesTodosSection,
     notes,

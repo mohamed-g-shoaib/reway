@@ -1,10 +1,18 @@
 "use client";
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import {
+  Add01Icon,
+  ArrowDown01Icon,
+  BulbIcon,
+  Folder01Icon,
+  Search01Icon,
+  ToolsIcon,
+} from "@hugeicons/core-free-icons";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,8 +28,12 @@ export function GroupsDropdown({
   heroGroups,
   dropdownCreatingGroup,
   dropdownNewGroupName,
+  dropdownNewGroupIcon,
+  dropdownNewGroupColor,
   setDropdownNewGroupName,
   setDropdownCreatingGroup,
+  setDropdownNewGroupIcon,
+  setDropdownNewGroupColor,
   onSelectGroup,
   onCreateGroup,
   onCancelCreate,
@@ -30,8 +42,18 @@ export function GroupsDropdown({
   heroGroups: HeroGroup[];
   dropdownCreatingGroup: boolean;
   dropdownNewGroupName: string;
+  dropdownNewGroupIcon:
+    | typeof Search01Icon
+    | typeof BulbIcon
+    | typeof ToolsIcon
+    | typeof Folder01Icon;
+  dropdownNewGroupColor: string | null;
   setDropdownNewGroupName: (v: string) => void;
   setDropdownCreatingGroup: (v: boolean) => void;
+  setDropdownNewGroupIcon: (
+    v: typeof Search01Icon | typeof BulbIcon | typeof ToolsIcon | typeof Folder01Icon,
+  ) => void;
+  setDropdownNewGroupColor: (v: string | null) => void;
   onSelectGroup: (id: HeroGroupId) => void;
   onCreateGroup: () => void;
   onCancelCreate: () => void;
@@ -86,21 +108,105 @@ export function GroupsDropdown({
         {dropdownCreatingGroup ? (
           <div className="p-2" onMouseDown={(e) => e.preventDefault()}>
             <div className="space-y-2">
-              <Input
-                value={dropdownNewGroupName}
-                onChange={(e) => setDropdownNewGroupName(e.target.value)}
-                placeholder="New group"
-                className="h-8 text-sm rounded-xl"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    onCreateGroup();
-                  } else if (e.key === "Escape") {
-                    onCancelCreate();
-                  }
-                }}
-              />
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0"
+                      aria-label="Pick group icon"
+                    >
+                      <HugeiconsIcon
+                        icon={dropdownNewGroupIcon}
+                        size={16}
+                        strokeWidth={2}
+                        style={{ color: dropdownNewGroupColor || undefined }}
+                        className={dropdownNewGroupColor ? "" : "text-muted-foreground"}
+                      />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-auto p-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDropdownNewGroupIcon(Search01Icon);
+                          setDropdownNewGroupColor("#3b82f6");
+                        }}
+                        className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                          dropdownNewGroupIcon === Search01Icon
+                            ? "ring-2 ring-foreground/40"
+                            : ""
+                        }`}
+                        aria-label="Use Research icon"
+                      >
+                        <HugeiconsIcon
+                          icon={Search01Icon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: "#3b82f6" }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDropdownNewGroupIcon(BulbIcon);
+                          setDropdownNewGroupColor("#f59e0b");
+                        }}
+                        className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                          dropdownNewGroupIcon === BulbIcon
+                            ? "ring-2 ring-foreground/40"
+                            : ""
+                        }`}
+                        aria-label="Use Inspiration icon"
+                      >
+                        <HugeiconsIcon
+                          icon={BulbIcon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: "#f59e0b" }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDropdownNewGroupIcon(ToolsIcon);
+                          setDropdownNewGroupColor("#10b981");
+                        }}
+                        className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
+                          dropdownNewGroupIcon === ToolsIcon
+                            ? "ring-2 ring-foreground/40"
+                            : ""
+                        }`}
+                        aria-label="Use Build icon"
+                      >
+                        <HugeiconsIcon
+                          icon={ToolsIcon}
+                          size={16}
+                          strokeWidth={2}
+                          style={{ color: "#10b981" }}
+                        />
+                      </button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <Input
+                  value={dropdownNewGroupName}
+                  onChange={(e) => setDropdownNewGroupName(e.target.value)}
+                  placeholder="New group"
+                  className="h-8 text-sm rounded-xl"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      onCreateGroup();
+                    } else if (e.key === "Escape") {
+                      onCancelCreate();
+                    }
+                  }}
+                />
+              </div>
 
               <div className="flex items-center justify-between gap-2">
                 <Button

@@ -10,7 +10,7 @@ export function NotesSectionPreview({ notes }: { notes: NoteRow[] }) {
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
+    <div className="flex-1 min-h-0 overflow-hidden">
       {notes.map((note) => (
         <NoteRowItem
           key={note.id}
@@ -42,7 +42,7 @@ export function TodosSectionPreview({
   const [expandedTodoId, setExpandedTodoId] = useState<string | null>(null);
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
+    <div className="flex-1 min-h-0 overflow-hidden">
       {todos.map((todo) => (
         <TodoRowItem
           key={todo.id}

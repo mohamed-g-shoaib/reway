@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import type { NoteRow, TodoRow } from "@/lib/supabase/queries";
 import type { TodoPriority } from "@/components/dashboard/content/notes-todos/types";
-import { NotesSection } from "@/components/dashboard/content/notes-todos/NotesSection";
-import { TodosSection } from "@/components/dashboard/content/notes-todos/TodosSection";
+import { NOTE_COLORS } from "@/components/dashboard/content/notes-todos/config";
+import { NoteCreateCard } from "@/components/dashboard/content/notes-todos/NoteCreateCard";
+import { TodoCreateCard } from "@/components/dashboard/content/notes-todos/TodoCreateCard";
 
 export function NotesTodosSidebar({
   activeNotesTodosSection,
@@ -40,8 +42,44 @@ export function NotesTodosSidebar({
   onSetTodoCompleted: (id: string, completed: boolean) => Promise<void>;
   onSetTodosCompleted: (ids: string[], completed: boolean) => Promise<void>;
 }) {
+  const [creatingNote, setCreatingNote] = useState(false);
+  const [newNoteText, setNewNoteText] = useState("");
+  const [newNoteColor, setNewNoteColor] = useState<string | null>(NOTE_COLORS[5]);
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
+
+  const [creatingTodo, setCreatingTodo] = useState(false);
+  const [newTodoText, setNewTodoText] = useState("");
+  const [newTodoPriority, setNewTodoPriority] = useState<TodoPriority>("medium");
+  const [isCreatingTodo, setIsCreatingTodo] = useState(false);
+
+  const handleCreateNote = async () => {
+    if (!newNoteText.trim()) return;
+    setIsCreatingNote(true);
+    try {
+      await onCreateNote({ text: newNoteText.trim(), color: newNoteColor });
+      setCreatingNote(false);
+      setNewNoteText("");
+      setNewNoteColor(NOTE_COLORS[5]);
+    } finally {
+      setIsCreatingNote(false);
+    }
+  };
+
+  const handleCreateTodo = async () => {
+    if (!newTodoText.trim()) return;
+    setIsCreatingTodo(true);
+    try {
+      await onCreateTodo({ text: newTodoText.trim(), priority: newTodoPriority });
+      setCreatingTodo(false);
+      setNewTodoText("");
+      setNewTodoPriority("medium");
+    } finally {
+      setIsCreatingTodo(false);
+    }
+  };
+
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[74px] text-xs text-muted-foreground min-[1200px]:flex">
+    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[74px] text-xs text-muted-foreground min-[1200px]:flex overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-foreground/5">
           <button
@@ -71,27 +109,39 @@ export function NotesTodosSidebar({
 
       {activeNotesTodosSection === "notes" ? (
         <>
-          <NotesSectionPreview notes={notes} />
-          <NotesSection
-            notes={[]}
-            onCreateNote={onCreateNote}
-            onUpdateNote={onUpdateNote}
-            onDeleteNote={onDeleteNote}
-            onDeleteNotes={onDeleteNotes}
-          />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <NotesSectionPreview notes={notes} />
+          </div>
+          <div className="mt-auto">
+            <NoteCreateCard
+              creating={creatingNote}
+              setCreating={setCreatingNote}
+              text={newNoteText}
+              setText={setNewNoteText}
+              color={newNoteColor}
+              setColor={setNewNoteColor}
+              isCreating={isCreatingNote}
+              onCreate={() => void handleCreateNote()}
+            />
+          </div>
         </>
       ) : (
         <>
-          <TodosSectionPreview todos={todos} />
-          <TodosSection
-            todos={[]}
-            onCreateTodo={onCreateTodo}
-            onUpdateTodo={onUpdateTodo}
-            onDeleteTodo={onDeleteTodo}
-            onDeleteTodos={onDeleteTodos}
-            onSetTodoCompleted={onSetTodoCompleted}
-            onSetTodosCompleted={onSetTodosCompleted}
-          />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <TodosSectionPreview todos={todos} />
+          </div>
+          <div className="mt-auto">
+            <TodoCreateCard
+              creating={creatingTodo}
+              setCreating={setCreatingTodo}
+              text={newTodoText}
+              setText={setNewTodoText}
+              priority={newTodoPriority}
+              setPriority={setNewTodoPriority}
+              isCreating={isCreatingTodo}
+              onCreate={() => void handleCreateTodo()}
+            />
+          </div>
         </>
       )}
     </aside>
