@@ -47,8 +47,8 @@ export function PriorityPicker({
             className={cn(
               "h-6 px-2 text-[11px] rounded-4xl border border-border/60 cursor-pointer",
               active
-                ? "bg-muted/40 text-foreground"
-                : "bg-transparent text-muted-foreground hover:text-primary/90",
+                ? "bg-muted text-foreground"
+                : "bg-muted/60 text-muted-foreground hover:text-primary/90",
             )}
             onClick={() => onChange(p)}
           >
