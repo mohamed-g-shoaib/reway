@@ -238,7 +238,7 @@ export function GroupsDemo() {
             !h.hidden && (
               <motion.div
                 key={h.title}
-                className="absolute flex items-center gap-2 rounded-lg border border-border bg-background/80 backdrop-blur-sm px-3 py-2 shadow-sm"
+                className="absolute flex items-center gap-2 rounded-xl ring-1 ring-foreground/8 bg-background/80 backdrop-blur-sm px-3 py-2"
                 initial={{ opacity: 0, y: -40 }}
                 animate={{
                   x: h.x,
@@ -274,7 +274,7 @@ export function GroupsDemo() {
             return (
               <motion.div
                 key={link.id}
-                className="absolute flex items-center gap-2 rounded-lg border bg-card px-3 py-2 shadow-sm will-change-transform max-w-36"
+                className="absolute flex items-center gap-2 rounded-xl ring-1 ring-foreground/8 bg-muted/30 px-3 py-2 will-change-transform max-w-36"
                 animate={{
                   x: pos?.x ?? 0,
                   y: centeredY,

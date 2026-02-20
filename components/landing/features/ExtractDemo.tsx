@@ -13,13 +13,24 @@ export function ExtractDemo() {
   const shouldReduceMotion = useReducedMotion();
   const typingText = "check: linear.app, vercel.com, and ui.shadcn.com";
 
-  const [phase, setPhase] = useState(shouldReduceMotion ? 2 : 0);
-  const [typedIndex, setTypedIndex] = useState(
-    shouldReduceMotion ? typingText.length : 0,
-  );
+  const [mounted, setMounted] = useState(false);
+
+  const [phase, setPhase] = useState(0);
+  const [typedIndex, setTypedIndex] = useState(0);
 
   useEffect(() => {
-    if (shouldReduceMotion || phase !== 0) return undefined;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (!shouldReduceMotion) return;
+    setPhase(2);
+    setTypedIndex(typingText.length);
+  }, [mounted, shouldReduceMotion, typingText.length]);
+
+  useEffect(() => {
+    if (!mounted || shouldReduceMotion || phase !== 0) return undefined;
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
@@ -41,19 +52,19 @@ export function ExtractDemo() {
       clearTimeout(resetTimer);
       if (intervalId) clearInterval(intervalId);
     };
-  }, [phase, shouldReduceMotion, typingText]);
+  }, [mounted, phase, shouldReduceMotion, typingText]);
 
   useEffect(() => {
-    if (shouldReduceMotion || phase !== 1) return undefined;
+    if (!mounted || shouldReduceMotion || phase !== 1) return undefined;
     const timer = setTimeout(() => setPhase(2), 2600);
     return () => clearTimeout(timer);
-  }, [phase, shouldReduceMotion]);
+  }, [mounted, phase, shouldReduceMotion]);
 
   useEffect(() => {
-    if (shouldReduceMotion || phase !== 2) return undefined;
+    if (!mounted || shouldReduceMotion || phase !== 2) return undefined;
     const timer = setTimeout(() => setPhase(0), 3200);
     return () => clearTimeout(timer);
-  }, [phase, shouldReduceMotion]);
+  }, [mounted, phase, shouldReduceMotion]);
 
   const inputLinks = useMemo(
     () => [
@@ -63,6 +74,8 @@ export function ExtractDemo() {
     ],
     [],
   );
+
+  const enableMotion = mounted && !shouldReduceMotion;
 
   return (
     <div className="w-full">
@@ -86,10 +99,10 @@ export function ExtractDemo() {
               <motion.div
                 key="adding"
                 className="grid gap-1.5"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                initial={enableMotion ? { opacity: 0, y: 8 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+                transition={enableMotion ? { duration: 0.3 } : undefined}
               >
                 {inputLinks.map((link) => (
                   <div
@@ -103,10 +116,10 @@ export function ExtractDemo() {
               <motion.div
                 key="fetching"
                 className="grid gap-1.5"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                initial={enableMotion ? { opacity: 0, y: 8 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+                transition={enableMotion ? { duration: 0.3 } : undefined}
               >
                 {demoLinks.map((item, index) => (
                   <div
@@ -147,10 +160,10 @@ export function ExtractDemo() {
               <motion.div
                 key="results"
                 className="grid gap-1.5"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+                initial={enableMotion ? { opacity: 0, y: 8 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+                transition={enableMotion ? { duration: 0.3 } : undefined}
               >
                 {demoLinks.map((item) => (
                   <div

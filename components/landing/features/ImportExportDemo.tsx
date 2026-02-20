@@ -11,15 +11,28 @@ import {
 
 export function ImportExportDemo() {
   const shouldReduceMotion = useReducedMotion();
-  const [phase, setPhase] = useState(shouldReduceMotion ? 2 : 0);
+  const [mounted, setMounted] = useState(false);
+  const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    if (shouldReduceMotion) return undefined;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (!shouldReduceMotion) return;
+    setPhase(2);
+  }, [mounted, shouldReduceMotion]);
+
+  useEffect(() => {
+    if (!mounted || shouldReduceMotion) return undefined;
     const timer = setInterval(() => {
       setPhase((prev) => (prev + 1) % 3);
     }, 2200);
     return () => clearInterval(timer);
-  }, [shouldReduceMotion]);
+  }, [mounted, shouldReduceMotion]);
+
+  const enableMotion = mounted && !shouldReduceMotion;
 
   return (
     <div className="w-full">
@@ -43,10 +56,10 @@ export function ImportExportDemo() {
               <motion.span
                 key="importing"
                 className="text-[10px] font-medium text-muted-foreground"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+                initial={enableMotion ? { opacity: 0, y: 6 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -6 } : undefined}
+                transition={enableMotion ? { duration: 0.25 } : undefined}
               >
                 Importing...
               </motion.span>
@@ -55,10 +68,10 @@ export function ImportExportDemo() {
               <motion.span
                 key="imported"
                 className="inline-flex items-center gap-1 text-[10px] font-medium text-foreground"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+                initial={enableMotion ? { opacity: 0, y: 6 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -6 } : undefined}
+                transition={enableMotion ? { duration: 0.25 } : undefined}
               >
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} />
                 Done
@@ -84,10 +97,10 @@ export function ImportExportDemo() {
               <motion.span
                 key="exporting"
                 className="text-[10px] font-medium text-muted-foreground"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+                initial={enableMotion ? { opacity: 0, y: 6 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -6 } : undefined}
+                transition={enableMotion ? { duration: 0.25 } : undefined}
               >
                 Exporting...
               </motion.span>
@@ -96,10 +109,10 @@ export function ImportExportDemo() {
               <motion.span
                 key="exported"
                 className="inline-flex items-center gap-1 text-[10px] font-medium text-foreground"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.25 }}
+                initial={enableMotion ? { opacity: 0, y: 6 } : false}
+                animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+                exit={enableMotion ? { opacity: 0, y: -6 } : undefined}
+                transition={enableMotion ? { duration: 0.25 } : undefined}
               >
                 <HugeiconsIcon icon={CheckmarkCircle02Icon} size={12} />
                 Ready

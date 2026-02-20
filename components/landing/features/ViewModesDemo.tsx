@@ -16,14 +16,21 @@ export function ViewModesDemo() {
   const views = ["Card", "List", "Icons", "Folders"];
   const [activeView, setActiveView] = useState(0);
   const shouldReduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (shouldReduceMotion) return undefined;
+    setMounted(true);
+  }, []);
+
+  const enableMotion = mounted && !shouldReduceMotion;
+
+  useEffect(() => {
+    if (!enableMotion) return undefined;
     const timer = setInterval(() => {
       setActiveView((prev) => (prev + 1) % views.length);
     }, 2600);
     return () => clearInterval(timer);
-  }, [shouldReduceMotion, views.length]);
+  }, [enableMotion, views.length]);
 
   return (
     <div className="w-full space-y-3">
@@ -39,9 +46,9 @@ export function ViewModesDemo() {
                 activeView === index ? "opacity-100" : "opacity-0"
               }`}
               style={{
-                transition: shouldReduceMotion
-                  ? "none"
-                  : "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1)",
+                transition: enableMotion
+                  ? "opacity 200ms cubic-bezier(0.16, 1, 0.3, 1)"
+                  : "none",
               }}
             />
             <span
@@ -60,10 +67,10 @@ export function ViewModesDemo() {
             <motion.div
               key="card"
               className="grid grid-cols-2 gap-3 px-1"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+              initial={enableMotion ? { opacity: 0, y: 8 } : false}
+              animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+              exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+              transition={enableMotion ? { duration: 0.3 } : undefined}
             >
               {demoLinks.slice(0, 2).map((item) => (
                 <div
@@ -125,10 +132,10 @@ export function ViewModesDemo() {
             <motion.div
               key="list"
               className="grid gap-2"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+              initial={enableMotion ? { opacity: 0, y: 8 } : false}
+              animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+              exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+              transition={enableMotion ? { duration: 0.3 } : undefined}
             >
               {demoLinks.slice(0, 3).map((item) => (
                 <div
@@ -160,10 +167,10 @@ export function ViewModesDemo() {
             <motion.div
               key="icons"
               className="grid grid-cols-3 gap-2"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+              initial={enableMotion ? { opacity: 0, y: 8 } : false}
+              animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+              exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+              transition={enableMotion ? { duration: 0.3 } : undefined}
             >
               {demoLinks.slice(0, 3).map((item) => (
                 <div
@@ -190,10 +197,10 @@ export function ViewModesDemo() {
             <motion.div
               key="folders"
               className="px-1"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.3 }}
+              initial={enableMotion ? { opacity: 0, y: 8 } : false}
+              animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
+              exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
+              transition={enableMotion ? { duration: 0.3 } : undefined}
             >
               <div className="rounded-2xl ring-1 ring-foreground/8 bg-muted/20 overflow-hidden">
                 <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/30">
