@@ -34,6 +34,7 @@ export function TodoRow({
   onEdit,
   onDelete,
   showActions = true,
+  variant = "app",
 }: {
   todo: TodoRowType;
   expanded: boolean;
@@ -46,9 +47,13 @@ export function TodoRow({
   onEdit: () => void;
   onDelete: () => void;
   showActions?: boolean;
+  variant?: "demo" | "app";
 }) {
   const priority = normalizePriority(todo.priority);
   const pCfg = priorityConfig[priority];
+
+  const checkboxMarginTop = variant === "demo" ? "mt-0" : "mt-[2px]";
+  const priorityMarginTop = variant === "demo" ? "mt-px" : "mt-[4.5px]";
 
   const Row = (
     <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
@@ -109,7 +114,7 @@ export function TodoRow({
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
               onClick={(event) => event.stopPropagation()}
-              className={cn("mt-[0.5px]")}
+              className={cn(checkboxMarginTop)}
             >
               <Checkbox
                 checked={todo.completed}
@@ -120,7 +125,7 @@ export function TodoRow({
               className={cn(
                 "text-xs font-semibold leading-none",
                 pCfg.colorClass,
-                "mt-[2.5px]",
+                priorityMarginTop,
               )}
             >
               {pCfg.letter}
