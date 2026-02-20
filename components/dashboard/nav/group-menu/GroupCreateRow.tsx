@@ -54,7 +54,7 @@ export function GroupCreateRow({
           >
             <button
               type="button"
-              className="flex items-center justify-center h-8 w-8 rounded-xl bg-muted/40 hover:bg-muted/60"
+              className="flex items-center justify-center h-8 w-8 rounded-xl bg-muted/40 hover:bg-muted/60 cursor-pointer"
               aria-label="Select group icon"
             >
               <HugeiconsIcon
