@@ -41,7 +41,7 @@ export default async function TermsPage() {
               Terms of Service
             </h1>
             <p className="text-muted-foreground">
-              Last updated: February 8, 2026
+              Last updated: February 20, 2026
             </p>
           </div>
 
@@ -59,12 +59,10 @@ export default async function TermsPage() {
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
-                2. Description of Service
+                2. Service Description
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Reway is a personal bookmarking and research tool. We provide
-                features for capturing links, extracting metadata, and
-                organizing knowledge in a structured library.
+                Reway is a high-performance bookmarking tool. We provide automated metadata extraction, group-based organization, and keyboard-driven navigation for saved knowledge.
               </p>
             </section>
 

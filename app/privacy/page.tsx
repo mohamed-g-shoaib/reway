@@ -42,31 +42,26 @@ export default async function PrivacyPage() {
               Privacy Policy
             </h1>
             <p className="text-muted-foreground">
-              Last updated: February 8, 2026
+              Last updated: February 20, 2026
             </p>
           </div>
 
           <div className="prose prose-stone dark:prose-invert max-w-none space-y-12">
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
-                1. Data We Collect
+                1. Data Collection
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                We collect information you provide directly to us when you
-                create an account, save bookmarks, or communicate with us. This
-                includes your email address and the URLs you save.
+                Reway collects the email address you provide at signup and the URLs you explicitly save. This data is stored in an encrypted PostgreSQL database via Supabase.
               </p>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold text-foreground">
-                2. How We Use Data
+                2. Data Usage
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                We use your data to provide and improve our services,
-                specifically for extracting metadata from your saved links and
-                organizing your library. We do not sell your personal
-                information to third parties.
+                We use your data solely to provide the bookmarking service. This includes automated metadata extraction (fetching page titles and icons) to enrich your library. We do not sell your personal data or saved links to third parties.
               </p>
             </section>
 
