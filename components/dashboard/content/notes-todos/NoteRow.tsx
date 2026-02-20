@@ -97,7 +97,7 @@ export function NoteRow({
         >
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
-              className={cn("h-2 w-2 rounded-full", "mt-[8px]")}
+              className={cn("h-2 w-2 rounded-full", "mt-[4px]")}
               style={{ backgroundColor: note.color ?? NOTE_COLORS[5] }}
             />
             <span

@@ -2,7 +2,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import type { TodoPriority } from "./types";
+import { priorityConfig } from "./config";
 import { PriorityPicker } from "./pickers";
 
 export function TodoCreateCard({
@@ -24,29 +27,50 @@ export function TodoCreateCard({
   isCreating: boolean;
   onCreate: () => void;
 }) {
+  const priorityLabel = priorityConfig[priority];
+
   return (
     <div className="pt-3 mt-2 border-t border-border/40">
       {creating ? (
         <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
           <div className="space-y-2">
-            <PriorityPicker value={priority} onChange={setPriority} />
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="New todo"
-              className="h-8 text-sm rounded-xl"
-              autoFocus
-              disabled={isCreating}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isCreating) {
-                  onCreate();
-                } else if (e.key === "Escape") {
-                  setCreating(false);
-                  setText("");
-                  setPriority("medium");
-                }
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0"
+                    aria-label="Pick priority"
+                    disabled={isCreating}
+                  >
+                    <span className={cn("text-[11px] font-semibold", priorityLabel.colorClass)}>
+                      {priorityLabel.letter}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto p-3">
+                  <PriorityPicker value={priority} onChange={setPriority} />
+                </PopoverContent>
+              </Popover>
+
+              <Input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="New todo"
+                className="h-8 text-sm rounded-xl"
+                autoFocus
+                disabled={isCreating}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isCreating) {
+                    onCreate();
+                  } else if (e.key === "Escape") {
+                    setCreating(false);
+                    setText("");
+                    setPriority("medium");
+                  }
+                }}
+              />
+            </div>
           </div>
           <div className="flex items-center justify-between gap-2">
             <Button

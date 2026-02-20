@@ -2,6 +2,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { NOTE_COLORS } from "./config";
 import { ColorPicker } from "./pickers";
 
@@ -29,24 +30,43 @@ export function NoteCreateCard({
       {creating ? (
         <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
           <div className="space-y-2">
-            <ColorPicker value={color} onChange={setColor} />
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="New note"
-              className="h-8 text-sm rounded-xl"
-              autoFocus
-              disabled={isCreating}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !isCreating) {
-                  onCreate();
-                } else if (e.key === "Escape") {
-                  setCreating(false);
-                  setText("");
-                  setColor(NOTE_COLORS[5]);
-                }
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0"
+                    aria-label="Pick note color"
+                  >
+                    <span
+                      className="h-2.5 w-2.5 rounded-full ring-1 ring-border/60"
+                      style={{ backgroundColor: color ?? NOTE_COLORS[5] }}
+                    />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto p-3">
+                  <ColorPicker value={color} onChange={setColor} />
+                </PopoverContent>
+              </Popover>
+
+              <Input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="New note"
+                className="h-8 text-sm rounded-xl"
+                autoFocus
+                disabled={isCreating}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isCreating) {
+                    onCreate();
+                  } else if (e.key === "Escape") {
+                    setCreating(false);
+                    setText("");
+                    setColor(NOTE_COLORS[5]);
+                  }
+                }}
+              />
+            </div>
           </div>
           <div className="flex items-center justify-between gap-2">
             <Button
