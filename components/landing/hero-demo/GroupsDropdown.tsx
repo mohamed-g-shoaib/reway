@@ -10,6 +10,8 @@ import {
   ToolsIcon,
 } from "@hugeicons/core-free-icons";
 
+import { useState } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -58,6 +60,8 @@ export function GroupsDropdown({
   onCreateGroup: () => void;
   onCancelCreate: () => void;
 }) {
+  const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -109,7 +113,7 @@ export function GroupsDropdown({
           <div className="p-2" onMouseDown={(e) => e.preventDefault()}>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Popover>
+                <Popover open={iconPopoverOpen} onOpenChange={setIconPopoverOpen}>
                   <PopoverTrigger asChild>
                     <button
                       type="button"
@@ -132,6 +136,7 @@ export function GroupsDropdown({
                         onClick={() => {
                           setDropdownNewGroupIcon(Search01Icon);
                           setDropdownNewGroupColor("#3b82f6");
+                          setIconPopoverOpen(false);
                         }}
                         className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
                           dropdownNewGroupIcon === Search01Icon
@@ -152,6 +157,7 @@ export function GroupsDropdown({
                         onClick={() => {
                           setDropdownNewGroupIcon(BulbIcon);
                           setDropdownNewGroupColor("#f59e0b");
+                          setIconPopoverOpen(false);
                         }}
                         className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
                           dropdownNewGroupIcon === BulbIcon
@@ -172,6 +178,7 @@ export function GroupsDropdown({
                         onClick={() => {
                           setDropdownNewGroupIcon(ToolsIcon);
                           setDropdownNewGroupColor("#10b981");
+                          setIconPopoverOpen(false);
                         }}
                         className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
                           dropdownNewGroupIcon === ToolsIcon

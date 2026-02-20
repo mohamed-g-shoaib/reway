@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
@@ -55,6 +56,8 @@ export function GroupsSidebar({
     icon: HeroGroup["icon"],
   ): React.ComponentProps<typeof HugeiconsIcon>["icon"] =>
     icon as React.ComponentProps<typeof HugeiconsIcon>["icon"];
+
+  const [createIconPopoverOpen, setCreateIconPopoverOpen] = useState(false);
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[76px] text-xs text-muted-foreground min-[855px]:flex overflow-hidden">
@@ -121,7 +124,10 @@ export function GroupsSidebar({
           <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Popover>
+                <Popover
+                  open={createIconPopoverOpen}
+                  onOpenChange={setCreateIconPopoverOpen}
+                >
                   <PopoverTrigger asChild>
                     <button
                       type="button"
@@ -146,6 +152,7 @@ export function GroupsSidebar({
                         onClick={() => {
                           setNewGroupIcon(Search01Icon);
                           setNewGroupColor("#3b82f6");
+                          setCreateIconPopoverOpen(false);
                         }}
                         className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
                           newGroupIcon === Search01Icon
@@ -166,6 +173,7 @@ export function GroupsSidebar({
                         onClick={() => {
                           setNewGroupIcon(BulbIcon);
                           setNewGroupColor("#f59e0b");
+                          setCreateIconPopoverOpen(false);
                         }}
                         className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
                           newGroupIcon === BulbIcon
@@ -186,6 +194,7 @@ export function GroupsSidebar({
                         onClick={() => {
                           setNewGroupIcon(ToolsIcon);
                           setNewGroupColor("#10b981");
+                          setCreateIconPopoverOpen(false);
                         }}
                         className={`flex size-8 shrink-0 aspect-square items-center justify-center rounded-full bg-muted/20 ring-1 ring-foreground/8 hover:bg-muted/30 cursor-pointer p-0 ${
                           newGroupIcon === ToolsIcon
