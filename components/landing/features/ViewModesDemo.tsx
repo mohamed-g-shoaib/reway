@@ -92,28 +92,28 @@ export function ViewModesDemo() {
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
-                    <span>{item.group}</span>
+                    <span className="truncate max-w-[80px] sm:max-w-none">{item.group}</span>
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                        className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-background/60 transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                         aria-label="Copy link"
                       >
-                        <HugeiconsIcon icon={Copy01Icon} size={12} />
+                        <HugeiconsIcon icon={Copy01Icon} size={10} />
                       </button>
                       <button
                         type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                        className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-background/60 transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                         aria-label="Open link"
                       >
-                        <HugeiconsIcon icon={ArrowUpRight03Icon} size={12} />
+                        <HugeiconsIcon icon={ArrowUpRight03Icon} size={10} />
                       </button>
                       <button
                         type="button"
-                        className="flex h-6 w-6 items-center justify-center rounded-lg bg-background/60 text-destructive transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
+                        className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-lg bg-background/60 text-destructive transition-transform duration-200 ease-out active:scale-[0.97] motion-reduce:transition-none"
                         aria-label="Delete link"
                       >
-                        <HugeiconsIcon icon={Delete02Icon} size={12} />
+                        <HugeiconsIcon icon={Delete02Icon} size={10} />
                       </button>
                     </div>
                   </div>
