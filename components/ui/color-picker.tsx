@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Tick01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 type ButtonProps = React.ComponentProps<typeof Button>;
 
@@ -48,12 +50,24 @@ export function ColorPicker({
       </PopoverTrigger>
       <PopoverContent className="w-56 space-y-3" align="start">
         <HexColorPicker color={parsedValue} onChange={onChange} />
-        <Input
-          value={parsedValue}
-          onChange={(event) => onChange(event.currentTarget.value)}
-          maxLength={7}
-          className="h-9 text-xs"
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            value={parsedValue}
+            onChange={(event) => onChange(event.currentTarget.value)}
+            maxLength={7}
+            className="h-9 text-xs"
+          />
+          <Button
+            type="button"
+            size="icon"
+            variant="secondary"
+            className="h-9 w-9 rounded-xl cursor-pointer"
+            aria-label="Save color"
+            onClick={() => setOpen(false)}
+          >
+            <HugeiconsIcon icon={Tick01Icon} size={16} strokeWidth={2} />
+          </Button>
+        </div>
       </PopoverContent>
     </Popover>
   );
