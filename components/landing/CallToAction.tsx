@@ -71,7 +71,7 @@ export function CallToAction() {
         viewport={{ once: true, margin: "-100px" }}
         variants={enableMotion ? containerVariants : undefined}
       >
-        <div className="relative overflow-hidden rounded-[3rem] ring-1 ring-foreground/8 bg-muted/20 px-6 py-16 shadow-none isolate sm:px-12 sm:py-24">
+        <div className="relative overflow-hidden rounded-[3rem] ring-1 ring-foreground/12 bg-muted/25 px-6 py-16 shadow-none isolate sm:px-12 sm:py-24">
           <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-8 text-center">
             <motion.div
               className="space-y-4"
@@ -153,7 +153,7 @@ export function CallToAction() {
                   </Button>
                 </ExtensionInstallDialog>
               </div>
-              <p className="text-xs font-medium text-muted-foreground/60">
+              <p className="text-xs font-medium text-muted-foreground/85">
                 Free to use. No hidden fees.
               </p>
             </motion.div>

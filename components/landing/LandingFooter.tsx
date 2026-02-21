@@ -70,7 +70,7 @@ export function LandingFooter() {
 
   return (
     <motion.footer
-      className="border-t border-foreground/8 bg-background pt-16 pb-0"
+      className="border-t border-foreground/12 bg-background pt-16 pb-0"
       initial={enableMotion ? "hidden" : false}
       whileInView={enableMotion ? "visible" : undefined}
       viewport={{ once: true, margin: "-120px" }}
@@ -225,7 +225,7 @@ export function LandingFooter() {
             </h2>
             <div className="mt-4">
               <ThemeSwitcher />
-              <p className="mt-3 text-xs text-muted-foreground/60 leading-relaxed">
+              <p className="mt-3 text-xs text-muted-foreground/85 leading-relaxed">
                 Toggle between light and dark modes.
               </p>
             </div>

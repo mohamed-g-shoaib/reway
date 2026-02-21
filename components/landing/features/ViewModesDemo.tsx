@@ -100,7 +100,7 @@ export function ViewModesDemo() {
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
-                    <span className="truncate max-w-[80px] sm:max-w-none">
+                    <span className="truncate max-w-20 sm:max-w-none">
                       {item.group}
                     </span>
                     <div className="flex items-center gap-1">
