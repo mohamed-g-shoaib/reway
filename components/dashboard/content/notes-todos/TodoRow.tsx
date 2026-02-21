@@ -52,8 +52,8 @@ export function TodoRow({
   const priority = normalizePriority(todo.priority);
   const pCfg = priorityConfig[priority];
 
-  const checkboxMarginTop = variant === "demo" ? "mt-0" : "mt-[2px]";
-  const priorityMarginTop = variant === "demo" ? "mt-px" : "mt-[4.5px]";
+  const checkboxMarginTop = variant === "demo" ? "mt-[0.5px]" : "mt-[2.7px]";
+  const priorityMarginTop = variant === "demo" ? "mt-[2.5px]" : "mt-[5.5px]";
 
   const Row = (
     <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
