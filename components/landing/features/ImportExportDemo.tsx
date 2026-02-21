@@ -15,13 +15,15 @@ export function ImportExportDemo() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     if (!shouldReduceMotion) return;
-    setPhase(2);
+    const timer = setTimeout(() => setPhase(2), 0);
+    return () => clearTimeout(timer);
   }, [mounted, shouldReduceMotion]);
 
   useEffect(() => {
@@ -89,7 +91,9 @@ export function ImportExportDemo() {
               <div className="text-xs font-semibold text-foreground">
                 Export group
               </div>
-              <div className="text-[10px] text-muted-foreground">Chrome HTML</div>
+              <div className="text-[10px] text-muted-foreground">
+                Chrome HTML
+              </div>
             </div>
           </div>
           <AnimatePresence mode="wait">

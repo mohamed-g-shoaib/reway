@@ -21,7 +21,8 @@ export function FeaturesSection() {
   };
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const enableMotion = mounted && !shouldReduceMotion;
@@ -43,7 +44,8 @@ export function FeaturesSection() {
             Focus On The Link, Not The Management
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">
-            Reway is built for speed. Every interaction is optimized to keep your library clean and your research moving.
+            Reway is built for speed. Every interaction is optimized to keep
+            your library clean and your research moving.
           </p>
         </div>
 
@@ -72,7 +74,6 @@ export function FeaturesSection() {
             </article>
           ))}
         </div>
-
       </motion.div>
     </section>
   );

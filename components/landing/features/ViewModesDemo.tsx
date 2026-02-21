@@ -19,7 +19,8 @@ export function ViewModesDemo() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const enableMotion = mounted && !shouldReduceMotion;
@@ -99,7 +100,9 @@ export function ViewModesDemo() {
                     </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">
-                    <span className="truncate max-w-[80px] sm:max-w-none">{item.group}</span>
+                    <span className="truncate max-w-[80px] sm:max-w-none">
+                      {item.group}
+                    </span>
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
@@ -218,7 +221,9 @@ export function ViewModesDemo() {
                       3
                     </span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">Folders</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    Folders
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 p-2">

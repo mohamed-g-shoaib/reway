@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  motion,
-  useReducedMotion,
-  type Variants,
-} from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Idea01Icon } from "@hugeicons/core-free-icons";
 import { DemoVideo } from "@/components/landing/features/DemoVideo";
-import { EXTENSION_DOWNLOAD_URL, EXTENSION_TUTORIAL_VIDEO_URL } from "@/lib/extension";
+import {
+  EXTENSION_DOWNLOAD_URL,
+  EXTENSION_TUTORIAL_VIDEO_URL,
+} from "@/lib/extension";
 
 const installStep = {
   title: "Install instructions",
@@ -28,7 +27,8 @@ export function ExtensionInstallSection() {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const containerVariants: Variants = {
@@ -43,7 +43,10 @@ export function ExtensionInstallSection() {
   const enableMotion = mounted && !shouldReduceMotion;
 
   return (
-    <section id="extension" className="border-b border-foreground/8 bg-muted/20 overflow-hidden">
+    <section
+      id="extension"
+      className="border-b border-foreground/8 bg-muted/20 overflow-hidden"
+    >
       <motion.div
         className="mx-auto flex w-full max-w-350 flex-col gap-12 px-4 py-20 sm:px-6 lg:py-32"
         initial={enableMotion ? "hidden" : false}
@@ -81,7 +84,8 @@ export function ExtensionInstallSection() {
               ) : (
                 <div className="flex h-full w-full items-center justify-center px-8 text-center">
                   <div className="text-sm text-muted-foreground">
-                    Add your tutorial video URL to show the install walkthrough here.
+                    Add your tutorial video URL to show the install walkthrough
+                    here.
                   </div>
                 </div>
               )}
@@ -95,7 +99,9 @@ export function ExtensionInstallSection() {
                   <span className="flex size-8 items-center justify-center rounded-full bg-foreground text-background">
                     <HugeiconsIcon icon={Idea01Icon} size={16} />
                   </span>
-                  <h3 className="text-lg font-semibold text-foreground">{installStep.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {installStep.title}
+                  </h3>
                 </div>
               </div>
 

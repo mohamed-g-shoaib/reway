@@ -45,7 +45,8 @@ export function CallToAction() {
   const router = useRouter();
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -80,7 +81,9 @@ export function CallToAction() {
                 Organize Your Knowledge
               </h2>
               <p className="mx-auto max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
-                Stop losing links to the void. Reway provides the infrastructure to capture, organize, and retrieve your research at the speed of thought. Join Reway and never lose a link again.
+                Stop losing links to the void. Reway provides the infrastructure
+                to capture, organize, and retrieve your research at the speed of
+                thought. Join Reway and never lose a link again.
               </p>
             </motion.div>
 
@@ -92,7 +95,9 @@ export function CallToAction() {
                 <motion.div
                   whileTap={enableMotion ? { scale: 0.97 } : undefined}
                   transition={
-                    enableMotion ? { duration: 0.16, ease: "easeOut" } : undefined
+                    enableMotion
+                      ? { duration: 0.16, ease: "easeOut" }
+                      : undefined
                   }
                 >
                   {isAuthenticated ? (
@@ -116,7 +121,11 @@ export function CallToAction() {
                       ) : null}
                     </Button>
                   ) : (
-                    <Button asChild size="lg" className="rounded-full px-8 cursor-pointer">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="rounded-full px-8 cursor-pointer"
+                    >
                       <Link href={primaryHref}>
                         {primaryLabel}
                         <HugeiconsIcon

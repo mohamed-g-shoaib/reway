@@ -14,7 +14,8 @@ export function DemoShell({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const showcaseVariants: Variants = {
@@ -33,7 +34,9 @@ export function DemoShell({
       initial={enableMotion ? { opacity: 0 } : false}
       whileInView={enableMotion ? { opacity: 1 } : undefined}
       viewport={{ once: true, margin: "-120px" }}
-      transition={enableMotion ? { duration: 0.35, ease: "easeOut" } : undefined}
+      transition={
+        enableMotion ? { duration: 0.35, ease: "easeOut" } : undefined
+      }
     >
       <div className="mb-2 px-2 sm:px-3 text-xs font-medium text-muted-foreground">
         <div className="flex flex-col gap-2 items-center sm:flex-row sm:items-center sm:justify-between">

@@ -19,14 +19,18 @@ export function ExtractDemo() {
   const [typedIndex, setTypedIndex] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     if (!shouldReduceMotion) return;
-    setPhase(2);
-    setTypedIndex(typingText.length);
+    const timer = setTimeout(() => {
+      setPhase(2);
+      setTypedIndex(typingText.length);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [mounted, shouldReduceMotion, typingText.length]);
 
   useEffect(() => {
