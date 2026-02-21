@@ -19,6 +19,7 @@ interface DemoVideoProps {
   onEnded?: () => void;
   loop?: boolean;
   isHovered?: boolean;
+  blurDataURL?: string;
 }
 
 export function DemoVideo({
@@ -30,6 +31,7 @@ export function DemoVideo({
   onEnded,
   loop = true,
   isHovered: isHoveredExternally,
+  blurDataURL,
 }: DemoVideoProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -41,6 +43,10 @@ export function DemoVideo({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isTouchUI, setIsTouchUI] = useState(false);
   const [showMobileFullscreen, setShowMobileFullscreen] = useState(false);
+
+  // 2-phase loading states
+  const [shouldAttachSource, setShouldAttachSource] = useState(false);
+  const [shouldPlay, setShouldPlay] = useState(false);
 
   const isHovered = isHoveredExternally ?? isHoveredInternally;
 
@@ -75,15 +81,21 @@ export function DemoVideo({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
+        const ratio = entry.intersectionRatio;
+
+        // Near viewport => start network
         if (entry.isIntersecting) {
-          videoRef.current?.play().catch(() => {});
-          setIsPlaying(true);
+          setShouldAttachSource(true);
+        }
+
+        // Mostly visible => eligible to play
+        if (ratio >= 0.5) {
+          setShouldPlay(true);
         } else {
-          videoRef.current?.pause();
-          setIsPlaying(false);
+          setShouldPlay(false);
         }
       },
-      { threshold: 0.5 },
+      { rootMargin: "300px", threshold: [0, 0.1, 0.5] },
     );
 
     if (videoRef.current) {
@@ -92,6 +104,16 @@ export function DemoVideo({
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    if (shouldPlay) {
+      videoRef.current.play().catch(() => {});
+    } else {
+      videoRef.current.pause();
+    }
+  }, [shouldPlay]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -221,11 +243,24 @@ export function DemoVideo({
       onMouseEnter={() => setIsHoveredInternally(true)}
       onMouseLeave={() => setIsHoveredInternally(false)}
     >
+      {/* Instant placeholder (perceived performance) */}
+      {blurDataURL && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={blurDataURL}
+          alt=""
+          aria-hidden
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover scale-110 blur-xl transition-opacity duration-500",
+            isReady ? "opacity-0" : "opacity-100",
+          )}
+        />
+      )}
+
       <video
         ref={videoRef}
-        src={src}
         poster={poster}
-        preload="metadata"
+        preload="none"
         loop={loop}
         muted
         playsInline
@@ -238,7 +273,11 @@ export function DemoVideo({
         onLoadedData={() => setIsReady(true)}
         onCanPlay={() => setIsReady(true)}
         onPlaying={() => setIsReady(true)}
-      />
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+      >
+        {shouldAttachSource && <source src={src} />}
+      </video>
 
       {/* Floating Fullscreen Toggle - Always visible (transparent), highlights on interaction */}
       {hideControls && (
@@ -264,7 +303,10 @@ export function DemoVideo({
             {isFullscreen ? "Exit" : "Fullscreen"}
           </span>
           <div className="flex items-center justify-center">
-            <HugeiconsIcon icon={isFullscreen ? MinimizeScreenIcon : MaximizeScreenIcon} size={16} />
+            <HugeiconsIcon
+              icon={isFullscreen ? MinimizeScreenIcon : MaximizeScreenIcon}
+              size={16}
+            />
           </div>
         </button>
       )}

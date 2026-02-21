@@ -23,7 +23,8 @@ export function DemoVideosSection() {
   const activeIndexRef = useRef(activeIndex);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -92,6 +93,7 @@ export function DemoVideosSection() {
                 >
                   <DemoVideo
                     src={demoVideos[activeIndex].src}
+                    blurDataURL={demoVideos[activeIndex].blurDataURL}
                     className="h-full w-full object-cover"
                     hideControls
                     loop={false}

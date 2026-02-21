@@ -61,6 +61,7 @@ export const demoVideos = [
       "Preserves original source URL",
       "Smart categorization of content",
     ],
+    blurDataURL: undefined,
   },
   {
     title: "Save Links Anywhere",
@@ -73,6 +74,7 @@ export const demoVideos = [
       "One-click browser extension",
       "Seamless clipboard detection",
     ],
+    blurDataURL: undefined,
   },
   {
     title: "Manage Tab Sessions",
@@ -85,6 +87,7 @@ export const demoVideos = [
       "Restore sessions in one click",
       "Memory-efficient tab sleeping",
     ],
+    blurDataURL: undefined,
   },
   {
     title: "X (Twitter) Integration",
@@ -97,5 +100,6 @@ export const demoVideos = [
       "Beautifully formatted tweets",
       "Deep search within saved X links",
     ],
+    blurDataURL: undefined,
   },
 ] as const;
