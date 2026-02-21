@@ -105,7 +105,7 @@ export function HeroDemoPreview() {
   const isDark = hasHydrated && resolvedTheme === "dark";
 
   const demoControls = (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-3">
       <span
         id="hero-demo-theme-label"
         className="text-xs font-medium text-muted-foreground"
@@ -119,7 +119,7 @@ export function HeroDemoPreview() {
         <SelectTrigger
           size="sm"
           aria-labelledby="hero-demo-theme-label"
-          className="h-6 w-37 rounded-lg bg-background/60 px-2 text-[10px] ring-0 after:content-none hover:bg-background/60 dark:hover:bg-background/60 *:data-[slot=select-value]:overflow-visible *:data-[slot=select-value]:line-clamp-none"
+          className="h-6 w-38 rounded-lg bg-background/60 px-2 text-[10px] ring-0 after:content-none hover:bg-background/60 dark:hover:bg-background/60"
         >
           <SelectValue placeholder="Theme" />
         </SelectTrigger>
