@@ -1,38 +1,115 @@
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Database } from "./database.types";
 
-export const DEMO_GROUP = {
-  name: "Getting Started",
-  icon: "ZapIcon", // Default icon
-  color: "#ea8620", // Orange
-};
+export const DEMO_GROUPS = [
+  {
+    name: "Welcome",
+    icon: "ZapIcon",
+    color: "#ea8620", // Orange
+    bookmarks: [
+      {
+        url: "https://www.reway.page/about",
+        title: "About Reway",
+        description: "Learn why Reway was built and the philosophy behind it.",
+        favicon_url: "https://www.reway.page/favicon.ico",
+      },
+      {
+        url: "https://drive.google.com/file/d/10rypTtZMKT_IR53b5cS7epw7acEoC9WW/view?usp=sharing",
+        title: "Download Reway Extension",
+        description: "Our extension enables powerful features.",
+        favicon_url:
+          "https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png",
+      },
+      {
+        url: "https://github.com/mohamed-g-shoaib/reway",
+        title: "Reway Source Code on GitHub",
+        description: "View the source code and contribute to the project.",
+        favicon_url: "https://github.com/favicon.ico",
+      },
+      {
+        url: "https://x.com/devloopsoftware",
+        title: "Follow us on X (Devloop)",
+        description: "Stay updated with Devloop.",
+        favicon_url: "https://x.com/favicon.ico",
+      },
+    ],
+  },
+  {
+    name: "AI",
+    icon: "ai-magic",
+    color: "#7c3aed", // Purple
+    bookmarks: [
+      {
+        url: "https://claude.ai/new",
+        title: "Claude",
+        description: "Anthropic's helpful AI assistant.",
+      },
+      {
+        url: "https://chatgpt.com/",
+        title: "ChatGPT",
+        description: "OpenAI's conversational AI.",
+      },
+      {
+        url: "https://www.kimi.com/",
+        title: "Kimi AI",
+        description: "Moonshot AI's powerful assistant.",
+      },
+    ],
+  },
+  {
+    name: "UI Components",
+    icon: "layout",
+    color: "#0891b2", // Cyan
+    bookmarks: [
+      {
+        url: "https://ui.shadcn.com/",
+        title: "shadcn/ui",
+        description: "Beautifully designed components.",
+      },
+      {
+        url: "https://skiper-ui.com/",
+        title: "Skiper UI",
+        description: "Modern UI components for React.",
+      },
+      {
+        url: "https://pure.kam-ui.com/",
+        title: "Kam UI",
+        description: "Minimalist component library.",
+      },
+      {
+        url: "https://selia.earth/",
+        title: "Selia",
+        description: "Earth-toned UI components.",
+      },
+    ],
+  },
+];
 
-export const DEMO_BOOKMARKS = [
+export const DEMO_NOTES = [
   {
-    url: "https://www.reway.page/about",
-    title: "About Reway",
-    description: "Learn why Reway was built and the philosophy behind it.",
-    favicon_url: "https://www.reway.page/favicon.ico",
+    text: "Don't forget to try all view modes (List, Card, and Folders) to find your favorite setup!",
+    color: "#f59e0b", // Amber
   },
   {
-    url: "https://drive.google.com/file/d/10rypTtZMKT_IR53b5cS7epw7acEoC9WW/view?usp=sharing",
-    title: "Download Reway Extension",
-    description: "Our extension enables powerful features.",
-    favicon_url:
-      "https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png",
+    text: "Did you know that Reway has over 15 themes? You can change them from settings or from the theme icon before your profile picture.",
+    color: "#8b5cf6", // Violet
   },
   {
-    url: "https://github.com/mohamed-g-shoaib/reway",
-    title: "Reway Source Code on GitHub",
-    description: "View the source code and contribute to the project.",
-    favicon_url: "https://github.com/favicon.ico",
+    text: "You can drag and drop bookmarks to organize them, you can also drag and drop groups in the sidebar to reorder them.",
+    color: "#10b981", // Emerald
   },
   {
-    url: "https://x.com/devloopsoftware",
-    title: "Follow us on X (Devloop)",
-    description: "Stay updated with Devloop.",
-    favicon_url: "https://x.com/favicon.ico",
+    text: "Click on a bookmark's icon or name or url to open it, or click on any empty space in the bookmark card to drag and drop it.",
+    color: "#3b82f6", // Blue
   },
+];
+
+export const DEMO_TODOS = [
+  { text: "Add your first bookmark", priority: "high" },
+  { text: "Create a custom group", priority: "medium" },
+  { text: "Import your browser bookmarks", priority: "low" },
+  { text: "Try reordering your groups", priority: "low" },
+  { text: "Try reordering your bookmarks", priority: "low" },
 ];
 
 /**
@@ -60,90 +137,98 @@ export async function seedNewUser(
 
     if (groupsError) throw groupsError;
 
-    let targetGroupId: string | null = null;
     const existingGroups = userGroups || [];
 
-    // Check if the specific demo group already exists (recovery scenario)
-    const existingDemoGroup = existingGroups.find(
-      (g) => g.name === DEMO_GROUP.name,
-    );
-
-    if (existingDemoGroup) {
-      // Edge Case: Logic crashed after creating group but before adding bookmarks
-      // Check if it's empty
-      const { count } = await supabase
-        .from("bookmarks")
-        .select("*", { count: "exact", head: true })
-        .eq("group_id", existingDemoGroup.id);
-
-      if (count === 0) {
-        console.log(
-          `[Seed] Found empty '${DEMO_GROUP.name}' group. Attempting recovery...`,
-        );
-        targetGroupId = existingDemoGroup.id;
-      } else {
-        // Group exists and has content -> Assume fully seeded or user active
-        await supabase.auth.updateUser({ data: { has_seeded: true } });
-        return;
-      }
-    } else if (existingGroups.length > 0) {
-      // User has OTHER groups -> Existing user -> Skip
+    // If they have groups, assume they are already seeded or have their own data
+    if (existingGroups.length > 0) {
       await supabase.auth.updateUser({ data: { has_seeded: true } });
       return;
-    } else {
-      // 3. True New User (No groups) -> Create "Getting Started" group
+    }
+
+    // 3. New User -> Create groups and bookmarks in the specified order
+    for (let i = 0; i < DEMO_GROUPS.length; i++) {
+      const groupData = DEMO_GROUPS[i];
+      if (!groupData) continue;
+
       const { data: newGroup, error: createGroupError } = await supabase
         .from("groups")
         .insert({
-          name: DEMO_GROUP.name,
-          icon: DEMO_GROUP.icon,
-          color: DEMO_GROUP.color,
+          name: groupData.name,
+          icon: groupData.icon,
+          color: groupData.color,
           user_id: userId,
+          order_index: i,
         })
         .select("id")
         .single();
 
       if (createGroupError) {
         // Handle rare race condition
-        if (createGroupError.code === "23505") return;
+        if (createGroupError.code === "23505") continue;
         throw createGroupError;
       }
 
-      if (!newGroup) return;
-      targetGroupId = newGroup.id;
+      if (!newGroup) continue;
+
+      // Add demo bookmarks for this group
+      const bookmarksToInsert = groupData.bookmarks.map((bm, bIndex) => {
+        const normalized = bm.url
+          .replace(/^https?:\/\//, "")
+          .replace(/\/$/, "")
+          .toLowerCase();
+
+        return {
+          url: bm.url,
+          normalized_url: normalized,
+          title: bm.title,
+          description: bm.description || null,
+          favicon_url: ("favicon_url" in bm ? bm.favicon_url : null) as
+            | string
+            | null,
+          group_id: newGroup.id,
+          user_id: userId,
+          status: "ready" as const,
+          order_index: bIndex,
+        };
+      });
+
+      const { error: insertError } = await supabase
+        .from("bookmarks")
+        .insert(bookmarksToInsert);
+
+      if (insertError) throw insertError;
     }
 
-    if (!targetGroupId) return;
+    // 4. Seed Notes
+    const notesToInsert = DEMO_NOTES.map((note, index) => ({
+      text: note.text,
+      color: note.color,
+      user_id: userId,
+      order_index: index,
+    }));
 
-    // 4. Add demo bookmarks using the target group ID
-    const bookmarksToInsert = DEMO_BOOKMARKS.map((bm, index) => {
-      // Normalize URL: remove protocol and trailing slashes for the normalized_url field
-      const normalized = bm.url
-        .replace(/^https?:\/\//, "") // remove protocol
-        .replace(/\/$/, "") // remove trailing slash
-        .toLowerCase(); // lowercase for consistency
+    const { error: notesError } = await supabase
+      .from("notes")
+      .insert(notesToInsert);
 
-      return {
-        url: bm.url,
-        normalized_url: normalized,
-        title: bm.title,
-        description: bm.description,
-        favicon_url: bm.favicon_url,
-        group_id: targetGroupId, // Use the determined ID
-        user_id: userId,
-        status: "ready" as const,
-        order_index: index,
-      };
-    });
+    if (notesError) throw notesError;
 
-    const { error: insertError } = await supabase
-      .from("bookmarks")
-      .insert(bookmarksToInsert);
+    // 5. Seed Todos
+    const todosToInsert = DEMO_TODOS.map((todo, index) => ({
+      text: todo.text,
+      priority: todo.priority as "low" | "medium" | "high",
+      completed: false,
+      user_id: userId,
+      order_index: index,
+    }));
 
-    if (insertError) throw insertError;
+    const { error: todosError } = await supabase
+      .from("todos")
+      .insert(todosToInsert);
 
-    // 5. Final step: Flag the user as seeded in their metadata
-    // This ensures we never run this logic for this user again.
+    if (todosError) throw todosError;
+
+    // 6. Final step: Flag the user as seeded in their metadata
     await supabase.auth.updateUser({
       data: { has_seeded: true },
     });
@@ -151,6 +236,5 @@ export async function seedNewUser(
     console.log(`[Seed] Successfully seeded user ${userId} with demo data.`);
   } catch (error) {
     console.error("[Seed] Failed to seed user:", error);
-    // Note: We don't set the metadata flag on failure, so it can try again next login.
   }
 }
