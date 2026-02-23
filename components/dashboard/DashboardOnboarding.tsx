@@ -220,10 +220,10 @@ function createTour() {
     {
       element: '[data-onboarding="view-mode-controls"]',
       popover: {
-        title: "View modes and themes",
+        title: "View, Layout & Themes",
         description: isMobile
-          ? "Change how you want to see bookmarks (list, cards, icons, folders), quickly switch themes, or manage your notes and to-dos."
-          : "Change how you want to see bookmarks (list, cards, icons, folders), or use this for quick theme change.",
+          ? "Change how you want to see bookmarks (list, cards, folders), quickly switch themes, or manage your notes and to-dos."
+          : "Quickly switch between list, card, or folders view, adjust your layout density (compact or extended), and change themes.",
         side: "bottom",
         align: "end",
         onPrevClick: async () => {

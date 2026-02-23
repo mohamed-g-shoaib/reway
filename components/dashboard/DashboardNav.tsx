@@ -14,6 +14,7 @@ import { ExportSheet } from "./nav/ExportSheet";
 import { DuplicatesSheet } from "./nav/DuplicatesSheet";
 import { NotesTodosSheet } from "./nav/NotesTodosSheet";
 import { ViewModeControls } from "./nav/ViewModeControls";
+import { LayoutControls } from "./nav/LayoutControls";
 import { ThemeControls } from "./nav/ThemeControls";
 import { UserMenu } from "./nav/UserMenu";
 import { GroupMenu } from "./nav/GroupMenu";
@@ -439,6 +440,12 @@ export function DashboardNav({
                 <HugeiconsIcon icon={Note01Icon} size={16} strokeWidth={2} />
               </Button>
               <ViewModeControls viewMode={viewMode} setViewMode={setViewMode} />
+              <div className="hidden md:flex">
+                <LayoutControls
+                  layoutDensity={layoutDensity}
+                  setLayoutDensity={setLayoutDensity}
+                />
+              </div>
               <ThemeControls
                 paletteTheme={paletteTheme}
                 setPaletteTheme={setPaletteTheme}
