@@ -67,14 +67,14 @@ export function DashboardContent({
   initialGroups,
   initialNotes,
   initialTodos,
-  initialViewModeAll = "list",
-  initialViewModeGroups = "list",
+  initialViewModeAll = "folders",
+  initialViewModeGroups = "card",
   initialLayoutDensity = "compact",
   initialRowContent = "date",
   initialCommandMode = "add",
   initialShowNotesTodos = true,
   initialPaletteTheme = "default",
-  initialFolderHeaderTint = "medium",
+  initialFolderHeaderTint = "off",
 }: DashboardContentProps) {
   const dashboard = useDashboardState({
     initialBookmarks,

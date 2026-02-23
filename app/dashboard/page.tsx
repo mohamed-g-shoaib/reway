@@ -25,11 +25,14 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
 
   // Helper to safely parse and validate cookie values
-  const parseViewMode = (value: string | undefined) => {
+  const parseViewMode = (
+    value: string | undefined,
+    defaultValue: "list" | "card" | "folders" = "folders",
+  ) => {
     if (value && ["list", "card", "folders"].includes(value)) {
       return value as "list" | "card" | "folders";
     }
-    return "list";
+    return defaultValue;
   };
 
   const parseRowContent = (value: string | undefined) => {
@@ -67,22 +70,24 @@ export default async function DashboardPage() {
     if (value && ["compact", "extended"].includes(value)) {
       return value as "compact" | "extended";
     }
-    return "compact";
+    return "extended";
   };
 
   const parseFolderHeaderTint = (value: string | undefined) => {
     if (value && ["off", "low", "medium", "high"].includes(value)) {
       return value as "off" | "low" | "medium" | "high";
     }
-    return "medium";
+    return "off";
   };
 
   // Read and validate dashboard preferences from cookies
   const viewModeAll = parseViewMode(
     cookieStore.get("reway.dashboard.viewMode.all")?.value,
+    "folders",
   );
   const viewModeGroups = parseViewMode(
     cookieStore.get("reway.dashboard.viewMode.groups")?.value,
+    "card",
   );
   const rowContent = parseRowContent(
     cookieStore.get("reway.dashboard.rowContent")?.value,
