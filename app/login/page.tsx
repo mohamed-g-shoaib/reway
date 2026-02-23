@@ -13,13 +13,14 @@ export default function LoginPage() {
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <main className="w-full max-w-md">
         <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
-          animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          initial={{ opacity: 0, transform: "translateY(10px)" }}
+          animate={{ opacity: 1, transform: "translateY(0px)" }}
           transition={
             shouldReduceMotion
               ? { duration: 0 }
               : { duration: 0.26, ease: "easeOut" }
           }
+          suppressHydrationWarning
           className="space-y-8"
         >
           <div className="flex flex-col items-center text-center space-y-2">

@@ -27,9 +27,14 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <main className="w-full max-w-3xl">
         <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-          animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
+          initial={{ opacity: 0, transform: "translateY(12px)" }}
+          animate={{ opacity: 1, transform: "translateY(0px)" }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : { duration: 0.28, ease: "easeOut" }
+          }
+          suppressHydrationWarning
           className="space-y-8"
         >
           <div className="flex flex-col items-center text-center space-y-4">
@@ -41,9 +46,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
               />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold">
-                Something went wrong
-              </h1>
+              <h1 className="text-3xl font-bold">Something went wrong</h1>
               <p className="text-muted-foreground">
                 We hit an unexpected error. Try again, or return home.
               </p>
