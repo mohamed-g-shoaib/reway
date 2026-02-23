@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Bookmark01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-
 import { cn } from "@/lib/utils";
 
 interface FaviconProps {
@@ -14,33 +13,21 @@ interface FaviconProps {
   className?: string;
 }
 
-const isProviderFallbackUrl = (src: string): boolean => {
-  try {
-    const parsed = new URL(src);
-    const host = parsed.hostname.toLowerCase();
-    const path = parsed.pathname.toLowerCase();
+// Global cache for origin status to avoid redundant requests across instances
+// and between view mode switches. This persists for the current browser session.
+const originStatusCache: Record<string, "valid" | "invalid"> = {};
 
-    if (host.includes("gstatic.com") && path.includes("/faviconv2")) {
-      return true;
-    }
-
-    if (host.includes("google.com") && path.includes("/s2/favicons")) {
-      return true;
-    }
-
-    return false;
-  } catch {
-    return false;
-  }
-};
-
-// Validate if a URL is safe to use with NextImage
+/**
+ * Validates if a URL is likely a usable image.
+ */
 const isValidImageUrl = (src: string | null | undefined): boolean => {
   if (!src || typeof src !== "string") return false;
   const trimmed = src.trim();
   if (trimmed.length === 0) return false;
-  if (isProviderFallbackUrl(trimmed)) return false;
-  // Reject malformed data URLs (e.g., "data:;base64,=" or empty data)
+
+  // We allow URLs from providers like Google Favicon Service if they are the primary URL.
+  // Rejecting them broke existing user data where these were the only icons available.
+
   if (trimmed.startsWith("data:")) {
     // Valid data URLs should have format: data:[<mediatype>][;base64],<data>
     const dataMatch = trimmed.match(/^data:([^;,]*)(;base64)?,(.+)$/);
@@ -87,100 +74,60 @@ function FaviconInner({
   const [fallbackLevel, setFallbackLevel] = useState<
     "primary" | "origin" | "letter"
   >(initialFallbackLevel);
+
+  // Initialize status from global cache to avoid probes on remount
   const [originStatus, setOriginStatus] = useState<
     "unknown" | "valid" | "invalid"
-  >("unknown");
+  >(domain ? originStatusCache[domain] || "unknown" : "unknown");
 
-  // Determine if we have a valid primary URL
-  const hasValidUrl = isValidImageUrl(url);
   const originFallbackUrl = domain ? `https://${domain}/favicon.ico` : null;
 
-  // Pre-flight origin favicon to avoid 30s+ network hangs
-  useEffect(() => {
-    if (!originFallbackUrl || fallbackLevel !== "origin") return;
-    if (originStatus !== "unknown") return;
-
-    let aborted = false;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => {
-      controller.abort();
-      if (!aborted) {
-        setOriginStatus("invalid");
-        if (fallbackLevel === "origin") setFallbackLevel("letter");
-      }
-    }, 2500); // 2.5s timeout for favicon ping
-
-    fetch(originFallbackUrl, {
-      method: "HEAD",
-      signal: controller.signal,
-      mode: "no-cors",
-    })
-      .then(() => {
-        clearTimeout(timeout);
-        if (!aborted) setOriginStatus("valid");
-      })
-      .catch(() => {
-        clearTimeout(timeout);
-        if (!aborted) {
-          setOriginStatus("invalid");
-          if (fallbackLevel === "origin") setFallbackLevel("letter");
-        }
-      });
-
-    return () => {
-      aborted = true;
-      clearTimeout(timeout);
-      controller.abort();
-    };
-  }, [originFallbackUrl, fallbackLevel, originStatus]);
-
-  // Helper to get initials and colors
-  const getInitial = () => {
-    const firstChar = (domain?.[0] || title?.[0] || "?").toUpperCase();
-    return {
-      char: firstChar,
-      color: "bg-muted/30 text-muted-foreground border-border",
-    };
-  };
-
-  const initials = getInitial();
-
-  // Determine which image URL to show based on current fallback level
-  const getCurrentImageUrl = () => {
-    switch (fallbackLevel) {
-      case "primary":
-        return hasValidUrl ? url : null;
-      case "origin":
-        return originStatus === "valid" ? originFallbackUrl : null;
-      case "letter":
-        return null;
-    }
-  };
-
-  const currentImageUrl = getCurrentImageUrl();
-  const shouldShowImage =
-    fallbackLevel !== "letter" &&
-    (fallbackLevel === "primary"
-      ? currentImageUrl != null
-      : originStatus === "valid");
-
+  /**
+   * Handle image loading errors by falling back to the next level.
+   * If the domain's root favicon fails, we mark it as invalid globally
+   * so other components and future mounts don't even try to load it.
+   */
   const handleImageError = () => {
-    switch (fallbackLevel) {
-      case "primary":
-        setFallbackLevel("origin");
-        break;
-      case "origin":
-        setOriginStatus("invalid");
-        setFallbackLevel("letter");
-        break;
-      default:
-        setFallbackLevel("letter");
+    if (fallbackLevel === "primary") {
+      setFallbackLevel("origin");
+    } else if (fallbackLevel === "origin" && domain) {
+      originStatusCache[domain] = "invalid";
+      setOriginStatus("invalid");
+      setFallbackLevel("letter");
+    } else {
+      setFallbackLevel("letter");
     }
   };
 
-  // If origin is determined invalid while we are on it, move to letter
-  // If origin is determined invalid while we are on it, move to letter
-  // (Handled directly in network/timeout logic to avoid cascading renders)
+  /**
+   * Mark the domain as valid in the global cache when an origin favicon
+   * loads successfully. This prevents re-probing on view switches.
+   */
+  const handleImageLoad = () => {
+    if (fallbackLevel === "origin" && domain) {
+      originStatusCache[domain] = "valid";
+      setOriginStatus("valid");
+    }
+  };
+
+  // Determine initials and colors for fallback
+  const firstChar = (domain?.[0] || title?.[0] || "?").toUpperCase();
+  const initials = {
+    char: firstChar,
+    color: "bg-muted/30 text-muted-foreground border-border",
+  };
+
+  const currentImageUrl =
+    fallbackLevel === "primary"
+      ? url
+      : fallbackLevel === "origin"
+        ? originFallbackUrl
+        : null;
+
+  // We show the image if we are on a valid fallback level and haven't confirmed it's invalid.
+  const shouldTryImage =
+    fallbackLevel !== "letter" &&
+    (fallbackLevel === "primary" || originStatus !== "invalid");
 
   return (
     <div
@@ -200,7 +147,7 @@ function FaviconInner({
           size={20}
           className="text-muted-foreground/20"
         />
-      ) : shouldShowImage && currentImageUrl ? (
+      ) : shouldTryImage && currentImageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           key={currentImageUrl}
@@ -210,6 +157,8 @@ function FaviconInner({
           height={24}
           className="h-6 w-6 rounded-sm object-contain"
           onError={handleImageError}
+          onLoad={handleImageLoad}
+          loading="lazy"
         />
       ) : (
         <span className="text-sm font-bold text-foreground">

@@ -1,10 +1,11 @@
 "use client";
 
 import { Folder01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { AccordionTrigger } from "@/components/ui/accordion";
 import type { GroupRow } from "@/lib/supabase/queries";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { ALL_ICONS_MAP } from "@/lib/hugeicons-list";
 
 interface FolderHeaderProps {
   group: GroupRow;
@@ -21,27 +22,9 @@ export function FolderHeader({
   isSelected,
   onSelect,
 }: FolderHeaderProps) {
-  const [iconsMap, setIconsMap] = useState<Record<string, IconSvgElement> | null>(
-    null,
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    import("@/lib/hugeicons-list")
-      .then((mod) => {
-        if (cancelled) return;
-        setIconsMap(mod.ALL_ICONS_MAP as Record<string, IconSvgElement>);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setIconsMap(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const Icon = group.icon ? (iconsMap?.[group.icon] ?? Folder01Icon) : Folder01Icon;
+  const Icon = group.icon
+    ? (ALL_ICONS_MAP[group.icon] ?? Folder01Icon)
+    : Folder01Icon;
 
   const tintRgb = useMemo(() => {
     const value = group.color?.trim();
@@ -73,13 +56,14 @@ export function FolderHeader({
       return { base: 0.08, hover: 0.12, darkBase: 0.06, darkHover: 0.08 };
     }
     if (tintLevel === "high") {
-      return { base: 0.14, hover: 0.20, darkBase: 0.10, darkHover: 0.12 };
+      return { base: 0.14, hover: 0.2, darkBase: 0.1, darkHover: 0.12 };
     }
-    return { base: 0.11, hover: 0.16, darkBase: 0.08, darkHover: 0.10 };
+    return { base: 0.11, hover: 0.16, darkBase: 0.08, darkHover: 0.1 };
   }, [tintLevel]);
 
   return (
     <AccordionTrigger
+      suppressHydrationWarning
       className={`group relative overflow-hidden flex w-full items-center justify-between gap-3 px-4 py-3 text-left border-0 rounded-t-3xl rounded-b-3xl aria-expanded:rounded-b-none aria-expanded:border-b aria-expanded:border-border/30 hover:no-underline ${
         isSelected ? "ring-1 ring-primary/20" : ""
       }`}
