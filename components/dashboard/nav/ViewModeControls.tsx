@@ -22,8 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface ViewModeControlsProps {
-  viewMode: "list" | "card" | "icon" | "folders";
-  setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
+  viewMode: "list" | "card" | "folders";
+  setViewMode: (value: "list" | "card" | "folders") => void;
 }
 
 export function ViewModeControls({
@@ -35,14 +35,11 @@ export function ViewModeControls({
       ? Menu01Icon
       : viewMode === "card"
         ? SquareIcon
-        : viewMode === "icon"
-          ? CircleIcon
-          : Folder01Icon;
+        : Folder01Icon;
 
   const viewOptions = [
     { value: "list", label: "List", icon: Menu01Icon },
     { value: "card", label: "Card", icon: SquareIcon },
-    { value: "icon", label: "Icon", icon: CircleIcon },
     { value: "folders", label: "Folders", icon: Folder01Icon },
   ] as const;
 

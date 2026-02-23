@@ -34,8 +34,8 @@ interface DashboardContentProps {
   initialGroups: GroupRow[];
   initialNotes: NoteRow[];
   initialTodos: TodoRow[];
-  initialViewModeAll?: "list" | "card" | "icon" | "folders";
-  initialViewModeGroups?: "list" | "card" | "icon" | "folders";
+  initialViewModeAll?: "list" | "card" | "folders";
+  initialViewModeGroups?: "list" | "card" | "folders";
   initialLayoutDensity?: "compact" | "extended";
   initialRowContent?: "date" | "group";
   initialCommandMode?: "add" | "search";
@@ -151,11 +151,7 @@ export function DashboardContent({
 
   useEffect(() => {
     const hasPending = bookmarks.some(
-      (b) =>
-        b?.id &&
-        b?.url &&
-        b.status === "pending" &&
-        !b.last_fetched_at,
+      (b) => b?.id && b?.url && b.status === "pending" && !b.last_fetched_at,
     );
     if (!hasPending) return;
 
@@ -272,7 +268,10 @@ export function DashboardContent({
     });
   const isFilteredSearch = dashboard.deferredSearchQuery.trim().length > 0;
 
-  useGroupShortcuts({ groups: dashboard.groups, setActiveGroupId: dashboard.setActiveGroupId });
+  useGroupShortcuts({
+    groups: dashboard.groups,
+    setActiveGroupId: dashboard.setActiveGroupId,
+  });
 
   const {
     handleGroupCreated,

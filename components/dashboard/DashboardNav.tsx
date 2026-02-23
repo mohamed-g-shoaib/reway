@@ -59,8 +59,8 @@ interface DashboardNavProps {
   setFolderHeaderTint: (value: "off" | "low" | "medium" | "high") => void;
   layoutDensity: "compact" | "extended";
   setLayoutDensity: (value: "compact" | "extended") => void;
-  viewMode: "list" | "card" | "icon" | "folders";
-  setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
+  viewMode: "list" | "card" | "folders";
+  setViewMode: (value: "list" | "card" | "folders") => void;
   exportGroupOptions: string[];
   importPreview: {
     groups: { name: string; count: number; duplicateCount?: number }[];

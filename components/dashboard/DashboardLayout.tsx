@@ -126,7 +126,9 @@ export function DashboardLayout({
   todos: TodoRow[];
   user: User;
   folderHeaderTint: "off" | "low" | "medium" | "high";
-  setFolderHeaderTint: Dispatch<SetStateAction<"off" | "low" | "medium" | "high">>;
+  setFolderHeaderTint: Dispatch<
+    SetStateAction<"off" | "low" | "medium" | "high">
+  >;
   activeGroupId: string;
   setActiveGroupId: Dispatch<SetStateAction<string>>;
   groupCounts: Record<string, number>;
@@ -159,8 +161,8 @@ export function DashboardLayout({
   paletteTheme: DashboardPaletteTheme;
   setPaletteTheme: Dispatch<SetStateAction<DashboardPaletteTheme>>;
   setLayoutDensity: Dispatch<SetStateAction<"compact" | "extended">>;
-  viewMode: "list" | "card" | "icon" | "folders";
-  setViewMode: (value: "list" | "card" | "icon" | "folders") => void;
+  viewMode: "list" | "card" | "folders";
+  setViewMode: (value: "list" | "card" | "folders") => void;
   exportGroupOptions: string[];
   handleGroupCreated: (
     id: string,
@@ -211,7 +213,7 @@ export function DashboardLayout({
   keyboardContext: "folder" | "bookmark";
   isMac: boolean;
   filteredBookmarks: BookmarkRow[];
-  nonFolderViewMode: "list" | "card" | "icon";
+  nonFolderViewMode: "list" | "card";
   selectionMode: boolean;
   selectedIds: Set<string>;
   handleToggleSelection: (id: string) => void;
@@ -372,7 +374,6 @@ export function DashboardLayout({
               onExportBookmarks={handleExportBookmarks}
               onResetExport={resetExportProgress}
               onRemoveBookmarks={handleOptimisticRemoveBookmarks}
-
               onCreateNote={handleCreateNote}
               onUpdateNote={handleUpdateNote}
               onDeleteNote={handleDeleteNote}

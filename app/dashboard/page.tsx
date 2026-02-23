@@ -26,8 +26,8 @@ export default async function DashboardPage() {
 
   // Helper to safely parse and validate cookie values
   const parseViewMode = (value: string | undefined) => {
-    if (value && ["list", "card", "icon", "folders"].includes(value)) {
-      return value as "list" | "card" | "icon" | "folders";
+    if (value && ["list", "card", "folders"].includes(value)) {
+      return value as "list" | "card" | "folders";
     }
     return "list";
   };

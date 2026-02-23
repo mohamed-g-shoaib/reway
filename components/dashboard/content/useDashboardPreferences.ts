@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { migrateLocalStorageToCookies, setPreferenceCookie } from "@/lib/cookies";
+import {
+  migrateLocalStorageToCookies,
+  setPreferenceCookie,
+} from "@/lib/cookies";
 import {
   type DashboardPaletteTheme,
   DASHBOARD_THEMES,
@@ -18,8 +21,8 @@ export function useDashboardPreferences({
   paletteTheme,
   folderHeaderTint,
 }: {
-  viewModeAll: "list" | "card" | "icon" | "folders";
-  viewModeGroups: "list" | "card" | "icon" | "folders";
+  viewModeAll: "list" | "card" | "folders";
+  viewModeGroups: "list" | "card" | "folders";
   rowContent: "date" | "group";
   showNotesTodos: boolean;
   layoutDensity: "compact" | "extended";

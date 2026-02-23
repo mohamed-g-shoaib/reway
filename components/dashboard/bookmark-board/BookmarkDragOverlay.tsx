@@ -6,7 +6,7 @@ import type { BookmarkRow } from "@/lib/supabase/queries";
 
 interface BookmarkDragOverlayProps {
   activeBookmark: BookmarkRow | null;
-  viewMode: "list" | "card" | "icon";
+  viewMode: "list" | "card";
 }
 
 export function BookmarkDragOverlay({
@@ -31,9 +31,7 @@ export function BookmarkDragOverlay({
             <p className="truncate text-sm font-bold text-foreground">
               {activeBookmark.title}
             </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {domain}
-            </p>
+            <p className="truncate text-xs text-muted-foreground">{domain}</p>
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
@@ -41,22 +39,6 @@ export function BookmarkDragOverlay({
             month: "short",
             day: "numeric",
           })}
-        </p>
-      </div>
-    );
-  }
-
-  if (viewMode === "icon") {
-    return (
-      <div className="relative flex flex-col items-center gap-3 rounded-2xl bg-background/95 ring-1 ring-foreground/8 p-4 text-center after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate overflow-hidden">
-        <Favicon
-          url={activeBookmark.favicon_url || ""}
-          domain={domain}
-          title={activeBookmark.title || ""}
-          className="size-12"
-        />
-        <p className="truncate text-xs font-semibold text-foreground w-full">
-          {activeBookmark.title}
         </p>
       </div>
     );

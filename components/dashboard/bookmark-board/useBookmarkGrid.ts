@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 interface UseBookmarkGridOptions {
-  viewMode: "list" | "card" | "icon";
+  viewMode: "list" | "card";
   isGridView: boolean;
   minItemWidth?: number;
   boardRef: React.RefObject<HTMLDivElement | null>;

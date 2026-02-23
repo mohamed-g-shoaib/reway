@@ -25,7 +25,6 @@ import {
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { SortableBookmark } from "./SortableBookmark";
 import { SortableBookmarkCard } from "./SortableBookmarkCard";
-import { SortableBookmarkIcon } from "./SortableBookmarkIcon";
 import { createPortal } from "react-dom";
 import { BookmarkDragOverlay } from "./bookmark-board/BookmarkDragOverlay";
 import { EmptyState } from "./bookmark-board/EmptyState";
@@ -62,7 +61,7 @@ interface BookmarkBoardProps {
     },
   ) => Promise<void>;
   rowContent: "date" | "group";
-  viewMode: "list" | "card" | "icon";
+  viewMode: "list" | "card";
   layoutDensity?: "compact" | "extended";
   selectionMode?: boolean;
   selectedIds?: Set<string>;
@@ -333,40 +332,6 @@ export const BookmarkBoard = memo(function BookmarkBoard({
                       }
                     }}
                     rowContent={rowContent}
-                    {...bookmark}
-                  />
-                );
-              }
-
-              if (viewMode === "icon") {
-                return (
-                  <SortableBookmarkIcon
-                    key={bookmark.id}
-                    isSelected={clampedSelectedIndex === index}
-                    selectionMode={selectionMode}
-                    isSelectionChecked={stableSelectedIds.has(bookmark.id)}
-                    onToggleSelection={onToggleSelection}
-                    onEnterSelectionMode={onEnterSelectionMode}
-                    dragDimmed={
-                      Boolean(isGroupRestrictedDragActive) &&
-                      Boolean(activeBookmarkGroupId) &&
-                      bookmark.groupId !== activeBookmarkGroupId
-                    }
-                    onDelete={onDeleteBookmark}
-                    onEdit={(id: string) => {
-                      const target = bookmarks.find((bm) => bm.id === id);
-                      if (target) {
-                        setEditSheetBookmark(target);
-                        setIsEditSheetOpen(true);
-                      }
-                    }}
-                    onPreview={(id: string) => {
-                      const b = bookmarks.find((bm) => bm.id === id);
-                      if (b) {
-                        setPreviewBookmark(b);
-                        setIsPreviewOpen(true);
-                      }
-                    }}
                     {...bookmark}
                   />
                 );

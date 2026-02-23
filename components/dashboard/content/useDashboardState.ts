@@ -1,7 +1,18 @@
 "use client";
 
-import { useCallback, useDeferredValue, useEffect, useRef, useState } from "react";
-import type { BookmarkRow, GroupRow, NoteRow, TodoRow } from "@/lib/supabase/queries";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import type {
+  BookmarkRow,
+  GroupRow,
+  NoteRow,
+  TodoRow,
+} from "@/lib/supabase/queries";
 import type { DashboardPaletteTheme } from "@/lib/themes";
 
 export function useDashboardState({
@@ -22,8 +33,8 @@ export function useDashboardState({
   initialGroups: GroupRow[];
   initialNotes: NoteRow[];
   initialTodos: TodoRow[];
-  initialViewModeAll: "list" | "card" | "icon" | "folders";
-  initialViewModeGroups: "list" | "card" | "icon" | "folders";
+  initialViewModeAll: "list" | "card" | "folders";
+  initialViewModeGroups: "list" | "card" | "folders";
   initialLayoutDensity: "compact" | "extended";
   initialRowContent: "date" | "group";
   initialCommandMode: "add" | "search";
@@ -38,7 +49,9 @@ export function useDashboardState({
 
   const [activeGroupId, setActiveGroupId] = useState<string>("all");
 
-  const [rowContent, setRowContent] = useState<"date" | "group">(initialRowContent);
+  const [rowContent, setRowContent] = useState<"date" | "group">(
+    initialRowContent,
+  );
   const [showNotesTodos, setShowNotesTodos] = useState<boolean>(
     initialShowNotesTodos,
   );
@@ -46,11 +59,11 @@ export function useDashboardState({
     initialLayoutDensity,
   );
 
-  const [viewModeAll, setViewModeAll] = useState<
-    "list" | "card" | "icon" | "folders"
-  >(initialViewModeAll);
+  const [viewModeAll, setViewModeAll] = useState<"list" | "card" | "folders">(
+    initialViewModeAll,
+  );
   const [viewModeGroups, setViewModeGroups] = useState<
-    "list" | "card" | "icon" | "folders"
+    "list" | "card" | "folders"
   >(initialViewModeGroups);
 
   const [keyboardContext, setKeyboardContext] = useState<"folder" | "bookmark">(
@@ -66,9 +79,8 @@ export function useDashboardState({
   const [commandMode, setCommandMode] = useState<"add" | "search">(
     initialCommandMode,
   );
-  const [paletteTheme, setPaletteTheme] = useState<DashboardPaletteTheme>(
-    initialPaletteTheme,
-  );
+  const [paletteTheme, setPaletteTheme] =
+    useState<DashboardPaletteTheme>(initialPaletteTheme);
 
   const [folderHeaderTint, setFolderHeaderTint] = useState<
     "off" | "low" | "medium" | "high"
@@ -76,7 +88,7 @@ export function useDashboardState({
 
   const viewMode = activeGroupId === "all" ? viewModeAll : viewModeGroups;
   const setViewMode = useCallback(
-    (value: "list" | "card" | "icon" | "folders") => {
+    (value: "list" | "card" | "folders") => {
       if (activeGroupId === "all") {
         setViewModeAll(value);
       } else {
@@ -100,27 +112,38 @@ export function useDashboardState({
   const [newGroupColor, setNewGroupColor] = useState<string | null>("#6366f1");
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
 
-  const lastDeletedRef = useRef<{ bookmark: BookmarkRow; index: number } | null>(
-    null,
-  );
+  const lastDeletedRef = useRef<{
+    bookmark: BookmarkRow;
+    index: number;
+  } | null>(null);
   const lastDeletedGroupRef = useRef<GroupRow | null>(null);
   const lastDeletedGroupBookmarksRef = useRef<BookmarkRow[]>([]);
   const lastBulkDeletedRef = useRef<{ bookmark: BookmarkRow; index: number }[]>(
     [],
   );
 
-  const lastDeletedNoteRef = useRef<{ note: NoteRow; index: number } | null>(null);
-  const lastBulkDeletedNotesRef = useRef<{ note: NoteRow; index: number }[]>([]);
+  const lastDeletedNoteRef = useRef<{ note: NoteRow; index: number } | null>(
+    null,
+  );
+  const lastBulkDeletedNotesRef = useRef<{ note: NoteRow; index: number }[]>(
+    [],
+  );
 
-  const lastDeletedTodoRef = useRef<{ todo: TodoRow; index: number } | null>(null);
-  const lastBulkDeletedTodosRef = useRef<{ todo: TodoRow; index: number }[]>([]);
+  const lastDeletedTodoRef = useRef<{ todo: TodoRow; index: number } | null>(
+    null,
+  );
+  const lastBulkDeletedTodosRef = useRef<{ todo: TodoRow; index: number }[]>(
+    [],
+  );
 
   const sortBookmarks = useCallback((items: BookmarkRow[]) => {
     return items.toSorted((a, b) => {
       const aOrder = a.order_index ?? Number.POSITIVE_INFINITY;
       const bOrder = b.order_index ?? Number.POSITIVE_INFINITY;
       if (aOrder !== bOrder) return aOrder - bOrder;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
     });
   }, []);
 
