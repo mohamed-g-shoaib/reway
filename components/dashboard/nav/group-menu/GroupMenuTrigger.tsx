@@ -18,6 +18,7 @@ export const GroupMenuTrigger = React.forwardRef<
       ref={ref}
       variant="ghost"
       data-onboarding="groups-mobile"
+      suppressHydrationWarning
       className={`h-9 gap-1.5 px-1.5 rounded-xl text-[13px] font-bold hover:bg-muted/50 transition-transform duration-150 active:scale-[0.98]${
         className ? ` ${className}` : ""
       }`}

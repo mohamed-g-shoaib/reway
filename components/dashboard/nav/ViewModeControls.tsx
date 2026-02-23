@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  CircleIcon,
   Folder01Icon,
   Menu01Icon,
   SquareIcon,
@@ -38,9 +37,9 @@ export function ViewModeControls({
         : Folder01Icon;
 
   const viewOptions = [
+    { value: "folders", label: "Folders", icon: Folder01Icon },
     { value: "list", label: "List", icon: Menu01Icon },
     { value: "card", label: "Card", icon: SquareIcon },
-    { value: "folders", label: "Folders", icon: Folder01Icon },
   ] as const;
 
   return (
@@ -57,6 +56,7 @@ export function ViewModeControls({
                     variant="ghost"
                     size="icon"
                     data-onboarding="view-mode"
+                    suppressHydrationWarning
                     className="size-8 rounded-full transition-transform duration-150 hover:bg-muted/50 active:scale-[0.97] motion-reduce:transition-none cursor-pointer"
                     aria-label="Change view mode"
                   >
@@ -83,6 +83,7 @@ export function ViewModeControls({
             {viewOptions.map((option) => (
               <DropdownMenuItem
                 key={option.value}
+                suppressHydrationWarning
                 className={`rounded-lg flex items-center gap-2 cursor-pointer ${
                   viewMode === option.value
                     ? "bg-muted text-foreground font-medium"
