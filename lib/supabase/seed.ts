@@ -52,24 +52,35 @@ export const DEMO_GROUPS = [
       {
         url: "https://www.kimi.com/",
         title: "Kimi AI",
-        description: "Moonshot AI's powerful assistant.",
+        description: "Visual Coding Meets Agent Swarm.",
+      },
+      {
+        url: "https://chat.deepseek.com/",
+        title: "DeepSeek",
+        description: "Into the Unknown.",
+      },
+      {
+        url: "https://www.perplexity.ai/",
+        title: "Perplexity",
+        description:
+          "AI-powered answer engine that provides accurate, trusted, and real-time answers to any question.",
       },
     ],
   },
   {
-    name: "UI Components",
+    name: "UI",
     icon: "layout",
     color: "#0891b2", // Cyan
     bookmarks: [
       {
         url: "https://ui.shadcn.com/",
         title: "shadcn/ui",
-        description: "Beautifully designed components.",
+        description: "The Foundation for your Design System.",
       },
       {
         url: "https://skiper-ui.com/",
         title: "Skiper UI",
-        description: "Modern UI components for React.",
+        description: "Un-common Components for shadcn/ui.",
       },
       {
         url: "https://pure.kam-ui.com/",
@@ -77,9 +88,15 @@ export const DEMO_GROUPS = [
         description: "Minimalist component library.",
       },
       {
-        url: "https://selia.earth/",
-        title: "Selia",
-        description: "Earth-toned UI components.",
+        url: "https://www.smoothui.dev/",
+        title: "Smooth UI",
+        description:
+          "Animated React Components for shadcn/ui | Motion & Tailwind.",
+      },
+      {
+        url: "https://mapcn.vercel.app/",
+        title: "Mapcn",
+        description: "Beautiful maps made simple.",
       },
     ],
   },
