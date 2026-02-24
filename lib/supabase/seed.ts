@@ -1,5 +1,7 @@
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Database } from "./database.types";
+import { normalizeUrl } from "@/lib/metadata";
+import { getDomain } from "@/lib/utils";
 
 export const DEMO_GROUPS = [
   {
@@ -189,14 +191,13 @@ export async function seedNewUser(
 
       // Add demo bookmarks for this group
       const bookmarksToInsert = groupData.bookmarks.map((bm, bIndex) => {
-        const normalized = bm.url
-          .replace(/^https?:\/\//, "")
-          .replace(/\/$/, "")
-          .toLowerCase();
+        const normalized = normalizeUrl(bm.url);
+        const domain = getDomain(normalized);
 
         return {
           url: bm.url,
           normalized_url: normalized,
+          domain,
           title: bm.title,
           description: bm.description || null,
           favicon_url: ("favicon_url" in bm ? bm.favicon_url : null) as
