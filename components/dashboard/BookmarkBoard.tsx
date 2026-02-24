@@ -31,7 +31,7 @@ import { EmptyState } from "./bookmark-board/EmptyState";
 import { useBookmarkGrid } from "./bookmark-board/useBookmarkGrid";
 import { useBookmarkKeyboardNav } from "./bookmark-board/useBookmarkKeyboardNav";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
-import { getDomain } from "@/lib/utils";
+import { getDisplayTitle, getDomain } from "@/lib/utils";
 import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { BookmarkEditSheet } from "./BookmarkEditSheet";
 import { useIsMac } from "@/hooks/useIsMac";
@@ -147,7 +147,12 @@ export const BookmarkBoard = memo(function BookmarkBoard({
   const renderedDisplayBookmarks = useMemo(() => {
     return renderedBookmarks.map((b) => ({
       id: b.id,
-      title: b.title,
+      title: getDisplayTitle({
+        title: b.title,
+        url: b.url,
+        normalizedUrl: b.normalized_url,
+        domain: getDomain(b.url),
+      }),
       url: b.url,
       image_url: b.image_url || undefined,
       og_image_url: b.og_image_url || undefined,

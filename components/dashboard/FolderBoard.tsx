@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { BookmarkRow, GroupRow } from "@/lib/supabase/queries";
 import { SortableBookmarkIcon } from "./SortableBookmarkIcon";
-import { getDomain } from "@/lib/utils";
+import { getDisplayTitle, getDomain } from "@/lib/utils";
 import { QuickGlanceDialog } from "./QuickGlanceDialog";
 import { BookmarkEditSheet } from "./BookmarkEditSheet";
 import { FolderHeader } from "./folder-board/FolderHeader";
@@ -315,7 +315,12 @@ export const FolderBoard = memo(function FolderBoard({
                                 <SortableBookmarkIcon
                                   key={bookmark.id}
                                   id={bookmark.id}
-                                  title={bookmark.title}
+                                  title={getDisplayTitle({
+                                    title: bookmark.title,
+                                    url: bookmark.url,
+                                    normalizedUrl: bookmark.normalized_url,
+                                    domain: getDomain(bookmark.url),
+                                  })}
                                   url={bookmark.url}
                                   domain={getDomain(bookmark.url)}
                                   favicon={bookmark.favicon_url || ""}

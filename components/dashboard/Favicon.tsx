@@ -44,9 +44,9 @@ export function Favicon({
   className,
 }: FaviconProps) {
   const hasValidUrl = isValidImageUrl(url);
-  const initialFallbackLevel: "primary" | "origin" | "letter" = hasValidUrl
-    ? "primary"
-    : "origin";
+  const originKnownInvalid = domain ? originStatusCache[domain] === "invalid" : false;
+  const initialFallbackLevel: "primary" | "origin" | "service" | "letter" =
+    hasValidUrl ? "primary" : originKnownInvalid ? "service" : "origin";
 
   return (
     <FaviconInner
@@ -69,10 +69,10 @@ function FaviconInner({
   className,
   initialFallbackLevel,
 }: FaviconProps & {
-  initialFallbackLevel: "primary" | "origin" | "letter";
+  initialFallbackLevel: "primary" | "origin" | "service" | "letter";
 }) {
   const [fallbackLevel, setFallbackLevel] = useState<
-    "primary" | "origin" | "letter"
+    "primary" | "origin" | "service" | "letter"
   >(initialFallbackLevel);
 
   // Initialize status from global cache to avoid probes on remount
@@ -81,6 +81,9 @@ function FaviconInner({
   >(domain ? originStatusCache[domain] || "unknown" : "unknown");
 
   const originFallbackUrl = domain ? `https://${domain}/favicon.ico` : null;
+  const serviceFallbackUrl = domain
+    ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`
+    : null;
 
   /**
    * Handle image loading errors by falling back to the next level.
@@ -93,6 +96,8 @@ function FaviconInner({
     } else if (fallbackLevel === "origin" && domain) {
       originStatusCache[domain] = "invalid";
       setOriginStatus("invalid");
+      setFallbackLevel("service");
+    } else if (fallbackLevel === "service") {
       setFallbackLevel("letter");
     } else {
       setFallbackLevel("letter");
@@ -122,12 +127,16 @@ function FaviconInner({
       ? url
       : fallbackLevel === "origin"
         ? originFallbackUrl
+        : fallbackLevel === "service"
+          ? serviceFallbackUrl
         : null;
 
   // We show the image if we are on a valid fallback level and haven't confirmed it's invalid.
   const shouldTryImage =
     fallbackLevel !== "letter" &&
-    (fallbackLevel === "primary" || originStatus !== "invalid");
+    (fallbackLevel === "primary" ||
+      fallbackLevel === "service" ||
+      originStatus !== "invalid");
 
   return (
     <div

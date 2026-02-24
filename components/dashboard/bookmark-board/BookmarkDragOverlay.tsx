@@ -1,7 +1,7 @@
 "use client";
 
 import { Favicon } from "../Favicon";
-import { getDomain } from "@/lib/utils";
+import { getDisplayTitle, getDomain } from "@/lib/utils";
 import type { BookmarkRow } from "@/lib/supabase/queries";
 
 interface BookmarkDragOverlayProps {
@@ -16,6 +16,12 @@ export function BookmarkDragOverlay({
   if (!activeBookmark) return null;
 
   const domain = getDomain(activeBookmark.url);
+  const displayTitle = getDisplayTitle({
+    title: activeBookmark.title,
+    url: activeBookmark.url,
+    normalizedUrl: activeBookmark.normalized_url,
+    domain,
+  });
 
   if (viewMode === "card") {
     return (
@@ -24,12 +30,12 @@ export function BookmarkDragOverlay({
           <Favicon
             url={activeBookmark.favicon_url || ""}
             domain={domain}
-            title={activeBookmark.title || ""}
+            title={displayTitle}
             className="size-9"
           />
           <div className="min-w-0 flex flex-col">
             <p className="truncate text-sm font-bold text-foreground">
-              {activeBookmark.title}
+              {displayTitle}
             </p>
             <p className="truncate text-xs text-muted-foreground">{domain}</p>
           </div>
@@ -50,11 +56,11 @@ export function BookmarkDragOverlay({
         <Favicon
           url={activeBookmark.favicon_url || ""}
           domain={domain}
-          title={activeBookmark.title || ""}
+          title={displayTitle}
         />
         <div className="flex min-w-0 flex-col gap-0.5">
           <span className="truncate text-sm font-bold text-foreground">
-            {activeBookmark.title}
+            {displayTitle}
           </span>
           <span className="text-xs font-medium text-muted-foreground">
             {domain}
