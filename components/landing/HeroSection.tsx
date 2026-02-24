@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
-import { Google } from "@/components/google-logo";
+import ChromeWebStoreIcon from "@/components/chrome-store-logo";
 import { HeroDemoPreview } from "@/components/landing/HeroDemoPreview";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -95,8 +95,8 @@ export function HeroSection() {
                   size="lg"
                   className="rounded-full px-8 cursor-pointer"
                 >
-                  <Google
-                    className="mr-2 size-4"
+                  <ChromeWebStoreIcon
+                    className="mr-2 size-5"
                     aria-hidden="true"
                     focusable="false"
                   />

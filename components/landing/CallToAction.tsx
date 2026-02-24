@@ -7,7 +7,7 @@ import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ExtensionInstallDialog } from "@/components/extension-install-dialog";
-import { Google } from "@/components/google-logo";
+import ChromeWebStoreIcon from "@/components/chrome-store-logo";
 import type { DashboardHref } from "@/components/landing/types";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -144,8 +144,8 @@ export function CallToAction() {
                     size="lg"
                     className="rounded-full px-8 cursor-pointer"
                   >
-                    <Google
-                      className="mr-2 size-4"
+                    <ChromeWebStoreIcon
+                      className="mr-2 size-5"
                       aria-hidden="true"
                       focusable="false"
                     />
