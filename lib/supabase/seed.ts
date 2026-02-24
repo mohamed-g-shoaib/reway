@@ -26,7 +26,7 @@ export const DEMO_GROUPS = [
         url: "https://github.com/mohamed-g-shoaib/reway",
         title: "Reway Source Code on GitHub",
         description: "View the source code and contribute to the project.",
-        favicon_url: "https://github.com/favicon.ico",
+        favicon_url: "https://www.svgrepo.com/show/475654/github-color.svg",
       },
       {
         url: "https://x.com/devloopsoftware",
