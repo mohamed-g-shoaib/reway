@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Google } from "@/components/google-logo";
 import { signInWithGoogle } from "./actions";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function LoginPage() {
   const shouldReduceMotion = useReducedMotion();
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
@@ -39,19 +41,32 @@ export default function LoginPage() {
             >
               <Link href="/">Back to Homepage</Link>
             </Button>
-            <form action={signInWithGoogle} className="flex-1">
+            <form
+              action={signInWithGoogle}
+              className="flex-1"
+              onSubmit={(e) => {
+                if (isSigningIn) {
+                  e.preventDefault();
+                  return;
+                }
+                setIsSigningIn(true);
+              }}
+            >
               <Button
                 type="submit"
                 variant="outline"
                 size="lg"
                 className="w-full rounded-3xl cursor-pointer"
+                disabled={isSigningIn}
               >
-                <Google
-                  className="mr-2 size-5"
-                  aria-hidden="true"
-                  focusable="false"
-                />
-                Continue with Google
+                {!isSigningIn ? (
+                  <Google
+                    className="mr-2 size-5"
+                    aria-hidden="true"
+                    focusable="false"
+                  />
+                ) : null}
+                {isSigningIn ? "Redirecting..." : "Continue with Google"}
               </Button>
             </form>
           </div>
