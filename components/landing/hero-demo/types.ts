@@ -1,6 +1,12 @@
 import type { IconSvgElement } from "@hugeicons/react";
 
-export type HeroGroupId = "all" | "Research" | "Inspiration" | "Build" | "Learn";
+export type HeroGroupId =
+  | "all"
+  | "No Group"
+  | "Research"
+  | "Inspiration"
+  | "Build"
+  | "Learn";
 
 export type HeroIcon = IconSvgElement;
 
@@ -19,4 +25,5 @@ export type HeroBookmark = {
   date: string;
   favicon: string;
   group: Exclude<HeroGroupId, "all">;
+  shimmerUrl?: boolean;
 };

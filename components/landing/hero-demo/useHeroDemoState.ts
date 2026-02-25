@@ -22,6 +22,8 @@ import {
   updateTodoCompleted,
   updateTodoValues,
 } from "./helpers";
+import { extractUrlsFromText } from "@/components/dashboard/command-bar/helpers";
+import { fetchDemoMetadata } from "./actions";
 
 const HERO_GROUP_PRESETS: Record<
   string,
@@ -36,6 +38,7 @@ const HERO_DEMO_SEED_TIMESTAMP = "2026-01-01T00:00:00.000Z";
 
 const HERO_DEMO_SEED_GROUP_IDS = new Set<HeroGroupId>([
   "all",
+  "No Group",
   "Research",
   "Inspiration",
   "Build",
@@ -45,9 +48,8 @@ const HERO_DEMO_SEED_GROUP_IDS = new Set<HeroGroupId>([
 export function useHeroDemoState() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [activeGroup, setActiveGroup] = useState<HeroGroupId>("all");
-  const [commandMode, setCommandMode] = useState<"add" | "search">("search");
+  const [commandMode, setCommandMode] = useState<"add" | "search">("add");
   const [commandInputValue, setCommandInputValue] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [isCommandFocused, setIsCommandFocused] = useState(false);
 
   const [heroBookmarks, setHeroBookmarks] = useState(
@@ -84,7 +86,9 @@ export function useHeroDemoState() {
     | typeof ToolsIcon
     | typeof Folder01Icon
   >(Folder01Icon);
-  const [dropdownNewGroupColor, setDropdownNewGroupColor] = useState<string | null>(null);
+  const [dropdownNewGroupColor, setDropdownNewGroupColor] = useState<
+    string | null
+  >(null);
 
   const [todos, setTodos] = useState<TodoRow[]>(createInitialTodos);
 
@@ -94,9 +98,9 @@ export function useHeroDemoState() {
         activeGroup,
         bookmarks: heroBookmarks,
         commandMode,
-        searchQuery,
+        searchQuery: commandInputValue,
       }),
-    [activeGroup, commandMode, heroBookmarks, searchQuery],
+    [activeGroup, commandMode, heroBookmarks, commandInputValue],
   );
 
   const stableBookmarkSlots = useMemo(
@@ -110,8 +114,12 @@ export function useHeroDemoState() {
     const id = makeHeroDemoId();
 
     setHeroGroups((prev) => {
-      const seeded = prev.filter((g) => HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
-      const user = prev.filter((g) => !HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
+      const seeded = prev.filter((g) =>
+        HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId),
+      );
+      const user = prev.filter(
+        (g) => !HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId),
+      );
       const nextUser = user.length >= 3 ? [...user.slice(1)] : [...user];
 
       return [
@@ -140,8 +148,12 @@ export function useHeroDemoState() {
     const preset = HERO_GROUP_PRESETS[name] ?? null;
 
     setHeroGroups((prev) => {
-      const seeded = prev.filter((g) => HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
-      const user = prev.filter((g) => !HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId));
+      const seeded = prev.filter((g) =>
+        HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId),
+      );
+      const user = prev.filter(
+        (g) => !HERO_DEMO_SEED_GROUP_IDS.has(g.id as HeroGroupId),
+      );
       const nextUser = user.length >= 3 ? [...user.slice(1)] : [...user];
 
       return [
@@ -183,14 +195,48 @@ export function useHeroDemoState() {
     const value = commandInputValue.trim();
     if (!value) return;
 
-    const nextBookmark = createBookmarkFromCommandInput({
-      activeGroup,
-      value,
-      id: makeHeroDemoId(),
+    const extracted = extractUrlsFromText(value);
+    const urls = extracted.length ? extracted : [value];
+
+    const createdIds: string[] = [];
+
+    const nextBookmarks = urls.map((url) => {
+      const id = makeHeroDemoId();
+      createdIds.push(id);
+
+      return createBookmarkFromCommandInput({
+        activeGroup,
+        value: url,
+        id,
+        shimmerUrl: true,
+      });
     });
 
-    setHeroBookmarks((prev) => [nextBookmark, ...prev]);
+    setHeroBookmarks((prev) => {
+      const next = [...nextBookmarks, ...prev];
+      return next.slice(0, 9);
+    });
+
     setCommandInputValue("");
+
+    urls.forEach((url, index) => {
+      const createdId = createdIds[index];
+      fetchDemoMetadata(url).then((meta) => {
+        setHeroBookmarks((prev) =>
+          prev.map((b) => {
+            if (b.id === createdId) {
+              return {
+                ...b,
+                shimmerUrl: false,
+                title: meta?.title || b.title,
+                domain: meta?.domain || b.domain,
+              };
+            }
+            return b;
+          }),
+        );
+      });
+    });
   };
 
   const handleToggleTodoCompleted = (id: string, completed: boolean) => {
@@ -204,8 +250,12 @@ export function useHeroDemoState() {
     const id = makeHeroDemoId();
 
     setNotes((prev) => {
-      const seeded = prev.filter((note) => note.created_at === HERO_DEMO_SEED_TIMESTAMP);
-      const user = prev.filter((note) => note.created_at !== HERO_DEMO_SEED_TIMESTAMP);
+      const seeded = prev.filter(
+        (note) => note.created_at === HERO_DEMO_SEED_TIMESTAMP,
+      );
+      const user = prev.filter(
+        (note) => note.created_at !== HERO_DEMO_SEED_TIMESTAMP,
+      );
 
       const nextUser = user.length >= 3 ? user.slice(1) : user;
       const created_at = new Date().toISOString();
@@ -262,8 +312,12 @@ export function useHeroDemoState() {
     const id = makeHeroDemoId();
 
     setTodos((prev) => {
-      const seeded = prev.filter((todo) => todo.created_at === HERO_DEMO_SEED_TIMESTAMP);
-      const user = prev.filter((todo) => todo.created_at !== HERO_DEMO_SEED_TIMESTAMP);
+      const seeded = prev.filter(
+        (todo) => todo.created_at === HERO_DEMO_SEED_TIMESTAMP,
+      );
+      const user = prev.filter(
+        (todo) => todo.created_at !== HERO_DEMO_SEED_TIMESTAMP,
+      );
       const nextUser = user.length >= 3 ? user.slice(1) : user;
       const created_at = new Date().toISOString();
 
@@ -360,8 +414,6 @@ export function useHeroDemoState() {
     setCommandMode,
     commandInputValue,
     setCommandInputValue,
-    searchQuery,
-    setSearchQuery,
     isCommandFocused,
     setIsCommandFocused,
     stableBookmarkSlots,

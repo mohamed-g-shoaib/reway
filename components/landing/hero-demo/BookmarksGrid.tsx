@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Favicon } from "@/components/dashboard/Favicon";
 import { motion } from "motion/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import type { HeroBookmark } from "./types";
+import TextShimmer from "@/components/ui/text-shimmer";
 
 export function BookmarksGrid({
   stableBookmarkSlots,
@@ -62,23 +63,30 @@ export function BookmarksGrid({
               className="flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 cursor-pointer"
               aria-label={`Open ${slot.value.title}`}
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-background">
-                <Image
-                  src={slot.value.favicon}
-                  alt={`${slot.value.title} favicon`}
-                  width={16}
-                  height={16}
-                  className="h-4 w-4"
-                  unoptimized
-                />
-              </div>
+              <Favicon
+                url={slot.value.favicon || ""}
+                domain={slot.value.domain}
+                title={slot.value.title}
+                isEnriching={slot.value.shimmerUrl}
+                className="h-9 w-9"
+              />
               <div className="min-w-0">
                 <p className="truncate text-base font-semibold leading-tight text-foreground group-hover:text-primary">
                   {slot.value.title}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {slot.value.domain}
-                </p>
+                {slot.value.shimmerUrl ? (
+                  <TextShimmer
+                    as="p"
+                    className="block truncate text-xs font-medium"
+                    duration={2.5}
+                  >
+                    {slot.value.url}
+                  </TextShimmer>
+                ) : (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {slot.value.domain}
+                  </p>
+                )}
               </div>
             </a>
             <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground">

@@ -4,6 +4,7 @@ import { NOTE_COLORS } from "@/components/dashboard/content/notes-todos/config";
 
 import type { HeroBookmark, HeroGroupId } from "./types";
 import { PREVIEW_BOOKMARKS } from "./data";
+import { getDisplayTitle, getDomain } from "@/lib/utils";
 
 const HERO_DEMO_TIMESTAMP = "2026-01-01T00:00:00.000Z";
 
@@ -122,21 +123,34 @@ export function createBookmarkFromCommandInput({
   activeGroup,
   value,
   id,
+  shimmerUrl,
 }: {
   activeGroup: HeroGroupId;
   value: string;
   id: string;
+  shimmerUrl?: boolean;
 }): HeroBookmark {
-  const nextGroup = activeGroup === "all" ? "Research" : activeGroup;
+  const nextGroup = activeGroup === "all" ? "No Group" : activeGroup;
+
+  const fullUrl = value.startsWith("http") ? value : `https://${value}`;
+
+  const domain = getDomain(fullUrl);
+
+  const title = getDisplayTitle({
+    title: null,
+    url: fullUrl,
+    domain,
+  });
 
   return {
     id,
-    title: value.length > 28 ? `${value.slice(0, 28)}…` : value,
-    domain: "new.link",
-    url: value.startsWith("http") ? value : `https://${value}`,
+    title,
+    domain,
+    url: fullUrl,
     date: "Now",
-    favicon: "https://www.google.com/s2/favicons?domain=example.com&sz=64",
+    favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
     group: nextGroup as Exclude<HeroGroupId, "all">,
+    shimmerUrl,
   };
 }
 

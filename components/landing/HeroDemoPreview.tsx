@@ -62,8 +62,6 @@ export function HeroDemoPreview() {
     setCommandMode,
     commandInputValue,
     setCommandInputValue,
-    searchQuery,
-    setSearchQuery,
     isCommandFocused,
     setIsCommandFocused,
     stableBookmarkSlots,
@@ -239,7 +237,7 @@ export function HeroDemoPreview() {
 
                 <div className="relative w-full" data-onboarding="command-bar">
                   <div
-                    className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1.5 py-1 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate ${
+                    className={`group relative flex items-center justify-between gap-2 rounded-2xl px-1.5 py-1.5 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:pointer-events-none after:content-[''] shadow-none isolate ${
                       isCommandFocused
                         ? "ring-1 ring-primary/30 after:ring-white/10"
                         : "ring-1 ring-foreground/8 after:ring-white/5"
@@ -254,30 +252,17 @@ export function HeroDemoPreview() {
                       >
                         <input
                           type="text"
-                          value={
-                            commandMode === "search"
-                              ? searchQuery
-                              : commandInputValue
-                          }
-                          onChange={(e) => {
-                            if (commandMode === "search") {
-                              setSearchQuery(e.target.value);
-                            } else {
-                              setCommandInputValue(e.target.value);
-                            }
-                          }}
+                          value={commandInputValue}
+                          onChange={(e) => setCommandInputValue(e.target.value)}
                           onFocus={() => setIsCommandFocused(true)}
                           onBlur={() => setIsCommandFocused(false)}
                           placeholder={
                             commandMode === "search"
                               ? "Search bookmarks..."
-                              : isCommandFocused
-                                ? "Sign in to add, this is a demo \ud83d\ude42"
-                                : "Add a link or search..."
+                              : "Add a link or search..."
                           }
-                          className="w-full bg-transparent p-3 pl-1.5 text-[11px] leading-none font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20"
+                          className="w-full bg-transparent p-0 pl-1.5 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20"
                           aria-label="Search or add bookmarks"
-                          readOnly={commandMode === "add"}
                         />
                       </form>
                     </div>
@@ -286,7 +271,7 @@ export function HeroDemoPreview() {
                       <button
                         type="button"
                         onClick={() => setCommandMode("add")}
-                        className={`flex items-center gap-1 px-1.5 py-1 text-[10px] rounded-lg cursor-pointer ${
+                        className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
                           commandMode === "add"
                             ? "bg-muted/40 text-foreground"
                             : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
@@ -295,7 +280,7 @@ export function HeroDemoPreview() {
                       >
                         <span>Add</span>
                         <KbdGroup className="hidden md:inline-flex">
-                          <Kbd className="h-4.5 min-w-4.5 text-[9px] px-1">
+                          <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">
                             CtrlK
                           </Kbd>
                         </KbdGroup>
@@ -303,7 +288,7 @@ export function HeroDemoPreview() {
                       <button
                         type="button"
                         onClick={() => setCommandMode("search")}
-                        className={`flex items-center gap-1 px-1.5 py-1 text-[10px] rounded-lg cursor-pointer ${
+                        className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
                           commandMode === "search"
                             ? "bg-muted/40 text-foreground"
                             : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
@@ -312,7 +297,7 @@ export function HeroDemoPreview() {
                       >
                         <span>Search</span>
                         <KbdGroup className="hidden md:inline-flex">
-                          <Kbd className="h-4.5 min-w-4.5 text-[9px] px-1">
+                          <Kbd className="h-4.5 min-w-4.5 text-[10px] px-1">
                             CtrlF
                           </Kbd>
                         </KbdGroup>

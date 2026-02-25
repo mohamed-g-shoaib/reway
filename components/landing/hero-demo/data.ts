@@ -2,7 +2,7 @@ import type { HeroBookmark, HeroGroup, HeroIcon } from "./types";
 
 export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
   {
-    title: "Linear",
+    title: "Linear – The system for product development",
     domain: "linear.app",
     url: "https://linear.app",
     date: "Sep 12",
@@ -10,7 +10,8 @@ export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
     group: "Research",
   },
   {
-    title: "Vercel",
+    title:
+      "Vercel: Build and deploy the best web experiences with the AI Cloud – Vercel",
     domain: "vercel.com",
     url: "https://vercel.com",
     date: "Sep 10",
@@ -18,7 +19,7 @@ export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
     group: "Inspiration",
   },
   {
-    title: "shadcn/ui",
+    title: "The Foundation for your Design System - shadcn/ui",
     domain: "ui.shadcn.com",
     url: "https://ui.shadcn.com",
     date: "Sep 09",
@@ -26,7 +27,7 @@ export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
     group: "Inspiration",
   },
   {
-    title: "Figma",
+    title: "Figma: The Collaborative Interface Design Tool",
     domain: "figma.com",
     url: "https://www.figma.com",
     date: "Sep 07",
@@ -34,7 +35,7 @@ export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
     group: "Build",
   },
   {
-    title: "Notion",
+    title: "The AI workspace that works for you. | Notion",
     domain: "notion.so",
     url: "https://www.notion.so",
     date: "Sep 06",
@@ -42,7 +43,7 @@ export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
     group: "Research",
   },
   {
-    title: "GitHub",
+    title: "GitHub · Change is constant. GitHub keeps you ahead.",
     domain: "github.com",
     url: "https://github.com",
     date: "Sep 03",
@@ -67,7 +68,7 @@ export const PREVIEW_BOOKMARKS: Omit<HeroBookmark, "id">[] = [
     group: "Learn",
   },
   {
-    title: "TypeScript",
+    title: "JavaScript With Syntax For Types.",
     domain: "www.typescriptlang.org",
     url: "https://www.typescriptlang.org",
     date: "Aug 30",
