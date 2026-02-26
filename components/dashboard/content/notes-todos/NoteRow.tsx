@@ -50,22 +50,32 @@ export function NoteRow({
   const dotMarginTop = variant === "demo" ? "mt-1" : "mt-[7px]";
 
   const Row = (
-    <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-all duration-200 hover:text-primary cursor-pointer active:scale-[0.97]">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => {
+        if (selectionMode) {
+          onToggleSelected();
+        } else {
+          onToggleExpanded();
+        }
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          if (selectionMode) {
+            onToggleSelected();
+          } else {
+            onToggleExpanded();
+          }
+        }
+      }}
+      className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-all duration-200 hover:text-primary cursor-pointer active:scale-[0.97] outline-none"
+    >
       {selectionMode ? (
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={onToggleSelected}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              onToggleSelected();
-            }
-          }}
-          className="flex items-start gap-3 min-w-0 flex-1 text-left"
-        >
+        <div className="flex items-start gap-3 min-w-0 flex-1 text-left">
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
-            <span className="mt-0.5">
+            <span className={cn("mt-0", "cursor-pointer")}>
               <Checkbox
                 checked={selected}
                 onClick={(event) => event.stopPropagation()}
@@ -87,18 +97,7 @@ export function NoteRow({
           </div>
         </div>
       ) : (
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={onToggleExpanded}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              onToggleExpanded();
-            }
-          }}
-          className="flex items-start gap-3 min-w-0 flex-1 text-left"
-        >
+        <div className="flex items-start gap-3 min-w-0 flex-1 text-left">
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
               className={cn("h-2 w-2 rounded-full", dotMarginTop)}
@@ -121,6 +120,7 @@ export function NoteRow({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
+              onClick={(e) => e.stopPropagation()}
               suppressHydrationWarning
               className={cn(
                 "text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer self-start mt-0",
