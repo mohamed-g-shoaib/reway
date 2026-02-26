@@ -35,12 +35,12 @@ export function AllBookmarksRow({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+          className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
             active
-              ? "text-foreground font-semibold"
+              ? "text-primary font-semibold"
               : selectionMode
                 ? ""
-                : "hover:text-primary/90"
+                : "hover:text-primary"
           }`}
         >
           <button

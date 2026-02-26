@@ -34,7 +34,7 @@ export function SortableGroupRowItem({
       style={style}
       {...attributes}
       {...listeners}
-      className={isDragging ? "cursor-grabbing" : "cursor-grab"}
+      className={isDragging ? "cursor-grabbing" : "cursor-pointer"}
       data-slot="group-row-sortable"
     >
       {children}

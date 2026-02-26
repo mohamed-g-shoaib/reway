@@ -77,7 +77,7 @@ export function DashboardNotesTodosSidebar({
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
     closeTimerRef.current = window.setTimeout(() => {
       setIsHoverOpen(false);
-    }, 600);
+    }, 250);
   };
 
   const cancelClose = () => {
@@ -114,8 +114,8 @@ export function DashboardNotesTodosSidebar({
             className={cn(
               "px-2 py-1 text-[11px] rounded-lg cursor-pointer",
               activeSection === "notes"
-                ? "bg-muted/40 text-foreground"
-                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40",
+                ? "bg-muted/40 text-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted/40",
             )}
             onClick={() => setActiveSection("notes")}
           >
@@ -126,8 +126,8 @@ export function DashboardNotesTodosSidebar({
             className={cn(
               "px-2 py-1 text-[11px] rounded-lg cursor-pointer",
               activeSection === "todos"
-                ? "bg-muted/40 text-foreground"
-                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40",
+                ? "bg-muted/40 text-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted/40",
             )}
             onClick={() => setActiveSection("todos")}
           >
@@ -198,7 +198,7 @@ export function DashboardNotesTodosSidebar({
 
             <aside
               data-onboarding="notes-todos-desktop"
-              className={`fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+              className={`fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-180 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
                 isPinnedOpen || isHoverOpen
                   ? "translate-x-0"
                   : "translate-x-full"
@@ -258,7 +258,7 @@ export function DashboardNotesTodosSidebar({
 
           <aside
             data-onboarding="notes-todos-desktop"
-            className={`hidden min-[1200px]:block fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+            className={`hidden min-[1200px]:block fixed right-0 top-43 bottom-6 z-50 w-60 transition-transform duration-180 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
               isPinnedOpen || isHoverOpen ? "translate-x-0" : "translate-x-full"
             }`}
             onMouseEnter={() => {

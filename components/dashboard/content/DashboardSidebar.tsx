@@ -123,7 +123,7 @@ export function DashboardSidebar({
     if (closeTimerRef.current) window.clearTimeout(closeTimerRef.current);
     closeTimerRef.current = window.setTimeout(() => {
       setIsHoverOpen(false);
-    }, 600);
+    }, 250);
   };
 
   const cancelClose = () => {
@@ -208,7 +208,7 @@ export function DashboardSidebar({
         <span>Switch Group</span>
       </div>
 
-      <div className="flex flex-1 min-h-0 flex-col">
+      <div className="flex flex-1 min-h-0 flex-col gap-1 cursor-default">
         <AllBookmarksRow
           active={activeGroupId === "all"}
           selectionMode={selectionMode}
@@ -262,12 +262,12 @@ export function DashboardSidebar({
                     return (
                       <div
                         key={group.id}
-                        className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+                        className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
                           isActive
-                            ? "text-foreground font-semibold"
+                            ? "text-primary font-semibold"
                             : selectionMode
                               ? ""
-                              : "hover:text-primary/90"
+                              : "hover:text-primary"
                         }`}
                       >
                         <button
@@ -447,7 +447,7 @@ export function DashboardSidebar({
 
             <aside
               data-onboarding="groups-desktop"
-              className={`fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+              className={`fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-180 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
                 isPinnedOpen || isHoverOpen
                   ? "translate-x-0"
                   : "-translate-x-full"
@@ -511,7 +511,7 @@ export function DashboardSidebar({
 
           <aside
             data-onboarding="groups-desktop"
-            className={`hidden min-[1200px]:block fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+            className={`hidden min-[1200px]:block fixed left-0 top-43 bottom-6 z-50 w-60 transition-transform duration-180 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
               isPinnedOpen || isHoverOpen
                 ? "translate-x-0"
                 : "-translate-x-full"

@@ -52,12 +52,12 @@ export function GroupRowItem({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+          className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
             active
-              ? "text-foreground font-semibold"
+              ? "text-primary font-semibold"
               : selectionMode
                 ? ""
-                : "hover:text-primary/90"
+                : "hover:text-primary"
           }`}
         >
           {selectionMode ? (
@@ -90,13 +90,11 @@ export function GroupRowItem({
               className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
             >
               <span
-                className={`h-px ${
-                  `transition-[width,opacity] duration-200 ease-out ${
-                    active
-                      ? "w-12 opacity-80"
-                      : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                  }`
-                } bg-current`}
+                className={`h-px ${`transition-[width,opacity] duration-200 ease-out ${
+                  active
+                    ? "w-12 opacity-80"
+                    : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                }`} bg-current`}
               />
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <HugeiconsIcon
@@ -148,7 +146,10 @@ export function GroupRowItem({
                 <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
                 Open group
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onEdit} className="gap-2 text-xs cursor-pointer">
+              <DropdownMenuItem
+                onClick={onEdit}
+                className="gap-2 text-xs cursor-pointer"
+              >
                 <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
                 Edit group
               </DropdownMenuItem>
@@ -180,11 +181,17 @@ export function GroupRowItem({
           <HugeiconsIcon icon={CheckmarkSquare02Icon} size={14} />
           {selectionMode ? "Toggle selection" : "Select groups"}
         </ContextMenuItem>
-        <ContextMenuItem onClick={onOpenGroup} className="gap-2 text-xs cursor-pointer">
+        <ContextMenuItem
+          onClick={onOpenGroup}
+          className="gap-2 text-xs cursor-pointer"
+        >
           <HugeiconsIcon icon={ArrowUpRight03Icon} size={14} />
           Open group
         </ContextMenuItem>
-        <ContextMenuItem onClick={onEdit} className="gap-2 text-xs cursor-pointer">
+        <ContextMenuItem
+          onClick={onEdit}
+          className="gap-2 text-xs cursor-pointer"
+        >
           <HugeiconsIcon icon={PencilEdit01Icon} size={14} />
           Edit group
         </ContextMenuItem>
