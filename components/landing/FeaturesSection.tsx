@@ -77,7 +77,7 @@ export function FeaturesSection() {
         </div>
 
         {/* Power user signature - High contrast, no cards, no borders. */}
-        <div className="mt-16 text-center">
+        <div className="mt-6 text-center lg:mt-10">
           <p className="mx-auto max-w-3xl text-balance px-4 text-[15px] leading-relaxed text-foreground antialiased sm:text-lg">
             <span className="text-foreground/40 font-medium">
               And for power users:
