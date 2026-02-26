@@ -13,7 +13,11 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import type { HeroGroupId, HeroGroup } from "./types";
 
@@ -44,7 +48,11 @@ export function GroupsSidebar({
   newGroupColor: string | null;
   setNewGroupName: (v: string) => void;
   setNewGroupIcon: (
-    v: typeof Search01Icon | typeof BulbIcon | typeof ToolsIcon | typeof Folder01Icon,
+    v:
+      | typeof Search01Icon
+      | typeof BulbIcon
+      | typeof ToolsIcon
+      | typeof Folder01Icon,
   ) => void;
   setNewGroupColor: (v: string | null) => void;
   onSelectGroup: (id: HeroGroupId) => void;
@@ -60,8 +68,8 @@ export function GroupsSidebar({
   const [createIconPopoverOpen, setCreateIconPopoverOpen] = useState(false);
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-[76px] text-xs text-muted-foreground min-[855px]:flex overflow-hidden">
-      <div className="flex flex-1 flex-col gap-2 overflow-hidden">
+    <aside className="hidden w-60 shrink-0 flex-col gap-2 px-4 pb-4 pt-19 text-xs text-muted-foreground min-[855px]:flex overflow-hidden">
+      <div className="flex flex-1 flex-col gap-1 overflow-hidden cursor-default">
         {heroGroups.map((item) => {
           const isActive =
             item.id === activeGroup ||
@@ -70,14 +78,15 @@ export function GroupsSidebar({
           return (
             <div
               key={item.id}
-              className={`group flex items-center gap-3 px-2 py-1.5 transition-colors duration-200 ${
+              className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
                 isActive
-                  ? "text-foreground font-semibold"
-                  : "text-muted-foreground hover:text-primary/90"
+                  ? "text-primary font-semibold"
+                  : "text-muted-foreground hover:text-primary"
               }`}
             >
               <button
                 type="button"
+                className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
                 onClick={() => {
                   if (item.id === "all") {
                     onSelectGroup("all");
@@ -92,16 +101,13 @@ export function GroupsSidebar({
                     onSelectGroup(item.id);
                   }
                 }}
-                className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
               >
                 <span
-                  className={`h-px ${
-                    `transition-[width,opacity] duration-200 ease-out ${
-                      isActive
-                        ? "w-12 opacity-80"
-                        : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                    }`
-                  } bg-current`}
+                  className={`h-px ${`transition-[width,opacity] duration-200 ease-out ${
+                    isActive
+                      ? "w-12 opacity-80"
+                      : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
+                  }`} bg-current`}
                 />
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <HugeiconsIcon

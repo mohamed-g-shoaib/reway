@@ -44,7 +44,7 @@ export function BookmarksGrid({
         ) : (
           <motion.div
             key={slot.value.id}
-            className={`group rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 transition-colors hover:bg-muted/30 ${
+            className={`group rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 transition-colors hover:bg-muted/30 cursor-pointer ${
               index >= 3 ? "hidden sm:block" : ""
             } ${index >= 6 ? "sm:hidden lg:block" : ""} h-26`}
             initial={{ opacity: 0 }}
@@ -68,10 +68,10 @@ export function BookmarksGrid({
                 domain={slot.value.domain}
                 title={slot.value.title}
                 isEnriching={slot.value.shimmerUrl}
-                className="h-9 w-9"
+                className="h-9 w-9 shrink-0"
               />
-              <div className="min-w-0">
-                <p className="truncate text-base font-semibold leading-tight text-foreground group-hover:text-primary">
+              <div className="flex-1 min-w-0">
+                <p className="line-clamp-1 text-base font-semibold leading-tight text-foreground group-hover:text-primary">
                   {slot.value.title}
                 </p>
                 {slot.value.shimmerUrl ? (

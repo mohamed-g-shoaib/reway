@@ -4,8 +4,8 @@ import { useState } from "react";
 import type { NoteRow, TodoRow } from "@/lib/supabase/queries";
 import type { TodoPriority } from "@/components/dashboard/content/notes-todos/types";
 import { NOTE_COLORS } from "@/components/dashboard/content/notes-todos/config";
-import { NoteCreateCard } from "@/components/dashboard/content/notes-todos/NoteCreateCard";
-import { TodoCreateCard } from "@/components/dashboard/content/notes-todos/TodoCreateCard";
+import { HeroNoteCreateCard as NoteCreateCard } from "./HeroNoteCreateCard";
+import { HeroTodoCreateCard as TodoCreateCard } from "./HeroTodoCreateCard";
 
 export function NotesTodosSidebar({
   activeNotesTodosSection,
@@ -82,8 +82,8 @@ export function NotesTodosSidebar({
             type="button"
             className={`px-2 py-1 text-[11px] rounded-lg cursor-pointer ${
               activeNotesTodosSection === "notes"
-                ? "bg-muted/40 text-foreground"
-                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
+                ? "bg-muted/40 text-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted/40"
             }`}
             onClick={() => setActiveNotesTodosSection("notes")}
           >
@@ -93,8 +93,8 @@ export function NotesTodosSidebar({
             type="button"
             className={`px-2 py-1 text-[11px] rounded-lg cursor-pointer ${
               activeNotesTodosSection === "todos"
-                ? "bg-muted/40 text-foreground"
-                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
+                ? "bg-muted/40 text-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted/40"
             }`}
             onClick={() => setActiveNotesTodosSection("todos")}
           >

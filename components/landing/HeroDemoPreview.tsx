@@ -198,7 +198,7 @@ export function HeroDemoPreview() {
               onCreate={handleCreateHeroGroup}
             />
 
-            <div className="flex-1 p-4 sm:p-6">
+            <div className="flex-1 min-w-0 p-4 sm:p-6">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
@@ -259,10 +259,10 @@ export function HeroDemoPreview() {
                           placeholder={
                             commandMode === "search"
                               ? "Search bookmarks..."
-                              : "Add a link or search..."
+                              : "Paste a link to save..."
                           }
                           className="w-full bg-transparent p-0 pl-1.5 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20"
-                          aria-label="Search or add bookmarks"
+                          aria-label="Paste link or search bookmarks"
                         />
                       </form>
                     </div>
@@ -273,8 +273,8 @@ export function HeroDemoPreview() {
                         onClick={() => setCommandMode("add")}
                         className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
                           commandMode === "add"
-                            ? "bg-muted/40 text-foreground"
-                            : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
+                            ? "bg-muted/40 text-primary"
+                            : "text-muted-foreground hover:text-primary hover:bg-muted/40"
                         }`}
                         aria-label="Add bookmarks"
                       >
@@ -290,8 +290,8 @@ export function HeroDemoPreview() {
                         onClick={() => setCommandMode("search")}
                         className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
                           commandMode === "search"
-                            ? "bg-muted/40 text-foreground"
-                            : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
+                            ? "bg-muted/40 text-primary"
+                            : "text-muted-foreground hover:text-primary hover:bg-muted/40"
                         }`}
                         aria-label="Search bookmarks"
                       >
