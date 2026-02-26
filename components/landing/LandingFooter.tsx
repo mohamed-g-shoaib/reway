@@ -121,14 +121,6 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="/#demo-videos"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Demos
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/#extension"
                   className="hover:text-foreground transition-colors"
                 >

@@ -23,10 +23,6 @@ export const navLinks = [
     href: { pathname: "/", hash: "features" },
   },
   {
-    label: "Demos",
-    href: { pathname: "/", hash: "demo-videos" },
-  },
-  {
     label: "Extension",
     href: { pathname: "/", hash: "extension" },
   },

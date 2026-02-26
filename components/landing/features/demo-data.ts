@@ -1,3 +1,15 @@
+import {
+  Idea01Icon,
+  ComputerIcon,
+  Download01Icon,
+  Folder01Icon,
+  NewTwitterIcon,
+} from "@hugeicons/core-free-icons";
+import {
+  EXTENSION_DOWNLOAD_URL,
+  EXTENSION_TUTORIAL_VIDEO_URL,
+} from "@/lib/extension";
+
 export const features = [
   {
     title: "Smart Link Extraction",
@@ -51,55 +63,49 @@ export const demoLinks = [
 
 export const demoVideos = [
   {
-    title: "Full Page Capture",
+    title: "Install Extension",
+    description: "",
+    steps: [
+      "Download the ZIP from Google Drive and unzip it on your computer.",
+      "Open chrome://extensions/ and enable Developer mode (top right).",
+      "Click Load unpacked (top left) and select the unzipped folder.",
+      "Log in from the extension or the dashboard.",
+    ],
+    link: EXTENSION_DOWNLOAD_URL,
+    src: EXTENSION_TUTORIAL_VIDEO_URL,
+    blurDataURL: undefined,
+    icon: Idea01Icon,
+  },
+  {
+    title: "Save a Page",
     description:
-      "Organize entire pages into your library. Keep the context of where your links came from without the noise.",
+      "Bookmark a page by saving it to the dashboard. Customize the title, description, and group of the page before saving it.",
     src: "/assets/videos/save-page.mp4",
-    accentColor: "bg-highlight-page",
-    highlights: [
-      "Distraction-free reading view",
-      "Preserves original source URL",
-      "Smart categorization of content",
-    ],
     blurDataURL: undefined,
+    icon: ComputerIcon,
   },
   {
-    title: "Save Links Anywhere",
+    title: "Collect Multiple Links",
     description:
-      "Instantly capture links from any website, note, or app with a single click. Reway extracts the core context for you.",
+      "Collect multiple links at once, use it for collecting resources while you browse. It gets saved to a group of your choice.",
     src: "/assets/videos/save-links.mp4",
-    accentColor: "bg-highlight-links",
-    highlights: [
-      "Auto-extract titles and metadata",
-      "One-click browser extension",
-      "Seamless clipboard detection",
-    ],
     blurDataURL: undefined,
+    icon: Download01Icon,
   },
   {
-    title: "Manage Tab Sessions",
+    title: "Save Open Tabs as Session",
     description:
-      "Save your current window session. Restore all tabs in one click or archive them for later.",
+      "Save all your current open tabs as a session. Open the session later with one click or keep it saved for later use.",
     src: "/assets/videos/tab-sessions.mp4",
-    accentColor: "bg-highlight-sessions",
-    highlights: [
-      "Bulk save multiple tabs",
-      "Restore sessions in one click",
-      "Memory-efficient tab sleeping",
-    ],
     blurDataURL: undefined,
+    icon: Folder01Icon,
   },
   {
-    title: "X (Twitter) Integration",
+    title: "X Bookmarks Integration",
     description:
-      "One-click capture from X.com. Reway extracts the tweet content and thread context automatically.",
+      "Reway saves bookmarks you save on X, it adds the url automatically to your Reway dashboard in X Bookmarks group, it saves the post text as the title, and the user profile picture as the favicon.",
     src: "/assets/videos/x-bookmarks.mp4",
-    accentColor: "bg-highlight-x",
-    highlights: [
-      "Automatic thread detection",
-      "Beautifully formatted tweets",
-      "Deep search within saved X links",
-    ],
     blurDataURL: undefined,
+    icon: NewTwitterIcon,
   },
 ] as const;

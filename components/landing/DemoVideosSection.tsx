@@ -12,6 +12,7 @@ import {
 import { demoVideos } from "./features/demo-data";
 import { DemoVideo } from "./features/DemoVideo";
 import { cn } from "@/lib/utils";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 export function DemoVideosSection() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -54,7 +55,7 @@ export function DemoVideosSection() {
 
   return (
     <section
-      id="demo-videos"
+      id="extension"
       className="border-b border-foreground/8 bg-muted/20 overflow-hidden"
     >
       <motion.div
@@ -107,14 +108,6 @@ export function DemoVideosSection() {
                     }}
                     isHovered={isHovered}
                   />
-
-                  {/* Subtle accent glow - keeping it but removing shadows */}
-                  <div
-                    className={cn(
-                      "absolute -inset-10 -z-10 opacity-10 blur-3xl transition-colors duration-1000",
-                      demoVideos[activeIndex].accentColor,
-                    )}
-                  />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -126,40 +119,51 @@ export function DemoVideosSection() {
               {demoVideos.map((video, index) => {
                 const isActive = activeIndex === index;
                 return (
-                  <button
+                  <div
                     key={video.title}
-                    onClick={() => handleIndexChange(index)}
                     className={cn(
-                      "group relative flex flex-col items-start rounded-3xl p-6 transition-all duration-300 text-left cursor-pointer",
-                      isActive
-                        ? "bg-background ring-1 ring-foreground/8"
-                        : "hover:bg-background/50",
+                      "group relative flex flex-col items-start rounded-3xl p-6 transition-all duration-300 text-left",
+                      isActive && "bg-background ring-1 ring-foreground/8",
                     )}
                   >
-                    <div className="flex w-full items-center justify-between gap-4">
+                    <button
+                      type="button"
+                      onClick={() => handleIndexChange(index)}
+                      className="flex w-full items-center justify-between gap-4 cursor-pointer outline-none"
+                    >
                       <div className="flex items-center gap-4">
                         <span
                           className={cn(
-                            "flex size-8 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300",
+                            "flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300",
                             isActive
                               ? "bg-foreground text-background"
-                              : "bg-muted text-muted-foreground",
+                              : "bg-muted text-muted-foreground group-hover:bg-foreground/10 group-hover:text-foreground",
                           )}
                         >
                           {String(index + 1).padStart(2, "0")}
                         </span>
+                        <HugeiconsIcon
+                          icon={video.icon}
+                          size={20}
+                          className={cn(
+                            "shrink-0 transition-colors duration-300",
+                            isActive
+                              ? "text-foreground"
+                              : "text-muted-foreground group-hover:text-foreground",
+                          )}
+                        />
                         <h3
                           className={cn(
                             "text-lg font-semibold transition-colors duration-300",
                             isActive
                               ? "text-foreground"
-                              : "text-muted-foreground",
+                              : "text-muted-foreground group-hover:text-foreground",
                           )}
                         >
                           {video.title}
                         </h3>
                       </div>
-                    </div>
+                    </button>
 
                     <AnimatePresence initial={false}>
                       {isActive && (
@@ -174,9 +178,28 @@ export function DemoVideosSection() {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                           className="overflow-hidden w-full"
                         >
-                          <p className="text-sm leading-relaxed text-muted-foreground mb-6">
-                            {video.description}
-                          </p>
+                          {"description" in video && video.description && (
+                            <p className="text-sm leading-relaxed text-muted-foreground mb-6 cursor-text select-text">
+                              {video.description}
+                            </p>
+                          )}
+                          {"steps" in video && video.steps && (
+                            <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-muted-foreground mb-6 cursor-text select-text">
+                              {video.steps.map((step) => (
+                                <li key={step}>{step}</li>
+                              ))}
+                            </ol>
+                          )}
+                          {"link" in video && video.link && (
+                            <a
+                              className="mb-6 inline-flex break-all cursor-pointer text-sm font-medium text-foreground underline underline-offset-3"
+                              href={video.link}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {video.link}
+                            </a>
+                          )}
 
                           {/* Progress bar container */}
                           <div className="relative h-1 w-full overflow-hidden rounded-full bg-muted/40">
@@ -188,7 +211,7 @@ export function DemoVideosSection() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </button>
+                  </div>
                 );
               })}
             </div>

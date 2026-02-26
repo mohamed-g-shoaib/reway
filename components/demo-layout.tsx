@@ -1,7 +1,6 @@
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { DemoVideosSection } from "@/components/landing/DemoVideosSection";
-import { ExtensionInstallSection } from "@/components/landing/ExtensionInstallSection";
 import { CallToAction } from "@/components/landing/CallToAction";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { ScrollToTopButton } from "@/components/landing/ScrollToTopButton";
@@ -13,7 +12,6 @@ export function DemoLayout() {
         <HeroSection />
         <FeaturesSection />
         <DemoVideosSection />
-        <ExtensionInstallSection />
         <div id="about" />
         <CallToAction />
       </main>
