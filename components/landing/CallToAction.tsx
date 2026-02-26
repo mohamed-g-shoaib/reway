@@ -63,7 +63,7 @@ export function CallToAction() {
   const enableMotion = mounted && !shouldReduceMotion;
 
   return (
-    <section className="bg-background py-16 sm:py-24">
+    <section className="bg-background py-16 lg:py-20">
       <motion.div
         className="mx-auto w-full max-w-350 px-4 sm:px-6"
         initial={enableMotion ? "hidden" : false}
@@ -80,7 +80,7 @@ export function CallToAction() {
               <h2 className="text-balance text-4xl font-bold text-foreground sm:text-5xl lg:text-6xl">
                 Organize Your Knowledge
               </h2>
-              <p className="mx-auto max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
+              <p className="mx-auto max-w-xl text-pretty text-base text-foreground/70 sm:text-lg">
                 Stop losing links to the void. Reway provides the infrastructure
                 to capture, organize, and retrieve your research at the speed of
                 thought. Join Reway and never lose a link again.
@@ -153,7 +153,7 @@ export function CallToAction() {
                   </Button>
                 </ExtensionInstallDialog>
               </div>
-              <p className="text-xs font-medium text-muted-foreground/85">
+              <p className="text-xs font-medium text-foreground/60">
                 Free to use. No hidden fees.
               </p>
             </motion.div>

@@ -59,17 +59,17 @@ export function DemoVideosSection() {
       className="border-b border-foreground/8 bg-muted/20 overflow-hidden"
     >
       <motion.div
-        className="mx-auto flex w-full max-w-350 flex-col gap-12 px-4 py-20 sm:px-6 lg:py-32"
+        className="mx-auto flex w-full max-w-350 flex-col gap-12 px-4 py-16 sm:px-6 lg:py-20"
         initial={enableMotion ? "hidden" : false}
         whileInView={enableMotion ? "visible" : undefined}
         viewport={{ once: true, margin: "-120px" }}
         variants={enableMotion ? containerVariants : undefined}
       >
-        <div className="flex flex-col gap-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
             How it works
           </p>
-          <h2 className="text-pretty text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          <h2 className="mt-3 text-pretty text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Everything you need <br className="hidden sm:block" />
             to stay in flow.
           </h2>

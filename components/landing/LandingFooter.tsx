@@ -70,7 +70,7 @@ export function LandingFooter() {
 
   return (
     <motion.footer
-      className="border-t border-foreground/12 bg-background pt-16 pb-0"
+      className="border-t border-foreground/12 bg-background py-16 lg:py-20 pb-0"
       initial={enableMotion ? "hidden" : false}
       whileInView={enableMotion ? "visible" : undefined}
       viewport={{ once: true, margin: "-120px" }}
@@ -91,7 +91,7 @@ export function LandingFooter() {
               />
               <span className="font-semibold">Reway</span>
             </Link>
-            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+            <p className="max-w-sm text-sm leading-relaxed text-foreground/65">
               Engineering-led bookmarking for people who save a lot of links.
               Built by{" "}
               <Link
@@ -110,7 +110,7 @@ export function LandingFooter() {
             <h2 className="text-xs font-bold uppercase text-foreground">
               Product
             </h2>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            <ul className="mt-4 space-y-2 text-sm text-foreground/60">
               <li>
                 <Link
                   href="/#features"
@@ -166,7 +166,7 @@ export function LandingFooter() {
             <h2 className="text-xs font-bold uppercase text-foreground">
               Legal
             </h2>
-            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            <ul className="mt-4 space-y-2 text-sm text-foreground/60">
               <li>
                 <Link
                   href={"/terms" as DashboardHref}
@@ -198,7 +198,7 @@ export function LandingFooter() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="group inline-flex items-center gap-2 text-sm text-foreground/60 transition-colors hover:text-foreground"
                   >
                     <span className="flex size-7 items-center justify-center rounded-full bg-muted/40 text-muted-foreground transition-colors duration-200 group-hover:bg-foreground group-hover:text-background border border-transparent group-hover:border-foreground">
                       <HugeiconsIcon icon={social.icon} size={14} />
@@ -217,7 +217,7 @@ export function LandingFooter() {
             </h2>
             <div className="mt-4">
               <ThemeSwitcher />
-              <p className="mt-3 text-xs text-muted-foreground/85 leading-relaxed">
+              <p className="mt-3 text-xs text-foreground/60 leading-relaxed">
                 Toggle between light and dark modes.
               </p>
             </div>

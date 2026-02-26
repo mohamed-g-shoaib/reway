@@ -46,7 +46,7 @@ export function HeroSection() {
 
   return (
     <section className="border-b border-foreground/8 bg-background">
-      <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 pb-16 pt-10 sm:px-6 lg:pb-20 lg:pt-20">
+      <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20">
         <motion.div
           className="space-y-6 text-center"
           initial={enableMotion ? "hidden" : false}
@@ -57,7 +57,7 @@ export function HeroSection() {
           <h1 className="text-balance text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
             A Calm Home For Everything You Save.
           </h1>
-          <p className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
+          <p className="mx-auto max-w-2xl text-pretty text-base text-foreground/70 sm:text-lg">
             Reway turns noisy links into a structured library. Capture links
             from any source, extract what matters from pasted text, and move
             fast with keyboard-first search, groups, and view modes designed for
