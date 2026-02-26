@@ -87,6 +87,7 @@ export function QuickGlanceDialog({
   };
 
   const group = groups.find((g) => g.id === bookmark.group_id);
+  const previewImageUrl = bookmark.og_image_url || bookmark.image_url || null;
 
   return (
     <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -181,9 +182,9 @@ export function QuickGlanceDialog({
 
               {/* Preview Image */}
               <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-muted/20 border border-border/50">
-                {bookmark.image_url ? (
+                {previewImageUrl ? (
                   <NextImage
-                    src={bookmark.image_url}
+                    src={previewImageUrl}
                     alt={bookmark.title}
                     fill
                     unoptimized
