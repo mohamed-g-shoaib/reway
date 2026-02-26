@@ -18,7 +18,10 @@ export function TodosSection({
   onSetTodoCompleted,
 }: {
   todos: TodoRowType[];
-  onCreateTodo: (formData: { text: string; priority: TodoPriority }) => Promise<string>;
+  onCreateTodo: (formData: {
+    text: string;
+    priority: TodoPriority;
+  }) => Promise<string>;
   onUpdateTodo: (
     id: string,
     formData: { text: string; priority: TodoPriority },
@@ -110,7 +113,7 @@ export function TodosSection({
         />
       ) : null}
 
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only flex flex-col gap-1">
         {todos.map((todo) => {
           const isEditing = editingTodoId === todo.id;
           const priority = normalizePriority(todo.priority);

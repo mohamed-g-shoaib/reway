@@ -2,7 +2,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { NOTE_COLORS } from "./config";
 import { ColorPicker } from "./pickers";
 import { useState } from "react";
@@ -34,7 +38,10 @@ export function NoteCreateCard({
         <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Popover open={colorPopoverOpen} onOpenChange={setColorPopoverOpen}>
+              <Popover
+                open={colorPopoverOpen}
+                onOpenChange={setColorPopoverOpen}
+              >
                 <PopoverTrigger asChild>
                   <button
                     type="button"

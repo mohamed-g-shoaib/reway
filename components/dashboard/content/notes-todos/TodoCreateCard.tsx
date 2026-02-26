@@ -2,7 +2,11 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { TodoPriority } from "./types";
 import { priorityConfig } from "./config";
@@ -37,7 +41,10 @@ export function TodoCreateCard({
         <div className="relative mt-2 p-3 space-y-3 rounded-2xl bg-muted/20 ring-1 ring-inset ring-foreground/5">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Popover open={priorityPopoverOpen} onOpenChange={setPriorityPopoverOpen}>
+              <Popover
+                open={priorityPopoverOpen}
+                onOpenChange={setPriorityPopoverOpen}
+              >
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -45,7 +52,12 @@ export function TodoCreateCard({
                     aria-label="Pick priority"
                     disabled={isCreating}
                   >
-                    <span className={cn("text-[11px] font-semibold", priorityLabel.colorClass)}>
+                    <span
+                      className={cn(
+                        "text-[11px] font-semibold",
+                        priorityLabel.colorClass,
+                      )}
+                    >
                       {priorityLabel.letter}
                     </span>
                   </button>

@@ -67,10 +67,15 @@ export function NotesTodosSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-md p-0">
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col sm:max-w-md p-0"
+      >
         <SheetHeader>
           <SheetTitle className="text-lg">Notes & Todos</SheetTitle>
-          <SheetDescription>Capture quick notes and track tasks.</SheetDescription>
+          <SheetDescription>
+            Capture quick notes and track tasks.
+          </SheetDescription>
         </SheetHeader>
 
         <SheetBody className="flex flex-col min-h-0 gap-4">
@@ -81,8 +86,8 @@ export function NotesTodosSheet({
                 className={cn(
                   "px-2 py-1 text-[11px] rounded-lg cursor-pointer",
                   activeSection === "notes"
-                    ? "bg-muted/40 text-foreground"
-                    : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40",
+                    ? "bg-muted/40 text-primary"
+                    : "text-muted-foreground hover:text-primary hover:bg-muted/40",
                 )}
                 onClick={() => setActiveSection("notes")}
               >
@@ -93,8 +98,8 @@ export function NotesTodosSheet({
                 className={cn(
                   "px-2 py-1 text-[11px] rounded-lg cursor-pointer",
                   activeSection === "todos"
-                    ? "bg-muted/40 text-foreground"
-                    : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40",
+                    ? "bg-muted/40 text-primary"
+                    : "text-muted-foreground hover:text-primary hover:bg-muted/40",
                 )}
                 onClick={() => setActiveSection("todos")}
               >

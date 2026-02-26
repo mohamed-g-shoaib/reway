@@ -16,7 +16,10 @@ export function NotesSection({
   onDeleteNotes,
 }: {
   notes: NoteRow[];
-  onCreateNote: (formData: { text: string; color?: string | null }) => Promise<string>;
+  onCreateNote: (formData: {
+    text: string;
+    color?: string | null;
+  }) => Promise<string>;
   onUpdateNote: (
     id: string,
     formData: { text: string; color?: string | null },
@@ -103,7 +106,7 @@ export function NotesSection({
         />
       ) : null}
 
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain scrollbar-hover-only flex flex-col gap-1">
         {notes.map((note) => {
           const isEditing = editingNoteId === note.id;
 

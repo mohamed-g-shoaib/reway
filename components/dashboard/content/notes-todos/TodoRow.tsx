@@ -56,7 +56,7 @@ export function TodoRow({
   const priorityMarginTop = variant === "demo" ? "mt-[2.5px]" : "mt-[5.5px]";
 
   const Row = (
-    <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-colors duration-200 hover:text-primary/90">
+    <div className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-all duration-200 hover:text-primary cursor-pointer active:scale-[0.97]">
       {selectionMode ? (
         <div
           role="button"
@@ -68,7 +68,7 @@ export function TodoRow({
               onToggleSelected();
             }
           }}
-          className="flex items-start gap-3 min-w-0 flex-1 text-left cursor-pointer"
+          className="flex items-start gap-3 min-w-0 flex-1 text-left"
         >
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span className={cn("mt-0")}>
@@ -109,7 +109,7 @@ export function TodoRow({
               onToggleExpanded();
             }
           }}
-          className="flex items-start gap-3 min-w-0 flex-1 text-left cursor-pointer"
+          className="flex items-start gap-3 min-w-0 flex-1 text-left"
         >
           <div className={cn("flex gap-2 min-w-0 flex-1", "items-start")}>
             <span
