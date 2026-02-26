@@ -52,7 +52,26 @@ export function GroupRowItem({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            if (selectionMode) {
+              onToggleSelected();
+            } else {
+              onSelectGroup();
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              if (selectionMode) {
+                onToggleSelected();
+              } else {
+                onSelectGroup();
+              }
+            }
+          }}
+          className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] outline-none ${
             active
               ? "text-primary font-semibold"
               : selectionMode
@@ -61,18 +80,7 @@ export function GroupRowItem({
           }`}
         >
           {selectionMode ? (
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={onToggleSelected}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onToggleSelected();
-                }
-              }}
-              className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
-            >
+            <div className="flex items-center gap-3 min-w-0 flex-1 text-left">
               <span className="h-px w-8 opacity-60 bg-current" />
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <Checkbox
@@ -84,17 +92,13 @@ export function GroupRowItem({
               </div>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={onSelectGroup}
-              className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
-            >
+            <div className="flex items-center gap-3 min-w-0 flex-1 text-left">
               <span
-                className={`h-px ${`transition-[width,opacity] duration-200 ease-out ${
+                className={`h-px transition-[width,opacity] duration-200 ease-out ${
                   active
                     ? "w-12 opacity-80"
                     : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                }`} bg-current`}
+                } bg-current`}
               />
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 <HugeiconsIcon
@@ -106,13 +110,14 @@ export function GroupRowItem({
                 />
                 <span className="truncate max-w-32">{group.name}</span>
               </div>
-            </button>
+            </div>
           )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
+                onClick={(e) => e.stopPropagation()}
                 suppressHydrationWarning
                 className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
                   selectionMode

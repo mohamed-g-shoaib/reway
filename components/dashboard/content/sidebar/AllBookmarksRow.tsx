@@ -35,7 +35,18 @@ export function AllBookmarksRow({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div
-          className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            onSelectAll();
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onSelectAll();
+            }
+          }}
+          className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] outline-none ${
             active
               ? "text-primary font-semibold"
               : selectionMode
@@ -43,13 +54,7 @@ export function AllBookmarksRow({
                 : "hover:text-primary"
           }`}
         >
-          <button
-            type="button"
-            onClick={() => {
-              onSelectAll();
-            }}
-            className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
-          >
+          <div className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer">
             <span
               className={`h-px ${
                 selectionMode
@@ -70,12 +75,13 @@ export function AllBookmarksRow({
               />
               <span className="truncate">All Bookmarks</span>
             </div>
-          </button>
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
+                onClick={(e) => e.stopPropagation()}
                 suppressHydrationWarning
                 className={`text-muted-foreground/50 transition-all duration-200 h-6 w-6 rounded-md flex items-center justify-center cursor-pointer ${
                   selectionMode

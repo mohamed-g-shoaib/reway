@@ -262,7 +262,20 @@ export function DashboardSidebar({
                     return (
                       <div
                         key={group.id}
-                        className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => {
+                          if (selectionMode) return;
+                          setActiveGroupId("no-group");
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            if (selectionMode) return;
+                            setActiveGroupId("no-group");
+                          }
+                        }}
+                        className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] outline-none ${
                           isActive
                             ? "text-primary font-semibold"
                             : selectionMode
@@ -270,15 +283,7 @@ export function DashboardSidebar({
                               : "hover:text-primary"
                         }`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (selectionMode) return;
-                            setActiveGroupId("no-group");
-                          }}
-                          className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
-                          disabled={selectionMode}
-                        >
+                        <div className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer">
                           <span
                             className={`h-px transition-[width,opacity] duration-200 ease-out ${
                               isActive
@@ -295,7 +300,7 @@ export function DashboardSidebar({
                             />
                             <span className="truncate max-w-32">No Group</span>
                           </div>
-                        </button>
+                        </div>
                       </div>
                     );
                   }
