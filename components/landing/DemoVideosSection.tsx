@@ -19,7 +19,7 @@ export function DemoVideosSection() {
   const [isHovered, setIsHovered] = useState(false);
   const [mounted, setMounted] = useState(false);
   const progress = useMotionValue(0);
-  const width = useTransform(progress, (v) => `${v}%`);
+  const scaleX = useTransform(progress, [0, 100], [0, 1]);
   const shouldReduceMotion = useReducedMotion();
   const activeIndexRef = useRef(activeIndex);
 
@@ -204,8 +204,8 @@ export function DemoVideosSection() {
                           {/* Progress bar container */}
                           <div className="relative h-1 w-full overflow-hidden rounded-full bg-muted/40">
                             <motion.div
-                              className="absolute inset-y-0 left-0 bg-foreground origin-left"
-                              style={{ width }}
+                              className="absolute inset-y-0 left-0 w-full bg-foreground origin-left"
+                              style={{ scaleX }}
                             />
                           </div>
                         </motion.div>

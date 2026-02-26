@@ -70,14 +70,14 @@ export function LandingFooter() {
 
   return (
     <motion.footer
-      className="border-t border-foreground/12 bg-background py-16 lg:py-20 pb-0"
+      className="border-t border-foreground/12 bg-background pt-16 lg:pt-20 pb-0"
       initial={enableMotion ? "hidden" : false}
       whileInView={enableMotion ? "visible" : undefined}
       viewport={{ once: true, margin: "-120px" }}
       variants={enableMotion ? footerVariants : undefined}
     >
       <div className="mx-auto w-full max-w-350 px-4 sm:px-6">
-        <div className="grid grid-cols-1 gap-12 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           {/* Column 1: Brand Info (Occupying 4/12 columns) */}
           <div className="space-y-4 lg:col-span-4">
             <Link
@@ -225,7 +225,7 @@ export function LandingFooter() {
         </div>
 
         <motion.div
-          className="pb-4 w-full text-muted-foreground/6"
+          className="py-16 w-full text-muted-foreground/6"
           initial={enableMotion ? "hidden" : false}
           whileInView={enableMotion ? "visible" : undefined}
           viewport={{ once: true }}

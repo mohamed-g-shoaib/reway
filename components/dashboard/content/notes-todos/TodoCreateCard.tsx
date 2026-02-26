@@ -120,7 +120,7 @@ export function TodoCreateCard({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary/90 cursor-pointer"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary/90 cursor-pointer active:scale-[0.97] transition-all duration-200"
         >
           <HugeiconsIcon icon={Add01Icon} size={14} />
           Create todo

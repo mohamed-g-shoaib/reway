@@ -112,7 +112,7 @@ export function HeroNoteCreateCard({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary cursor-pointer w-full"
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary cursor-pointer w-full active:scale-[0.97] transition-all duration-200"
         >
           <HugeiconsIcon icon={Add01Icon} size={14} />
           Create note
