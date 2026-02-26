@@ -32,7 +32,7 @@ export const features = [
   {
     title: "Flexible View Modes",
     description:
-      "Switch between high-density lists, visual cards, and icon-only layouts. Every view is optimized for rapid scanning and clarity.",
+      "Switch between high-density lists, visual cards, and organized folder views. Every view is optimized for rapid scanning and clarity.",
     demo: "views",
   },
 ] as const;

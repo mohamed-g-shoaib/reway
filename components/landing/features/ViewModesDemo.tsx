@@ -13,7 +13,7 @@ import {
 import { demoLinks } from "./demo-data";
 
 export function ViewModesDemo() {
-  const views = ["Card", "List", "Icons", "Folders"];
+  const views = ["Card", "List", "Folders"];
   const [activeView, setActiveView] = useState(0);
   const shouldReduceMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
@@ -167,36 +167,6 @@ export function ViewModesDemo() {
             </motion.div>
           ) : null}
           {activeView === 2 ? (
-            <motion.div
-              key="icons"
-              className="grid grid-cols-3 gap-2"
-              initial={enableMotion ? { opacity: 0, y: 8 } : false}
-              animate={enableMotion ? { opacity: 1, y: 0 } : undefined}
-              exit={enableMotion ? { opacity: 0, y: -8 } : undefined}
-              transition={enableMotion ? { duration: 0.3 } : undefined}
-            >
-              {demoLinks.slice(0, 3).map((item) => (
-                <div
-                  key={item.title}
-                  className="flex flex-col items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-muted/30 px-3 py-3 text-xs text-center"
-                >
-                  <Image
-                    src={item.favicon}
-                    alt={`${item.title} favicon`}
-                    width={28}
-                    height={28}
-                    className="h-7 w-7"
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
-                  <span className="mt-2 text-[10px] font-semibold text-foreground">
-                    {item.title}
-                  </span>
-                </div>
-              ))}
-            </motion.div>
-          ) : null}
-          {activeView === 3 ? (
             <motion.div
               key="folders"
               className="px-1"
