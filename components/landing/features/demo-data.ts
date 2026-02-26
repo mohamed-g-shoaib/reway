@@ -24,10 +24,10 @@ export const features = [
     demo: "groups",
   },
   {
-    title: "Import & Export",
+    title: "Keyboard-First Navigation",
     description:
-      "Export any group as a clean HTML file. We support importing from standard browser bookmarks to centralize your existing knowledge.",
-    demo: "import-export",
+      "Move through your entire library without touching your mouse. Arrow keys, hotkeys, and the command bar keep you in full flow.",
+    demo: "keyboard",
   },
   {
     title: "Flexible View Modes",
