@@ -156,7 +156,11 @@ export function SortableBookmarkCard({
             {...(selectionMode ? {} : listeners)}
             data-slot="bookmark-card"
             className={`group relative flex flex-col gap-3 rounded-2xl bg-muted/20 p-4 ring-1 ring-foreground/8 after:absolute after:inset-0 after:rounded-2xl after:ring-1 after:ring-white/5 after:pointer-events-none after:content-[''] shadow-none isolate hover:bg-muted/30 overflow-hidden ${
-              isDragging ? "cursor-grabbing" : "cursor-pointer"
+              selectionMode
+                ? "cursor-pointer"
+                : isDragging
+                  ? "cursor-grabbing"
+                  : "cursor-grab"
             } ${
               isSelectionChecked || isSelected ? "ring-2 ring-primary/30" : ""
             } ${dragDimmed ? "opacity-40 saturate-0" : ""} ${
