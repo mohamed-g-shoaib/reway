@@ -3,7 +3,22 @@ import { Database } from "./database.types";
 import { normalizeUrl } from "@/lib/metadata";
 import { getDomain } from "@/lib/utils";
 
-export const DEMO_GROUPS = [
+type SeedBookmark = {
+  url: string;
+  title: string;
+  description?: string;
+  favicon_url?: string;
+  og_image_url?: string;
+};
+
+type SeedGroup = {
+  name: string;
+  icon: string;
+  color: string;
+  bookmarks: SeedBookmark[];
+};
+
+export const DEMO_GROUPS: SeedGroup[] = [
   {
     name: "Welcome",
     icon: "ZapIcon",
@@ -14,6 +29,7 @@ export const DEMO_GROUPS = [
         title: "About Reway",
         description: "Learn why Reway was built and the philosophy behind it.",
         favicon_url: "https://www.reway.page/favicon.ico",
+        og_image_url: "https://reway.page/opengraph-image.png",
       },
       {
         url: "https://drive.google.com/file/d/10rypTtZMKT_IR53b5cS7epw7acEoC9WW/view?usp=sharing",
@@ -27,6 +43,8 @@ export const DEMO_GROUPS = [
         title: "Reway Source Code on GitHub",
         description: "View the source code and contribute to the project.",
         favicon_url: "https://www.svgrepo.com/show/475654/github-color.svg",
+        og_image_url:
+          "https://opengraph.githubassets.com/0b80793906916aa11ea73201da3a1dd1d2f692b9a3038c01c7b0e536b43bd8c1/mohamed-g-shoaib/reway",
       },
       {
         url: "https://x.com/devloopsoftware",
@@ -46,12 +64,14 @@ export const DEMO_GROUPS = [
         title: "Claude",
         description: "Anthropic's helpful AI assistant.",
         favicon_url: "https://claude.ai/favicon.ico",
+        og_image_url: "https://claude.ai/images/claude_ogimage.png",
       },
       {
         url: "https://chatgpt.com/",
         title: "ChatGPT",
         description: "OpenAI's conversational AI.",
         favicon_url: "https://chatgpt.com/favicon.ico",
+        og_image_url: "https://cdn.openai.com/chatgpt/share-og.png",
       },
       {
         url: "https://www.kimi.com/",
@@ -64,6 +84,8 @@ export const DEMO_GROUPS = [
         title: "DeepSeek",
         description: "Into the Unknown.",
         favicon_url: "https://cdn.deepseek.com/chat/icon.png",
+        og_image_url:
+          "https://cdn.deepseek.com/images/deepseek-chat-open-graph-image.jpeg",
       },
       {
         url: "https://www.perplexity.ai/",
@@ -71,6 +93,7 @@ export const DEMO_GROUPS = [
         description:
           "AI-powered answer engine that provides accurate, trusted, and real-time answers to any question.",
         favicon_url: "https://www.perplexity.ai/favicon.ico",
+        og_image_url: "https://www.perplexity.ai/og-image.png",
       },
     ],
   },
@@ -84,12 +107,15 @@ export const DEMO_GROUPS = [
         title: "shadcn/ui",
         description: "The Foundation for your Design System.",
         favicon_url: "https://ui.shadcn.com/favicon.ico",
+        og_image_url:
+          "https://ui.shadcn.com/og?title=The%20Foundation%20for%20your%20Design%20System&description=A%20set%20of%20beautifully%20designed%20components%20that%20you%20can%20customize%2C%20extend%2C%20and%20build%20on.%20Start%20here%20then%20make%20it%20your%20own.%20Open%20Source.%20Open%20Code.",
       },
       {
         url: "https://skiper-ui.com/",
         title: "Skiper UI",
         description: "Un-common Components for shadcn/ui.",
         favicon_url: "https://skiper-ui.com/favicon.ico",
+        og_image_url: "https://skiper-ui.com/og-main.png",
       },
       {
         url: "https://pure.kam-ui.com/",
@@ -103,12 +129,14 @@ export const DEMO_GROUPS = [
         description:
           "Animated React Components for shadcn/ui | Motion & Tailwind.",
         favicon_url: "https://www.smoothui.dev/favicon.ico",
+        og_image_url: "https://smoothui.dev/og-optimized.webp",
       },
       {
         url: "https://mapcn.vercel.app/",
         title: "Mapcn",
         description: "Beautiful maps made simple.",
         favicon_url: "https://mapcn.vercel.app/icon.svg",
+        og_image_url: "https://mapcn.dev/banner.png",
       },
     ],
   },
@@ -203,16 +231,17 @@ export async function seedNewUser(
       const bookmarksToInsert = groupData.bookmarks.map((bm, bIndex) => {
         const normalized = normalizeUrl(bm.url);
         const domain = getDomain(normalized);
+        const ogImageUrl = bm.og_image_url ?? null;
 
         return {
           url: bm.url,
           normalized_url: normalized,
           domain,
           title: bm.title,
-          description: bm.description || null,
-          favicon_url: ("favicon_url" in bm ? bm.favicon_url : null) as
-            | string
-            | null,
+          description: bm.description ?? null,
+          favicon_url: bm.favicon_url ?? null,
+          og_image_url: ogImageUrl,
+          image_url: ogImageUrl,
           group_id: newGroup.id,
           user_id: userId,
           status: "ready" as const,
