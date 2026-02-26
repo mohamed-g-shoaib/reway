@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { normalizeUrl } from "@/lib/metadata";
-import { corsHeaders, jsonResponse } from "../utils";
+import { getCorsHeaders, jsonResponse } from "../utils";
 
 interface BookmarkPayload {
   url: string;
@@ -11,8 +11,8 @@ interface BookmarkPayload {
   faviconUrl?: string | null;
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS(request: Request) {
+  return new Response(null, { status: 204, headers: getCorsHeaders(request) });
 }
 
 export async function POST(request: Request) {
@@ -23,14 +23,14 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
     }
 
     const userId = user.id;
     const payload = (await request.json()) as BookmarkPayload;
 
     if (!payload?.url) {
-      return jsonResponse({ error: "Missing url" }, { status: 400 });
+      return jsonResponse({ error: "Missing url" }, { status: 400, request });
     }
 
     const normalizedUrl = normalizeUrl(payload.url);
@@ -48,11 +48,17 @@ export async function POST(request: Request) {
 
       if (groupError) {
         console.error("Failed to validate groupId:", groupError);
-        return jsonResponse({ error: "Invalid group" }, { status: 400 });
+        return jsonResponse(
+          { error: "Invalid group" },
+          { status: 400, request },
+        );
       }
 
       if (!group) {
-        return jsonResponse({ error: "Invalid group" }, { status: 400 });
+        return jsonResponse(
+          { error: "Invalid group" },
+          { status: 400, request },
+        );
       }
     }
 
@@ -95,7 +101,7 @@ export async function POST(request: Request) {
       console.error("Failed to create bookmark:", error);
       return jsonResponse(
         { error: "Failed to create bookmark" },
-        { status: 500 },
+        { status: 500, request },
       );
     }
 
@@ -113,10 +119,10 @@ export async function POST(request: Request) {
       console.warn("Realtime broadcast failed (bookmarks):", broadcastError);
     }
 
-    return jsonResponse({ id: data.id, bookmark: data });
+    return jsonResponse({ id: data.id, bookmark: data }, { request });
   } catch (error) {
     console.error("Extension auth failed:", error);
-    return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
   }
 }
 
@@ -128,7 +134,7 @@ export async function GET(request: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
     }
 
     const userId = user.id;
@@ -152,13 +158,13 @@ export async function GET(request: Request) {
       console.error("Failed to fetch bookmarks:", error);
       return jsonResponse(
         { error: "Failed to fetch bookmarks" },
-        { status: 500 },
+        { status: 500, request },
       );
     }
 
-    return jsonResponse({ bookmarks: data ?? [] });
+    return jsonResponse({ bookmarks: data ?? [] }, { request });
   } catch (error) {
     console.error("Extension auth failed:", error);
-    return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
   }
 }

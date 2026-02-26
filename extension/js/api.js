@@ -1,4 +1,4 @@
-export const DEFAULT_BASE_URL = "https://reway.page";
+export const DEFAULT_BASE_URL = "https://www.reway.page";
 
 export async function getSettings() {
   const { rewayBaseUrl, rewayGroups } = await chrome.storage.local.get([

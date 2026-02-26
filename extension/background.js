@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "https://reway.page";
+const DEFAULT_BASE_URL = "https://www.reway.page";
 
 const REWAY_DEBUG = false;
 
@@ -66,7 +66,11 @@ async function addGrabbedLink(
       fetchedTitle = urlObj.hostname;
       fetchedFavIcon = `${urlObj.origin}/favicon.ico`;
     } catch (error) {
-      __rewayWarnOnce("derive-metadata-failed", "Failed to derive metadata:", error);
+      __rewayWarnOnce(
+        "derive-metadata-failed",
+        "Failed to derive metadata:",
+        error,
+      );
     }
   }
 
@@ -262,7 +266,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
 
           const createGroupData = await createGroupResponse.json();
-          if (REWAY_DEBUG) console.log("X Bookmarks group created:", createGroupData);
+          if (REWAY_DEBUG)
+            console.log("X Bookmarks group created:", createGroupData);
           xBookmarksGroup = createGroupData.group;
           await chrome.storage.local.set({
             xBookmarksGroupId: xBookmarksGroup.id,
@@ -310,7 +315,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const bookmarkData = await bookmarkResponse.json();
-        if (REWAY_DEBUG) console.log("Bookmark created successfully:", bookmarkData);
+        if (REWAY_DEBUG)
+          console.log("Bookmark created successfully:", bookmarkData);
 
         sendResponse({ success: true });
       } catch (error) {
@@ -412,7 +418,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ ok: true, count: bookmarkUrls.length });
       } catch (error) {
         const msg = String(error?.message || "Failed");
-        __rewayErrorOnce(`open-group-failed:${msg}`, "Open group failed:", error);
+        __rewayErrorOnce(
+          `open-group-failed:${msg}`,
+          "Open group failed:",
+          error,
+        );
         sendResponse({ ok: false, error: error?.message || "Failed" });
       }
     })();

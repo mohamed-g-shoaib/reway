@@ -6,6 +6,7 @@
   "permissions": ["tabs", "activeTab", "scripting", "storage"],
   "host_permissions": [
     "https://reway.page/*",
+    "https://www.reway.page/*",
     "http://localhost:3000/*",
     "http://localhost:3001/*"
   ],
@@ -31,6 +32,7 @@
     {
       "matches": [
         "https://reway.page/*",
+        "https://www.reway.page/*",
         "http://localhost:3000/*",
         "http://localhost:3001/*"
       ],

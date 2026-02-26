@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { corsHeaders, jsonResponse } from "../utils";
+import { getCorsHeaders, jsonResponse } from "../utils";
 
 function pickRandomGroupColor() {
   const palette = [
@@ -18,11 +18,11 @@ function pickRandomGroupColor() {
   return palette[Math.floor(Math.random() * palette.length)];
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS(request: Request) {
+  return new Response(null, { status: 204, headers: getCorsHeaders(request) });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const {
@@ -30,7 +30,7 @@ export async function GET() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
     }
 
     const userId = user.id;
@@ -43,13 +43,16 @@ export async function GET() {
 
     if (error) {
       console.error("Failed to fetch groups:", error);
-      return jsonResponse({ error: "Failed to fetch groups" }, { status: 500 });
+      return jsonResponse(
+        { error: "Failed to fetch groups" },
+        { status: 500, request },
+      );
     }
 
-    return jsonResponse({ groups: data ?? [] });
+    return jsonResponse({ groups: data ?? [] }, { request });
   } catch (error) {
     console.error("Extension auth failed:", error);
-    return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
   }
 }
 
@@ -61,7 +64,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+      return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
     }
 
     const userId = user.id;
@@ -69,12 +72,18 @@ export async function POST(request: Request) {
 
     const name = body.name.trim();
     if (!name) {
-      return jsonResponse({ error: "Group name is required" }, { status: 400 });
+      return jsonResponse(
+        { error: "Group name is required" },
+        { status: 400, request },
+      );
     }
 
     const icon = body.icon || "folder";
     const color =
-      body.color || ((icon === "folder" || !icon) && !body.color ? pickRandomGroupColor() : null);
+      body.color ||
+      ((icon === "folder" || !icon) && !body.color
+        ? pickRandomGroupColor()
+        : null);
 
     // Check for duplicates
     const { data: existingGroup } = await supabaseAdmin
@@ -87,7 +96,7 @@ export async function POST(request: Request) {
     if (existingGroup) {
       return jsonResponse(
         { error: "A group with this name already exists" },
-        { status: 409 },
+        { status: 409, request },
       );
     }
 
@@ -118,7 +127,10 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Failed to create group:", error);
-      return jsonResponse({ error: "Failed to create group" }, { status: 500 });
+      return jsonResponse(
+        { error: "Failed to create group" },
+        { status: 500, request },
+      );
     }
 
     try {
@@ -135,9 +147,9 @@ export async function POST(request: Request) {
       console.warn("Realtime broadcast failed (groups):", broadcastError);
     }
 
-    return jsonResponse({ group: data });
+    return jsonResponse({ group: data }, { request });
   } catch (error) {
     console.error("Extension auth failed:", error);
-    return jsonResponse({ error: "Unauthorized" }, { status: 401 });
+    return jsonResponse({ error: "Unauthorized" }, { status: 401, request });
   }
 }
