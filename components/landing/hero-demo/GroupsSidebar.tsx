@@ -78,16 +78,25 @@ export function GroupsSidebar({
           return (
             <div
               key={item.id}
-              className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] ${
-                isActive
-                  ? "text-primary font-semibold"
-                  : "text-muted-foreground hover:text-primary"
-              }`}
-            >
-              <button
-                type="button"
-                className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer"
-                onClick={() => {
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                if (item.id === "all") {
+                  onSelectGroup("all");
+                  return;
+                }
+                if (
+                  item.id === "Research" ||
+                  item.id === "Inspiration" ||
+                  item.id === "Build" ||
+                  item.id === "Learn"
+                ) {
+                  onSelectGroup(item.id);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
                   if (item.id === "all") {
                     onSelectGroup("all");
                     return;
@@ -100,14 +109,21 @@ export function GroupsSidebar({
                   ) {
                     onSelectGroup(item.id);
                   }
-                }}
-              >
+                }
+              }}
+              className={`group flex items-center gap-3 px-2 py-1.5 transition-all duration-200 cursor-pointer active:scale-[0.97] outline-none ${
+                isActive
+                  ? "text-primary font-semibold"
+                  : "text-muted-foreground hover:text-primary"
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer">
                 <span
-                  className={`h-px ${`transition-[width,opacity] duration-200 ease-out ${
+                  className={`h-px transition-[width,opacity] duration-200 ease-out ${
                     isActive
                       ? "w-12 opacity-80"
                       : "w-8 opacity-60 group-hover:w-12 group-hover:opacity-80"
-                  }`} bg-current`}
+                  } bg-current`}
                 />
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <HugeiconsIcon
@@ -119,7 +135,7 @@ export function GroupsSidebar({
                   />
                   <span className="truncate">{item.label}</span>
                 </div>
-              </button>
+              </div>
             </div>
           );
         })}

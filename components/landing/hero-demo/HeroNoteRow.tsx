@@ -13,8 +13,16 @@ export function HeroNoteRow({
 }) {
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={onToggleExpanded}
-      className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-all duration-200 hover:text-primary cursor-pointer text-left active:scale-[0.97]"
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onToggleExpanded();
+        }
+      }}
+      className="group flex items-start gap-3 px-2 py-1.5 rounded-xl transition-all duration-200 hover:text-primary cursor-pointer text-left active:scale-[0.97] outline-none"
     >
       <div className="flex gap-2 min-w-0 flex-1 items-start">
         <span
