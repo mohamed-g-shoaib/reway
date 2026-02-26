@@ -69,13 +69,13 @@ export function CommandBarInput({
                 ? "Search bookmarks..."
                 : mode === "add" && isAddBusy && addStatus
                   ? ""
-                  : "Add a link or search..."
+                  : "Paste a link to save..."
             }
             className="w-full bg-transparent p-0 pl-1.5 text-sm font-medium outline-none placeholder:text-muted-foreground selection:bg-primary/20 disabled:opacity-50"
             disabled={mode === "add" && isAddBusy}
             onFocus={() => onFocusChange(true)}
             onBlur={() => onFocusChange(false)}
-            aria-label="Search or add bookmarks"
+            aria-label="Paste link or search bookmarks"
           />
           {mode === "add" && isAddBusy && addStatus ? (
             <div className="pointer-events-none absolute inset-0 flex items-center gap-2 pl-1.5 text-sm font-medium text-muted-foreground">
@@ -92,8 +92,8 @@ export function CommandBarInput({
             data-onboarding="add-bookmarks"
             className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
               mode === "add"
-                ? "bg-muted/40 text-foreground"
-                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
+                ? "bg-muted/40 text-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted/40"
             }`}
             aria-pressed={mode === "add"}
             aria-label="Add bookmarks"
@@ -111,8 +111,8 @@ export function CommandBarInput({
             data-onboarding="search-bookmarks"
             className={`flex items-center gap-1 px-1.5 py-1 text-[11px] rounded-lg cursor-pointer ${
               mode === "search"
-                ? "bg-muted/40 text-foreground"
-                : "text-muted-foreground hover:text-primary/90 hover:bg-muted/40"
+                ? "bg-muted/40 text-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted/40"
             }`}
             aria-pressed={mode === "search"}
             aria-label="Search bookmarks"
