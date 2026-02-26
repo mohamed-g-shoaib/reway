@@ -92,7 +92,10 @@ export function GroupCreateCard({
               Cancel
             </Button>
             <div className="flex items-center gap-2">
-              <CharacterCount current={newGroupName.length} max={MAX_GROUP_NAME_LENGTH} />
+              <CharacterCount
+                current={newGroupName.length}
+                max={MAX_GROUP_NAME_LENGTH}
+              />
               <Button
                 size="sm"
                 className="h-7 px-3 text-xs rounded-4xl cursor-pointer"
