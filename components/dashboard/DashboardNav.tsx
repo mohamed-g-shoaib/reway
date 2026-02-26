@@ -380,7 +380,7 @@ export function DashboardNav({
 
       <nav
         className={`z-40 mx-auto ${
-          layoutDensity === "extended" ? "max-w-[1600px]" : "max-w-3xl"
+          layoutDensity === "extended" ? "max-w-400" : "max-w-3xl"
         } transition-transform duration-200 group-data-[scrolled=true]/body:top-2`}
       >
         <div className="flex h-14 w-full items-center justify-between">
