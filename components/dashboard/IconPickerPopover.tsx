@@ -9,6 +9,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ICON_CATEGORIES } from "@/lib/hugeicons-list";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { ColorPicker } from "@/components/ui/color-picker";
 
 export interface IconPickerPopoverProps {
@@ -42,10 +43,18 @@ export function IconPickerPopover({
         side="bottom"
         sideOffset={8}
       >
-        <div className="p-3 border-b border-border/10">
+        <div className="px-3 pt-3 pb-2 border-b border-border/10 flex items-center justify-between">
           <h4 className="text-xs font-semibold text-muted-foreground">
             Choose Icon
           </h4>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="text-muted-foreground/40 hover:text-foreground/70 transition-colors p-0.5 rounded-md cursor-pointer"
+            aria-label="Close icon picker"
+          >
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
+          </button>
         </div>
         <ScrollArea className="h-70">
           <div className="p-3 space-y-4">
