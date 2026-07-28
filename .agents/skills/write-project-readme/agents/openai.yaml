@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Project README"
+  short_description: "Create evidence-based project README files"
+  default_prompt: "Use $write-project-readme to research this repository and create or rewrite its README for the intended audience."
