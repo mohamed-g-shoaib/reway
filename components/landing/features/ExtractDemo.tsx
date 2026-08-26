@@ -83,7 +83,7 @@ export function ExtractDemo() {
     <RewayLazyMotion>
       <div className="w-full">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3 rounded-2xl ring-1 ring-foreground/8 bg-background px-3 py-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-3 rounded-2xl ring-1 ring-foreground/8 bg-background p-2 text-xs text-muted-foreground">
             <span className="flex size-7 items-center justify-center rounded-xl ring-1 ring-foreground/8 bg-muted/40 text-foreground">
               <HugeiconsIcon icon={Add01Icon} size={14} />
             </span>

@@ -40,14 +40,11 @@ export function FeaturesSection() {
           viewport={{ once: true, margin: "-120px" }}
           variants={enableMotion ? containerVariants : undefined}
         >
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
-              Core Features
-            </p>
-            <h2 className="mt-3 text-balance text-3xl font-semibold text-foreground sm:text-4xl">
+          <div className="text-left">
+            <h2 className="text-balance text-3xl font-semibold text-foreground sm:text-4xl">
               Focus On The Link, Not The Management
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-foreground/65 sm:text-base">
+            <p className="mt-4 max-w-2xl text-pretty text-sm text-foreground/65 sm:text-base">
               Reway is built for speed. Every interaction is optimized to keep your library clean
               and your research moving.
             </p>
@@ -76,8 +73,8 @@ export function FeaturesSection() {
           </div>
 
           {/* Power user signature - High contrast, no cards, no borders. */}
-          <div className="mt-6 text-center lg:mt-10">
-            <p className="mx-auto max-w-3xl text-balance px-4 text-[15px] leading-relaxed text-foreground antialiased sm:text-lg">
+          <div className="mt-6 text-left lg:mt-10">
+            <p className="max-w-3xl text-balance text-[15px] leading-relaxed text-foreground antialiased sm:text-lg">
               <span className="text-foreground/40 font-medium">And for power users:</span>{" "}
               <span className="font-bold underline decoration-foreground/20 underline-offset-[6px] decoration-2">
                 Import & Export

@@ -118,11 +118,8 @@ export function DemoVideosSection() {
           viewport={{ once: true, margin: "-120px" }}
           variants={enableMotion ? containerVariants : undefined}
         >
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
-              How it works
-            </p>
-            <h2 className="mt-3 text-pretty text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          <div className="text-left">
+            <h2 className="text-pretty text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
               Everything you need <br className="hidden sm:block" />
               to stay in flow.
             </h2>

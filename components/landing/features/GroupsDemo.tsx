@@ -5,8 +5,8 @@ import Image from "next/image"
 import { Search01Icon, BulbIcon, ToolsIcon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { m, useReducedMotion } from "motion/react"
-import { RewayLazyMotion } from "@/components/motion/RewayLazyMotion"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { RewayLazyMotion } from "@/components/motion/RewayLazyMotion"
 
 type LinkItem = {
   id: string
@@ -223,68 +223,68 @@ export function GroupsDemo() {
 
   return (
     <RewayLazyMotion>
-    <div ref={containerRef} className="relative w-full h-52 sm:h-56 overflow-hidden select-none">
-      {/* Centered Content Wrapper */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        {/* Render Group Headers */}
-        {headers.map(
-          (h) =>
-            !h.hidden && (
+      <div ref={containerRef} className="relative w-full h-52 sm:h-56 overflow-hidden select-none">
+        {/* Centered Content Wrapper */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {/* Render Group Headers */}
+          {headers.map(
+            (h) =>
+              !h.hidden && (
+                <m.div
+                  key={h.title}
+                  className="absolute flex items-center gap-2 rounded-xl ring-1 ring-foreground/8 bg-background/80 p-2 backdrop-blur-sm"
+                  initial={{ opacity: 0, y: -40 }}
+                  animate={{
+                    x: h.x,
+                    // When grouped (phase 1): sit above links at -40
+                    // When scattered (phase 0): float up slightly at -50 and fade out
+                    y: phase === 1 ? -40 : -50,
+                    opacity: phase === 1 ? 1 : 0,
+                  }}
+                  transition={transition}
+                >
+                  <HugeiconsIcon icon={h.icon} size={12} className={h.color} />
+                  <span className="text-[10px] font-medium text-foreground">{h.title}</span>
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground ml-auto">
+                    {h.count}
+                  </span>
+                </m.div>
+              ),
+          )}
+
+          {/* Render Links */}
+          {LINKS.flatMap((link) => {
+            if (isMobile && link.group === "Build") return []
+            const pos = targets[link.id]
+            const centeredY = (pos?.y ?? 0) - 10
+
+            return (
               <m.div
-                key={h.title}
-                className="absolute flex items-center gap-2 rounded-xl ring-1 ring-foreground/8 bg-background/80 backdrop-blur-sm px-3 py-2"
-                initial={{ opacity: 0, y: -40 }}
+                key={link.id}
+                className="absolute flex max-w-36 items-center gap-2 rounded-xl bg-muted/30 p-2 ring-1 ring-foreground/8 will-change-transform"
                 animate={{
-                  x: h.x,
-                  // When grouped (phase 1): sit above links at -40
-                  // When scattered (phase 0): float up slightly at -50 and fade out
-                  y: phase === 1 ? -40 : -50,
-                  opacity: phase === 1 ? 1 : 0,
+                  x: pos?.x ?? 0,
+                  y: centeredY,
+                  rotate: pos?.rotate ?? 0,
                 }}
                 transition={transition}
               >
-                <HugeiconsIcon icon={h.icon} size={12} className={h.color} />
-                <span className="text-[10px] font-medium text-foreground">{h.title}</span>
-                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground ml-auto">
-                  {h.count}
+                <Image
+                  src={link.favicon}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="size-4 shrink-0 rounded-full object-cover"
+                  unoptimized
+                />
+                <span className="text-[10px] font-medium text-foreground whitespace-nowrap truncate">
+                  {link.label}
                 </span>
               </m.div>
-            ),
-        )}
-
-        {/* Render Links */}
-        {LINKS.flatMap((link) => {
-          if (isMobile && link.group === "Build") return []
-          const pos = targets[link.id]
-          const centeredY = (pos?.y ?? 0) - 10
-
-          return (
-            <m.div
-              key={link.id}
-              className="absolute flex items-center gap-2 rounded-xl ring-1 ring-foreground/8 bg-muted/30 px-3 py-2 will-change-transform max-w-36"
-              animate={{
-                x: pos?.x ?? 0,
-                y: centeredY,
-                rotate: pos?.rotate ?? 0,
-              }}
-              transition={transition}
-            >
-              <Image
-                src={link.favicon}
-                alt=""
-                width={16}
-                height={16}
-                className="size-4 shrink-0 rounded-full object-cover"
-                unoptimized
-              />
-              <span className="text-[10px] font-medium text-foreground whitespace-nowrap truncate">
-                {link.label}
-              </span>
-            </m.div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
-    </div>
     </RewayLazyMotion>
   )
 }

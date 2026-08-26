@@ -8,16 +8,13 @@ function FeaturesSectionPlaceholder() {
   return (
     <section id="features" className="border-b border-foreground/8 bg-muted/20">
       <div className="mx-auto flex w-full max-w-350 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-20">
-        <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
-            Core Features
-          </p>
-          <h2 className="mt-3 text-balance text-3xl font-semibold text-foreground sm:text-4xl">
+        <div className="text-left">
+          <h2 className="text-balance text-3xl font-semibold text-foreground sm:text-4xl">
             Focus On The Link, Not The Management
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-pretty text-sm text-foreground/65 sm:text-base">
-            Reway is built for speed. Every interaction is optimized to keep your library clean
-            and your research moving.
+          <p className="mt-4 max-w-2xl text-pretty text-sm text-foreground/65 sm:text-base">
+            Reway is built for speed. Every interaction is optimized to keep your library clean and
+            your research moving.
           </p>
         </div>
 
@@ -41,8 +38,8 @@ function FeaturesSectionPlaceholder() {
           ))}
         </div>
 
-        <div className="mt-6 text-center lg:mt-10">
-          <div className="mx-auto h-6 w-full max-w-3xl rounded bg-muted" />
+        <div className="mt-6 text-left lg:mt-10">
+          <div className="h-6 w-full max-w-3xl rounded bg-muted" />
         </div>
       </div>
     </section>
@@ -53,11 +50,8 @@ function DemoVideosSectionPlaceholder() {
   return (
     <section id="extension" className="border-b border-foreground/8 bg-muted/20 overflow-hidden">
       <div className="mx-auto flex w-full max-w-350 flex-col gap-12 px-4 py-16 sm:px-6 lg:py-20">
-        <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-foreground/60">
-            How it works
-          </p>
-          <h2 className="mt-3 text-pretty text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+        <div className="text-left">
+          <h2 className="text-pretty text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Everything you need <br className="hidden sm:block" />
             to stay in flow.
           </h2>
